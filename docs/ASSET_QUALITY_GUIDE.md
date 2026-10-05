@@ -217,6 +217,13 @@ light panels, door frames, skirting, columns; per-room floor materials and wear 
 and 8 are open. Shared code: `mods/SKY_Skyline/assets/blender/detail.py`, numbers in
 `skyspec.DETAIL`; new buildings reuse it instead of one-off detail.
 
+**Status (splendour pass, SKY D55):** step 4 adds stone cladding and granite plinths; step 5 adds pad
+edge / obstruction / string / bollard lights, trees, loungers, ladder; step 6 largely done (marble,
+parquet, per-room paint, wainscot, curtains, radiators, rugs, art, light fixtures, wayfinding);
+lighting: night-only client point lights at `light_N` memory points (`SKY_LitBuilding`), fixtures
+as emissive geometry at the same spots. Still open: bevels/weighted normals (1), baked maps (3),
+variation (7), damage (8), balconies and shopfronts.
+
 ## 10. Tooling notes
 
 - Export path today: Blender 4.2 LTS + Arma Toolbox (`skygeo.export_p3d`); the test machine has

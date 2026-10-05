@@ -13,7 +13,7 @@
 	- The server re-validates hands, tier, ruin state, door state and distance;
 	  denials are written to the admin log (rate limited per identity).
 */
-class Land_SKY_TowerA_Lobby extends House
+class Land_SKY_TowerA_Lobby extends SKY_LitBuilding
 {
 	protected ref array<string> m_SkyKeycardDoorNames;
 	protected ref array<int> m_SkyKeycardTiers;
@@ -121,6 +121,17 @@ class Land_SKY_TowerA_Lobby extends House
 	bool SkyIsKeycardDoor(int doorIdx)
 	{
 		return SkyRequiredTier(doorIdx) > 0;
+	}
+
+	// Lobby lights (D55): four hall lights at light_1..light_4 (SKY_LitBuilding).
+	override protected int SkyLightCount()
+	{
+		return SKY_Const.LIGHTS_LOBBY;
+	}
+
+	override protected typename SkyLightType()
+	{
+		return SKY_HallLight;
 	}
 
 	override int GetLockCompatibilityType(int doorIdx)

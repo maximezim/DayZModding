@@ -460,6 +460,60 @@ TOWER_A_BUDGETS = {
 }
 
 
+# ===================================================================== splendour pass (D55)
+# User request: "vastly more room" for materials, decoration, texture maps, interior decoration
+# and lighting. New shared materials (each with its own maps where they carry information),
+# much larger per-module budgets, baked interior decoration and night-only script lights.
+MATERIALS.update({
+    "marble":  {"rvmat": rvmat("sky_marble"), "co": tex("sky_marble_co"), "sheet_m": 2.4},    # 2 x 2 slabs
+    "parquet": {"rvmat": rvmat("sky_parquet"), "co": tex("sky_parquet_co"), "sheet_m": 2.0},
+    "paint":   {"rvmat": rvmat("sky_paint"), "co": tex("sky_paint_co"),
+                "bands": {"white": (0.0, 0.2), "beige": (0.2, 0.4), "sage": (0.4, 0.6), "slate": (0.6, 0.8),
+                          "terracotta": (0.8, 1.0)}},
+    "stone":   {"rvmat": rvmat("sky_stone"), "co": tex("sky_stone_co"), "sheet_m": 3.0,
+                "bands": {"granite": (0.0, 0.5), "limestone": (0.5, 1.0)}},
+    "textile": {"rvmat": rvmat("sky_textile"), "co": tex("sky_textile_co"),
+                "bands": {"rug_a": (0.0, 0.3), "rug_b": (0.3, 0.6), "runner": (0.6, 0.8), "curtain": (0.8, 1.0)}},
+    # cool-white emissive for office panels / plant rooms (P7 EMISSIVE_LAMP_COOL)
+    "lamp_cool": {"rvmat": rvmat("sky_lamp_cool"), "co": "#(argb,8,8,3)color(0.92,0.96,1,1,CO)"},
+})
+EMISSIVE_LAMP_COOL = (0.85, 0.92, 1.0)
+ATLAS.update({"art_a": (3, 2), "art_b": (0, 3), "art_c": (1, 3), "art_d": (2, 3), "wayfinding": (3, 3)})
+WAYFINDING = ["L", "1", "2", "3", "4", "5", "R", "EXIT"]          # 4 x 2 sub-cells of atlas cell "wayfinding"
+
+
+def wayfinding_uv(label):
+    """UV rectangle of one wayfinding plate (sub-cell of ATLAS["wayfinding"])."""
+    u0, v0, u1, v1 = atlas_uv("wayfinding")
+    i = WAYFINDING.index(label)
+    cw, ch = (u1 - u0) / 4, (v1 - v0) / 2
+    c, r = i % 4, i // 4
+    return (u0 + c * cw, v1 - (r + 1) * ch, u0 + (c + 1) * cw, v1 - r * ch)
+
+
+DETAIL.update({
+    "panel_grid": (2.4, 3.6),     # office ceiling light panels (x, y spacing, m); 0.6 x 1.2 m each
+    "curtain_w": 0.45,            # curtain panel width each side of a window
+    "rail_h": 0.95,               # Juliet balcony rail height above the sill line
+})
+# Script lights (sky_scripts SKY_LitBuilding): night-only point lights at the light_N memory
+# points, no shadows. Count per module is SKY_Const.LIGHTS_PER_MODULE (client cost, D55).
+# Budgets: generous room for detail (D55, hypotheses; confirm with FPS_PROTOCOL). Res0 is the
+# close-up LOD; Res1 / Res2 / Res3 keep the earlier ratios so many towers at distance stay cheap.
+BUDGETS["floor"].update({"res0": 16000, "res1": 6000, "res2": 500, "res3": 48, "shadow": 100, "geo_comps": 56,
+                         "geo_tris": 700, "sections_res0": 14})
+BUDGETS["roof"].update({"res0": 8000, "res1": 3000, "res2": 300, "res3": 60, "geo_comps": 40, "geo_tris": 500,
+                        "sections_res0": 10})
+TOWER_A_BUDGETS.update({
+    CLASS_LOBBY: {"res0": 20000, "res1": 8000, "res2": 700, "res3": 60, "shadow": 120, "geo_comps": 72,
+                  "geo_tris": 900, "sections_res0": 16},
+    CLASS_FLOOR: dict(BUDGETS["floor"]),
+    CLASS_CORE: {"res0": 6000, "res1": 1500, "res2": 200, "res3": 20, "shadow": 24, "geo_comps": 96, "geo_tris": 1200,
+                 "sections_res0": 6},
+    CLASS_ROOF: dict(BUDGETS["roof"]),
+})
+
+
 # ===================================================================== batch 5: economy + placement prep
 # Tower variants: Tower A's core has len(elevator_stops()) stops (lobby + typical_floors + roof),
 # so every tower built on it has exactly TOWER_A["typical_floors"] typical floors; each may be

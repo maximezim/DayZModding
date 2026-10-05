@@ -152,6 +152,19 @@ def lights(L, z):
 
 
 # ------------------------------------------------------------------ modules
+def office_decor(L, wt):
+    """Office floor decoration (D55): light panels on the tile grid (they sit over the light_N
+    points used by the script lights), plants in the corners, art in and outside the SW office."""
+    ceil = wt - S.DETAIL["ceiling_drop"]
+    walls = [(-6.2, -5.8, -HD, -5.8), (-HW, -5.8, -6.2, -5.8)]          # keep panels off the partitions
+    DT.light_panels(L, ceil, exclude=walls)
+    for (x, y) in ((10.9, -10.9), (10.9, 10.9), (-10.9, 10.9), (-10.9, -10.9)):
+        DT.potted_plant(L, x, y)
+    t = S.WALL_T / 2
+    DT.wall_art(L, -10.4, -6.0 + t, 1.6, 1.0, 1.0, "+y", "art_a")
+    DT.wall_art(L, -6.0 - t, -9.0, 1.6, 1.0, 1.0, "-x", "art_b")
+
+
 def build_floor_office():
     L = std_lods()
     wt = S.FLOOR_H - S.SLAB_T
@@ -161,7 +174,7 @@ def build_floor_office():
     # One enclosed office in the SW quadrant (partitions, door opening on its north wall).
     t = S.WALL_T / 2
     for k in ("res0", "res1", "geo", "view", "fire"):
-        kw = {"mat": "wall", "uv": UV_WALL} if k.startswith("res") else ({"mat": "pen_masonry"} if k == "fire" else {})
+        kw = {"mat": "paint", "uv": DT.paint_uv("slate")} if k.startswith("res") else ({"mat": "pen_masonry"} if k == "fire" else {})
         wall_x(L[k], -HW + CT, -6.0 + t, -6.0 - t, -6.0 + t, 0.0, wt, openings=[(-8.5, -7.5, 0.0, 2.1)], **kw)
         wall_y(L[k], -6.0 - t, -6.0 + t, -HD + CT, -6.0 - t, 0.0, wt, **kw)
     office = [("x", -6.0, -HW + CT, -6.0 + t, [(-8.5, -7.5)]), ("y", -6.0, -HD + CT, -6.0 - t, [])]
@@ -169,6 +182,7 @@ def build_floor_office():
     DT.skirting(L, office, t, mat="metal", uv=UV_PAINT)              # metal: keeps the floor at 6 sections
     DT.columns(L, [(-6.0, -6.0), (6.0, -6.0), (-6.0, 6.0), (6.0, 6.0)], 0.0, wt)   # structural grid
     DT.ceiling(L, wt - S.DETAIL["ceiling_drop"])                     # suspended tile ceiling
+    office_decor(L, wt)
     lights(L, wt - 0.1)
     L["mem"].point("floor_center", (0.0, -8.0, 0.05))
     building_props(L, 40000.0)
@@ -227,11 +241,43 @@ def lobby_details(L, wt):
                        "foliage", UVRect(1, 2, (y0 + 0.05, 0.6), (y1 - 0.05, 1.6)), double=True)
 
 
+def lobby_decor(L, wt):
+    """Lobby decoration (D55): limestone core cladding with the name strip, pendants over the
+    hall and the reception, downlights, lounge (rug, chairs, table), two indoor trees, art,
+    canopy downlights. Clear of the entrance, loot points and the core door zones."""
+    ceil = wt - S.DETAIL["ceiling_drop"]
+    DT.core_cladding(L, 0.0, ceil, "stone", DT.stone_uv("limestone"))
+    y = S.CORE["y"][0] - 0.018
+    from skygeo import UVRect
+    u0, v0, u1, v1 = S.atlas_uv("signage")
+    for k in ("res0", "res1"):
+        L[k].quad([(-0.2, y, 2.6), (2.8, y, 2.6), (2.8, y, 2.975), (-0.2, y, 2.975)], (0, -1, 0), "atlas",
+                  UVRect(0, 2, (-0.2, 2.6), (2.8, 2.975), (u0, v1 - (v1 - v0) / 8, u1, v1)))
+    for (x, yy, drop) in ((-8.5, -3.0, 2.2), (-8.5, 3.0, 2.2), (8.5, -3.0, 2.2), (8.5, 2.5, 2.2),
+                          (-1.2, -7.8, 3.0), (1.2, -7.8, 3.0)):
+        DT.pendant(L, x, yy, ceil, drop, r=0.35 if drop < 3 else 0.22)
+    for x in (-9.5, -4.5, 4.5, 9.5):
+        for yy in (-10.0, -6.0, 9.5):
+            if not (x > 5 and yy > 5):                                  # security room has its own roof
+                DT.downlight(L, x, yy, ceil)
+    DT.rug(L, -10.9, -8.9, 1.5, 4.5, "rug_b")
+    DT.coffee_table(L, -10.3, -9.5, 2.65, 3.35)
+    DT.lounge_chair(L, -9.9, 2.0, "+y")
+    DT.lounge_chair(L, -9.9, 4.0, "-y")
+    DT.potted_plant(L, -9.5, -4.0, r=0.5, big=True)
+    DT.potted_plant(L, 9.5, -4.0, r=0.5, big=True)
+    rx0, rx1 = S.SECURITY_ROOM["x"]
+    ry0 = S.SECURITY_ROOM["y"][0] - S.WALL_T / 2
+    DT.wall_art(L, (rx0 + rx1) / 2 + 0.5, ry0, 1.7, 1.4, 1.4, "-y", "art_c")
+    for x in (-2.5, -0.8, 0.8, 2.5):                                    # canopy downlights
+        DT.downlight(L, x, -HD - 1.1, 3.35)
+
+
 def build_lobby():
     L = std_lods()
     h = S.TOWER_A["lobby_h"]
     wt = h - S.SLAB_T
-    floor_slab(L, "tile", UV_TILE, "road_int")
+    floor_slab(L, "marble", DT.UV_MARBLE, "road_int")                # polished marble (D55)
     # Foundation skirt so sloped terrain never shows a gap under the podium.
     skirt = [(-HW, HW, -HD, -HD + 0.3), (-HW, HW, HD - 0.3, HD), (-HW, -HW + 0.3, -HD + 0.3, HD - 0.3),
              (HW - 0.3, HW, -HD + 0.3, HD - 0.3)]
@@ -248,9 +294,12 @@ def build_lobby():
         for (x0, x1, y0, y1) in skirt:
             L[k].box(x0, x1, y0, y1, -2.5, -S.SLAB_T, **kw)
     facade(L, 0.0, wt, entrances=[("S", -1.5, 1.5, 3.0)], transom=3.0)
-    DT.curtain_details(L, 0.0, wt, side_entrances={"S": [(-1.5, 1.5, 3.0)]}, spandrel=0.0, cornice=False, plinth=0.3)
+    DT.curtain_details(L, 0.0, wt, side_entrances={"S": [(-1.5, 1.5, 3.0)]}, spandrel=0.0, cornice=False, plinth=0.3,
+                       pier_mat="stone", pier_uv=DT.stone_uv("granite"), plinth_mat="stone",
+                       plinth_uv=DT.stone_uv("granite"))
     L["res3"].box(-HW, HW, -HD, HD, -S.SLAB_T, 0.0, mat="concrete", uv=UV_CONC_REVEAL, skip=("+z", "-z"))
     lobby_details(L, wt)
+    lobby_decor(L, wt)
     # Reception desk: walnut front, oak counter, recessed plinth (collision unchanged: one box).
     L["res0"].box(-1.8, 1.8, -8.2, -7.4, 0.08, 1.0, mat="wood", uv=DT.UV_WALNUT, skip=("+z",))
     L["res0"].box(-1.75, 1.75, -8.15, -7.45, 0.0, 0.08, mat="metal", uv=UV_PAINT, skip=("-z", "+z"))
@@ -307,10 +356,14 @@ def build_roof_helipad():
     DT.unit(L, 9.4, 11.2, -1.6, 1.6, 1.6, grille="-x")
     DT.unit(L, -11.2, -9.4, -1.6, 1.6, 1.6, grille="+x")
     DT.mast(L, -10.8, 10.8, 6.0)
+    DT.obstruction_light(L, -10.8, 10.8, 6.0)
     # Helipad marking decal (6.5 m square north of the core).
     pad = (-3.25, 3.25, 4.9, 11.4)
     for k in ("res0", "res1"):
         L[k].hquad(pad[0], pad[1], pad[2], pad[3], 0.01, mat="roofmark", uv=UVFit(*pad))
+    for (x, y) in [(pad[0], pad[2]), (pad[1], pad[2]), (pad[0], pad[3]), (pad[1], pad[3]), (0.0, pad[2]), (0.0, pad[3]),
+                   (pad[0], (pad[2] + pad[3]) / 2), (pad[1], (pad[2] + pad[3]) / 2)]:
+        L["res0"].prism(x, y, 0.08, 0.0, 0.1, n=8, mat="lamp")             # pad edge lights (D55)
     m = L["mem"]
     m.point("heli_pad", (0.0, (pad[2] + pad[3]) / 2, 0.05))
     for i, (x, y) in enumerate(S.ROOF_DROPS):
@@ -397,6 +450,15 @@ def build_core():
             yb = yA1 - (i + 1) * tread
             L["res0"].box(xb[0], xb[1], yb, yb + tread, zm + (i + 1) * half / riser_n - 0.25, zm + (i + 1) * half / riser_n,
                           mat="concrete", uv=UV_CONC_REVEAL, skip=_step_skip(i, riser_n, "-y"))
+        for i in range(riser_n):                                          # metal stair nosings (D55)
+            ya = yA0 + i * tread
+            za = z0 + (i + 1) * half / riser_n
+            L["res0"].box(xa[0], xa[1], ya, ya + 0.04, za - 0.03, za + 0.004, mat="metal", uv=UV_STEEL, skip=("-x", "+x", "-z"))
+            yb = yA1 - (i + 1) * tread
+            zb = zm + (i + 1) * half / riser_n
+            L["res0"].box(xb[0], xb[1], yb + tread - 0.04, yb + tread, zb - 0.03, zb + 0.004, mat="metal", uv=UV_STEEL,
+                          skip=("-x", "+x", "-z"))
+        L["res0"].box(-0.2, 0.2, iy0, iy0 + 0.07, zt - 0.47, zt - 0.37, mat="lamp", skip=("-y",))   # bulkhead light
         L["res1"].ramp(xa[0], xa[1], yA0, yA1, z0, zm, mat="concrete", uv=UV_CONC_REVEAL)
         L["res1"].ramp(xb[0], xb[1], yA1, yA0, zm, zt, mat="concrete", uv=UV_CONC_REVEAL)
         L["geo"].wedge(xa[0], xa[1], yA0, yA1, z0 - 0.25, z0, zm)
@@ -453,6 +515,14 @@ def build_core():
             L["res0"].box(a0, a1, y1, y1 + 0.04, b0, b1, mat="metal", uv=UV_STEEL, skip=("-y", "-z"))
         for (a0, a1, b0, b1) in ((sd0 - 0.1, sd0, s, s + 2.3), (sd1, sd1 + 0.1, s, s + 2.3), (sd0, sd1, s + 2.2, s + 2.3)):
             L["res0"].box(a0, a1, y0 - 0.04, y0, b0, b1, mat="metal", uv=UV_PAINT, skip=("+y", "-z"))
+        # wayfinding plates (atlas): level next to the elevator and the stair door, EXIT at the stair
+        lab = S.WAYFINDING[i] if i < len(S.WAYFINDING) - 1 else "R"
+        for (px0, px1, face_y, nrm) in ((-1.15, -0.85, y1 + 0.005, (0, 1, 0)), (-2.3, -2.0, y0 - 0.005, (0, -1, 0))):
+            pts = [(px0, face_y, s + 1.45), (px1, face_y, s + 1.45), (px1, face_y, s + 2.05), (px0, face_y, s + 2.05)]
+            lo, hi = ((px0, s + 1.45), (px1, s + 2.05)) if nrm[1] < 0 else ((px1, s + 1.45), (px0, s + 2.05))
+            DT.plate(L, pts, nrm, S.wayfinding_uv(lab), (0, 2), lo, hi)
+        pts = [(-0.45, y0 - 0.005, s + 1.6), (-0.25, y0 - 0.005, s + 1.6), (-0.25, y0 - 0.005, s + 2.0), (-0.45, y0 - 0.005, s + 2.0)]
+        DT.plate(L, pts, (0, -1, 0), S.wayfinding_uv("EXIT"), (0, 2), (-0.45, s + 1.6), (-0.25, s + 2.0))
         m = L["mem"]
         m.point("elev_panel_l%d" % i, (cx1 - 0.1, 3.55, s + 1.25))
         m.point("elev_call_l%d" % i, (0.95, y1 + 0.15, s + 1.25))

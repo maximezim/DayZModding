@@ -440,6 +440,40 @@ def atlas(size, out):
     tb = d.textbbox((0, 0), "SKYLINE  TOWER", font=fs)
     d.text((x0 + (c - (tb[2] - tb[0])) // 2 - tb[0], y0 + (c // 8 - (tb[3] - tb[1])) // 2 - tb[1]), "SKYLINE  TOWER",
            fill=(232, 230, 222), font=fs)
+    # (3,2) (0,3) (1,3) (2,3): original abstract artworks (framed canvases, D55)
+    rng = np.random.default_rng(401)
+    palettes = [[(196, 92, 60), (232, 200, 140), (40, 60, 90), (240, 236, 226)],
+                [(30, 90, 110), (220, 210, 190), (200, 150, 60), (20, 30, 40)],
+                [(120, 140, 100), (230, 225, 210), (170, 70, 70), (60, 60, 70)],
+                [(240, 236, 226), (20, 20, 24), (210, 60, 50), (60, 110, 170)]]
+    for k, (col_, row_) in enumerate([(3, 2), (0, 3), (1, 3), (2, 3)]):
+        x0, y0, x1, y1 = cell(col_, row_)
+        pal = palettes[k]
+        d.rectangle([x0, y0, x1, y1], fill=(28, 24, 20))                              # frame
+        m = c // 16
+        d.rectangle([x0 + m, y0 + m, x1 - m, y1 - m], fill=pal[3])                    # canvas
+        for _ in range(9 + 3 * k):
+            px, py = int(rng.integers(x0 + m, x1 - m - c // 6)), int(rng.integers(y0 + m, y1 - m - c // 6))
+            w, h_ = int(rng.integers(c // 12, c // 3)), int(rng.integers(c // 12, c // 3))
+            shape = pal[int(rng.integers(0, 3))]
+            if (k + _) % 3 == 0:
+                d.ellipse([px, py, min(px + w, x1 - m), min(py + h_, y1 - m)], fill=shape)
+            else:
+                d.rectangle([px, py, min(px + w, x1 - m), min(py + h_, y1 - m)], fill=shape)
+    # (3,3): wayfinding plates, 4 x 2 sub-cells: L 1 2 3 / 4 5 R EXIT
+    x0, y0, x1, y1 = cell(3, 3)
+    sw, sh = c // 4, c // 2
+    labels = ["L", "1", "2", "3", "4", "5", "R", "EXIT"]
+    fbig = _font(c // 5)
+    for i, lab in enumerate(labels):
+        sx, sy = x0 + (i % 4) * sw, y0 + (i // 4) * sh
+        exit_ = lab == "EXIT"
+        d.rectangle([sx, sy, sx + sw - 1, sy + sh - 1], fill=(20, 120, 60) if exit_ else (36, 38, 42))
+        d.rectangle([sx + 3, sy + 3, sx + sw - 4, sy + sh - 4], outline=(230, 230, 225), width=2)
+        f = _font(c // 14) if exit_ else fbig
+        tb = d.textbbox((0, 0), lab, font=f)
+        d.text((sx + (sw - (tb[2] - tb[0])) // 2 - tb[0], sy + (sh - (tb[3] - tb[1])) // 2 - tb[1]), lab,
+               fill=(245, 245, 240), font=f)
     img.save(os.path.join(out, "sky_atlas_co.png"))   # nohq/smdi/as are procedural in sky_atlas.rvmat
 
 
@@ -664,13 +698,14 @@ def fabric(size, out):
 # ------------------------------------------------------------------ realism pass (D53)
 def ceiling(size, out):
     """Suspended ceiling (1024, sheet = MATERIALS["ceiling"]["sheet_m"] = 2.4 m): 4 x 4 grid of
-    0.6 m mineral tiles on a white T-bar grid, one 0.6 x 1.2 m recessed light panel per sheet."""
+    0.6 m fissured mineral tiles on a white T-bar grid. Light panels are separate emissive
+    fixtures in the model (D55), so they line up with the script lights."""
     size = min(size, 1024)
     n = fbm(size, 241, octaves=4, base=16)
     col = gray(0.86 + 0.05 * (n - 0.5))
     h = 0.2 * n
     rng = np.random.default_rng(251)
-    speck = rng.random((size, size)) < 0.04                     # fissured mineral tile
+    speck = rng.random((size, size)) < 0.04
     col[speck] *= 0.9
     h[speck] -= 0.3
     t = size // 4
@@ -681,14 +716,154 @@ def ceiling(size, out):
         col[p:p + g, :] = 0.95
         h[:, p:p + g] += 0.5
         h[p:p + g, :] += 0.5
-    x0, y0 = t + g, t + g                                        # light panel over tiles (1,1)-(1,2)
-    x1, y1 = 2 * t - g, 3 * t - g
-    col[y0:y1, x0:x1] = 0.98
-    for yy in range(y0 + t // 8, y1, t // 4):                    # prismatic louvres
-        col[yy:yy + 2, x0:x1] = 0.8
-    h[y0:y1, x0:x1] -= 0.6
     save(to_rgb(col), out, "sky_ceiling_co")
     save(normal_from_height(h, 1.5), out, "sky_ceiling_nohq")
+
+
+# ------------------------------------------------------------------ splendour pass (D55)
+def marble(size, out):
+    """Polished marble (sheet 2.4 m = 2 x 2 slabs of 1.2 m): warm white with grey veins,
+    real nohq (joints), smdi (high gloss, joints matte) and as."""
+    yy, xx = np.mgrid[0:size, 0:size].astype(np.float32) / size
+    warp = fbm(size, 301, octaves=6, base=3)
+    veins = np.abs(np.sin((xx * 3.0 + yy * 1.4 + 2.8 * warp) * np.pi))
+    veins = np.clip(1.0 - veins * 7.0, 0, 1) ** 2                  # thin dark lines
+    fine = fbm(size, 307, octaves=5, base=16)
+    col = np.stack([0.90 + 0.04 * (fine - 0.5), 0.89 + 0.04 * (fine - 0.5), 0.86 + 0.04 * (fine - 0.5)], -1)
+    col -= 0.35 * veins[..., None] * np.array([1.0, 1.0, 0.95], np.float32)
+    rng = np.random.default_rng(311)
+    half = size // 2
+    j = max(2, size // 512)
+    for sy in (0, half):                                            # slab-to-slab tint
+        for sx in (0, half):
+            col[sy:sy + half, sx:sx + half] *= 0.97 + 0.06 * rng.random()
+    gloss = np.full((size, size), 0.85, np.float32)
+    h = 0.05 * fine
+    for p in (0, half):
+        col[p:p + j, :] *= 0.75
+        col[:, p:p + j] *= 0.75
+        gloss[p:p + j, :] = 0.2
+        gloss[:, p:p + j] = 0.2
+        h[p:p + j, :] -= 1
+        h[:, p:p + j] -= 1
+    save(to_rgb(col), out, "sky_marble_co")
+    save(normal_from_height(h, 2.0), out, "sky_marble_nohq")
+    save(smdi(size, 0.6 * np.ones((size, size), np.float32), gloss), out, "sky_marble_smdi")
+    save(to_rgb(gray(np.full((CONST_SIZE, CONST_SIZE), 1.0, np.float32))), out, "sky_marble_as")
+
+
+def parquet(size, out):
+    """Oak plank floor (sheet 2.0 m): 16 rows of 12.5 cm planks, staggered 1 m lengths,
+    per-plank tint, grain, bevelled joints in nohq; satin smdi."""
+    n = fbm(size, 321, octaves=4, base=8)
+    rows = 16
+    rh = size // rows
+    col = np.zeros((size, size, 3), np.float32)
+    h = np.zeros((size, size), np.float32)
+    gl = np.full((size, size), 0.45, np.float32)
+    rng = np.random.default_rng(331)
+    xx = np.linspace(0, 1, size, dtype=np.float32)[None, :]
+    for r in range(rows):
+        y0, y1 = r * rh, (r + 1) * rh
+        off = int(rng.integers(0, size // 2))
+        cuts = sorted({(off + k * size // 2) % size for k in range(2)} | {0, size})
+        for a, b in zip(cuts, cuts[1:]):
+            tint = np.array([0.56, 0.40, 0.25], np.float32) * (0.82 + 0.3 * rng.random())
+            grain = 0.5 + 0.5 * np.sin((xx[:, a:b] * 220 + 3 * n[y0:y1, a:b] + rng.random() * 6) * np.pi)
+            col[y0:y1, a:b] = tint + 0.06 * gray(grain - 0.5)
+            col[y0:y1, a:a + 2] *= 0.6
+            h[y0:y1, a:a + 2] -= 1
+        col[y0:y0 + 2, :] *= 0.6
+        h[y0:y0 + 2, :] -= 1
+        gl[y0:y0 + 2, :] = 0.1
+    col += 0.03 * gray(n - 0.5)
+    save(to_rgb(col), out, "sky_parquet_co")
+    save(normal_from_height(h + 0.05 * n, 1.5), out, "sky_parquet_nohq")
+    save(smdi(size, 0.35 * np.ones((size, size), np.float32), gl), out, "sky_parquet_smdi")
+
+
+PAINT = [(0.92, 0.91, 0.88), (0.86, 0.80, 0.70), (0.66, 0.72, 0.62), (0.52, 0.60, 0.68), (0.74, 0.47, 0.36)]
+
+
+def paint(size, out):
+    """Interior wall paint trim (1024): 5 bands - white, warm beige, sage, slate blue,
+    terracotta accent; fine roller stipple in nohq (as/smdi procedural)."""
+    size = min(size, 1024)
+    stip = fbm(size, 341, octaves=3, base=128)
+    n = fbm(size, 347, octaves=4, base=4)
+    col = np.zeros((size, size, 3), np.float32)
+    for i, rgb in enumerate(PAINT):
+        r0, r1 = band_rows(size, i * 0.2, (i + 1) * 0.2)
+        col[r0:r1] = np.array(rgb, np.float32) + 0.02 * gray(stip[r0:r1] - 0.5) + 0.02 * gray(n[r0:r1] - 0.5)
+    save(to_rgb(col), out, "sky_paint_co")
+    save(normal_from_height(0.3 * stip, 0.8), out, "sky_paint_nohq")
+
+
+def stone(size, out):
+    """Exterior cladding (sheet 3 m): V 0-0.5 polished dark granite, 0.5-1 honed limestone;
+    0.75 m panels with 8 mm joints; real nohq + smdi."""
+    rng = np.random.default_rng(353)
+    n = fbm(size, 359, octaves=5, base=12)
+    col = np.zeros((size, size, 3), np.float32)
+    gl = np.zeros((size, size), np.float32)
+    r0, r1 = band_rows(size, 0.0, 0.5)
+    speck = rng.random((r1 - r0, size)).astype(np.float32)
+    col[r0:r1] = 0.20 + 0.10 * gray(n[r0:r1] - 0.5)
+    col[r0:r1][speck > 0.93] = (0.55, 0.53, 0.52)
+    col[r0:r1][speck < 0.05] = (0.08, 0.08, 0.09)
+    gl[r0:r1] = 0.8
+    r0, r1 = band_rows(size, 0.5, 1.0)
+    col[r0:r1] = np.array([0.80, 0.76, 0.66], np.float32) + 0.05 * gray(n[r0:r1] - 0.5)
+    gl[r0:r1] = 0.3
+    h = 0.05 * n
+    j = max(3, size // 375)
+    step = size // 4
+    for k in range(5):
+        p = min(size - j, k * step)
+        col[:, p:p + j] *= 0.55
+        h[:, p:p + j] -= 1
+        gl[:, p:p + j] = 0.05
+    for v in (0.0, 0.25, 0.5, 0.75):
+        p = int(v * size)
+        col[p:p + j, :] *= 0.55
+        h[p:p + j, :] -= 1
+        gl[p:p + j, :] = 0.05
+    save(to_rgb(col), out, "sky_stone_co")
+    save(normal_from_height(h, 2.0), out, "sky_stone_nohq")
+    save(smdi(size, 0.5 * np.ones((size, size), np.float32), gl), out, "sky_stone_smdi")
+
+
+def textile(size, out):
+    """Soft furnishings (1024): V 0-0.3 geometric rug, 0.3-0.6 bordered rug, 0.6-0.8 corridor
+    runner, 0.8-1 curtain (vertical folds). nohq from weave; as/smdi procedural."""
+    size = min(size, 1024)
+    yy, xx = np.mgrid[0:size, 0:size].astype(np.float32)
+    weave = ((((xx // 3) + (yy // 3)) % 2) * 0.5).astype(np.float32)
+    n = fbm(size, 367, octaves=3, base=8)
+    col = np.zeros((size, size, 3), np.float32)
+    r0, r1 = band_rows(size, 0.0, 0.3)                           # rug A: diamonds
+    u = xx[r0:r1] / size * 8
+    v = (yy[r0:r1] - r0) / (r1 - r0) * 2
+    d = (np.abs((u % 1) - 0.5) + np.abs((v % 1) - 0.5)) < 0.32
+    col[r0:r1] = np.where(d[..., None], (0.62, 0.52, 0.38), (0.22, 0.26, 0.34))
+    r0, r1 = band_rows(size, 0.3, 0.6)                           # rug B: field + border
+    col[r0:r1] = (0.52, 0.16, 0.14)
+    b = max(6, (r1 - r0) // 8)
+    col[r0:r0 + b] = col[r1 - b:r1] = (0.80, 0.68, 0.45)
+    col[r0 + 2 * b:r0 + 2 * b + 4] = col[r1 - 2 * b - 4:r1 - 2 * b] = (0.12, 0.14, 0.22)
+    r0, r1 = band_rows(size, 0.6, 0.8)                           # corridor runner
+    col[r0:r1] = (0.30, 0.10, 0.12)
+    b = max(5, (r1 - r0) // 7)
+    col[r0:r0 + b] = col[r1 - b:r1] = (0.70, 0.56, 0.30)
+    stripe = ((xx[r0:r1] // (size // 32)) % 4 == 0) & (np.abs(yy[r0:r1] - (r0 + r1) / 2) < (r1 - r0) / 5)
+    col[r0:r1][stripe] = (0.45, 0.20, 0.18)
+    r0, r1 = band_rows(size, 0.8, 1.0)                           # curtain
+    folds = 0.5 + 0.5 * np.sin(xx[r0:r1] / size * np.pi * 2 * 24)
+    col[r0:r1] = np.array([0.82, 0.77, 0.66], np.float32) * (0.82 + 0.18 * gray(folds))
+    col *= (0.94 + 0.06 * gray(weave))
+    col += 0.03 * gray(n - 0.5)
+    save(to_rgb(col), out, "sky_textile_co")
+    save(normal_from_height(0.4 * weave + 0.3 * n, 1.0), out, "sky_textile_nohq")
 
 
 GENERATORS = {
@@ -699,6 +874,7 @@ GENERATORS = {
     "paver": paver, "roadmark": roadmark, "rust": rust, "foliage": foliage, "atlas": atlas, "billboards": billboards,
     "decals": decals, "windows": windows, "brick": brick, "concpanel": concpanel,
     "wood": wood, "fabric": fabric, "ceiling": ceiling,
+    "marble": marble, "parquet": parquet, "paint": paint, "stone": stone, "textile": textile,
 }
 
 

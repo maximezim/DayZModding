@@ -50,9 +50,10 @@ PROCEDURAL_MAPS = {
     "sky_brick": ("as", "smdi"), "sky_concpanel": ("as", "smdi"),          # perf batch-2 M1
     "sky_wood": ("nohq", "as", "smdi"), "sky_fabric": ("as", "smdi"),          # wood nohq: perf batch-3 L4
     "sky_ceiling": ("as", "smdi"),                                             # D53
+    "sky_paint": ("as", "smdi"), "sky_textile": ("as", "smdi"), "sky_parquet": ("as",),   # D55
 }
 # Constant specular/gloss for procedural _smdi stages (default PROC["smdi"] otherwise).
-PROC_SMDI = {"sky_ceiling": (0.05, 0.1), "sky_brick": (0.08, 0.15), "sky_concpanel": (0.1, 0.2), "sky_wood": (0.25, 0.35), "sky_fabric": (0.03, 0.1)}
+PROC_SMDI = {"sky_paint": (0.06, 0.12), "sky_textile": (0.02, 0.05), "sky_ceiling": (0.05, 0.1), "sky_brick": (0.08, 0.15), "sky_concpanel": (0.1, 0.2), "sky_wood": (0.25, 0.35), "sky_fabric": (0.03, 0.1)}
 
 
 def rvmat_super(base, spec_power=40, emissive=(0, 0, 0)):
@@ -117,6 +118,9 @@ RVMATS = {
     "sky_wood": ("sky_wood", 30), "sky_fabric": ("sky_fabric", 5),
     # realism pass (D53)
     "sky_ceiling": ("sky_ceiling", 5),
+    # splendour pass (D55)
+    "sky_marble": ("sky_marble", 90), "sky_parquet": ("sky_parquet", 40), "sky_paint": ("sky_paint", 10),
+    "sky_stone": ("sky_stone", 60), "sky_textile": ("sky_textile", 5),
 }
 
 
@@ -524,6 +528,7 @@ class CfgModels
             text = text.replace('PixelShaderID', 'renderFlags[] = {"AlphaTest32"};\nPixelShaderID', 1)
         files["sky_textures/data/%s.rvmat" % name] = text
     files["sky_textures/data/sky_lamp.rvmat"] = rvmat_flat(S.EMISSIVE_LAMP)
+    files["sky_textures/data/sky_lamp_cool.rvmat"] = rvmat_flat(S.EMISSIVE_LAMP_COOL)
     files["sky_textures/data/sky_windows_lit.rvmat"] = rvmat_super("sky_windows", 60, tuple(S.EMISSIVE_WINDOW))
     for pbo in KIT_PATCH:
         if kit_entries(pbo):

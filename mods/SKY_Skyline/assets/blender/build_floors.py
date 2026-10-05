@@ -29,9 +29,12 @@ UV_BRICKWALL = T.UV_WALL
 UV_LOUVRE = UVBand(S.MATERIALS["metal"]["bands"]["steel"], 1.0)
 
 
-def interior(L, walls, ceiling_mat="wall"):
-    """Finish layer (D53): plaster ceiling, oak architraves on every door, walnut skirting."""
-    DT.ceiling(L, WT - S.DETAIL["ceiling_drop"], mat=ceiling_mat, uv=T.UV_WALL if ceiling_mat == "wall" else None)
+CEIL = WT - S.DETAIL["ceiling_drop"]
+
+
+def interior(L, walls, ceiling_mat="paint"):
+    """Finish layer (D53/D55): painted plaster ceiling, oak architraves on every door, walnut skirting."""
+    DT.ceiling(L, CEIL, mat=ceiling_mat, uv=DT.paint_uv("white") if ceiling_mat == "paint" else None)
     DT.door_trims(L, walls, HT)
     DT.skirting(L, walls, HT)
 
@@ -52,11 +55,27 @@ def partitions(L, walls, mat="wall", uv=None, pen="masonry"):
                 wall_y(L[k], c - HT, c + HT, a0, a1, 0.0, WT, openings=o, **kw)
 
 
+def apartments_decor(L, e):
+    """Apartment decoration (D55): oak parquet in the flats (tiles stay in the hall), pendants
+    at the script-light points, hall downlights, a rug and two artworks per flat."""
+    DT.floor_finish(L, [(-e, e, -e, -7.0 - HT), (-e, e, 7.0 + HT, e), (-e, -5.5 - HT, -7.0 + HT, 7.0 - HT),
+                        (5.5 + HT, e, -7.0 + HT, 7.0 - HT)], "parquet", DT.UV_PARQUET)
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            DT.pendant(L, 7.5 * sx, 7.5 * sy, CEIL, 0.75, r=0.3)
+            DT.rug(L, *sorted((7.0 * sx, 10.6 * sx)), *sorted((1.0 * sy, 4.8 * sy)), band="rug_a" if sx * sy > 0 else "rug_b")
+            DT.wall_art(L, HT * sx, 10.0 * sy, 1.6, 0.9, 0.9, ("+x" if sx > 0 else "-x"), "art_a" if sy > 0 else "art_b")
+            DT.wall_art(L, 9.5 * sx, HT * sy, 1.6, 0.9, 0.9, ("+y" if sy > 0 else "-y"), "art_c" if sx > 0 else "art_d")
+    for (x, y) in ((0.0, -5.75), (0.0, 5.75), (-4.25, 0.0), (4.25, 0.0), (-4.25, -5.75), (4.25, 5.75)):
+        DT.downlight(L, x, y, CEIL)
+
+
 def build_floor_apartments():
     """4 apartments (one per quadrant) around a central hall that wraps the core."""
     L = T.std_lods()
     T.floor_slab(L, "tile", T.UV_TILE, "road_int")
-    DT.ribbon_facade(L, 0.0, WT, skin_of("Floor_Apartments"))
+    DT.ribbon_facade(L, 0.0, WT, skin_of("Floor_Apartments"), window_boxes=True, inner_mat="paint",
+                     inner_uv=DT.paint_uv("white"))
     e = HW - CT
     walls = [
         # hall boundary: ring 2.5 m outside the core (core x +-3, y +-4.5)
@@ -70,8 +89,10 @@ def build_floor_apartments():
         ("y", 0.0, -e, -7.0 - HT, []), ("y", 0.0, 7.0 + HT, e, []),
         ("x", 0.0, -e, -5.5 - HT, []), ("x", 0.0, 5.5 + HT, e, []),
     ]
-    partitions(L, walls)
+    partitions(L, walls[:4], mat="paint", uv=DT.paint_uv("beige"))          # hall ring
+    partitions(L, walls[4:], mat="paint", uv=DT.paint_uv("sage"))           # party walls
     interior(L, walls)
+    apartments_decor(L, e)
     T.lights(L, WT - 0.1)
     L["mem"].point("floor_center", (0.0, -6.0, 0.05))
     T.building_props(L, 40000.0)
@@ -79,12 +100,40 @@ def build_floor_apartments():
     return list(L.values())
 
 
+def hotel_decor(L, walls):
+    """Hotel decoration (D55): walnut wainscot on every wall, patterned runner round the core,
+    corridor sconces, room downlights and pendants, art in every room."""
+    DT.wall_band(L, walls, HT, 0.0, 0.95, "wood", DT.UV_WALNUT)
+    DT.wall_band(L, walls, HT, 0.95, 1.0, "wood", DT.UV_OAK, proud=0.025)     # dado rail
+    for (x0, x1, y0, y1) in ((-4.5, 4.5, -5.9, -4.95), (-4.5, 4.5, 4.95, 5.9)):
+        L["res0"].hquad(x0, x1, y0, y1, 0.006, mat="textile", uv=DT.band_fit("textile", "runner", x0, x1, y0, y1, u_rep=4))
+    for (x0, x1, y0, y1) in ((-4.4, -3.5, -4.95, 4.95), (3.5, 4.4, -4.95, 4.95)):
+        L["res0"].hquad(x0, x1, y0, y1, 0.006, mat="textile",
+                        uv=DT.band_fit("textile", "runner", y0, y1, x0, x1, axes=(1, 0), u_rep=4))
+    for x in (-2.0, 2.0):
+        DT.sconce(L, x, -6.5 + HT, 1.9, "+y")
+        DT.sconce(L, x, 6.5 - HT, 1.9, "-y")
+    for y in (-3.5, 3.5):
+        DT.sconce(L, -5.0 + HT, y, 1.9, "+x")
+        DT.sconce(L, 5.0 - HT, y, 1.9, "-x")
+    for x in (-9.0, -3.0, 3.0, 9.0):
+        for y in (-9.25, 9.25):
+            DT.downlight(L, x, y, CEIL)
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            DT.pendant(L, 7.5 * sx, 7.5 * sy, CEIL, 0.6, r=0.25)
+    arts = ["art_a", "art_b", "art_c", "art_d"]
+    for i, x in enumerate((-6.0, 0.0, 6.0)):
+        DT.wall_art(L, x + HT, -9.0, 1.6, 0.8, 0.8, "+x", arts[i % 4])
+        DT.wall_art(L, x - HT, 9.0, 1.6, 0.8, 0.8, "-x", arts[(i + 1) % 4])
+
+
 def build_floor_hotel():
     """Corridor around the core (x +-5, y +-6.5) with 4 guest rooms off it on the north and south
     sides, 2 suites east / west, and 4 corner rooms reached through the suites (connecting rooms)."""
     L = T.std_lods()
     T.floor_slab(L, "carpet", T.UV_CARPET, "road_int")
-    DT.ribbon_facade(L, 0.0, WT, skin_of("Floor_Hotel"))
+    DT.ribbon_facade(L, 0.0, WT, skin_of("Floor_Hotel"), inner_mat="paint", inner_uv=DT.paint_uv("beige"))
     e = HW - CT
     doors_s = [(-9.5, -8.5), (-4.5, -3.5), (3.5, 4.5), (8.5, 9.5)]
     doors_n = [(-9.5, -8.5), (-4.5, -3.5), (3.5, 4.5), (8.5, 9.5)]
@@ -95,8 +144,9 @@ def build_floor_hotel():
     for x in (-6.0, 0.0, 6.0):                                                  # room separations
         walls.append(("y", x, -e, -6.5 - HT, []))
         walls.append(("y", x, 6.5 + HT, e, []))
-    partitions(L, walls)
+    partitions(L, walls, mat="paint", uv=DT.paint_uv("beige"))
     interior(L, walls)
+    hotel_decor(L, walls)
     T.lights(L, WT - 0.1)
     L["mem"].point("floor_center", (0.0, -5.75, 0.05))
     T.building_props(L, 40000.0)
@@ -135,6 +185,22 @@ def louvre_facade(L, z0, z1):
             sd.box(r0, a - 0.05, a + 0.05, z0 + 0.3, z1 - 0.3, -0.02, 0.1, mat="metal", uv=T.UV_STEEL, skip=("-z", "+z", sd.in_key))
 
 
+def mechanical_decor(L):
+    """Plant floor (D55): batten lights, cable trays, two pumps on plinths (collide)."""
+    for x in (-8.0, 8.0):
+        for y in (-5.0, 0.0, 5.0):
+            L["res0"].box(x - 0.6, x + 0.6, y - 0.06, y + 0.06, WT - 0.3, WT - 0.24, mat="lamp_cool")
+    for x in (-7.2, 7.2):
+        L["res0"].box(x - 0.15, x + 0.15, -9.0, 9.0, 2.95, 3.0, mat="metal", uv=T.UV_STEEL)
+    for x in (-9.6, 9.6):
+        for k, n in (("res0", 12), ("res1", 6)):
+            L[k].box(x - 0.5, x + 0.5, -0.6, 0.6, 0.0, 0.15, mat="concrete", uv=T.UV_CONC_REVEAL, skip=("-z",))
+            L[k].extrude_y([(x + 0.35 * math.cos(a * 2 * math.pi / n), 0.6 + 0.35 * math.sin(a * 2 * math.pi / n))
+                            for a in range(n)], -0.5, 0.5, mat="metal", uv=T.UV_PAINT)
+        L["geo"].box(x - 0.5, x + 0.5, -0.6, 0.6, 0.0, 0.95)
+        L["fire"].box(x - 0.5, x + 0.5, -0.6, 0.6, 0.0, 0.95, mat="pen_metal")
+
+
 def build_floor_mechanical():
     L = T.std_lods()
     T.floor_slab(L, "concrete", T.UV_CONC_PANEL, "road_int")
@@ -156,6 +222,7 @@ def build_floor_mechanical():
     for y in (-5.6, -5.3, 5.3, 5.6):
         for xa, xb in ((-10.5, -3.3), (3.3, 10.5)):
             L["res0"].extrude_x([(y + a, 2.85 + b) for a, b in oct_], xa, xb, mat="metal", uv=T.UV_PAINT)
+    mechanical_decor(L)
     T.lights(L, WT - 0.1)
     L["mem"].point("floor_center", (0.0, -6.0, 0.05))
     T.building_props(L, 45000.0)
@@ -200,6 +267,32 @@ def garden_pergola(L, x0, x1, y0, y1, h=2.5):
         L[k].hquad(x0 - 0.3, x1 + 0.3, y0 - 0.3, y1 + 0.3, 0.005, mat="wood", uv=DT.UV_OAK)
 
 
+def garden_decor(L, beds):
+    """Roof garden (D55): a tree in every planter, loungers on the deck, string lights on the
+    pergola beams, bollard lights."""
+    from skygeo import UVRect
+    for (x0, x1, y0, y1) in beds:
+        cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+        for k in ("res0", "res1"):
+            L[k].quad([(cx - 1.4, cy, 0.5), (cx + 1.4, cy, 0.5), (cx + 1.4, cy, 3.6), (cx - 1.4, cy, 3.6)], (0, -1, 0),
+                      "foliage", UVRect(0, 2, (cx - 1.4, 0.5), (cx + 1.4, 3.6), (0, 0, 1, 1)), double=True)
+            L[k].quad([(cx, cy - 1.4, 0.5), (cx, cy + 1.4, 0.5), (cx, cy + 1.4, 3.6), (cx, cy - 1.4, 3.6)], (1, 0, 0),
+                      "foliage", UVRect(1, 2, (cy - 1.4, 0.5), (cy + 1.4, 3.6), (1, 0, 2, 1)), double=True)
+    for x0, x1 in ((-2.1, -1.35), (1.35, 2.1)):
+        L["res0"].box(x0, x1, -10.7, -9.0, 0.25, 0.32, mat="textile", uv=DT.band_fit("textile", "curtain", x0, x1, -10.7, -9.0))
+        L["res0"].box(x0, x1, -9.35, -9.0, 0.32, 0.75, mat="wood", uv=DT.UV_OAK)
+        L["res0"].box(x0 + 0.05, x1 - 0.05, -10.65, -9.05, 0.0, 0.25, mat="wood", uv=DT.UV_OAK, skip=("-z",))
+        L["res1"].box(x0, x1, -10.7, -9.0, 0.0, 0.4, mat="wood", uv=DT.UV_OAK, skip=("-z",))
+        L["geo"].box(x0, x1, -10.7, -9.0, 0.0, 0.35)
+        L["fire"].box(x0, x1, -10.7, -9.0, 0.0, 0.35, mat="pen_wood")
+    for y in (-11.0, -8.6):
+        for i in range(9):
+            L["res0"].prism(-2.8 + i * 0.7, y, 0.035, 2.38, 2.45, n=6, mat="lamp")
+    for (x, y) in ((-3.4, -8.0), (3.4, -8.0), (-3.4, -11.4), (3.4, -11.4)):
+        L["res0"].prism(x, y, 0.08, 0.0, 0.7, n=8, mat="metal", uv=T.UV_PAINT)
+        L["res0"].prism(x, y, 0.07, 0.7, 0.8, n=8, mat="lamp")
+
+
 def build_roof_garden():
     L = T.std_lods()
     roof_base(L, "paver", T.UVWorld(3.0), "road_ext")
@@ -221,6 +314,7 @@ def build_roof_garden():
     for x0, x1 in ((-4.9, -3.1), (3.1, 4.9)):
         DT.bench(L, x0, x1, 9.3, 9.8)
     garden_pergola(L, -2.8, 2.8, -11.0, -8.6)
+    garden_decor(L, beds)
     for i, (x, y) in enumerate(S.ROOF_DROPS_CLEAR):                         # D33, shared with sky_layout
         L["mem"].point("roof_drop_%d" % (i + 1), (x, y, 0.05))
     T.building_props(L, 32000.0)
@@ -239,6 +333,11 @@ def build_roof_mechanical():
         L[k].prism(-10.4, 0.0, 0.7, 0.0, 2.6, n=n, **kw)
     L["res0"].prism(-10.4, 0.0, 0.5, 2.6, 2.75, n=12, mat="metal", uv=T.UV_STEEL)
     DT.mast(L, 10.8, 0.0, 5.0)
+    DT.obstruction_light(L, 10.8, 0.0, 5.0)
+    for i in range(8):                                                       # access ladder on the tall unit
+        L["res0"].box(-7.6, -6.4, 6.42, 6.46, 0.25 + i * 0.3, 0.28 + i * 0.3, mat="metal", uv=T.UV_STEEL)
+    for x in (-7.6, -6.4):
+        L["res0"].box(x - 0.03, x + 0.03, 6.38, 6.46, 0.0, 2.7, mat="metal", uv=T.UV_STEEL, skip=("-z",))
     for i, (x, y) in enumerate(S.ROOF_DROPS_CLEAR):                         # D33, shared with sky_layout
         L["mem"].point("roof_drop_%d" % (i + 1), (x, y, 0.05))
     T.building_props(L, 34000.0)

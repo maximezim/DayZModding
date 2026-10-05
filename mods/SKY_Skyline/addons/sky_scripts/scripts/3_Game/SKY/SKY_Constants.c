@@ -33,6 +33,13 @@ class SKY_Const
 	static const float DOOR_REACH = 2.5;
 	//! Door close animation time before locking / departing (ms).
 	static const int DOOR_ANIM_MS = 1300;
+	//! Building lights (client only, night only, no shadows; D55). Each light is a vanilla
+	//! ScriptedLightBase with its own EOnFrame: keep the count low and measure (FPS_PROTOCOL).
+	static const bool LIGHTS_ENABLED = true;
+	//! Max lights per building module (memory points light_1..light_4 in priority order).
+	static const int LIGHTS_PER_MODULE = 2;
+	//! Lights in the double-height lobby.
+	static const int LIGHTS_LOBBY = 4;
 }
 
 class SKY_Log

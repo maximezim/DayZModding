@@ -452,6 +452,23 @@ with `floors:` / `roof:` set to each variant. Gameplay rows §1-§15 must still 
 | RP-09 | Core: stairs and every stop | Handrail along the well wall; elevator and stair door frames on every stop; doors open fully past the frames. | | |
 | RP-10 | Diag stats at the tower (FPS_PROTOCOL S2) | Sections / tris within D54; client FPS within the protocol thresholds against the pre-D53 build. | | |
 
+## 20. Splendour pass (D55)
+
+Static results: `reviews/splendour_gates.md`; renders `reviews/img/d55_*.png` (day and night).
+Gameplay rows §1-§15 and §19 must still pass unchanged.
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| SP-01 | Lobby by day | Marble floor reads polished (gloss, joints), limestone core cladding with `SKYLINE TOWER` strip, granite piers / plinth, pendants hang clear of heads (lowest 3.66 m over the desk), lounge chairs / table / tree pots collide, loot points spawn (§8). | | |
+| SP-02 | Office floor | Light panels sit in the ceiling grid (no z-fight with the tiles), plants collide, art not mirrored. | | |
+| SP-03 | Apartment floor | Parquet in the flats, tiles in the hall, beige / sage walls, curtains and radiators at every window, flower boxes outside, rugs flat (no flicker), art not mirrored. | | |
+| SP-04 | Hotel floor | Wainscot + dado rail on both wall faces, runner round the core (no overlap flicker at the corners), sconces glow, art in the rooms. | | |
+| SP-05 | Night (`-ServerTime` 23:00) on every lit module | Point lights at the pendants / panels: lobby 4, floors 2 each, warm (cool in offices / plant floor); none by day; no shadows; script log clean (P10). | | |
+| SP-06 | Night from the street at 50 / 300 m | Emissive fixtures read through the windows; no glow beyond Res1 (fixtures are Res0/Res1 only). | | |
+| SP-07 | Core at every stop | Wayfinding plate matches the level (L, 1-5, R) next to the elevator and the stair door, EXIT at the stair, nosings on every step, bulkhead light per landing. | | |
+| SP-08 | Roofs | Pad edge lights, obstruction lights on masts, garden trees / loungers (collide) / string and bollard lights, ladder on the tall unit; roof drops land clear (§10). | | |
+| SP-09 | FPS_PROTOCOL 4.1 | Within the thresholds. | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -476,4 +493,5 @@ with `floors:` / `roof:` set to each variant. Gameplay rows §1-§15 must still 
 | Validation script §0b (summary PASS, 0 SKY FAIL lines) | | | |
 | Regression §12 | | | |
 | Realism pass §19 | | | |
+| Splendour pass §20 | | | |
 | FPS protocol (`FPS_PROTOCOL.md` §4 thresholds) | | | |

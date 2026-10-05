@@ -103,3 +103,15 @@ building was re-generated with one shared detail kit (`assets/blender/detail.py`
 - New material `ceiling`; atlas cell `signage`. Budgets raised as hypotheses (D54); gates PASS
   (`reviews/realism_gates.md`); renders in `reviews/img/`; in-game rows `TESTING.md` §19.
 
+## 7. Splendour pass (D55)
+
+On request ("vastly more room for materials, decorations, texture maps, interior decoration,
+lighting"): budgets raised (floor res0 16k / 14 sections, lobby 20k / 16, roofs 8k / 10), five new
+material sets with real maps, original artworks and wayfinding plates, baked decoration in every
+module (lobby marble / limestone / pendants / lounge / trees; office light panels / plants / art;
+apartments parquet / paint / curtains / radiators / flower boxes / rugs / art; hotel wainscot /
+runner / sconces / art; plant floor, roofs, core wayfinding), and night-only client lights
+(`SKY_LitBuilding`, 2 per module, lobby 4; untested parameter P10). Gates PASS
+(`reviews/splendour_gates.md`), renders `reviews/img/d55_*.png`, in-game rows TESTING §20, FPS
+checks FPS_PROTOCOL 4.1.
+

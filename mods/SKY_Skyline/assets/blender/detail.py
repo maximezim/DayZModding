@@ -29,6 +29,8 @@ UV_WALNUT = UVBand(S.MATERIALS["wood"]["bands"]["walnut"], 2.0)
 UV_WALL = UVWorld(4.0)
 UV_GLASS = UVWorld(3.0)
 UV_CEILING = UVWorld(S.MATERIALS["ceiling"]["sheet_m"])
+UV_MARBLE = UVWorld(S.MATERIALS["marble"]["sheet_m"])
+UV_PARQUET = UVWorld(S.MATERIALS["parquet"]["sheet_m"])
 
 
 class UVTrim:
@@ -68,6 +70,24 @@ SKINS = {
     "panel": {"mat": "concpanel", "uv": _panel_uv("panel"), "sill_uv": UV_CONC_REVEAL, "sill_mat": "concrete",
               "soldier_uv": None, "pen": "concrete"},
 }
+
+
+def paint_uv(band):
+    """Interior paint colour band (stretched over the face height: the bands are flat colour)."""
+    return UVBand(S.MATERIALS["paint"]["bands"][band], 4.0)
+
+
+def stone_uv(band):
+    m = S.MATERIALS["stone"]
+    b = m["bands"][band]
+    return UVTrim(b, m["sheet_m"], (b[1] - b[0]) * m["sheet_m"])
+
+
+def band_fit(band_mat, band, x0, x1, y0, y1, axes=(0, 1), u_rep=1.0):
+    """Fit a rectangle onto one band of a trim sheet (rugs, runners, curtains)."""
+    from skygeo import UVRect
+    v0, v1 = S.MATERIALS[band_mat]["bands"][band]
+    return UVRect(axes[0], axes[1], (x0, y0), (x1, y1), (0.0, 1.0 - v1, u_rep, 1.0 - v0))
 
 
 def _kw(k, mat, uv, pen):
@@ -123,7 +143,8 @@ def _outside(a, entrances):
     return not any(e0 - 0.05 < a < e1 + 0.05 for (e0, e1, _top) in entrances)
 
 
-def curtain_details(L, z0, z1, side_entrances=None, spandrel=None, fins=True, cornice=True, plinth=0.0):
+def curtain_details(L, z0, z1, side_entrances=None, spandrel=None, fins=True, cornice=True, plinth=0.0,
+                    pier_mat="concrete", pier_uv=None, plinth_mat="concrete", plinth_uv=None):
     """Realism layer for build_towera.facade() (curtain wall):
     spandrel  opaque back-panel behind the glass in the top `spandrel` m of the storey (hides the
               ceiling void, the classic office band) + horizontal mullion at its bottom edge
@@ -166,13 +187,14 @@ def curtain_details(L, z0, z1, side_entrances=None, spandrel=None, fins=True, co
             segs.append((cur, sd.a1))
             for a0, a1 in segs:
                 for k in ("res0", "res1"):
-                    sd.box(L[k], a0, a1, z0, z0 + plinth, -0.04, CT + 0.01, mat="concrete", uv=UV_CONC_REVEAL,
-                           skip=("-z",))
-    corner_piers(L, z0, z1)
+                    sd.box(L[k], a0, a1, z0, z0 + plinth, -0.04, CT + 0.01, mat=plinth_mat,
+                           uv=plinth_uv or UV_CONC_REVEAL, skip=("-z",))
+    corner_piers(L, z0, z1, mat=pier_mat, uv=pier_uv)
 
 
-def corner_piers(L, z0, z1, size=None):
+def corner_piers(L, z0, z1, size=None, mat="concrete", uv=None):
     s = size or D["corner_pier"]
+    uv = uv or UV_CONC_PANEL
     w = D["cornice_d"] - 0.01            # visual pier wraps the corner mullions (they project 0.04)
     for sx in (-1, 1):
         for sy in (-1, 1):
@@ -180,14 +202,14 @@ def corner_piers(L, z0, z1, size=None):
                 o = w if k.startswith("res") else 0.0     # collision stays inside the footprint
                 x0, x1 = sorted((sx * (HW + o), sx * (HW - s)))
                 y0, y1 = sorted((sy * (HD + o), sy * (HD - s)))
-                kw = _kw(k, "concrete", UV_CONC_PANEL, "concrete")
+                kw = _kw(k, mat, uv, "concrete")
                 if k.startswith("res"):
                     kw["skip"] = ("-z", "+z")
                 L[k].box(x0, x1, y0, y1, z0, z1, **kw)
 
 
 # ------------------------------------------------------------------ ribbon-window facade
-def ribbon_facade(L, z0, z1, skin, entrances=None):
+def ribbon_facade(L, z0, z1, skin, entrances=None, dress=True, window_boxes=False, inner_mat="wall", inner_uv=None):
     """Masonry facade with recessed ribbon windows (apartments / hotel). Per side: sill band
     (z0..sill), head band (head..z1), piers every bay, windows recessed DETAIL["reveal"] m with
     frames, a centre mullion, a projecting sill stone and (brick) a soldier course.
@@ -227,11 +249,12 @@ def ribbon_facade(L, z0, z1, skin, entrances=None):
             sd.box(L[k], sd.a0, sd.a1, head, z1, 0.0, CT, skip=("+z", sd.in_key) if res else (), **kw)
             for a0, a1 in piers:
                 sd.box(L[k], a0, a1, sill, head, 0.0, CT, skip=("-z", "+z", sd.in_key) if res else (), **kw)
-        for k in ("res0", "res1"):                     # interior plaster face of the wall
-            sd.quad(L[k], sd.a0, sd.a1, z0, sill, CT, inward=True, mat="wall", uv=UV_WALL)
-            sd.quad(L[k], sd.a0, sd.a1, head, z1, CT, inward=True, mat="wall", uv=UV_WALL)
+        iuv = inner_uv or UV_WALL
+        for k in ("res0", "res1"):                     # interior finish face of the wall
+            sd.quad(L[k], sd.a0, sd.a1, z0, sill, CT, inward=True, mat=inner_mat, uv=iuv)
+            sd.quad(L[k], sd.a0, sd.a1, head, z1, CT, inward=True, mat=inner_mat, uv=iuv)
             for a0, a1 in piers:
-                sd.quad(L[k], a0, a1, sill, head, CT, inward=True, mat="wall", uv=UV_WALL)
+                sd.quad(L[k], a0, a1, sill, head, CT, inward=True, mat=inner_mat, uv=iuv)
         # --- windows
         for a0, a1 in windows:
             L["res0"].quad(sd.rect(a0, a1, sill, head, rec), sd.out, "glass", UV_GLASS, double=True)
@@ -255,6 +278,11 @@ def ribbon_facade(L, z0, z1, skin, entrances=None):
             sd.box(r0, m - fw / 2, m + fw / 2, sb + fw, head - fw, f0, f1, skip=("-z", "+z"), **fkw)
             if sk["soldier_uv"] is not None:           # soldier course over the opening
                 sd.quad(r0, a0 - 0.1, a1 + 0.1, head, head + D["soldier_h"], -0.004, mat=mat, uv=sk["soldier_uv"])
+            wi = windows.index((a0, a1))
+            if dress:
+                window_dressing(r0, sd, a0, a1, sill, head)
+            if window_boxes and wi % 2 == 0:
+                window_box(r0, sd, a0, a1, sill)
     # Geometry: one solid per side over the full storey (unchanged collision, 4 components)
     for key in SIDES:
         sd = Side(key, trim=True)
@@ -417,3 +445,225 @@ def coping(L, h, t, lods=("res0", "res1")):
     for k in lods:
         for (x0, x1, y0, y1) in rings:
             L[k].box(x0, x1, y0, y1, h, h + 0.05, mat="metal", uv=UV_ALU, skip=("-z",))
+
+
+# ================================================================== splendour pass (D55)
+# Interior decoration and light fixtures, baked into the module P3Ds. Visual only unless the
+# piece is big enough to walk into (plant pots, lounge chairs, pumps): those get one collision box.
+def _uvfit(cell_uv, a_axis, lo, hi):
+    from skygeo import UVRect
+    u0, v0, u1, v1 = cell_uv
+    return UVRect(a_axis, 2, lo, hi, (u0, v0, u1, v1))
+
+
+def window_dressing(r0, sd, a0, a1, sill, head):
+    """Inside a ribbon window (Res0): curtain rod, two drawn-back curtains, radiator under the sill."""
+    cw = D["curtain_w"]
+    d = CT + 0.07                                       # curtain plane, 7 cm inside the wall face
+    sd.box(r0, a0 - 0.25, a1 + 0.25, head + 0.12, head + 0.15, CT + 0.05, CT + 0.08, mat="metal", uv=UV_STEEL,
+           skip=(sd.out_key,))
+    for c0, c1 in ((a0 - 0.2, a0 - 0.2 + cw), (a1 + 0.2 - cw, a1 + 0.2)):
+        uv = band_fit("textile", "curtain", c0, c1, 0.05, head + 0.12, axes=(0 if sd.axis == "x" else 1, 2), u_rep=cw / 0.6)
+        sd.quad(r0, c0, c1, 0.05, head + 0.12, d, inward=True, mat="textile", uv=uv)
+        sd.quad(r0, c0, c1, 0.05, head + 0.12, d, inward=False, mat="textile", uv=uv)
+    m = (a0 + a1) / 2
+    sd.box(r0, m - 0.55, m + 0.55, 0.15, 0.7, CT + 0.03, CT + 0.11, mat="paint", uv=paint_uv("white"),
+           skip=(sd.out_key, "-z"))
+
+
+def window_box(r0, sd, a0, a1, sill):
+    """Flower box under a ribbon window, outside (Res0, visual)."""
+    sd.box(r0, a0 + 0.1, a1 - 0.1, sill - 0.32, sill - 0.08, -0.26, -0.02, mat="wood", uv=UV_WALNUT,
+           skip=(sd.in_key,))
+    from skygeo import UVRect
+    pts = sd.rect(a0 + 0.15, a1 - 0.15, sill - 0.1, sill + 0.28, -0.14)
+    ax = 0 if sd.axis == "x" else 1
+    r0.quad(pts, sd.out, "foliage", UVRect(ax, 2, (a0 + 0.15, sill - 0.1), (a1 - 0.15, sill + 0.28), (0, 0, 2, 0.6)),
+            double=True)
+
+
+def floor_finish(L, rects, mat, uv, z=0.003, lods=("res0", "res1")):
+    """Finish layer over the slab top (parquet in flats, marble in the lobby, runners)."""
+    for k in lods:
+        for (x0, x1, y0, y1) in rects:
+            L[k].hquad(x0, x1, y0, y1, z, mat=mat, uv=uv)
+
+
+def _overlaps2(a, b):
+    return a[0] < b[1] and b[0] < a[1] and a[2] < b[3] and b[2] < a[3]
+
+
+def light_panels(L, z, exclude=(), lods=("res0", "res1"), mat="lamp_cool"):
+    """Recessed 0.6 x 1.2 m light panels on the ceiling tile grid (emissive, facing down)."""
+    gx, gy = D["panel_grid"]
+    core = (CORE_HOLE[0] - 0.3, CORE_HOLE[1] + 0.3, CORE_HOLE[2] - 0.3, CORE_HOLE[3] + 0.3)
+    out = []
+    x = -9.0
+    while x + 0.6 <= HW - CT - 0.6:
+        y = -10.8
+        while y + 1.2 <= HD - CT - 0.3:
+            r = (x, x + 0.6, y, y + 1.2)
+            if not _overlaps2(r, core) and not any(_overlaps2(r, e) for e in exclude):
+                out.append(r)
+            y += gy
+        x += gx
+    for k in lods:
+        for (x0, x1, y0, y1) in out:
+            L[k].hquad(x0, x1, y0, y1, z - 0.003, mat=mat, up=False)
+    return out
+
+
+def downlight(L, x, y, z, r=0.09, mat="lamp"):
+    """Round recessed downlight (Res0): emissive disc just under the ceiling."""
+    L["res0"].prism(x, y, r, z - 0.012, z, n=10, mat=mat)
+
+
+def pendant(L, x, y, z_top, drop, r=0.25, mat="lamp"):
+    """Pendant lamp: rod, metal shade, emissive diffuser (Res0); shade only in Res1."""
+    zb = z_top - drop
+    L["res0"].box(x - 0.008, x + 0.008, y - 0.008, y + 0.008, zb + 0.25, z_top, mat="metal", uv=UV_STEEL, skip=("+z",))
+    L["res0"].prism(x, y, r, zb + 0.02, zb + 0.25, n=16, mat="metal", uv=UV_PAINT)
+    L["res0"].prism(x, y, r * 0.85, zb, zb + 0.02, n=16, mat=mat)
+    L["res1"].prism(x, y, r, zb, zb + 0.25, n=8, mat="metal", uv=UV_PAINT)
+
+
+def sconce(L, x, y, z, face, mat="lamp"):
+    """Wall sconce on a wall face; face = outward normal key of that wall face ('+x', '-y', ...)."""
+    s = 1 if face[0] == "+" else -1
+    if face[1] == "x":
+        x0, x1 = sorted((x, x + s * 0.1))
+        L["res0"].box(x0, x1, y - 0.09, y + 0.09, z - 0.14, z + 0.14, mat=mat, skip=(("-" if s > 0 else "+") + "x",))
+    else:
+        y0, y1 = sorted((y, y + s * 0.1))
+        L["res0"].box(x - 0.09, x + 0.09, y0, y1, z - 0.14, z + 0.14, mat=mat, skip=(("-" if s > 0 else "+") + "y",))
+
+
+def wall_art(L, x, y, z, w, h, face, cell, lods=("res0", "res1")):
+    """Framed artwork (atlas cell incl. its frame) on a wall face, 3 cm proud."""
+    from skygeo import UVRect
+    u0, v0, u1, v1 = S.atlas_uv(cell)
+    s = 1 if face[0] == "+" else -1
+    for k in lods:
+        if face[1] == "x":
+            fx = x + s * 0.03
+            if k == "res0":
+                x0, x1 = sorted((x, fx))
+                L[k].box(x0, x1, y - w / 2, y + w / 2, z - h / 2, z + h / 2, mat="wood", uv=UV_WALNUT,
+                         skip=(("-" if s > 0 else "+") + "x",))
+            pts = [(fx + s * 0.002, y - w / 2, z - h / 2), (fx + s * 0.002, y + w / 2, z - h / 2),
+                   (fx + s * 0.002, y + w / 2, z + h / 2), (fx + s * 0.002, y - w / 2, z + h / 2)]
+            lo, hi = ((y + w / 2, z - h / 2), (y - w / 2, z + h / 2)) if s < 0 else ((y - w / 2, z - h / 2), (y + w / 2, z + h / 2))
+            L[k].quad(pts, (s, 0, 0), "atlas", UVRect(1, 2, lo, hi, (u0, v0, u1, v1)))
+        else:
+            fy = y + s * 0.03
+            if k == "res0":
+                y0, y1 = sorted((y, fy))
+                L[k].box(x - w / 2, x + w / 2, y0, y1, z - h / 2, z + h / 2, mat="wood", uv=UV_WALNUT,
+                         skip=(("-" if s > 0 else "+") + "y",))
+            pts = [(x - w / 2, fy + s * 0.002, z - h / 2), (x + w / 2, fy + s * 0.002, z - h / 2),
+                   (x + w / 2, fy + s * 0.002, z + h / 2), (x - w / 2, fy + s * 0.002, z + h / 2)]
+            lo, hi = ((x + w / 2, z - h / 2), (x - w / 2, z + h / 2)) if s > 0 else ((x - w / 2, z - h / 2), (x + w / 2, z + h / 2))
+            L[k].quad(pts, (0, s, 0), "atlas", UVRect(0, 2, lo, hi, (u0, v0, u1, v1)))
+
+
+def plate(L, pts, normal, uv_rect, axes, lo, hi):
+    """Atlas sub-rectangle on a quad (wayfinding plates)."""
+    from skygeo import UVRect
+    L["res0"].quad(pts, normal, "atlas", UVRect(axes[0], axes[1], lo, hi, uv_rect))
+
+
+def potted_plant(L, x, y, h=1.6, r=0.28, big=False, collide=True, pot_mat="stone", pot_uv=None):
+    """Planter pot with crossed foliage cards (alpha-tested). big=True: 3 m indoor tree."""
+    from skygeo import UVRect
+    pot_uv = pot_uv or stone_uv("granite")
+    ph = 0.55 if big else 0.4
+    L["res0"].prism(x, y, r, 0.0, ph, n=12, mat=pot_mat, uv=pot_uv)
+    L["res1"].prism(x, y, r, 0.0, ph, n=6, mat=pot_mat, uv=pot_uv)
+    top = 3.0 if big else h
+    w = (1.4 if big else 0.7)
+    for k in ("res0",) + (("res1",) if big else ()):
+        L[k].quad([(x - w, y, ph), (x + w, y, ph), (x + w, y, top), (x - w, y, top)], (0, -1, 0), "foliage",
+                  UVRect(0, 2, (x - w, ph), (x + w, top), (0, 0, 1, 1)), double=True)
+        L[k].quad([(x, y - w, ph), (x, y + w, ph), (x, y + w, top), (x, y - w, top)], (1, 0, 0), "foliage",
+                  UVRect(1, 2, (y - w, ph), (y + w, top), (1, 0, 2, 1)), double=True)
+    if collide:
+        b = r * 0.9
+        L["geo"].box(x - b, x + b, y - b, y + b, 0.0, ph)
+        L["fire"].box(x - b, x + b, y - b, y + b, 0.0, ph, mat="pen_concrete")
+
+
+def rug(L, x0, x1, y0, y1, band="rug_a", z=0.006):
+    L["res0"].hquad(x0, x1, y0, y1, z, mat="textile", uv=band_fit("textile", band, x0, x1, y0, y1))
+
+
+def wall_band(L, walls, ht, z0, z1, mat, uv, proud=0.015, lods=("res0",), sides=(-1, 1)):
+    """Band along partition walls (wainscot, skirting), both faces, broken at the openings."""
+    for k in lods:
+        for axis, c, a0, a1, ops in walls:
+            segs, cur = [], a0
+            for o0, o1 in sorted(ops):
+                segs.append((cur, o0))
+                cur = o1
+            segs.append((cur, a1))
+            for s in sides:
+                f0, f1 = sorted((c + s * ht, c + s * (ht + proud)))
+                back = ("-" if s > 0 else "+") + ("y" if axis == "x" else "x")
+                for g0, g1 in segs:
+                    if g1 - g0 < 0.05:
+                        continue
+                    if axis == "x":
+                        L[k].box(g0, g1, f0, f1, z0, z1, mat=mat, uv=uv, skip=(back, "-z"))
+                    else:
+                        L[k].box(f0, f1, g0, g1, z0, z1, mat=mat, uv=uv, skip=(back, "-z"))
+
+
+def core_cladding(L, z0, z1, mat, uv, lods=("res0", "res1"), t=0.015):
+    """Finish panels on the core's outer faces seen from this module (door openings kept)."""
+    C = S.CORE
+    x0, x1 = C["x"]
+    y0, y1 = C["y"]
+    sd0, sd1 = C["stair_door_x"]
+    ed = C["door_w"] / 2
+    from skygeo import wall_x, wall_y
+    for k in lods:
+        kw = {"mat": mat, "uv": uv}
+        wall_x(L[k], x0 - t, x1 + t, y0 - t, y0, z0, z1, openings=[(sd0 - 0.1, sd1 + 0.1, z0, z0 + 2.3)], skip=("+y",), **kw)
+        wall_x(L[k], x0 - t, x1 + t, y1, y1 + t, z0, z1, openings=[(-ed - 0.12, ed + 0.12, z0, z0 + C["door_h"] + 0.12),
+                                                                    (0.83, 1.07, z0 + 1.08, z0 + 1.42)], skip=("-y",), **kw)
+        wall_y(L[k], x0 - t, x0, y0, y1, z0, z1, skip=("+x",), **kw)
+        wall_y(L[k], x1, x1 + t, y0, y1, z0, z1, skip=("-x",), **kw)
+
+
+def lounge_chair(L, x, y, face, collide=True):
+    """Armchair 0.85 x 0.85 m (fabric seat/back, wood legs): face = direction the sitter looks."""
+    from skygeo import UVBand
+    fuv = UVBand(S.MATERIALS["fabric"]["bands"]["grey"], 1.0)
+    x0, x1, y0, y1 = x - 0.42, x + 0.42, y - 0.42, y + 0.42
+    r0 = L["res0"]
+    r0.box(x0 + 0.05, x1 - 0.05, y0 + 0.05, y1 - 0.05, 0.12, 0.42, mat="fabric", uv=fuv)
+    back = {"+y": (x0, x1, y0, y0 + 0.16), "-y": (x0, x1, y1 - 0.16, y1),
+            "+x": (x0, x0 + 0.16, y0, y1), "-x": (x1 - 0.16, x1, y0, y1)}[face]
+    r0.box(*back, 0.12, 0.8, mat="fabric", uv=fuv)
+    arms = [(x0, x0 + 0.12, y0, y1), (x1 - 0.12, x1, y0, y1)] if face[1] == "y" else [(x0, x1, y0, y0 + 0.12), (x0, x1, y1 - 0.12, y1)]
+    for a in arms:
+        r0.box(*a, 0.12, 0.6, mat="fabric", uv=fuv)
+    for (lx, ly) in ((x0 + 0.06, y0 + 0.06), (x1 - 0.06, y0 + 0.06), (x0 + 0.06, y1 - 0.06), (x1 - 0.06, y1 - 0.06)):
+        r0.box(lx - 0.025, lx + 0.025, ly - 0.025, ly + 0.025, 0.0, 0.12, mat="wood", uv=UV_WALNUT, skip=("-z", "+z"))
+    L["res1"].box(x0, x1, y0, y1, 0.0, 0.6, mat="fabric", uv=fuv, skip=("-z",))
+    if collide:
+        L["geo"].box(x0, x1, y0, y1, 0.0, 0.6)
+        L["fire"].box(x0, x1, y0, y1, 0.0, 0.6, mat="pen_wood")
+
+
+def coffee_table(L, x0, x1, y0, y1, collide=True):
+    L["res0"].box(x0, x1, y0, y1, 0.38, 0.42, mat="wood", uv=UV_OAK)
+    L["res0"].box(x0 + 0.05, x1 - 0.05, y0 + 0.05, y1 - 0.05, 0.0, 0.38, mat="metal", uv=UV_PAINT, skip=("-z", "+z"))
+    L["res1"].box(x0, x1, y0, y1, 0.0, 0.42, mat="wood", uv=UV_OAK, skip=("-z",))
+    if collide:
+        L["geo"].box(x0, x1, y0, y1, 0.0, 0.42)
+        L["fire"].box(x0, x1, y0, y1, 0.0, 0.42, mat="pen_wood")
+
+
+def obstruction_light(L, x, y, z):
+    """Small lamp head on top of a mast / corner (emissive, Res0)."""
+    L["res0"].prism(x, y, 0.07, z, z + 0.12, n=8, mat="lamp")

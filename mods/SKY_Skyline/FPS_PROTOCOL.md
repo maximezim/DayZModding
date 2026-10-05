@@ -113,6 +113,19 @@ are **accepted** unless a district threshold fails **and** the diag profiler att
 to that asset. Optional S9: player + 3 infected + gunfire on T2/T3 floors, D vs D0 (collision /
 Fire Geometry load).
 
+### 4.1 Night lights and decoration (D55)
+
+Client only (lights never exist on the server). Same camera positions (section 2), DayZDiag,
+`-MissionOverlay` / `-ServerTime` at 23:00 vs 12:00, district D with `SKY_Const.LIGHTS_PER_MODULE`
+2 (default) vs 0 (rebuild with the constant changed, or `LIGHTS_ENABLED = false`).
+
+| Check | Pass | Fail -> action |
+|---|---|---|
+| Night D (lights 2) vs night D (lights 0), client median frame ms at Q1-Q5 | <= +1.5 ms | > +3 ms -> `LIGHTS_PER_MODULE = 1`, lobby 2; re-measure |
+| Night vs day D (lights 2) | <= +2 ms | > +4 ms -> as above |
+| Day D55 build vs D54 build (decoration only, lights 0) at Q1 inside the lobby / a flat | <= +1 ms | > +2.5 ms -> drop Res0 decoration first in this order: curtains, wall bands, nosings |
+| Script log at night | no `cannot be spawned` | P10: add the CfgVehicles entries |
+
 ## 5. Results template (copy per run)
 
 Run info: date ____ · commit ____ · client GPU/CPU ____ · server CPU ____ · DayZ build ____ ·
