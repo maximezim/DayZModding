@@ -737,6 +737,30 @@ def skin_uv(P, skin):
     return UVBand(S.MATERIALS["metal"]["bands"]["alu"], 2.0)          # light aluminium cladding
 
 
+class UVWall:
+    """World-scale tiling for the wall sheets (D59): u along the face, v = height (vertical faces);
+    plan coordinates on horizontal faces. One `scale` (m) per sheet in both directions."""
+
+    def __init__(self, scale):
+        self.s = scale
+
+    def __call__(self, pts, normal):
+        ax = max(range(3), key=lambda i: abs(normal[i]))
+        along, across = {0: (1, 2), 1: (0, 2), 2: (0, 1)}[ax]
+        return [(p[along] / self.s, p[across] / self.s) for p in pts]
+
+
+def wall(P, skin):
+    """(material, uv) of the walls of a skin: tileable wall sheets for masonry skins (D59), the
+    original sheets for metal / curtain / open."""
+    w = S.CITY_SKINS[skin].get("wall")
+    if not w:
+        return S.CITY_SKINS[skin]["mat"], skin_uv(P, skin)
+    if "%s" in w:
+        w = w % (P.A["skin"][1] or "cream")
+    return w, UVWall(S.MATERIALS[w]["sheet_m"])
+
+
 def wall_piece(L, sd, a0, a1, z0, z1, mat, uv, pen, inner, keys=("res0", "res1", "view", "fire")):
     """Solid facade piece (pier / sill / head) with an interior finish face."""
     if a1 - a0 < 1e-3 or z1 - z0 < 1e-3:
@@ -800,8 +824,8 @@ def facade(L, P, key, lvl):
     SK = dict(S.CITY_SKINS[skin])
     if A.get("win"):                                         # per-archetype window size (church, factory)
         SK["ww"], SK["sill"], SK["head"] = A["win"]
-    mat, uv = SK["mat"], skin_uv(P, skin)
-    pen = {"brick": "masonry", "metal": "metal"}.get(mat, "concrete")
+    mat, uv = wall(P, skin)
+    pen = {"brick": "masonry", "metal": "metal"}.get(SK["mat"], "concrete")
     residential = A["group"] in ("residential", "mixed") and use not in ("shop",)
     inner = ("paint", DT.paint_uv("white")) if use not in ("warehouse",) else None
     frame_uv = DT.UV_PAINT
@@ -955,6 +979,7 @@ def facade(L, P, key, lvl):
         wall_piece(L, sd, w0, w1, s1, top, mat, uv, pen, inner, keys=res)
         run.append((b0, b1, w0, w1, s0, s1))
         st = window(L, P, sd, w0, w1, s0, s1, skin, bkey, rec, residential, frame_uv)
+        window_streak(L, P, sd, w0, w1, s0, bkey)
         r0 = L["res0"]
         sd.box(r0, w0 - 0.05, w1 + 0.05, s0 - 0.06, s0 + 0.01, -0.06, rec, mat="stone", uv=DT.stone_uv("limestone"),
                skip=(sd.in_key,))
@@ -992,10 +1017,10 @@ def facade_level_extras(L, P, sd, lvl, openings):
             wall_y(L[k], p, q, sd.a0, sd.a1, z0, top, openings=openings if k == "geo" else ())
     skin = P.A["skin"][0]
     mat = S.CITY_SKINS[skin]["mat"]
-    uv = skin_uv(P, skin)
+    wmat, wuv = wall(P, skin)
     shop = lvl == 0 and P.A.get("ground") == "shopfront" and sd.key in P.A.get("shop_sides", ())
-    sd.quad(L["res2"], sd.a0, sd.a1, z0, top, 0.0, mat="glassfar" if (skin == "curtain" or shop) else mat,
-            uv=UV_GLASS if (skin == "curtain" or shop) else uv)
+    sd.quad(L["res2"], sd.a0, sd.a1, z0, top, 0.0, mat="glassfar" if (skin == "curtain" or shop) else wmat,
+            uv=UV_GLASS if (skin == "curtain" or shop) else wuv)
     if mat in ("brick", "render", "stone", "concpanel") and lvl > 0:                        # string course
         sc = ST["string_course"]
         for k in ("res0", "res1"):
@@ -1791,7 +1816,7 @@ def bell_tower(L, P):
     tx, ty0, ty1 = 2.2, -hd, -hd + 4.4
     zt = top + 13.0
     lim = DT.stone_uv("limestone")
-    mat, uv = S.CITY_SKINS[P.A["skin"][0]]["mat"], skin_uv(P, P.A["skin"][0])
+    mat, uv = wall(P, P.A["skin"][0])
     for k in ("res0", "res1", "res2", "geo", "view", "fire", "shadow"):
         pr = 0.04 if k.startswith("res") else 0.0              # proud of the gable (no coplanar faces); collision inside
         L[k].box(-tx, tx, ty0 - pr, ty1, top, zt, **kw_for(k, mat, uv, "masonry"))
@@ -1910,14 +1935,13 @@ def roof(L, P):
     par = P.A.get("parapet", ST["parapet"])
     skin = P.A["skin"][0]
     if P.A.get("roof") == "pitched":
-        rise = pitched_roof(L, P, (S.CITY_SKINS[skin]["mat"], skin_uv(P, skin)))
-        L["res3"].box(-hw, hw, -hd, hd, -SLAB, top, mat=S.CITY_SKINS[skin]["mat"], uv=skin_uv(P, skin), skip=("-z", "+z"))
+        rise = pitched_roof(L, P, wall(P, skin))
+        L["res3"].box(-hw, hw, -hd, hd, -SLAB, top, mat=wall(P, skin)[0], uv=wall(P, skin)[1], skip=("-z", "+z"))
         roof_signs(L, P, skin)
         return rise
     ring = [(-hw, hw, -hd, -hd + WT), (-hw, hw, hd - WT, hd), (-hw, -hw + WT, -hd + WT, hd - WT), (hw - WT, hw, -hd + WT, hd - WT)]
     skin = P.A["skin"][0]
-    mat = S.CITY_SKINS[skin]["mat"] if skin not in ("curtain",) else "concrete"
-    uv = skin_uv(P, skin) if skin not in ("curtain",) else UV_CONC
+    mat, uv = wall(P, skin) if skin not in ("curtain",) else ("concrete", UV_CONC)
     for (x0, x1, y0, y1) in ring:
         for k in ("res0", "res1", "res2", "geo", "view", "fire", "shadow"):
             kw = kw_for(k, mat, uv, "concrete")
@@ -1998,6 +2022,167 @@ def roof_signs(L, P, skin):
                            mat="fabric", uv=UV_FAB[fab])
 
 
+# ================================================================== DayZ ambiance (D59)
+def grime_uv(sd, a0, a1, z0, z1, band, tile=4.0):
+    """UVRect onto one band of decal_grime: tiles every `tile` m along the side, the band's
+    height stretched over z0..z1 (bottom of the quad = bottom of the band)."""
+    k = ["damp", "runoff", "streak", "moss"].index(band)
+    v0, v1 = 1.0 - (k + 1) / 4.0 + 0.004, 1.0 - k / 4.0 - 0.004
+    return UVRect(sd.uvax(), 2, (a0, z0), (a1, z1), (a0 / tile, v0, a1 / tile, v1))
+
+
+def veg_card(L, pts, facing, cell, lods=("res0",)):
+    """Alpha-tested vegetation card (double-sided) mapped onto one atlas cell."""
+    u0, v0, u1, v1 = S.veg_uv(cell)
+    xs = [p[0] for p in pts]
+    ys = [p[1] for p in pts]
+    ax = 0 if (max(xs) - min(xs)) >= (max(ys) - min(ys)) else 1
+    a = [p[ax] for p in pts]
+    z = [p[2] for p in pts]
+    uv = UVRect(ax, 2, (min(a), min(z)), (max(a), max(z)), (u0 + 0.004, v0 + 0.004, u1 - 0.004, v1 - 0.004))
+    if pts[1][ax] < pts[0][ax]:                                          # keep the plant upright on mirrored cards
+        uv = UVRect(ax, 2, (max(a), min(z)), (min(a), max(z)), (u0 + 0.004, v0 + 0.004, u1 - 0.004, v1 - 0.004))
+    for k in lods:
+        L[k].quad(pts, facing, "vegetation", uv, double=True)
+
+
+def plant_tuft(L, x, y, z, w, h, cell, key, lods=("res0",)):
+    """Two crossed vegetation cards (a tuft / bush seen from any side)."""
+    a = h01("tuft", key) * math.pi
+    dx, dy = math.cos(a) * w / 2, math.sin(a) * w / 2
+    veg_card(L, [(x - dx, y - dy, z), (x + dx, y + dy, z), (x + dx, y + dy, z + h), (x - dx, y - dy, z + h)],
+             (-dy, dx, 0), cell, lods)
+    veg_card(L, [(x + dy, y - dx, z), (x - dy, y + dx, z), (x - dy, y + dx, z + h), (x + dy, y - dx, z + h)],
+             (-dx, -dy, 0), cell, lods)
+
+
+def sapling(L, x, y, z, h, key):
+    """Young birch growing out of rubble / a cracked roof (ruins): thin trunk + crown cards."""
+    for k, n in (("res0", 6), ("res1", 4)):
+        L[k].prism(x, y, 0.05, z, z + h * 0.7, n=n, mat="vegetation", uv=UVRect(0, 2, (x - 0.05, z), (x + 0.05, z + h * 0.7),
+                   S.veg_uv("bark")))
+    plant_tuft(L, x, y, z + h * 0.35, h * 0.7, h * 0.65, "birch_crown", key + ("crown",), lods=("res0", "res1"))
+
+
+def dress(L, P):
+    """Weathering and overgrowth of one building (seeded per class): rising damp along the base,
+    run-off under the roofline, weeds at the walls, ivy, downpipes, ground-floor window bars,
+    weeds and saplings on damaged / ruined roofs. All visual (Res0 / Res1): no collision."""
+    A, st = P.A, P.state
+    W = S.WEATHER
+    skin = A["skin"][0]
+    par = A.get("parapet", ST["parapet"]) if A.get("roof") != "pitched" else 0.0
+    sides = ["S", "N", "W", "E"] + (["iS", "iN", "iW", "iE"] if P.yard else [])
+    for key in sides:
+        sd = FSide(P, key)
+        blank = key in A.get("blank", ())
+        shop = A.get("ground") == "shopfront" and key in A.get("shop_sides", ())
+        a0, a1 = sd.a0, sd.a1
+        # rising damp (behind shop glass there is no wall: skip those sides)
+        if not shop and skin != "curtain":
+            for k in ("res0", "res1"):
+                sd.quad(L[k], a0, a1, -0.3, 1.1 + 0.4 * h01(P.name, "damp", key), -0.045,
+                        mat="decal_grime", uv=grime_uv(sd, a0, a1, -0.3, 1.5, "damp"))
+        # run-off under the roofline / parapet coping
+        if skin != "curtain":
+            ztop = P.top + par
+            rh = min(2.6, 0.45 * ztop)
+            for k in ("res0", "res1"):
+                sd.quad(L[k], a0, a1, ztop - rh, ztop - 0.02, -0.006, mat="decal_grime",
+                        uv=grime_uv(sd, a0, a1, ztop - rh, ztop - 0.02, "runoff"))
+        # weeds at the base of the wall (not on party walls)
+        if not blank:
+            a = a0 + 0.3
+            i = 0
+            while a < a1 - 0.6:
+                w = 0.9 + 0.9 * h01(P.name, "wd", key, i)
+                if h01(P.name, "weed", key, i) < W["weeds"][st] and not (key == "S" and P.entry[0] - 0.4 < a + w and a < P.entry[1] + 0.4):
+                    cell = ("grass", "weeds", "dry_grass", "burdock")[int(h01(P.name, "wc", key, i) * 4)]
+                    h = (0.55 + 0.65 * h01(P.name, "wh", key, i)) * (1.0 if st < 2 else 1.35)
+                    pts = sd.rect(a, min(a1, a + w), -0.3, h, -0.16)
+                    veg_card(L, pts, sd.out, cell)
+                    if h01(P.name, "wd2", key, i) < 0.6:                      # a lower second row in front
+                        b = a + 0.3 * w
+                        veg_card(L, sd.rect(b, min(a1, b + 0.8 * w), -0.3, 0.45 * h, -0.42), sd.out, "grass")
+                a += w + 0.2 + 0.9 * h01(P.name, "wg", key, i)
+                i += 1
+        # ivy on the wall (party walls too: they show above the neighbours)
+        if h01(P.name, "ivy", key) < W["ivy"][st] and skin not in ("curtain", "open"):
+            iw = min(a1 - a0 - 0.4, 2.0 + 4.0 * h01(P.name, "ivw", key))
+            ia = a0 + 0.2 + (a1 - a0 - 0.4 - iw) * h01(P.name, "iva", key)
+            ih = min(P.top, 3.0 + (P.top - 3.0) * h01(P.name, "ivh", key))
+            cell = "ivy_dark" if h01(P.name, "ivc", key) < 0.5 else "ivy"
+            for k in ("res0", "res1"):
+                sd.quad(L[k], ia, ia + iw, -0.2, ih, -0.03, mat="vegetation",
+                        uv=UVRect(sd.uvax(), 2, (ia, -0.2), (ia + iw, ih),
+                                  (S.veg_uv(cell)[0] + 0.004, S.veg_uv(cell)[1] + 0.004,
+                                   S.veg_uv(cell)[2] - 0.004, S.veg_uv(cell)[3] - 0.004)))
+            if par:                                                          # strands over the parapet
+                hw_ = min(iw, 3.0)
+                sd.quad(L["res0"], ia, ia + hw_, P.top + par - 1.6, P.top + par, -0.035, mat="vegetation",
+                        uv=UVRect(sd.uvax(), 2, (ia, P.top + par - 1.6), (ia + hw_, P.top + par), S.veg_uv("ivy_hang")))
+        # downpipes at the side ends (masonry, flat roofs; not on party walls)
+        if key in ("S", "N") and skin not in ("curtain", "metal", "open") and not A.get("roof") and P.W > 5:
+            for j, ax in enumerate((a0 + 0.3, a1 - 0.3)):
+                if (key == "S" and P.entry[0] - 0.6 < ax < P.entry[1] + 0.6) or h01(P.name, "pipe", key, j) < 0.25:
+                    continue
+                pm, pu = "metal", DT.UV_PAINT                                    # painted steel (no extra section)
+                for k in ("res0", "res1"):
+                    sd.box(L[k], ax - 0.05, ax + 0.05, 0.15, P.top + par - 0.25, -0.13, -0.03, mat=pm, uv=pu, skip=("-z",))
+                sd.box(L["res0"], ax - 0.12, ax + 0.12, P.top + par - 0.45, P.top + par - 0.2, -0.2, -0.02, mat=pm, uv=pu)   # hopper
+                sd.box(L["res0"], ax - 0.07, ax + 0.07, 0.0, 0.15, -0.3, -0.03, mat=pm, uv=pu)                                  # shoe
+    # ground-floor window bars on residential buildings (intact / damaged)
+    if st < 2 and A["group"] in ("residential", "mixed") and skin not in ("curtain", "metal", "open"):
+        SK = dict(S.CITY_SKINS[skin])
+        if A.get("win"):
+            SK["ww"], SK["sill"], SK["head"] = A["win"]
+        fh0 = P.levels[0][1]
+        for key in ("S", "N", "W", "E"):
+            if key in A.get("blank", ()) or (A.get("ground") == "shopfront" and key in A.get("shop_sides", ())):
+                continue
+            sd = FSide(P, key)
+            for i, (b0, b1) in enumerate(P.bays(sd.a0, sd.a1)):
+                if (key == "S" and P.door is not None and b0 <= P.door[0] <= b1) or h01(P.name, "bars", key, i) >= W["bars"]:
+                    continue
+                ww = min(SK["ww"], b1 - b0 - 0.5)
+                c = (b0 + b1) / 2
+                s0, s1 = SK["sill"], min(SK["head"], fh0 - SLAB - 0.35)
+                for j in range(5):
+                    xb = c - ww / 2 + 0.1 + j * (ww - 0.2) / 4
+                    sd.box(L["res0"], xb - 0.012, xb + 0.012, s0, s1, -0.05, -0.026, mat="metal",
+                           uv=DT.UV_STEEL, skip=("-z", "+z"))
+                for zz in (s0 + 0.1, s1 - 0.1):
+                    sd.box(L["res0"], c - ww / 2, c + ww / 2, zz - 0.015, zz + 0.015, -0.05, -0.026, mat="metal",
+                           uv=DT.UV_STEEL)
+    # roofs: moss on the coping, weeds (damaged), weeds + saplings (ruined)
+    if A.get("roof") != "pitched" and par:
+        for i in range(2 if st == 0 else 6):
+            x = -P.hw + 1.0 + (P.W - 2.0) * h01(P.name, "rw", i)
+            y = (P.hd - 0.9) * (1 if h01(P.name, "ry", i) < 0.5 else -1)
+            if st == 0 and h01(P.name, "rw0", i) < 0.5:
+                continue
+            plant_tuft(L, x, y, P.top, 0.9, 0.5 + 0.3 * st, ("grass", "dry_grass", "weeds")[i % 3], (P.name, "roof", i))
+    if st == 2:
+        r = P.ruin.region
+        zf = P.levels[P.kc - 1][2] if P.kc - 1 < len(P.levels) else 0.0
+        cx = (max(r[0], P.ix0 + 0.4) + min(r[1], P.ix1 - 0.4)) / 2
+        cy = (max(r[2], P.iy0 + 0.4) + min(r[3], P.iy1 - 0.4)) / 2
+        sapling(L, cx + 0.3, cy - 0.2, zf + (0.6 if (P.ix1 - P.ix0) * (P.iy1 - P.iy0) < 30.0 else 1.0),
+                2.0 + 1.5 * h01(P.name, "sap"), (P.name, "sap"))
+        for i in range(4):                                                    # weeds over the rubble
+            plant_tuft(L, cx - 1.2 + 2.4 * h01(P.name, "rbx", i), cy - 1.0 + 2.0 * h01(P.name, "rby", i), zf + 0.2,
+                       0.8, 0.6, ("weeds", "bramble", "grass", "dry_grass")[i], (P.name, "rb", i))
+
+
+def window_streak(L, P, sd, w0, w1, s0, key):
+    """Dirt streak under a window sill (more on damaged / ruined buildings)."""
+    if h01(P.name, "wst", sd.key, *key) < S.WEATHER["window_streaks"][P.state] and s0 > 1.2:
+        ln = min(s0 - 0.3, 0.9 + 0.9 * h01(P.name, "wsl", sd.key, *key))
+        v0, v1 = 0.25 + 0.004, 0.5 - 0.004                                        # band "streak", fitted to the quad
+        sd.quad(L["res0"], w0 - 0.05, w1 + 0.05, s0 - ln, s0 - 0.07, -0.007, mat="decal_grime",
+                uv=UVRect(sd.uvax(), 2, (w0 - 0.05, s0 - ln), (w1 + 0.05, s0 - 0.07), (0.0, v0, 1.0, v1)))
+
+
 def ruin_extras(L, P):
     """Damaged / ruined dressing: cracks and graffiti on the front, rubble below the collapse."""
     if P.state >= 1:
@@ -2044,14 +2229,13 @@ def build_rubble_lot(v):
     hw = LOT / 2
     ruin = Ruin(name, 2, (-hw - 1, hw + 1, -hw - 1, hw + 1, 0.0))
     L = city_lods(ruin)
-    mat = S.CITY_SKINS[LOT_SKINS[v][0]]["mat"]
     A = {"skin": LOT_SKINS[v]}
 
-    class _P:                                          # minimal plan for skin_uv
+    class _P:                                          # minimal plan for skin_uv / wall
         pass
     P = _P()
     P.A = A
-    uv = skin_uv(P, LOT_SKINS[v][0])
+    mat, uv = wall(P, LOT_SKINS[v][0])
     for k in ("res0", "res1", "res2", "geo", "view", "fire"):                  # cracked slab remnant
         kw = kw_for(k, "concrete", UV_REVEAL, "concrete")
         for (x0, x1, y0, y1) in ((-hw + 0.5, -0.4, -hw + 0.5, hw - 0.5), (0.4, hw - 0.5, -hw + 0.5, 1.0)):
@@ -2096,6 +2280,14 @@ def build_rubble_lot(v):
         else:
             L["res3"].box(c - 0.15, c + 0.15, a0, a1, 0.0, 4.0, mat=mat, uv=uv, skip=("-z",))
     U["res3"].hquad(-hw + 0.5, hw - 0.5, -hw + 0.5, hw - 0.5, 0.01, mat="rubble", uv=UV_RUBBLE)
+    for i in range(10):                                                       # overgrowth (D59)
+        x = -hw + 1.0 + (LOT - 2.0) * h01(name, "vx", i)
+        y = -hw + 1.0 + (LOT - 2.0) * h01(name, "vy", i)
+        plant_tuft(U, x, y, 0.0, 1.0 + 0.6 * h01(name, "vw", i), 0.6 + 0.6 * h01(name, "vh", i),
+                   ("weeds", "bramble", "grass", "dry_grass", "burdock")[i % 5], (name, "veg", i),
+                   lods=("res0", "res1") if i < 3 else ("res0",))
+    for i, (x, y, rx, ry, h) in enumerate(mounds[:1]):
+        sapling(U, x + 0.4, y - 0.3, h * 0.8, 3.0 + 2.0 * h01(name, "sap"), (name, "sap"))
     L["mem"].lod.point("lot_center", (0.0, 0.0, 0.0))
     geo = L["geo"].lod
     geo.props.update({"class": "house", "map": "building", "autocenter": "0"})
@@ -2206,6 +2398,12 @@ def build_substation(state):
     L["res3"].box(hx0, hx1, hy0, hy1, 0.0, 3.0, mat="brick", uv=brick, skip=("-z",))
     if state == 2:
         rubble_pile(L, 3.4, -2.0, 0.0, 0.9, 0.7, 0.5, (name, "main"))
+    U = {k: x.lod for k, x in L.items()}
+    for i in range(6 + 4 * state):                                           # weeds along the fence, in pad cracks
+        x = -hw + 0.6 + (2 * hw - 1.2) * h01(name, "wx", i)
+        y = (hd - 0.45) * (1 if i % 2 else -1) if i < 6 else -hd + 0.6 + (2 * hd - 1.2) * h01(name, "wy", i)
+        plant_tuft(U, x, y, 0.0, 0.8, 0.5 + 0.4 * h01(name, "wh", i) + 0.2 * state, ("grass", "dry_grass", "weeds")[i % 3],
+                   (name, "w", i))
     L["mem"].lod.point("center", (0.0, 0.0, 0.0))
     return _finish(L, 30000.0)
 
@@ -2258,6 +2456,11 @@ def build_watertower():
     for i in range(int((zt - 0.6) / 0.35)):
         z = 0.6 + i * 0.35
         L["res0"].box(-0.25, 0.25, -lg - 0.32, -lg - 0.28, z, z + 0.03, mat="metal", uv=steel)
+    U = {k: x.lod for k, x in L.items()}
+    for sx in (-1, 1):                                                       # weeds round the footings
+        for sy in (-1, 1):
+            plant_tuft(U, sx * (lg - 0.7), sy * (lg - 0.7), 0.3, 0.9, 0.7, ("weeds", "grass")[(sx + sy) % 2 == 0],
+                       (name, sx, sy))
     L["mem"].lod.point("center", (0.0, 0.0, 0.0))
     return _finish(L, 60000.0)
 
@@ -2321,8 +2524,56 @@ def build_metro(v):
             L[k].quad([(-1.4, -hd - 0.11, zt + 0.03), (1.4, -hd - 0.11, zt + 0.03), (1.4, -hd - 0.11, zt + 0.27),
                        (-1.4, -hd - 0.11, zt + 0.27)], (0, -1, 0), "signs",
                       UVRect(0, 2, (-1.4, zt + 0.03), (1.4, zt + 0.27), (0, 1 - v1, 1, 1 - v0)))
+    U = {k: x.lod for k, x in L.items()}
+    for i, (x, y) in enumerate(((-hw + 0.35, -hd + 0.4), (hw - 0.35, hd - 0.4), (-hw + 0.35, hd - 0.5))):
+        plant_tuft(U, x, y, 0.0, 0.5, 0.45, ("grass", "dry_grass", "weeds")[i], (name, "w", i))
     L["mem"].lod.point("center", (0.0, 0.0, 0.0))
     return _finish(L, 20000.0)
+
+
+def build_veg(name):
+    """Vegetation kit pieces (D59). Cards on the vegetation atlas; Res1 / Res2 / Res3 thin out to a
+    single crossed card. Weeds and bushes have no collision; trees collide with the trunk only."""
+    L = city_lods(Ruin(name, 0))
+    U = {k: x.lod for k, x in L.items()}
+    if name == "Veg_Weeds":
+        cells = ("grass", "weeds", "dry_grass", "burdock", "bramble", "grass", "weeds")
+        for i, cell in enumerate(cells):
+            x, y = -1.0 + 2.0 * h01(name, "x", i), -1.0 + 2.0 * h01(name, "y", i)
+            h = 0.5 + 0.7 * h01(name, "h", i)
+            plant_tuft(U, x, y, -0.15, 0.9, h, cell, (name, i), lods=("res0", "res1") if i < 3 else ("res0",))
+        plant_tuft(U, 0.0, 0.0, -0.15, 2.4, 0.9, "weeds", (name, "far"), lods=("res2",))
+        veg_card(U, [(-1.2, 0.0, -0.15), (1.2, 0.0, -0.15), (1.2, 0.0, 0.7), (-1.2, 0.0, 0.7)], (0, -1, 0), "grass", ("res3",))
+    elif name == "Veg_Bush":
+        for i in range(3):
+            plant_tuft(U, 0.25 * math.cos(i * 2.1), 0.25 * math.sin(i * 2.1), -0.1, 2.2, 2.0 + 0.4 * h01(name, i),
+                       "shrub", (name, i), lods=("res0", "res1") if i == 0 else ("res0",))
+        plant_tuft(U, 0.0, 0.0, -0.1, 2.5, 0.9, "bramble", (name, "skirt"))
+        plant_tuft(U, 0.0, 0.0, -0.1, 2.3, 2.2, "shrub", (name, "far"), lods=("res2",))
+        veg_card(U, [(-1.1, 0.0, -0.1), (1.1, 0.0, -0.1), (1.1, 0.0, 2.1), (-1.1, 0.0, 2.1)], (0, -1, 0), "shrub", ("res3",))
+    elif name in ("Veg_Birch", "Veg_TreeDead"):
+        birch = name == "Veg_Birch"
+        th, r = (9.0, 0.13) if birch else (6.0, 0.16)
+        bark = UVRect(0, 2, (-r, 0.0), (r, th), S.veg_uv("bark"))
+        for k, n in (("res0", 8), ("res1", 5), ("res2", 4), ("res3", 3)):
+            U[k].prism(0.0, 0.0, r, -0.3, th * ((0.8 if birch else 0.85) if k != "res3" else 0.5), n=n,
+                       mat="vegetation", uv=bark)                              # dead birch: same bark, one section
+        for k in ("geo", "fire", "shadow"):
+            kw = {"mat": "pen_wood"} if k == "fire" else {}
+            U[k].prism(0.0, 0.0, r, -0.3, th * 0.8, n=6 if k != "shadow" else 4, **kw)
+        cell = "birch_crown" if birch else "dead_branches"
+        levels = ((3.2, 3.0), (4.8, 3.6), (6.6, 3.0)) if birch else ((2.2, 3.8),)
+        for i, (z, h) in enumerate(levels):
+            plant_tuft(U, 0.15 * math.cos(i * 2.4), 0.15 * math.sin(i * 2.4), z, 2.4 + 0.5 * h01(name, i), h, cell, (name, i),
+                       lods=("res0", "res1") if i == 1 else ("res0",))
+        plant_tuft(U, 0.0, 0.0, 2.8 if birch else 2.0, 2.8, 6.0 if birch else 4.0, cell, (name, "far"), lods=("res2",))
+        veg_card(U, [(-1.4, 0.0, 2.8), (1.4, 0.0, 2.8), (1.4, 0.0, th), (-1.4, 0.0, th)], (0, -1, 0), cell, ("res3",))
+        geo = U["geo"]
+        geo.props.update({"class": "house", "map": "tree" if birch else "building", "autocenter": "0"})
+        geo.mass = 1500.0
+    U["mem"].point("center", (0.0, 0.0, 0.0))
+    keep = ("res0", "res1", "res2", "res3", "mem") + (("geo", "fire", "shadow") if name in ("Veg_Birch", "Veg_TreeDead") else ())
+    return [U[k] for k in keep]
 
 
 # ================================================================== memory, loot, build
@@ -2408,6 +2659,7 @@ def build(arch, state):
     landmark(L, P)
     bell_tower(L, P)
     ruin_extras(L, P)
+    dress(L, P)
     memory(L, P)
     geo = L["geo"].lod
     geo.props.update({"class": "house", "map": "building", "autocenter": "0"})
@@ -2425,6 +2677,7 @@ BUILDERS = {"City_%s_%s" % (a, st): _builder(a, i) for a in S.CITY_ARCHETYPES fo
 BUILDERS.update({"City_RubbleLot_%s" % v: (lambda v=v: build_rubble_lot(v)) for v in LOT_SKINS})
 BUILDERS.update({"City_Substation_%s" % st: (lambda i=i: build_substation(i)) for i, st in enumerate(S.RUIN_STATES)})
 BUILDERS["City_WaterTower"] = build_watertower
+BUILDERS.update({n: (lambda n=n: build_veg(n)) for n in S.VEG_PIECES})
 BUILDERS.update({"City_MetroEntrance_%s" % v: (lambda v=v: build_metro(v)) for v in "AB"})
 
 

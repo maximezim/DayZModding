@@ -58,6 +58,49 @@ def gray(arr):
 CONST_SIZE = 256   # constant-value maps don't need full resolution
 
 
+# ------------------------------------------------------------------ weathering (D59)
+def tnoise(size, cells, seed, aspect=1):
+    """Tileable value noise (wraps in U and V): the random grid is tiled 3 x 3 before the
+    bicubic resize and the centre is cropped, so facades show no seam every sheet."""
+    rng = np.random.default_rng(seed)
+    small = rng.random((max(1, cells // aspect), cells)).astype(np.float32)
+    big = np.tile(small, (3, 3))
+    img = Image.fromarray((big * 255).astype(np.uint8), "L").resize((3 * size, 3 * size), Image.BICUBIC)
+    return np.asarray(img, dtype=np.float32)[size:2 * size, size:2 * size] / 255.0
+
+
+def tfbm(size, seed, octaves=4, base=4):
+    acc, amp, tot = np.zeros((size, size), np.float32), 1.0, 0.0
+    for o in range(octaves):
+        acc += amp * tnoise(size, base * (2 ** o), seed + o)
+        tot += amp
+        amp *= 0.5
+    return acc / tot
+
+
+def weather(col, seed, dirt=0.18, desat=0.25, moss=0.0, streaks=0.0, spots=0.0):
+    """DayZ weathering on a colour map (tileable): desaturate toward grey, mottled grime,
+    vertical rain streaks, dark spots (soot / rust) and a green moss tint in the low patches.
+    Scale-free features only: the facade-level gradients (rising damp, run-off) are the
+    decal_grime overlay quads placed by the generators."""
+    size = col.shape[0]
+    g = col.mean(-1, keepdims=True)
+    col = col * (1 - desat) + g * desat
+    m = tfbm(size, seed, octaves=5, base=4)
+    col = col * (1 - dirt * gray(np.clip((m - 0.35) * 2.0, 0, 1)))
+    if streaks:
+        st = np.repeat(tnoise(size, 48, seed + 7, aspect=48)[:1, :], size, 0)
+        st = np.clip((st - 0.55) * 4, 0, 1) * tfbm(size, seed + 9, octaves=3, base=2)
+        col = col * (1 - streaks * gray(st))
+    if spots:
+        sp = np.clip((tfbm(size, seed + 13, octaves=4, base=16) - 0.68) * 6, 0, 1)
+        col = col * (1 - spots * gray(sp))
+    if moss:
+        mm = np.clip((tfbm(size, seed + 21, octaves=4, base=6) - 0.62) * 5, 0, 1)[..., None] * moss
+        col = col * (1 - mm) + np.array([0.30, 0.36, 0.20], np.float32) * mm
+    return col
+
+
 def smdi(size, spec, gloss):
     if np.ndim(spec) == 0 and np.ndim(gloss) == 0:
         size = min(size, CONST_SIZE)
@@ -115,7 +158,8 @@ def concrete(size, out):
     h[g0:g0 + seam * 3, :] -= 1.0
     ao[g0:g0 + seam * 3, :] *= 0.65
     h += 0.15 * fine
-    save(to_rgb(gray(col)), out, "sky_concrete_co")
+    save(to_rgb(weather(gray(col), 19, dirt=0.25, desat=0.0, moss=0.07, streaks=0.15, spots=0.15)), out,
+         "sky_concrete_co")                                                                   # D59 weathering
     save(normal_from_height(h, 2.5), out, "sky_concrete_nohq")
     save(smdi(size, 0.12 + 0.05 * fine, 0.25), out, "sky_concrete_smdi")
     save(to_rgb(gray(0.75 + 0.25 * ao)), out, "sky_concrete_as")
@@ -134,9 +178,11 @@ def metal(size, out):
     r0, r1 = band_rows(size, 0.5, 0.75)         # dark steel
     col[r0:r1] = gray(0.22 + 0.05 * (n[r0:r1] - 0.5))
     spec[r0:r1], gloss[r0:r1] = 0.45, 0.4
-    r0, r1 = band_rows(size, 0.75, 1.0)         # painted panel (warm grey)
-    col[r0:r1] = np.array([0.62, 0.60, 0.56]) + 0.03 * gray(n[r0:r1] - 0.5)
+    r0, r1 = band_rows(size, 0.75, 1.0)         # painted panel (warm grey), rust bleeding (D59)
+    col[r0:r1] = np.array([0.58, 0.57, 0.53]) + 0.03 * gray(n[r0:r1] - 0.5)
     spec[r0:r1], gloss[r0:r1] = 0.25, 0.35
+    rs = np.clip((tfbm(size, 41, octaves=4, base=8) - 0.6) * 4, 0, 1)[r0:r1, :, None] * 0.6
+    col[r0:r1] = col[r0:r1] * (1 - rs) + np.array([0.40, 0.24, 0.13], np.float32) * rs
     save(to_rgb(col), out, "sky_metal_co")
     save(normal_from_height(h, 1.0), out, "sky_metal_nohq")
     save(smdi(size, spec, gloss), out, "sky_metal_smdi")
@@ -632,6 +678,9 @@ def brick(size, out):
     col[r0:r1] = np.array([0.66, 0.64, 0.60]) + 0.04 * gray(n[r0:r1] - 0.5)
     col += 0.04 * gray(n - 0.5)
     col *= gray(0.8 + 0.2 * ao)          # AO folded into _co; _as/_smdi are procedural (perf batch-2 M1)
+    eff = np.clip((tfbm(size, 197, octaves=4, base=8) - 0.66) * 4, 0, 1)[..., None] * 0.35   # efflorescence
+    col = col * (1 - eff) + np.array([0.72, 0.70, 0.66], np.float32) * eff
+    col = weather(col, 199, dirt=0.22, desat=0.2, moss=0.06, streaks=0.15, spots=0.12)          # soot, grime (D59)
     save(to_rgb(col), out, "sky_brick_co")
     save(normal_from_height(h, 2.0), out, "sky_brick_nohq")
 
@@ -655,6 +704,13 @@ def concpanel(size, out):
     col[r0:r1] *= 0.85
     h[r1 - j:r1, :] -= 1.5
     col *= gray(0.75 + 0.25 * ao)        # AO folded into _co; _as/_smdi are procedural (perf batch-2 M1)
+    # joints weep: dark streaks running down from every horizontal joint (D59)
+    yy_i = np.mgrid[0:size, 0:size][0]
+    below = ((yy_i % (size // 2)) / (size / 2.0)).astype(np.float32)
+    st = np.repeat(tnoise(size, 64, 211, aspect=64)[:1, :], size, 0)
+    weep = np.clip((st - 0.5) * 3, 0, 1) * np.clip(1 - below * 2.2, 0, 1) * 0.35
+    col = col * (1 - gray(weep))
+    col = weather(col, 213, dirt=0.2, desat=0.3, moss=0.05, streaks=0.12, spots=0.18)
     save(to_rgb(col), out, "sky_concpanel_co")
     # mostly low-frequency relief: half-size normal map keeps >= 4 px joints (perf batch-2 L4)
     nh = normal_from_height(h, 2.5)
@@ -828,6 +884,7 @@ def stone(size, out):
         col[p:p + j, :] *= 0.55
         h[p:p + j, :] -= 1
         gl[p:p + j, :] = 0.05
+    col = weather(col, 367, dirt=0.18, desat=0.1, moss=0.05, streaks=0.12, spots=0.05)          # D59
     save(to_rgb(col), out, "sky_stone_co")
     save(normal_from_height(h, 2.0), out, "sky_stone_nohq")
     save(smdi(size, 0.5 * np.ones((size, size), np.float32), gl), out, "sky_stone_smdi")
@@ -867,7 +924,8 @@ def textile(size, out):
 
 
 # ------------------------------------------------------------------ city wave 1 (D56)
-RENDER = [(0.86, 0.80, 0.66), (0.80, 0.62, 0.38), (0.70, 0.70, 0.68), (0.90, 0.88, 0.84)]
+# Chernarus palette (D59): faded, slightly dirty post-Soviet stucco tones
+RENDER = [(0.78, 0.73, 0.60), (0.72, 0.57, 0.38), (0.62, 0.62, 0.59), (0.80, 0.79, 0.74)]
 
 
 def render(size, out):
@@ -889,6 +947,15 @@ def render(size, out):
     crack = np.abs(np.sin((yy * 9 + n * 6) * np.pi)) < 0.012
     col[crack] *= 0.72
     h[crack] -= 0.6
+    # plaster loss: small irregular patches showing the brick underneath (D59)
+    loss = tfbm(size, 431, octaves=5, base=6) > 0.71
+    bw, bh = max(4, size // 24), max(2, size // 80)
+    yy_i, xx_i = np.mgrid[0:size, 0:size]
+    mortar = ((yy_i % bh) < 2) | (((xx_i + (yy_i // bh % 2) * bw // 2) % bw) < 2)
+    brick_rgb = np.where(mortar[..., None], np.array([0.50, 0.48, 0.44], np.float32), np.array([0.46, 0.27, 0.19], np.float32))
+    col = np.where(loss[..., None], brick_rgb, col)
+    h[loss] -= 0.8
+    col = weather(col, 437, dirt=0.16, desat=0.15, moss=0.08, streaks=0.18, spots=0.10)
     save(to_rgb(col), out, "sky_render_co")
     save(normal_from_height(h, 1.2), out, "sky_render_nohq")
 
@@ -960,6 +1027,288 @@ def signs(size, out):
     img.save(os.path.join(out, "sky_signs_co.png"))
 
 
+def grime(size, out):
+    """Facade weathering overlay sheet (alpha-blended like decal_dirt, 1024): 4 horizontal bands,
+    each tileable along U so one quad can span a whole facade:
+      V 0.00-0.25 rising damp: dark wet band at the bottom with moss specks, ragged top edge
+      V 0.25-0.50 run-off: grime from the top edge, vertical streaks fading downwards
+      V 0.50-0.75 window streaks: narrow streaks (quad under a sill)
+      V 0.75-1.00 moss / lichen patches (plinths, copings, roof edges)"""
+    size = min(size, 1024)
+    bh = size // 4
+    rgba = np.zeros((size, size, 4), np.float32)
+    x = np.linspace(0, 1, size, dtype=np.float32)
+    t = np.linspace(0, 1, bh, dtype=np.float32)[:, None]                     # 0 top -> 1 bottom of band
+    n = tfbm(size, 501, octaves=5, base=8)
+    edge = np.repeat((0.6 * tnoise(size, 24, 503, aspect=24) + 0.4 * tnoise(size, 96, 505, aspect=96))[:1, :], bh, 0)
+    st = np.repeat(tnoise(size, 64, 509, aspect=64)[:1, :], bh, 0)
+    # rising damp
+    top = 0.25 + 0.45 * edge                                                    # ragged upper edge
+    a = np.clip((t - top) * 3.0, 0, 1) * (0.55 + 0.35 * n[:bh])
+    rgb = np.stack([0.17 + 0.04 * n[:bh], 0.18 + 0.05 * n[:bh], 0.12 + 0.03 * n[:bh]], -1)
+    moss = (tfbm(size, 511, octaves=4, base=32)[:bh] > 0.62) & (t > 0.6)
+    rgb[moss] = (0.24, 0.30, 0.14)
+    rgba[:bh] = np.concatenate([rgb, a[..., None]], -1)
+    # run-off from the top
+    a = (np.clip(1 - t * 3.0, 0, 1) * 0.55 + np.clip((st - 0.45) * 2.5, 0, 1) * (1 - t) ** 1.3 * 0.6) * (0.6 + 0.5 * n[bh:2 * bh])
+    rgb = np.stack([0.16 + 0.03 * n[bh:2 * bh], 0.15 + 0.03 * n[bh:2 * bh], 0.13 + 0.02 * n[bh:2 * bh]], -1)
+    rgba[bh:2 * bh] = np.concatenate([rgb, np.clip(a * 0.75, 0, 0.7)[..., None]], -1)
+    # window streaks (fit to the quad: fade at the sides)
+    side = np.clip(np.minimum(x, 1 - x) / 0.25, 0, 1)[None, :]
+    st2 = np.repeat(tnoise(size, 16, 521, aspect=16)[:1, :], bh, 0)
+    a = np.clip((st2 - 0.35) * 2.2, 0, 1) * (1 - t) ** 1.6 * side * 0.7
+    rgb = np.stack([0.18 + 0 * t * x, 0.17 + 0 * t * x, 0.15 + 0 * t * x], -1)
+    rgba[2 * bh:3 * bh] = np.concatenate([rgb, a[..., None]], -1)
+    # moss / lichen patches
+    p = tfbm(size, 531, octaves=5, base=12)[3 * bh:]
+    a = np.clip((p - 0.5) * 3.5, 0, 1) * 0.85
+    rgb = np.stack([0.28 + 0.1 * p, 0.34 + 0.1 * p, 0.17 + 0.05 * p], -1)
+    rgba[3 * bh:] = np.concatenate([rgb, a[..., None]], -1)
+    Image.fromarray(np.clip(rgba * 255, 0, 255).astype(np.uint8), "RGBA").save(os.path.join(out, "sky_decal_grime_ca.png"))
+
+
+# ------------------------------------------------------------------ tileable wall sheets (D59)
+# The trim sheets (brick / concpanel / stone / render bands) stretch their last row on faces taller
+# than the band; walls get their own sheets that tile in U and V (mapped at world scale).
+def _rows(size, n):
+    return [int(round(r * size / n)) for r in range(n + 1)]
+
+
+def wall_brick(size, out):
+    """Running-bond brick wall, 3.44 m sheet (16 bricks x 46 courses), tileable, sooty and weathered."""
+    rng = np.random.default_rng(701)
+    col = np.zeros((size, size, 3), np.float32)
+    h = np.zeros((size, size), np.float32)
+    mortar = np.array([0.50, 0.48, 0.45], np.float32)
+    rows = _rows(size, 46)
+    m = max(1, size // 512)
+    for r in range(46):
+        y0, y1 = rows[r], rows[r + 1]
+        off = (size // 32) * (r % 2)
+        cols = _rows(size, 16)
+        for c in range(16):
+            x0, x1 = (cols[c] + off) % size, (cols[c + 1] + off) % size
+            tint = np.array([0.44, 0.22, 0.15], np.float32) * (0.78 + 0.4 * rng.random())
+            if x1 > x0:
+                col[y0 + m:y1 - m, x0 + m:x1 - m] = tint
+            else:                                                       # brick wrapping round the edge
+                col[y0 + m:y1 - m, x0 + m:] = tint
+                col[y0 + m:y1 - m, :max(0, x1 - m)] = tint
+        h[y0:y0 + m + 1, :] -= 0.8
+    hole = col.sum(-1) == 0
+    col[hole] = mortar
+    h[hole] -= 0.5
+    n = tfbm(size, 703, octaves=5, base=8)
+    col += 0.05 * gray(n - 0.5)
+    eff = np.clip((tfbm(size, 707, octaves=4, base=8) - 0.66) * 4, 0, 1)[..., None] * 0.3
+    col = col * (1 - eff) + np.array([0.70, 0.68, 0.64], np.float32) * eff
+    col = weather(col, 709, dirt=0.22, desat=0.2, moss=0.05, streaks=0.15, spots=0.12)
+    save(to_rgb(col), out, "sky_wall_brick_co")
+    save(normal_from_height(h + 0.1 * n, 2.0), out, "sky_wall_brick_nohq")
+
+
+def wall_panel(size, out):
+    """Precast concrete panels, 3.0 m sheet (2 x 2 panels of 1.5 m), joints weeping, tileable."""
+    n = tfbm(size, 721, octaves=5, base=8)
+    col = gray(0.64 + 0.06 * (n - 0.5))
+    h = 0.15 * n
+    j = max(3, size // 256)
+    yy = np.mgrid[0:size, 0:size][0]
+    for p in (0, size // 2):
+        col[:, p:p + j] *= 0.6
+        col[p:p + j, :] *= 0.6
+        h[:, p:p + j] -= 1
+        h[p:p + j, :] -= 1
+    below = ((yy % (size // 2)) / (size / 2.0)).astype(np.float32)          # 0 just under a joint
+    st = np.repeat(tnoise(size, 64, 723, aspect=64)[:1, :], size, 0)
+    weep = np.clip((st - 0.5) * 3, 0, 1) * np.clip(1 - below * 2.2, 0, 1) * 0.35
+    col = col * (1 - gray(weep))
+    col = weather(col, 725, dirt=0.2, desat=0.3, moss=0.05, streaks=0.12, spots=0.18)
+    save(to_rgb(col), out, "sky_wall_panel_co")
+    nh = normal_from_height(h, 2.5)
+    save(nh.resize((max(1, size // 2),) * 2, Image.BILINEAR) if size > 1024 else nh, out, "sky_wall_panel_nohq")
+
+
+def wall_limestone(size, out):
+    """Limestone ashlar, 3.0 m sheet: 4 courses of 0.75 m, blocks 1.0 / 1.5 m staggered, tileable."""
+    rng = np.random.default_rng(741)
+    n = tfbm(size, 743, octaves=5, base=12)
+    col = np.zeros((size, size, 3), np.float32)
+    h = 0.05 * n
+    rows = _rows(size, 4)
+    j = max(3, size // 375)
+    for r in range(4):
+        y0, y1 = rows[r], rows[r + 1]
+        widths = [3, 2, 3, 2, 2] if r % 2 == 0 else [2, 3, 2, 3, 2]          # eighths of the sheet (1.0 / 0.75 m)
+        x = (size // 16) * (r % 2)
+        for w in widths:
+            x1 = x + w * size // 12
+            tint = np.array([0.76, 0.72, 0.62], np.float32) * (0.93 + 0.1 * rng.random())
+            xs = np.arange(x, x1) % size
+            col[y0:y1, xs] = tint
+            col[y0:y1, xs[:j]] *= 0.55
+            h[y0:y1, xs[:j]] -= 1
+            x = x1
+        col[y0:y0 + j, :] *= 0.55
+        h[y0:y0 + j, :] -= 1
+    col += 0.05 * gray(n - 0.5)
+    col = weather(col, 747, dirt=0.2, desat=0.1, moss=0.06, streaks=0.14, spots=0.06)
+    save(to_rgb(col), out, "sky_wall_limestone_co")
+    save(normal_from_height(h, 2.0), out, "sky_wall_limestone_nohq")
+
+
+WALL_RENDER = {"cream": (0.78, 0.73, 0.60), "ochre": (0.72, 0.57, 0.38), "grey": (0.62, 0.62, 0.59), "white": (0.80, 0.79, 0.74)}
+
+
+def wall_render(size, out):
+    """Stucco in the 4 Chernarus colours, 4 m sheet, tileable: float texture, hairline cracks,
+    plaster loss showing brick, grime, streaks and moss (one sheet per colour)."""
+    fine = tfbm(size, 761, octaves=3, base=64)
+    n = tfbm(size, 763, octaves=6, base=8)
+    yy_i, xx_i = np.mgrid[0:size, 0:size]
+    crack = np.abs(np.sin(((yy_i / size) * 9 + n * 6) * np.pi)) < 0.01
+    loss = tfbm(size, 767, octaves=5, base=6) > 0.72
+    bw, bh = max(4, size // 24), max(2, size // 80)
+    mortar = ((yy_i % bh) < 2) | (((xx_i + (yy_i // bh % 2) * bw // 2) % bw) < 2)
+    brick_rgb = np.where(mortar[..., None], np.array([0.50, 0.48, 0.44], np.float32), np.array([0.46, 0.27, 0.19], np.float32))
+    for i, (name, rgb) in enumerate(WALL_RENDER.items()):
+        col = np.array(rgb, np.float32) * (1 + 0.06 * gray(n - 0.5)) + 0.03 * gray(fine - 0.5)
+        col[crack] *= 0.72
+        col = np.where(loss[..., None], brick_rgb, col)
+        col = weather(col, 771 + i, dirt=0.18, desat=0.12, moss=0.08, streaks=0.2, spots=0.1)
+        save(to_rgb(col), out, "sky_wall_render_%s_co" % name)
+
+
+VEG_CELLS = ["grass", "weeds", "burdock", "shrub", "ivy", "ivy_hang", "birch_crown", "dead_branches",
+             "bark", "litter", "moss", "sapling", "dry_grass", "reeds", "bramble", "ivy_dark"]   # 4 x 4, = skyspec.VEG_ATLAS
+
+
+def vegetation(size, out):
+    """Vegetation atlas (alpha-tested, 2048): 4 x 4 cells of 512 drawn procedurally - grass tufts,
+    weeds, burdock, shrub mass, ivy (wall / hanging / dark), birch crown, dead branches, birch
+    bark, leaf litter, moss, sapling, dry grass, reeds, bramble. Muted Chernarus greens and
+    late-summer browns; every plant is original procedural drawing."""
+    size = min(size, 2048)
+    c = size // 4
+    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    rng = np.random.default_rng(601)
+
+    def green(dark=0.0, dry=0.0):
+        g = rng.uniform(0.32, 0.52) * (1 - dark)
+        r = g * rng.uniform(0.55, 0.8) + dry * 0.25
+        b = g * rng.uniform(0.25, 0.4)
+        return tuple(int(255 * v) for v in (min(1, r), g, b)) + (255,)
+
+    def box(i):
+        col, row = i % 4, i // 4
+        return col * c, row * c
+
+    def blades(x0, y0, n, hmax, dry=0.0, width=3):
+        for _ in range(n):
+            bx = x0 + rng.uniform(0.05, 0.95) * c
+            hh = rng.uniform(0.3, 1.0) * hmax
+            lean = rng.normal(0, 0.15) * hh
+            d.line([bx, y0 + c - 2, bx + lean * 0.5, y0 + c - hh * 0.5, bx + lean, y0 + c - hh], fill=green(0.1, dry), width=width)
+
+    def leaves(x0, y0, cx, cy, rx, ry, n, rmin, rmax, dark=0.0, dry=0.0, ellipse=(1.0, 0.55)):
+        for _ in range(n):
+            a, rr = rng.uniform(0, 2 * np.pi), np.sqrt(rng.random())
+            px, py = x0 + cx + np.cos(a) * rx * rr, y0 + cy + np.sin(a) * ry * rr
+            r = rng.uniform(rmin, rmax)
+            d.ellipse([px - r * ellipse[0], py - r * ellipse[1], px + r * ellipse[0], py + r * ellipse[1]], fill=green(dark, dry))
+
+    for i, name in enumerate(VEG_CELLS):
+        x0, y0 = box(i)
+        if name == "grass":
+            blades(x0, y0, 260, c * 0.9)
+        elif name == "dry_grass":
+            blades(x0, y0, 220, c * 0.8, dry=0.6)
+        elif name == "reeds":
+            blades(x0, y0, 120, c * 0.98, dry=0.3, width=5)
+        elif name == "weeds":
+            blades(x0, y0, 80, c * 0.6)
+            leaves(x0, y0, c / 2, c * 0.55, c * 0.45, c * 0.35, 220, c / 60, c / 28)
+        elif name == "burdock":
+            for _ in range(14):
+                px = x0 + rng.uniform(0.15, 0.85) * c
+                py = y0 + rng.uniform(0.35, 0.9) * c
+                r = rng.uniform(c / 14, c / 8)
+                d.ellipse([px - r, py - r * 0.7, px + r, py + r * 0.7], fill=green(0.15))
+                d.line([px, py, px, y0 + c - 2], fill=green(0.4), width=3)
+        elif name == "shrub":                                                 # irregular lobes, not a disc
+            for _l in range(7):
+                lx, ly = c * rng.uniform(0.25, 0.75), c * rng.uniform(0.35, 0.75)
+                leaves(x0, y0, lx, ly, c * rng.uniform(0.12, 0.24), c * rng.uniform(0.12, 0.22), 260, c / 90, c / 40)
+        elif name in ("ivy", "ivy_dark"):
+            # ragged outline: dense in the middle and at the bottom, thinning to the sides and the top,
+            # per-column top edge, so a wall patch never shows the card's rectangle
+            tops = value_noise(64, 6, 611 + i)[0]
+            for _ in range(3200):
+                fx, fy = rng.uniform(0, 1), rng.uniform(0, 1)                   # fy: 0 top -> 1 bottom
+                top = 0.05 + 0.55 * tops[min(63, int(fx * 64))]
+                side = 1.0 - abs(2 * fx - 1) ** 2.5
+                if fy < top or rng.random() > side * (0.35 + 0.65 * fy):
+                    continue
+                px, py = x0 + fx * c, y0 + fy * c
+                r = rng.uniform(c / 110, c / 55)
+                d.ellipse([px - r, py - r * 0.8, px + r, py + r * 0.8], fill=green(0.35 if name == "ivy_dark" else 0.1))
+        elif name == "ivy_hang":
+            for _ in range(26):
+                px = x0 + rng.uniform(0.05, 0.95) * c
+                ln = rng.uniform(0.3, 1.0) * c
+                for k in range(int(ln / 6)):
+                    py = y0 + k * 6
+                    r = rng.uniform(c / 110, c / 60)
+                    jx = px + rng.normal(0, 2)
+                    d.ellipse([jx - r, py - r, jx + r, py + r], fill=green(0.15))
+        elif name == "birch_crown":                                           # loose, drooping lobes
+            for _l in range(9):
+                lx, ly = c * rng.uniform(0.2, 0.8), c * rng.uniform(0.15, 0.8)
+                leaves(x0, y0, lx, ly, c * rng.uniform(0.1, 0.2), c * rng.uniform(0.12, 0.24), 230, c / 120, c / 60,
+                       dry=0.15, ellipse=(1.0, 0.7))
+            for _b in range(6):                                                # visible branches
+                bx = x0 + c / 2 + rng.normal(0, c / 12)
+                d.line([x0 + c / 2, y0 + c - 2, bx + rng.normal(0, c / 6), y0 + rng.uniform(0.2, 0.6) * c],
+                       fill=(205, 200, 190, 255), width=4)
+        elif name == "dead_branches":
+            for _ in range(10):
+                px, py = x0 + c / 2, y0 + c - 2
+                ang = -np.pi / 2 + rng.normal(0, 0.5)
+                w = 8
+                for _k in range(10):
+                    nx, ny = px + np.cos(ang) * c / 12, py + np.sin(ang) * c / 12
+                    d.line([px, py, nx, ny], fill=(70, 60, 50, 255), width=max(1, w))
+                    px, py, ang, w = nx, ny, ang + rng.normal(0, 0.35), w - 1
+        elif name == "bark":
+            d.rectangle([x0, y0, x0 + c, y0 + c], fill=(214, 210, 198, 255))
+            for _ in range(160):
+                py = y0 + rng.uniform(0, c)
+                px = x0 + rng.uniform(0, c)
+                d.rectangle([px, py, px + rng.uniform(c / 20, c / 6), py + rng.uniform(2, 6)], fill=(40, 38, 34, 255))
+        elif name == "litter":
+            for _ in range(700):
+                px, py = x0 + rng.uniform(0, c), y0 + rng.uniform(0, c)
+                r = rng.uniform(c / 90, c / 45)
+                br = rng.uniform(0.3, 0.55)
+                d.ellipse([px - r, py - r * 0.6, px + r, py + r * 0.6],
+                          fill=(int(255 * br), int(255 * br * 0.75), int(255 * br * 0.4), 255))
+        elif name == "moss":
+            leaves(x0, y0, c / 2, c / 2, c * 0.48, c * 0.48, 3000, c / 200, c / 90, dark=0.2, ellipse=(1.0, 1.0))
+        elif name == "sapling":
+            d.line([x0 + c / 2, y0 + c - 2, x0 + c / 2, y0 + c * 0.25], fill=(200, 196, 186, 255), width=6)
+            leaves(x0, y0, c / 2, c * 0.4, c * 0.3, c * 0.3, 600, c / 100, c / 50, dry=0.1)
+        elif name == "bramble":
+            for _ in range(30):
+                px, py = x0 + rng.uniform(0.1, 0.9) * c, y0 + c - 2
+                for _k in range(12):
+                    nx, ny = px + rng.normal(0, c / 25), py - rng.uniform(c / 30, c / 14)
+                    d.line([px, py, nx, ny], fill=(90, 55, 50, 255), width=3)
+                    px, py = nx, ny
+            leaves(x0, y0, c / 2, c * 0.6, c * 0.45, c * 0.35, 500, c / 90, c / 45, dark=0.25)
+    img.save(os.path.join(out, "sky_vegetation_ca.png"))
+
+
 GENERATORS = {
     "concrete": concrete, "metal": metal, "glass": glass, "glassfar": glassfar,
     "tile": lambda s, o: tiled(s, o, "sky_tile", 5, (0.72, 0.71, 0.68), (0.45, 0.45, 0.43), max(3, s // 400), 41, 0.3, 0.5),
@@ -969,7 +1318,8 @@ GENERATORS = {
     "decals": decals, "windows": windows, "brick": brick, "concpanel": concpanel,
     "wood": wood, "fabric": fabric, "ceiling": ceiling,
     "marble": marble, "parquet": parquet, "paint": paint, "stone": stone, "textile": textile,
-    "render": render, "rubble": rubble, "signs": signs,
+    "render": render, "rubble": rubble, "signs": signs, "grime": grime, "vegetation": vegetation,
+    "wall_brick": wall_brick, "wall_panel": wall_panel, "wall_limestone": wall_limestone, "wall_render": wall_render,
 }
 
 

@@ -166,6 +166,9 @@ def camera(loc, target, lens=28):
     bpy.context.scene.camera = ob
 
 
+DAYZ = False                                                   # preview_district --dayz: overcast sky, grass ground
+
+
 def scene_setup():
     sc = bpy.context.scene
     sc.render.engine = "CYCLES"
@@ -182,10 +185,25 @@ def scene_setup():
     so = bpy.data.objects.new("sun", sun)
     so.rotation_euler = (math.radians(50), math.radians(10), math.radians(35))
     sc.collection.objects.link(so)
+    if DAYZ:                                                   # overcast Chernarus light (preview only)
+        world.node_tree.nodes["Background"].inputs["Color"].default_value = (0.03, 0.035, 0.05, 1) if NIGHT else (0.58, 0.61, 0.64, 1)
+        sun.energy = 0.05 if NIGHT else 2.2
     bpy.ops.mesh.primitive_plane_add(size=400, location=(0, 0, -0.31))
     ground = bpy.data.materials.new("ground")
     ground.use_nodes = True
-    ground.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = (0.18, 0.2, 0.16, 1)
+    bsdf = ground.node_tree.nodes["Principled BSDF"]
+    bsdf.inputs["Base Color"].default_value = (0.18, 0.2, 0.16, 1)
+    if DAYZ:                                                   # terrain stand-in: patchy grass / dry grass / dirt
+        nt = ground.node_tree
+        noise = nt.nodes.new("ShaderNodeTexNoise")
+        noise.inputs["Scale"].default_value = 0.08
+        noise.inputs["Detail"].default_value = 8.0
+        ramp = nt.nodes.new("ShaderNodeValToRGB")
+        ramp.color_ramp.elements[0].color = (0.10, 0.13, 0.05, 1)
+        ramp.color_ramp.elements[1].color = (0.24, 0.22, 0.12, 1)
+        nt.links.new(noise.outputs["Fac"], ramp.inputs["Fac"])
+        nt.links.new(ramp.outputs["Color"], bsdf.inputs["Base Color"])
+        bsdf.inputs["Roughness"].default_value = 0.95
     bpy.context.active_object.data.materials.append(ground)
 
 

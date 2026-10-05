@@ -109,6 +109,9 @@ Shared plans cover most new types: `double_<room>` (corridor with rooms both sid
 offices), `ring` (perimeter block round a yard), forecourts (canopy / terrace), atrium floors, parking
 decks with ramps. Big landmarks need merged blocks (`streets.closed`); towers taller than Tower A use
 a tall core (`core: T15 | T23 | T33`, D58).
+DayZ look (D59): walls use the tileable wall sheets (never stretch a trim band over a tall face);
+weathering is part of every generator (grime overlays, weeds, ivy, rust, saplings on ruins) and scales
+with the ruin state; the fill adds overgrowth and never fails on terrain it can route around.
 
 ### 3.3 Placement rules
 - Everything placed through the layout generator (spec + YAML), validated: survey-based ground

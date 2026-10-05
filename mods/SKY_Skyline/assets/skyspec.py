@@ -1016,3 +1016,86 @@ kit("Roof_Crown", "sky_floors", "roof", uses=["PENETRATION"],
     desc="HQ crown roof: parapet, setback glass lantern, steel crown fins, 24 m spire with obstruction lights")
 ROOF_DROP_POINTS[KIT["Roof_Crown"]["cls"]] = ROOF_DROPS_CLEAR
 ROOF_VARIANTS["crown"] = KIT["Roof_Crown"]["cls"]
+
+
+# ===================================================================== DayZ ambiance pass (D59)
+# Weathering overlay (alpha-blended, like decal_dirt) and vegetation (alpha-tested) for the city.
+MATERIALS.update({
+    "decal_grime": {"rvmat": rvmat("sky_decal_grime"), "co": tex("sky_decal_grime_ca"),
+                    "bands": {"damp": (0.0, 0.25), "runoff": (0.25, 0.5), "streak": (0.5, 0.75), "moss": (0.75, 1.0)}},
+    "vegetation": {"rvmat": rvmat("sky_vegetation"), "co": tex("sky_vegetation_ca")},
+})
+# 4 x 4 cells of sky_vegetation_ca (gen_textures.VEG_CELLS, row-major from the top-left)
+VEG_ATLAS = {n: (i % 4, i // 4) for i, n in enumerate(
+    ["grass", "weeds", "burdock", "shrub", "ivy", "ivy_hang", "birch_crown", "dead_branches",
+     "bark", "litter", "moss", "sapling", "dry_grass", "reeds", "bramble", "ivy_dark"])}
+
+
+def veg_uv(cell):
+    """(u0, v0, u1, v1) of a vegetation cell, Blender UV (v up)."""
+    c, r = VEG_ATLAS[cell]
+    return (c / 4.0, 1.0 - (r + 1) / 4.0, (c + 1) / 4.0, 1.0 - r / 4.0)
+
+
+# How much the city is overgrown / weathered per ruin state (seeded per building, build_city.dress).
+WEATHER = {
+    "ivy": (0.15, 0.35, 0.6),          # chance per facade side (intact, damaged, ruined)
+    "weeds": (0.6, 0.85, 1.0),          # chance per facade base bay
+    "roof_weeds": (0.0, 0.5, 1.0),      # roof / upper-floor weeds and saplings
+    "window_streaks": (0.25, 0.5, 0.7), # chance per window
+    "bars": 0.35,                       # ground-floor window bars on residential blocks (intact / damaged)
+}
+
+# Vegetation kit (D59): our own plants on the vegetation atlas, scattered by placement/city_fill.py in
+# yards, rubble lots and block interiors. veg = no collision (walk through, like vanilla grass /
+# small bushes); tree = trunk collides (Geometry + Fire), crown is cards.
+BUDGETS["veg"] = {"res0": 300, "res1": 120, "res2": 40, "res3": 8, "sections_res0": 1}
+BUDGETS["tree"] = {"res0": 500, "res1": 200, "res2": 60, "res3": 12, "shadow": 40, "geo_comps": 2, "geo_tris": 40,
+                   "sections_res0": 1}
+for _n, _c, _w, _d in [("Veg_Weeds", "veg", 3.0, "3 x 3 m patch of grass, weeds, burdock and bramble (no collision)"),
+                       ("Veg_Bush", "veg", 2.6, "2.5 m wild shrub with bramble skirt (no collision)"),
+                       ("Veg_Birch", "tree", 3.2, "9 m self-seeded birch: trunk collides, crown cards"),
+                       ("Veg_TreeDead", "tree", 3.2, "6 m dead tree: trunk collides, bare branch cards")]:
+    kit(_n, "sky_city", _c, desc=_d)
+    KIT[_n]["doors"] = []
+    KIT[_n]["city"] = {"archetype": None, "ruin": 0, "piece": _n, "veg": True}
+    KIT[_n]["catalog"] = "Vegetation"
+    KIT[_n]["collide"] = _c == "tree"                                     # weeds / bushes: render only
+    CITY_PIECES[_n] = ([_n], _w, _w)
+VEG_PIECES = ["Veg_Weeds", "Veg_Bush", "Veg_Birch", "Veg_TreeDead"]
+
+# Overgrowth per zone (city_fill.scatter_vegetation): grid step (m), chance per grid point, piece mix,
+# cap per block, extra points in perimeter-block yards. Downtown is kept, the frontline is wild.
+_VEG = {"downtown": {"step": 9.0, "fine": 6.0, "chance": 0.4, "mix": {"Veg_Weeds": 5, "Veg_Bush": 2, "Veg_Birch": 1},
+                     "cap": 14, "yard": 4},
+        "midtown": {"step": 8.0, "fine": 5.0, "chance": 0.55, "mix": {"Veg_Weeds": 4, "Veg_Bush": 3, "Veg_Birch": 2,
+                                                                        "Veg_TreeDead": 1}, "cap": 22, "yard": 5},
+        "residential": {"step": 7.0, "fine": 4.5, "chance": 0.65, "mix": {"Veg_Weeds": 4, "Veg_Bush": 3, "Veg_Birch": 3,
+                                                                            "Veg_TreeDead": 1}, "cap": 28, "yard": 5, "fine_trees": True},
+        "industrial": {"step": 8.0, "fine": 5.0, "chance": 0.6, "mix": {"Veg_Weeds": 6, "Veg_Bush": 2, "Veg_Birch": 1,
+                                                                          "Veg_TreeDead": 2}, "cap": 22, "yard": 3},
+        "frontline": {"step": 7.0, "fine": 4.5, "chance": 0.75, "mix": {"Veg_Weeds": 5, "Veg_Bush": 3, "Veg_Birch": 2,
+                                                                          "Veg_TreeDead": 3}, "cap": 28, "yard": 5, "fine_trees": True}}
+for _z, _v in _VEG.items():
+    CITY_ZONES[_z]["veg"] = _v
+# Grass through ground floors: on a spawner site the clutter (grass) of the terrain grows through
+# slabs that sit a few cm above it. Vanilla cutter objects remove it (verified class:
+# 4_world/entities/gardenbase/gardenplot.c:19 creates "ClutterCutter6x6"). Footprint assumed 6 x 6 m
+# from the name (P12). Custom terrains paint a no-clutter surface under the city instead.
+CLUTTER_CUTTER = {"class": "ClutterCutter6x6", "size": 6.0}
+
+# Tileable wall sheets (D59): the facade skins map their walls onto these at world scale (u along the
+# wall, v = height), so storey-high piers and tall naves no longer stretch a trim band. The trim
+# sheets stay for sills, string courses, soldier courses and plinths.
+MATERIALS.update({
+    "wall_brick": {"rvmat": rvmat("sky_wall_brick"), "co": tex("sky_wall_brick_co"), "sheet_m": 3.44},
+    "wall_panel": {"rvmat": rvmat("sky_wall_panel"), "co": tex("sky_wall_panel_co"), "sheet_m": 3.0},
+    "wall_limestone": {"rvmat": rvmat("sky_wall_limestone"), "co": tex("sky_wall_limestone_co"), "sheet_m": 3.0},
+})
+for _c in ("cream", "ochre", "grey", "white"):
+    MATERIALS["wall_render_" + _c] = {"rvmat": rvmat("sky_wall_render_" + _c), "co": tex("sky_wall_render_%s_co" % _c),
+                                      "sheet_m": 4.0}
+CITY_SKINS["brick"]["wall"] = "wall_brick"
+CITY_SKINS["panel"]["wall"] = "wall_panel"
+CITY_SKINS["stone"]["wall"] = "wall_limestone"
+CITY_SKINS["render"]["wall"] = "wall_render_%s"          # + skin band (cream / ochre / grey / white)

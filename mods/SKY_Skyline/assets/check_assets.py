@@ -46,7 +46,7 @@ def main():
         # kit asset: 3+ Res, Geometry, Fire Geometry; floor/roof variants are enterable modules
         is_prop = "category" in e and e["category"] not in ("floor", "roof", "city", "city_tall", "city_large", "core_tall")
         if is_prop:
-            flat = e["category"] in ("flat", "decal")   # decals: render only, must NOT collide
+            flat = e["category"] in ("flat", "decal", "veg")   # decals / weeds: render only, must NOT collide
             need = (["Roadway"] if e["category"] == "flat" else []) if flat else ["Geometry", "Fire Geometry"]
             if e["category"] in ("small", "medium"):    # interior_small: no shadow volume (perf batch-3 M3)
                 need.append("Shadow Volume")    # perf batch-1 M3
@@ -54,7 +54,7 @@ def main():
                 if req not in by:
                     errs.append("missing LOD " + req)
             if flat and ("Geometry" in by or "Fire Geometry" in by):
-                errs.append("flat decal must not have Geometry/Fire Geometry")
+                errs.append("flat decal / weeds must not have Geometry/Fire Geometry")
             if len(res) < 3:
                 errs.append("only %d resolution LODs" % len(res))
             g = by.get("Geometry")
@@ -70,7 +70,7 @@ def main():
             if g and g["properties"].get("autocenter") != "0":
                 errs.append("Geometry lacks autocenter=0")
         g = by.get("Geometry")
-        if (not g or not g["mass"]) and e.get("category") not in ("flat", "decal"):
+        if (not g or not g["mass"]) and e.get("category") not in ("flat", "decal", "veg"):
             errs.append("Geometry missing or massless")
         for i, key in enumerate(("res0", "res1", "res2", "res3")):
             if key in b and i < len(res) and res[i]["triangles"] > b[key]:

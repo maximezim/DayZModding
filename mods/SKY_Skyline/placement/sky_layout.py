@@ -126,6 +126,10 @@ class Ctx:
         self.objects, self.drops = [], []
         self.counts = {}
         self.city_stats = {}
+        self.veg_stats = {}
+        self.fill_stats = {}
+        self.max_drop = 0.0
+        self.cutters = False
 
     def soft(self, msg):
         (self.errors if self.strict else self.warnings).append(msg)
@@ -315,18 +319,70 @@ def place_tower(ctx, lay, t, cx, cz, yaw, survey, site):
             "top": base_y + mods[-1][1], "quad": footprint_corners(cx, cz, hw, hd, yaw)}
 
 
+def add_cutters(ctx, site, cx, cz, hw, hd, yaw, y):
+    """Clutter cutters tiled under a ground floor (spawner sites; D59, P12): no grass through slabs."""
+    if not ctx.cutters:
+        return
+    size = S.CLUTTER_CUTTER["size"]
+    nx, nz = max(1, int(math.ceil(2 * hw / size))), max(1, int(math.ceil(2 * hd / size)))
+    for i in range(nx):
+        for j in range(nz):
+            u = -hw + (i + 0.5) * 2 * hw / nx
+            v = -hd + (j + 0.5) * 2 * hd / nz
+            dx, dz = rot(u, v, yaw)
+            ctx.add("cutters", S.CLUTTER_CUTTER["class"], (cx + dx, y, cz + dz), yaw)
+
+
 def place_city(ctx, lay, block_rects, world, site_yaw, survey, site, tile_quads, tower_quads):
     """Procedural city buildings of every block (`fill`, `buildings`) -> objects. Returns centres."""
     ctx.city_stats = {}
+    ctx.fill_stats = {}
     centres, bquads = [], []
+    clearance = float(site.get("clearance", 0.05))
+
+    def ground(arch, u, v, hw, hd, yaw_rel):
+        """Why the terrain cannot take this lot (None = fine) - the fill skips or downsizes it."""
+        cx, cz = world(u, v)
+        yaw = (site_yaw + yaw_rel) % 360.0
+        quad = footprint_corners(cx, cz, hw, hd, yaw)
+        for tid, tq in tower_quads:
+            if sat_overlap(quad, tq):
+                return "tower %s" % tid
+        if survey is None:
+            return None
+        inside_fp = lambda x, z: inside(x, z, cx, cz, hw, hd, yaw)
+        ys = survey_ground(survey, inside_fp)
+        if not ys:
+            return "no survey samples"
+        for o in survey.get("objects", []):
+            if not o["type"].startswith("Land_SKY_") and inside_fp(o["pos"][0], o["pos"][2]) and \
+                    not o["type"].lower().startswith(VEGETATION):
+                return "existing object %s" % o["type"]
+        if arch in S.VEG_PIECES:
+            return None
+        base = max(ys) + clearance
+        if base - min(ys) > S.CITY_SKIRT_DROP:
+            return "ground falls %.2f m (skirt %.1f m)" % (base - min(ys), S.CITY_SKIRT_DROP)
+        if ctx.street_y is not None and abs(base - (ctx.street_y + S.STREET["curb_h"])) > 0.5:
+            return "floor %.2f m off the sidewalk" % (base - ctx.street_y - S.STREET["curb_h"])
+        return None
+
     for b, rect in block_rects:
         if not (b.get("fill") or b.get("buildings")):
             continue
-        for cls, arch, state, u, v, yaw_rel, hw, hd, ou, ov in city_fill.fill_block(S, b, rect, S.BLOCK_SETBACK):
+        for cls, arch, state, u, v, yaw_rel, hw, hd, ou, ov in city_fill.fill_block(S, b, rect, S.BLOCK_SETBACK,
+                                                                                       ground, ctx.fill_stats):
             cx, cz = world(u, v)                                        # footprint centre (checks)
             mx, mz = world(ou, ov)                                      # model origin (spawn position)
             yaw = (site_yaw + yaw_rel) % 360.0
             quad = footprint_corners(cx, cz, hw, hd, yaw)
+            if arch in S.VEG_PIECES:                                    # plants: on the ground, no slab checks
+                ys = survey_ground(survey, lambda x, z: inside(x, z, cx, cz, hw, hd, yaw)) if survey is not None else []
+                gy = min(ys) if ys else ((ctx.street_y + S.STREET["curb_h"]) if ctx.street_y is not None else
+                                         float(site.get("base_y") or 0.0))
+                ctx.add("vegetation", cls, (mx, gy, mz), yaw)
+                ctx.veg_stats[arch] = ctx.veg_stats.get(arch, 0) + 1
+                continue
             what = "%s in block %s" % (cls.replace("Land_SKY_City_", ""), b["id"])
             for cell, tq in tile_quads:
                 if sat_overlap(quad, tq):
@@ -355,6 +411,11 @@ def place_city(ctx, lay, block_rects, world, site_yaw, survey, site, tile_quads,
                 ctx.soft("%s: ground floor %.2f m off the sidewalk - entrance step too high" % (
                     what, base_y - ctx.street_y - S.STREET["curb_h"]))
             ctx.add("buildings", cls, (mx, base_y, mz), yaw)
+            if survey is not None:
+                ys = survey_ground(survey, lambda x, z: inside(x, z, cx, cz, hw, hd, yaw))
+                if ys:
+                    ctx.max_drop = max(ctx.max_drop, base_y - min(ys))
+            add_cutters(ctx, site, cx, cz, hw, hd, yaw, base_y - clearance)
             st = ctx.city_stats.setdefault(arch, [0, 0, 0])
             st[state if arch != "RubbleLot" else 2] += 1
             centres.append((cx, cz))
@@ -407,6 +468,8 @@ def main():
     lay = yaml.safe_load(open(a.layout))
     site = lay["site"]
     ctx = Ctx(a.strict)
+    # grass through ground floors: cutters on spawner sites by default; a custom terrain paints no-clutter ground
+    ctx.cutters = bool(site.get("clutter_cutters", site.get("target", "spawner") != "terrain"))
 
     survey = None
     if site.get("survey"):
@@ -537,6 +600,8 @@ def main():
                 ctx.errors.append("tower %s footprint overlaps street tile %s" % (t["id"], cell))
         quads.append((t["id"], quad))
         placed.append(place_tower(ctx, lay, t, cx, cz, yaw, survey, site))
+        add_cutters(ctx, site, cx, cz, placed[-1]["hw"], placed[-1]["hd"], yaw,
+                    placed[-1]["base_y"] - float(site.get("clearance", 0.05)))
 
     place_decals(ctx, lay, placed, site_yaw)
     city = place_city(ctx, lay, block_rects, world, site_yaw, survey, site, tile_quads, quads)
@@ -625,7 +690,7 @@ def main():
             fh.write("## %s\n" % title + ("".join("- %s\n" % i for i in items) or "- none\n") + "\n")
         fh.write("## Entity counts (caps: entities + loot %d per district / %d per server, %d props per floor / %d per tower)\n"
                  % (S.ENTITY_CAP["per_district"], S.ENTITY_CAP["per_server"], S.PROP_CAPS["per_floor"], S.PROP_CAPS["per_tower"]))
-        for k in ("modules", "buildings", "tiles", "lights", "props", "decals"):
+        for k in ("modules", "buildings", "vegetation", "cutters", "tiles", "lights", "props", "decals"):
             fh.write("- %s: %d\n" % (k, ctx.counts.get(k, 0)))
         fh.write("- **total: %d** entities, %d loot items (max), server total %d\n\n" % (total, loot, server))
         if ctx.city_stats:
@@ -635,6 +700,17 @@ def main():
                 fh.write("- %s: %d / %d / %d\n" % (arch, st[0], st[1], st[2]))
             tot = [sum(v[i] for v in ctx.city_stats.values()) for i in range(3)]
             fh.write("- **all: %d / %d / %d** (%d buildings)\n\n" % (tot[0], tot[1], tot[2], sum(tot)))
+            fh.write("## Terrain fit and overgrowth (D59)\n")
+            fs = ctx.fill_stats
+            fh.write("- lots the terrain could not take (given to a smaller type or left as yard): %d\n"
+                     % len(fs.get("terrain_skips", [])))
+            for r in fs.get("terrain_skips", [])[:20]:
+                fh.write("  - %s\n" % r)
+            fh.write("- slivers avoided (gap < %.1f m between buildings): %d\n" % (city_fill.MIN_GAP, fs.get("slivers_avoided", 0)))
+            fh.write("- deepest ground drop under a city building: %.2f m (skirt %.1f m)\n" % (ctx.max_drop, S.CITY_SKIRT_DROP))
+            fh.write("- clutter cutters: %s\n" % ("%d (%s)" % (ctx.counts.get("cutters", 0), S.CLUTTER_CUTTER["class"]) if ctx.cutters
+                                                else "off (custom terrain: paint a no-clutter surface under the city)"))
+            fh.write("- vegetation: %s\n\n" % (", ".join("%s %d" % kv for kv in sorted(ctx.veg_stats.items())) or "none"))
         fh.write("## Objects (%d)\n" % total)
         for o in ctx.objects:
             fh.write("- %s at %s yaw %s\n" % (o["name"], o["pos"], o["ypr"][0]))

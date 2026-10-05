@@ -4,6 +4,7 @@
     python mods/SKY_Skyline/placement/tests/test_sky_layout.py
 """
 import json
+import re
 import os
 import subprocess
 import sys
@@ -13,6 +14,8 @@ import yaml
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 TOOL = os.path.join(os.path.dirname(HERE), "sky_layout.py")
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(HERE)), "assets"))
+import skyspec as S  # noqa: E402
 
 
 def survey(cx, cz, ground, objects=()):
@@ -200,6 +203,8 @@ def city_tests(expect):
         quads = []
         bc = ((rect[0] + rect[1]) / 2, (rect[2] + rect[3]) / 2)
         for cls, arch, state, u, v, yaw, hw, hd, _ou, _ov in res:
+            if arch in S.VEG_PIECES:                          # plants: checked below (yards may sit in a footprint)
+                continue
             q = CF._corners(u, v, hw, hd, yaw)
             m = S.BLOCK_SETBACK - 1e-6
             if any(not (rect[0] + m <= x <= rect[1] - m and rect[2] + m <= z <= rect[3] - m) for x, z in q):
@@ -263,6 +268,36 @@ def city_tests(expect):
     yaml.safe_dump(lay3, open(os.path.join(d, "c.yaml"), "w"))
     rc, out, _ = run_layout(os.path.join(d, "c.yaml"))
     expect("city building on a steep slope fails the skirt", rc == 1 and "skirt" in out, out)
+    # terrain-aware fill (D59): a 3 m hollow in one corner of a filled block - the fill gives those lots
+    # up (yard / weeds) instead of failing; spawner site gets clutter cutters at ground level
+    lay4 = {"map": "chernarusplus", "mission": "m", "towers": [],
+            "site": {"name": "c4", "placeholder": False, "center": [1000.0, 2000.0], "yaw": 0.0, "target": "spawner",
+                     "survey": "s.json", "base_y": None, "clearance": 0.05},
+            "streets": {"origin": [0, 0], "extent": [-2, 2, -2, 2], "ns": [-2, 2], "ew": [-2, 2]},
+            "blocks": [{"id": "Y", "cells": [-1, -1, 1, 1], "fill": {"zone": "residential", "seed": 3}}]}
+    hollow = lambda x, z: 150.0 - (3.0 if (1003 < x < 1017 and 2003 < z < 2017) else 0.0)
+    sv4 = survey(1000, 2000, lambda i, j: 150.0)
+    sv4["samples"] = []
+    for i in range(-30, 31, 1):
+        for j in range(-30, 31, 1):
+            sv4["samples"] += [1000 + i, hollow(1000 + i, 2000 + j), 2000 + j]
+    d4 = tempfile.mkdtemp()
+    json.dump(sv4, open(os.path.join(d4, "s.json"), "w"))
+    yaml.safe_dump(lay4, open(os.path.join(d4, "c.yaml"), "w"))
+    rc, out, od4 = run_layout(os.path.join(d4, "c.yaml"))
+    rep4 = open(os.path.join(od4, "placement_report.md")).read()
+    m4 = re.search(r"could not take \(given to a smaller type or left as yard\): (\d+)", rep4)
+    expect("terrain-aware fill: a hollow in the block is routed around, run passes", rc == 0 and m4 and int(m4.group(1)) > 0,
+           out + rep4[:1500])
+    objs4 = json.load(open(os.path.join(od4, "sky_objects.json")))["Objects"] if rc == 0 else []
+    bld = [o for o in objs4 if o["name"].startswith("Land_SKY_City_")]
+    expect("no city building stands over the hollow", bld and all(not (1004 < o["pos"][0] < 1016 and 2004 < o["pos"][2] < 2016) or
+                                                                  o["name"].startswith("Land_SKY_Veg") for o in bld), str(bld[:3]))
+    cut4 = [o for o in objs4 if o["name"] == S.CLUTTER_CUTTER["class"]]
+    expect("spawner city: clutter cutters under the ground floors", len(cut4) >= len(bld), "%d cutters, %d buildings" % (len(cut4), len(bld)))
+    veg4 = [o for o in objs4 if o["name"].startswith("Land_SKY_Veg_")]
+    expect("overgrowth placed on the ground (plants follow the hollow)", veg4 and all(o["pos"][1] <= 150.0 + 1e-6 for o in veg4),
+           str(veg4[:3]))
     del math
 
 
@@ -276,9 +311,12 @@ def main():
 
     rc, out, objs = run("flat", survey(1000, 2000, lambda i, j: 150.0 + 0.01 * i))
     lobby = [o for o in objs if o["name"] == "Land_SKY_TowerA_Lobby"]
+    cut = [o for o in objs if o["name"] == S.CLUTTER_CUTTER["class"]]
     expect("flat site passes strict", rc == 0, out)
     expect("base height = max ground inside footprint + clearance", lobby and abs(lobby[0]["pos"][1] - (150.11 + 0.05)) < 1e-3, str(lobby))
-    expect("8 objects (lobby, 5 floors, roof, core)", len(objs) == 8, str(len(objs)))
+    expect("8 objects (lobby, 5 floors, roof, core)", len(objs) - len(cut) == 8, str(len(objs)))
+    expect("spawner site: 16 clutter cutters (6 m grid) under the 24 x 24 m lobby, at ground level",
+           len(cut) == 16 and all(abs(o["pos"][1] - 150.11) < 1e-3 for o in cut), str(cut[:2]))
 
     rc, out, _ = run("slope", survey(1000, 2000, lambda i, j: 150.0 + 0.2 * i))
     expect("steep site fails (drop > skirt)", rc == 1 and "flatter site" in out, out)
@@ -299,8 +337,8 @@ def main():
     # tall cores (D58): a T23 tower stacks lobby + 23 floors + roof on Land_SKY_TowerA_Core23
     rc, out, objs = run("tall", survey(1000, 2000, lambda i, j: 150.0),
                         towers=[{"id": "T1", "type": "TowerA", "offset": [0, 0], "yaw": 0, "core": "T23", "roof": "crown"}])
-    names = [o["name"] for o in objs]
-    expect("tall core T23: 26 objects (lobby, 23 floors, crown roof, core)", rc == 0 and len(objs) == 26, out)
+    names = [o["name"] for o in objs if o["name"] != S.CLUTTER_CUTTER["class"]]
+    expect("tall core T23: 26 objects (lobby, 23 floors, crown roof, core)", rc == 0 and len(names) == 26, out)
     expect("tall core T23 spawns Land_SKY_TowerA_Core23 and the crown roof",
            "Land_SKY_TowerA_Core23" in names and "Land_SKY_Roof_Crown" in names, str(names))
     rc, out, _ = run("tall-mismatch", survey(1000, 2000, lambda i, j: 150.0),

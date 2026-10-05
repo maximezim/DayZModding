@@ -4613,4 +4613,28 @@ class CfgVehicles
 		scope = 1;
 		model = "SKY_Skyline\sky_city\sky_city_metroentrance_b.p3d";
 	};
+	class Land_SKY_Veg_Weeds: Land_SKY_City_Base
+	{
+		// 3 x 3 m patch of grass, weeds, burdock and bramble (no collision)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_veg_weeds.p3d";
+	};
+	class Land_SKY_Veg_Bush: Land_SKY_City_Base
+	{
+		// 2.5 m wild shrub with bramble skirt (no collision)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_veg_bush.p3d";
+	};
+	class Land_SKY_Veg_Birch: Land_SKY_City_Base
+	{
+		// 9 m self-seeded birch: trunk collides, crown cards
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_veg_birch.p3d";
+	};
+	class Land_SKY_Veg_TreeDead: Land_SKY_City_Base
+	{
+		// 6 m dead tree: trunk collides, bare branch cards
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_veg_treedead.p3d";
+	};
 };

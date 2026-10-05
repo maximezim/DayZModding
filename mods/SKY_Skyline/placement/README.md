@@ -94,6 +94,14 @@ The committed `out/` uses the **placeholder** site (7500, 7500, Y = 0). Do not d
   36 x 24) - D58.
 * Forecourt buildings (gas station, cafe terrace) have a footprint larger than their body; the fill uses
   the whole footprint and spawns the model at its body origin.
+* Terrain-aware (D59): with a survey, a lot the ground cannot take (drop > 1.5 m skirt, ground floor
+  > 0.5 m off the sidewalk, an existing object or a tower in the way) goes to the next, smaller type or
+  stays a yard - the run does not fail. Buildings touch or keep >= 0.8 m (no slivers).
+* Overgrowth (D59): `CITY_ZONES[zone].veg` scatters `Veg_Weeds / Bush / Birch / TreeDead` in the free
+  ground of the block and in perimeter-block yards (seeded, capped per block, on the surveyed ground).
+* Grass through floors: `site.clutter_cutters` (default on for `target: spawner`) spawns vanilla
+  `ClutterCutter6x6` under every tower and city ground floor (P12); custom terrains paint a no-clutter
+  surface under the city instead. The report has a "Terrain fit and overgrowth" section.
 * Every building gets its ground height from the survey (1.5 m skirt) or the street plane, and the same
   overlap / foreign-object checks as towers. The report lists every archetype by intact / damaged / ruined.
 * `site.target: spawner` (default) obeys ENTITY_CAP (every spawned building is a replicated entity);

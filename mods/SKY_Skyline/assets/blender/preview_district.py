@@ -61,9 +61,11 @@ def texture_all(tex):
                 img = nt.nodes.new("ShaderNodeTexImage")
                 img.image = bpy.data.images.load(png)
                 nt.links.new(img.outputs["Color"], bsdf.inputs["Base Color"])
-                if key.startswith("decal") or key in ("roadmark",):
+                if key.startswith("decal") or key in ("roadmark", "vegetation"):
                     nt.links.new(img.outputs["Alpha"], bsdf.inputs["Alpha"])
                     m.blend_method = "BLEND"
+                    if key == "vegetation":                            # alpha-tested in game (AlphaTest32)
+                        m.blend_method = "CLIP"
         if key in PT.EMISSIVE:
             bsdf = m.node_tree.nodes.get("Principled BSDF") if m.use_nodes else None
             if bsdf:
@@ -85,6 +87,7 @@ def main():
         f = [float(x) for x in v.split(",")]
         cams[n] = ((f[0], f[1], f[2]), (f[3], f[4], f[5]), f[6])
     os.makedirs(out, exist_ok=True)
+    PT.DAYZ = "--dayz" in argv
     B = builders()
     cx = sum(o["pos"][0] for o in objs) / len(objs)
     cz = sum(o["pos"][2] for o in objs) / len(objs)

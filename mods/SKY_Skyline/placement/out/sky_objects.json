@@ -127,6 +127,262 @@
    "scale": 1.0,
    "enableCEPersistency": 0,
    "customString": ""
+  },
+  {
+   "name": "ClutterCutter6x6",
+   "pos": [
+    1601.0,
+    161.948,
+    4341.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "ClutterCutter6x6",
+   "pos": [
+    1601.0,
+    161.948,
+    4347.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "ClutterCutter6x6",
+   "pos": [
+    1601.0,
+    161.948,
+    4353.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "ClutterCutter6x6",
+   "pos": [
+    1601.0,
+    161.948,
+    4359.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "ClutterCutter6x6",
+   "pos": [
+    1607.0,
+    161.948,
+    4341.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "ClutterCutter6x6",
+   "pos": [
+    1607.0,
+    161.948,
+    4347.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "ClutterCutter6x6",
+   "pos": [
+    1607.0,
+    161.948,
+    4353.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "ClutterCutter6x6",
+   "pos": [
+    1607.0,
+    161.948,
+    4359.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "ClutterCutter6x6",
+   "pos": [
+    1613.0,
+    161.948,
+    4341.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "ClutterCutter6x6",
+   "pos": [
+    1613.0,
+    161.948,
+    4347.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "ClutterCutter6x6",
+   "pos": [
+    1613.0,
+    161.948,
+    4353.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "ClutterCutter6x6",
+   "pos": [
+    1613.0,
+    161.948,
+    4359.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "ClutterCutter6x6",
+   "pos": [
+    1619.0,
+    161.948,
+    4341.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "ClutterCutter6x6",
+   "pos": [
+    1619.0,
+    161.948,
+    4347.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "ClutterCutter6x6",
+   "pos": [
+    1619.0,
+    161.948,
+    4353.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "ClutterCutter6x6",
+   "pos": [
+    1619.0,
+    161.948,
+    4359.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
   }
  ]
 }

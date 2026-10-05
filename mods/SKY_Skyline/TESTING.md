@@ -517,6 +517,19 @@ Static results: `reviews/city_wave3_gates.md`; renders `reviews/img/city3_*.png`
 | CW-07 | Tall towers: layout with `core: T15`, `T23`, `T33` + `roof: crown` | Elevator serves every stop (LOBBY / ROOF / UP / DOWN), doors at every stop; crown lights at night | | |
 | CW-08 | `city_template.yaml` (closed street cells, landmark blocks) | `city_objects.csv` written; merged blocks hold the landmarks; no street tile under a building | | |
 
+## 24. DayZ ambiance, vegetation, terrain-safe fill (D59)
+
+Static results: `reviews/d59_gates.md`; renders `reviews/img/d59_*.png`.
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| CV-01 | Walk a weathered building close up (brick, panel, stucco, limestone) | Walls tile without stretching or seams; grime overlays sit on the wall (no z-fighting, no visible quad edge); RPT clean of rvmat / texture errors | | |
+| CV-02 | Vegetation: weeds, bushes, birch, dead tree, ivy | Cards alpha-tested (no black halos), weeds / bushes walk-through, tree trunks collide, crowns never inside a room | | |
+| CV-03 | Ruins: saplings and weeds on rubble | Nothing floats; sapling trunk visual only (rubble mound is the collision) | | |
+| CV-04 | Spawner district with `clutter_cutters` (P12) | No grass through lobby / ground floors; measure the cleared area around one cutter | | |
+| CV-05 | Terrain-aware fill on a surveyed slope | Report lists the skipped lots; every placed building within the 1.5 m skirt, entrances within 0.5 m of the sidewalk | | |
+| CV-06 | FPS walk through a dense overgrown block (FPS_PROTOCOL) | Client cost of grime quads and vegetation cards within the budget notes of `reviews/d59_gates.md` | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |

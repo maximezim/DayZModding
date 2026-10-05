@@ -141,10 +141,32 @@ def test_piece(name, hw, hd):
     check(not S.KIT[name]["doors"] and S.KIT[name]["cls"] not in C.LOOT_OUT, "%s: pieces carry no door / loot" % name)
 
 
+def test_veg(name):
+    """Vegetation pieces: 4 Res LODs, cards inside the footprint; weeds / bushes never collide,
+    trees collide with a watertight trunk only (inside 0.5 m of the centre)."""
+    lods = {l.name: l for l in C.BUILDERS[name]()}
+    for k in ("res0", "res1", "res2", "res3"):
+        check(k in lods and lods[k].faces, "%s: missing LOD %s" % (name, k))
+    _k, w, _d = S.CITY_PIECES[name]
+    for v in lods["res0"].verts:
+        if abs(v[0]) > w / 2 + 1e-6 or abs(v[1]) > w / 2 + 1e-6:
+            check(False, "%s: Res0 leaves the %g m footprint" % (name, w))
+            break
+    tree = S.KIT[name]["category"] == "tree"
+    check(("geo" in lods) == tree, "%s: %s" % (name, "a tree needs a trunk Geometry" if tree else "weeds / bushes must not collide"))
+    if tree:
+        for g in lods["geo"].groups:
+            if g.startswith("Component"):
+                check(watertight(lods["geo"], g), "%s geo %s is not watertight" % (name, g))
+        check(all(abs(v[0]) <= 0.5 and abs(v[1]) <= 0.5 for v in lods["geo"].verts), "%s: trunk Geometry too wide" % name)
+
+
 def test_class(name, fresh_loot):
     e = S.KIT[name]
     if e["city"].get("lot"):
         return test_lot(name)
+    if e["city"].get("veg"):
+        return test_veg(name)
     if e["city"].get("piece"):
         _k, w, d = S.CITY_PIECES[e["city"]["piece"]]
         return test_piece(name, w / 2, d / 2)

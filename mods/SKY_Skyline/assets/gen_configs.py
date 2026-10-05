@@ -52,9 +52,15 @@ PROCEDURAL_MAPS = {
     "sky_ceiling": ("as", "smdi"),                                             # D53
     "sky_paint": ("as", "smdi"), "sky_textile": ("as", "smdi"), "sky_parquet": ("as",),   # D55
     "sky_render": ("as", "smdi"), "sky_rubble": ("as",), "sky_signs": ("nohq", "as", "smdi"),   # D56
+    "sky_decal_grime": ("nohq", "as", "smdi"), "sky_vegetation": ("nohq", "as", "smdi"),          # D59
+    "sky_wall_brick": ("as", "smdi"), "sky_wall_panel": ("as", "smdi"), "sky_wall_limestone": ("as", "smdi"),
+    "sky_wall_render_cream": ("nohq", "as", "smdi"), "sky_wall_render_ochre": ("nohq", "as", "smdi"),
+    "sky_wall_render_grey": ("nohq", "as", "smdi"), "sky_wall_render_white": ("nohq", "as", "smdi"),
 }
 # Constant specular/gloss for procedural _smdi stages (default PROC["smdi"] otherwise).
-PROC_SMDI = {"sky_render": (0.05, 0.1), "sky_signs": (0.3, 0.4), "sky_paint": (0.06, 0.12), "sky_textile": (0.02, 0.05), "sky_ceiling": (0.05, 0.1), "sky_brick": (0.08, 0.15), "sky_concpanel": (0.1, 0.2), "sky_wood": (0.25, 0.35), "sky_fabric": (0.03, 0.1)}
+PROC_SMDI = {"sky_wall_brick": (0.08, 0.15), "sky_wall_panel": (0.1, 0.2), "sky_wall_limestone": (0.12, 0.2),
+             "sky_wall_render_cream": (0.05, 0.1), "sky_wall_render_ochre": (0.05, 0.1), "sky_wall_render_grey": (0.05, 0.1),
+             "sky_wall_render_white": (0.05, 0.1), "sky_decal_grime": (0.02, 0.05), "sky_vegetation": (0.08, 0.15), "sky_render": (0.05, 0.1), "sky_signs": (0.3, 0.4), "sky_paint": (0.06, 0.12), "sky_textile": (0.02, 0.05), "sky_ceiling": (0.05, 0.1), "sky_brick": (0.08, 0.15), "sky_concpanel": (0.1, 0.2), "sky_wood": (0.25, 0.35), "sky_fabric": (0.03, 0.1)}
 
 
 def rvmat_super(base, spec_power=40, emissive=(0, 0, 0)):
@@ -102,7 +108,7 @@ def rvmat_flat(emissive=(0, 0, 0), color_stage=None):
 
 
 # Alpha-tested (not blended) materials - renderFlags as in Bohemia's Test_Clutter grass rvmat.
-ALPHA_TEST = {"sky_foliage", "sky_roadmark", "sky_decal_cracks", "sky_decal_graffiti"}
+ALPHA_TEST = {"sky_foliage", "sky_roadmark", "sky_decal_cracks", "sky_decal_graffiti", "sky_vegetation"}
 
 RVMATS = {
     "sky_concrete": ("sky_concrete", 20), "sky_metal": ("sky_metal", 60), "sky_glass": ("sky_glass", 120), "sky_glassfar": ("sky_glassfar", 80),
@@ -124,6 +130,12 @@ RVMATS = {
     "sky_stone": ("sky_stone", 60), "sky_textile": ("sky_textile", 5),
     # city buildings (D56)
     "sky_render": ("sky_render", 8), "sky_rubble": ("sky_rubble", 5), "sky_signs": ("sky_signs", 40),
+    # DayZ ambiance (D59)
+    "sky_decal_grime": ("sky_decal_grime", 5), "sky_vegetation": ("sky_vegetation", 5),
+    "sky_wall_brick": ("sky_wall_brick", 10), "sky_wall_panel": ("sky_wall_panel", 15),
+    "sky_wall_limestone": ("sky_wall_limestone", 20),
+    "sky_wall_render_cream": ("sky_wall_render_cream", 8), "sky_wall_render_ochre": ("sky_wall_render_ochre", 8),
+    "sky_wall_render_grey": ("sky_wall_render_grey", 8), "sky_wall_render_white": ("sky_wall_render_white", 8),
 }
 
 

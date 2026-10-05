@@ -151,3 +151,16 @@ HQ landmark reuse the Tower A modules on taller cores (17 / 25 / 35 storeys, sam
 new crown roof. The city template now merges blocks by closing street cells and holds the landmarks:
 93 buildings, 43 / 27 / 23 intact / damaged / ruined. Gates PASS (`reviews/city_wave3_gates.md`), renders
 `reviews/img/city3_*.png`, `district3_*.png`, `towers_tall*.png`, in-game rows TESTING §23.
+
+## 11. DayZ ambiance pass (D59)
+
+The city now reads as Chernarus after the collapse: faded post-Soviet stucco colours, sooty brick,
+weeping precast joints, plaster falling off the brick, rising damp with moss at every wall base,
+run-off under every roofline, streaks under sills, rusty downpipes, barred ground-floor windows, ivy
+on a share of the facades, weeds at the walls and on the roofs of damaged buildings, young birches
+growing out of the rubble of ruins. Walls moved to tileable wall sheets (no more stretched textures on
+tall faces). A vegetation kit (weeds, bushes, birch, dead tree) is scattered by the fill per zone,
+including perimeter-block yards. The fill is terrain-aware (it skips or downsizes lots the ground
+cannot take instead of failing), avoids slivers between buildings, and spawner sites get vanilla
+clutter cutters under ground floors (P12). Gates PASS (`reviews/d59_gates.md`), renders
+`reviews/img/d59_*.png`, in-game rows TESTING §24.

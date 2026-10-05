@@ -85,6 +85,7 @@ def main():
     only = argv[argv.index("--only") + 1].split(",") if "--only" in argv else list(S.CITY_ARCHETYPES)
     shot = argv[argv.index("--shot") + 1] if "--shot" in argv else "states"
     PT.NIGHT = "--night" in argv
+    PT.DAYZ = "--dayz" in argv
     os.makedirs(out, exist_ok=True)
     jobs = []
     if shot == "lots":
@@ -143,9 +144,11 @@ def main():
                     img = nt.nodes.new("ShaderNodeTexImage")
                     img.image = bpy.data.images.load(png)
                     nt.links.new(img.outputs["Color"], bsdf.inputs["Base Color"])
-                    if key.startswith("decal"):
+                    if key.startswith("decal") or key == "vegetation":
                         nt.links.new(img.outputs["Alpha"], bsdf.inputs["Alpha"])
                         m.blend_method = "BLEND"
+                        if key == "vegetation":                            # alpha-tested in game (AlphaTest32)
+                            m.blend_method = "CLIP"
         PT.scene_setup()
         ground_street(x)
         hmax = max(sum(fh for _u, fh in A["levels"]) for _c, A in spans)

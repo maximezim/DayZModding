@@ -25,13 +25,15 @@ map: chernarusplus  site: district-template  status: **PASS (with warnings)**
 ## Entity counts (caps: entities + loot 800 per district / 2500 per server, 25 props per floor / 70 per tower)
 - modules: 32
 - buildings: 0
+- vegetation: 0
+- cutters: 64
 - tiles: 45
 - lights: 16
 - props: 227
 - decals: 3
-- **total: 323** entities, 226 loot items (max), server total 549
+- **total: 387** entities, 226 loot items (max), server total 613
 
-## Objects (323)
+## Objects (387)
 - Land_SKY_Street_Intersection at [-48.0, 0.0, -48.0] yaw 0.0
 - Land_SKY_Street_Straight at [-48.0, 0.0, -36.0] yaw 0.0
 - Land_SKY_StreetLight at [-52.5, 0.15, -36.0] yaw 0.0
@@ -156,6 +158,22 @@ map: chernarusplus  site: district-template  status: **PASS (with warnings)**
 - Land_SKY_Locker at [-33.5, 21.0, 26.5] yaw 90.0
 - Land_SKY_VendingMachine at [-29.0, 21.0, 22.0] yaw 0.0
 - Land_SKY_ExtinguisherCabinet at [-27.0, 22.0, 24.0] yaw 90.0
+- ClutterCutter6x6 at [-33.0, -0.05, 15.0] yaw 0.0
+- ClutterCutter6x6 at [-33.0, -0.05, 21.0] yaw 0.0
+- ClutterCutter6x6 at [-33.0, -0.05, 27.0] yaw 0.0
+- ClutterCutter6x6 at [-33.0, -0.05, 33.0] yaw 0.0
+- ClutterCutter6x6 at [-27.0, -0.05, 15.0] yaw 0.0
+- ClutterCutter6x6 at [-27.0, -0.05, 21.0] yaw 0.0
+- ClutterCutter6x6 at [-27.0, -0.05, 27.0] yaw 0.0
+- ClutterCutter6x6 at [-27.0, -0.05, 33.0] yaw 0.0
+- ClutterCutter6x6 at [-21.0, -0.05, 15.0] yaw 0.0
+- ClutterCutter6x6 at [-21.0, -0.05, 21.0] yaw 0.0
+- ClutterCutter6x6 at [-21.0, -0.05, 27.0] yaw 0.0
+- ClutterCutter6x6 at [-21.0, -0.05, 33.0] yaw 0.0
+- ClutterCutter6x6 at [-15.0, -0.05, 15.0] yaw 0.0
+- ClutterCutter6x6 at [-15.0, -0.05, 21.0] yaw 0.0
+- ClutterCutter6x6 at [-15.0, -0.05, 27.0] yaw 0.0
+- ClutterCutter6x6 at [-15.0, -0.05, 33.0] yaw 0.0
 - Land_SKY_TowerA_Lobby at [24.0, 0.0, 24.0] yaw 90.0
 - Land_SKY_Floor_Apartments at [24.0, 7.0, 24.0] yaw 90.0
 - Land_SKY_Floor_Apartments at [24.0, 10.5, 24.0] yaw 90.0
@@ -224,6 +242,22 @@ map: chernarusplus  site: district-template  status: **PASS (with warnings)**
 - Land_SKY_Kitchenette at [33.5, 21.0, 32.5] yaw 90.0
 - Land_SKY_Kitchenette at [14.5, 21.0, 15.5] yaw 270.0
 - Land_SKY_Kitchenette at [14.5, 21.0, 32.5] yaw 270.0
+- ClutterCutter6x6 at [15.0, -0.05, 33.0] yaw 90.0
+- ClutterCutter6x6 at [21.0, -0.05, 33.0] yaw 90.0
+- ClutterCutter6x6 at [27.0, -0.05, 33.0] yaw 90.0
+- ClutterCutter6x6 at [33.0, -0.05, 33.0] yaw 90.0
+- ClutterCutter6x6 at [15.0, -0.05, 27.0] yaw 90.0
+- ClutterCutter6x6 at [21.0, -0.05, 27.0] yaw 90.0
+- ClutterCutter6x6 at [27.0, -0.05, 27.0] yaw 90.0
+- ClutterCutter6x6 at [33.0, -0.05, 27.0] yaw 90.0
+- ClutterCutter6x6 at [15.0, -0.05, 21.0] yaw 90.0
+- ClutterCutter6x6 at [21.0, -0.05, 21.0] yaw 90.0
+- ClutterCutter6x6 at [27.0, -0.05, 21.0] yaw 90.0
+- ClutterCutter6x6 at [33.0, -0.05, 21.0] yaw 90.0
+- ClutterCutter6x6 at [15.0, -0.05, 15.0] yaw 90.0
+- ClutterCutter6x6 at [21.0, -0.05, 15.0] yaw 90.0
+- ClutterCutter6x6 at [27.0, -0.05, 15.0] yaw 90.0
+- ClutterCutter6x6 at [33.0, -0.05, 15.0] yaw 90.0
 - Land_SKY_TowerA_Lobby at [-24.0, 0.0, -24.0] yaw 180.0
 - Land_SKY_Floor_Hotel at [-24.0, 7.0, -24.0] yaw 180.0
 - Land_SKY_Floor_Hotel at [-24.0, 10.5, -24.0] yaw 180.0
@@ -292,6 +326,22 @@ map: chernarusplus  site: district-template  status: **PASS (with warnings)**
 - Land_SKY_Sofa at [-33.5, 21.0, -24.0] yaw 270.0
 - Land_SKY_Bed at [-15.0, 21.0, -28.0] yaw 180.0
 - Land_SKY_Sofa at [-14.5, 21.0, -24.0] yaw 90.0
+- ClutterCutter6x6 at [-15.0, -0.05, -15.0] yaw 180.0
+- ClutterCutter6x6 at [-15.0, -0.05, -21.0] yaw 180.0
+- ClutterCutter6x6 at [-15.0, -0.05, -27.0] yaw 180.0
+- ClutterCutter6x6 at [-15.0, -0.05, -33.0] yaw 180.0
+- ClutterCutter6x6 at [-21.0, -0.05, -15.0] yaw 180.0
+- ClutterCutter6x6 at [-21.0, -0.05, -21.0] yaw 180.0
+- ClutterCutter6x6 at [-21.0, -0.05, -27.0] yaw 180.0
+- ClutterCutter6x6 at [-21.0, -0.05, -33.0] yaw 180.0
+- ClutterCutter6x6 at [-27.0, -0.05, -15.0] yaw 180.0
+- ClutterCutter6x6 at [-27.0, -0.05, -21.0] yaw 180.0
+- ClutterCutter6x6 at [-27.0, -0.05, -27.0] yaw 180.0
+- ClutterCutter6x6 at [-27.0, -0.05, -33.0] yaw 180.0
+- ClutterCutter6x6 at [-33.0, -0.05, -15.0] yaw 180.0
+- ClutterCutter6x6 at [-33.0, -0.05, -21.0] yaw 180.0
+- ClutterCutter6x6 at [-33.0, -0.05, -27.0] yaw 180.0
+- ClutterCutter6x6 at [-33.0, -0.05, -33.0] yaw 180.0
 - Land_SKY_TowerA_Lobby at [24.0, 0.0, -24.0] yaw 270.0
 - Land_SKY_TowerA_Floor_Office at [24.0, 7.0, -24.0] yaw 270.0
 - Land_SKY_TowerA_Floor_Office at [24.0, 10.5, -24.0] yaw 270.0
@@ -352,6 +402,22 @@ map: chernarusplus  site: district-template  status: **PASS (with warnings)**
 - Land_SKY_Locker at [21.5, 21.0, -33.5] yaw 0.0
 - Land_SKY_VendingMachine at [26.0, 21.0, -29.0] yaw 270.0
 - Land_SKY_ExtinguisherCabinet at [24.0, 22.0, -27.0] yaw 0.0
+- ClutterCutter6x6 at [33.0, -0.05, -33.0] yaw 270.0
+- ClutterCutter6x6 at [27.0, -0.05, -33.0] yaw 270.0
+- ClutterCutter6x6 at [21.0, -0.05, -33.0] yaw 270.0
+- ClutterCutter6x6 at [15.0, -0.05, -33.0] yaw 270.0
+- ClutterCutter6x6 at [33.0, -0.05, -27.0] yaw 270.0
+- ClutterCutter6x6 at [27.0, -0.05, -27.0] yaw 270.0
+- ClutterCutter6x6 at [21.0, -0.05, -27.0] yaw 270.0
+- ClutterCutter6x6 at [15.0, -0.05, -27.0] yaw 270.0
+- ClutterCutter6x6 at [33.0, -0.05, -21.0] yaw 270.0
+- ClutterCutter6x6 at [27.0, -0.05, -21.0] yaw 270.0
+- ClutterCutter6x6 at [21.0, -0.05, -21.0] yaw 270.0
+- ClutterCutter6x6 at [15.0, -0.05, -21.0] yaw 270.0
+- ClutterCutter6x6 at [33.0, -0.05, -15.0] yaw 270.0
+- ClutterCutter6x6 at [27.0, -0.05, -15.0] yaw 270.0
+- ClutterCutter6x6 at [21.0, -0.05, -15.0] yaw 270.0
+- ClutterCutter6x6 at [15.0, -0.05, -15.0] yaw 270.0
 - Land_SKY_Decal_Graffiti_B at [11.975, 14.1, -30.0] yaw 90.0
 - Land_SKY_Decal_Dirt at [18.0, 14.1, -11.985] yaw 180.0
 - Land_SKY_Decal_Cracks at [36.02, 15.0, -24.0] yaw 270.0
