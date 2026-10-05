@@ -429,6 +429,9 @@ def decals(size, out):
     streak = np.repeat(value_noise(size, 64, 157)[:1, :], size, 0)
     a = np.clip((streak - 0.45) * 2.0, 0, 1) * (1 - y) ** 1.5 * 0.7 + np.clip((y - 0.75) * 3, 0, 1) * 0.6
     a = np.clip(a * (0.6 + 0.6 * n), 0, 0.9)
+    # fade every edge to 0 so the quad outline never shows (QA batch-2 M1)
+    ramp = np.clip(np.minimum(np.minimum(x, 1 - x), np.minimum(y, 1 - y)) / 0.08, 0, 1)
+    a *= ramp * ramp * (3 - 2 * ramp)
     rgb = np.stack([0.20 + 0.05 * n, 0.18 + 0.05 * n, 0.15 + 0.04 * n], -1)
     dirt = np.clip(np.concatenate([rgb, a[..., None]], -1) * 255, 0, 255).astype(np.uint8)
     Image.fromarray(dirt, "RGBA").resize((size // 2, size), Image.BICUBIC).save(   # perf batch-2 M2.3

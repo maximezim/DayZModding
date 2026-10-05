@@ -115,8 +115,12 @@ textures:
   - {name: sky_foliage, maps: [ca], size: 512, use: shrub cards (alpha-tested), status: built-unverified}
   - {name: sky_atlas, maps: [co], size: 2048, use: shared props atlas 4x4 (manhole, timetable, traffic, sign, batch-3 cells), status: built-unverified}
   - {name: sky_billboard_a..d, maps: [co], size: 1024x512, use: original posters via hiddenSelections, status: built-unverified}
-  - {name: decals (dirt, cracks, graffiti), status: planned}
-  - {name: emissive window sets, status: planned}
+  - {name: sky_decal_dirt, maps: [ca], size: 512x1024, use: run-off grime decal (alpha-blended, edges fade to 0), status: built-unverified}
+  - {name: sky_decal_cracks, maps: [ca], size: 1024, use: crack decal (alpha-tested), status: built-unverified}
+  - {name: sky_decal_graffiti_a..d, maps: [ca], size: 512, use: 4 original graffiti designs via hiddenSelections (alpha-tested), status: built-unverified}
+  - {name: sky_windows, maps: [co], size: 1024, use: window sets atlas 4x4 (unlit rvmat sky_windows, emissive rvmat sky_windows_lit; never both in one LOD, D23), status: built-unverified, note: no model uses it yet (facade models planned)}
+  - {name: sky_brick, maps: [co, nohq], size: 2048, use: brick facade trim (bond / soldier / sill), mapped at 3.44 m per U (D20), status: built-unverified, note: no model uses it yet}
+  - {name: sky_concpanel, maps: [co, nohq(1024)], size: 2048, use: precast panel facade trim (reveal / panel), status: built-unverified, note: no model uses it yet}
   - {name: HQ 4K facade atlas, status: planned}
 
 # ---------------------------------------------------------------- G. sounds (optional)
