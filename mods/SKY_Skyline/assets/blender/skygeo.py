@@ -419,14 +419,22 @@ def run_cli(modules, materials, stats_name):
     out = argv[argv.index("--out") + 1]
     only = argv[argv.index("--only") + 1].split(",") if "--only" in argv else list(modules)
     stats_path = os.path.join(out, "..", "assets", stats_name)
-    stats = json.load(open(stats_path)) if os.path.exists(stats_path) else {}
-    for key in only:
-        fn, pbo, fname = modules[key]
-        path = os.path.join(out, pbo, fname)
-        stats[fname] = export_p3d(fn(), materials, path)
-        print("EXPORTED", path, stats[fname])
-    with open(stats_path, "w") as fh:
-        json.dump(stats, fh, indent=1, sort_keys=True)
+    try:
+        stats = json.load(open(stats_path)) if os.path.exists(stats_path) else {}
+        for key in only:
+            fn, pbo, fname = modules[key]
+            path = os.path.join(out, pbo, fname)
+            stats[fname] = export_p3d(fn(), materials, path)
+            print("EXPORTED", path, stats[fname])
+        os.makedirs(os.path.dirname(stats_path), exist_ok=True)
+        with open(stats_path, "w") as fh:
+            json.dump(stats, fh, indent=1, sort_keys=True)
+    except Exception:
+        # Blender -P exits 0 on an uncaught exception: fail loudly instead (QA batch-3 L1).
+        import traceback
+        traceback.print_exc()
+        print("EXPORT FAILED")
+        sys.exit(1)
 
 
 def export_p3d(lods, materials, path):

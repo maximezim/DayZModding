@@ -82,6 +82,20 @@ def self_check():
     check(not watertight(t, "Component01"), "self-check: open box reported watertight")
 
 
+def convention_check():
+    """P1 anchor: under the same convention the Tower A lobby door (read-only use of
+    build_towera) must open INTO the security room, i.e. away from its action point."""
+    import build_towera as T
+    lods = {l.name: l for l in T.build_lobby()}
+    dn, mem, geo = S.KEYCARD_DOOR["name"], lods["mem"], lods["geo"]
+    p0, p1 = (mem.verts[i] for i in sorted(mem.groups[dn + "_axis"]))
+    act = mem.verts[next(iter(mem.groups[dn + "_action"]))]
+    leaf = [geo.verts[i] for i in geo.groups[dn]]
+    c0 = [sum(v[j] for v in leaf) / len(leaf) for j in range(3)]
+    c1 = rotate(c0, p0, p1, -S.DOOR_OPEN_ANGLE)   # sign-independent, see swing test below
+    check(dist(c1, act) > dist(c0, act) + 0.02, "P1 convention: lobby door would not open into the room")
+
+
 def main():
     self_check()
     builders = {}
@@ -94,6 +108,7 @@ def main():
             builders[n] = fn
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     names = argv[argv.index("--only") + 1].split(",") if "--only" in argv else list(builders)
+    convention_check()
     missing = [n for n in S.KIT if n not in builders]
     check(not missing, "KIT entries without a builder: %s" % missing)
     for n in names:
@@ -129,16 +144,18 @@ def main():
                 check(len(mem.groups.get(dn + "_axis", ())) == 2, "%s: %s_axis must have 2 points" % (n, dn))
                 for pt in (dn + "_action", dn):
                     check(len(mem.groups.get(pt, ())) == 1, "%s: memory point %s missing" % (n, pt))
-            # swing test (security batch-3 L1): rotate the Geometry leaf by its configured angle
-            # (right-hand rule about axis p0 -> p1, the P1 convention); its centre must move
-            # toward the action point (outward), never back into the carcass / wall.
+            # swing test (security batch-3 L1, QA batch-3 H1): rotate the Geometry leaf by its
+            # configured angle under the P1 convention (left-hand rule about axis p0 -> p1);
+            # its centre must move toward the action point (outward), never into the carcass.
             if mem is not None and dn in lods["geo"].groups and len(mem.groups.get(dn + "_axis", ())) == 2:
                 p0, p1 = (mem.verts[i] for i in sorted(mem.groups[dn + "_axis"]))
                 act = mem.verts[next(iter(mem.groups[dn + "_action"]))]
-                ang = S.DOOR_SWING_SIGN * d["orient"] * S.DOOR_OPEN_ANGLE * d["scale"]
+                # DOOR_SWING_SIGN encodes the engine's rotation sense (P1), so the real swing is
+                # sign-independent: right-hand angle = -orient * angle (see skyspec P1 comment).
+                ang = d["orient"] * S.DOOR_OPEN_ANGLE * d["scale"]
                 leaf = [lods["geo"].verts[i] for i in lods["geo"].groups[dn]]
                 c0 = [sum(v[j] for v in leaf) / len(leaf) for j in range(3)]
-                c1 = rotate(c0, p0, p1, ang)
+                c1 = rotate(c0, p0, p1, -ang)             # left-hand rule = right-hand with -ang
                 check(dist(c1, act) < dist(c0, act) - 0.02, "%s: door %s swings away from its action point (inward)" % (n, dn))
             # the door leaf must be its own Geometry component (Doors component = selection)
             if dn in lods["geo"].groups:

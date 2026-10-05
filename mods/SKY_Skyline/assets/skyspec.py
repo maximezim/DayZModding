@@ -62,11 +62,12 @@ MATERIALS = {
 #
 # Hinged doors (keycard door, locker doors, vending flap): model.cfg rotation
 # angle1 = DOOR_SWING_SIGN * DOOR_OPEN_ANGLE (* per-door orient * scale for props).
-# Convention: +1 assumes RV rotates by the right-hand rule about the memory axis
-# (first point -> second point, Blender frame). Under it every prop door opens OUTWARD
-# (per-door orient below, checked by test_kit.py). For the Tower A lobby door +1 was
-# chosen as "opens into the room" (unchanged). If the real engine sense is opposite,
-# flipping this one value flips all of them consistently.
+# Convention (anchored on the Tower A lobby door, which +1 must open INTO the room):
+# +1 assumes RV rotates a positive angle by the LEFT-hand rule about the memory axis
+# (first point -> second point, Blender frame). Under it the lobby door opens into the
+# room and every prop door opens OUTWARD (per-door orient below); test_kit.py checks
+# both. If the engine turns out to use the right-hand rule, the lobby door opens outward
+# and prop doors inward: set -1 and all of them become correct together.
 DOOR_SWING_SIGN = 1
 DOOR_OPEN_ANGLE = 1.4            # radians (~80 deg), same as Bohemia's Test_Building doors
 # Elevator leaves: leaf "a" moves along -X * ELEVATOR_SLIDE_SIGN, leaf "b" along +X * sign
@@ -359,7 +360,7 @@ PROP_CAPS = {"per_floor": 25, "per_tower": 600, "aisle_min": 1.2}
 def door(name, display, orient, scale=1.0):
     """Openable prop part: vanilla building Doors entry (bone/component/memory = name).
     Open angle = DOOR_SWING_SIGN * orient * DOOR_OPEN_ANGLE * scale (P1, unverified).
-    orient = +-1 makes the leaf open outward under the right-hand-rule convention
+    orient = +-1 makes the leaf open outward under the P1 (lobby-anchored) convention
     (security batch-3 L1: leaves are built in different orientations)."""
     return {"name": name, "display": display, "orient": orient, "scale": scale}
 
@@ -370,14 +371,14 @@ for _n, _c, _d, _doors in [
     ("Cubicle", "medium", "2 x 2 m workstation: 3 fabric screens + L desk", []),
     ("ServerRack", "small", "42U server rack (closed, atlas front)", []),
     ("VendingMachine", "small", "drinks vending machine with openable pickup flap",
-     [door("flap", "Pickup flap", +1, 0.6)]),
+     [door("flap", "Pickup flap", -1, 0.6)]),
     ("Locker", "medium", "bank of 3 steel lockers, each door openable",
-     [door("locker_door%d" % i, "Locker door", -1) for i in (1, 2, 3)]),
+     [door("locker_door%d" % i, "Locker door", +1) for i in (1, 2, 3)]),
     ("Sofa", "interior_small", "2-seat fabric sofa", []),
     ("Bed", "interior_small", "single bed with headboard", []),
     ("Kitchenette", "medium", "1.8 m counter, sink, upper cabinets, fridge", []),
     ("ExtinguisherCabinet", "interior_small", "wall cabinet with extinguisher, openable glass door",
-     [door("cab_door", "Cabinet door", -1)]),
+     [door("cab_door", "Cabinet door", +1)]),
 ]:
     kit(_n, "sky_props", _c, uses=["DOOR_SWING_SIGN", "DOOR_OPEN_ANGLE"] if _doors else [], desc=_d)
     KIT[_n]["doors"] = _doors

@@ -235,6 +235,45 @@ Record the results there, or link them from here.
 |---|---|---|
 | PERF-01 | All `perf_review.md` §4 thresholds are in "Pass" | |
 
+## 14. Interior props (batch 3, `sky_props`)
+
+Run each item once in **diag** (`tools\build\Build-And-Run.ps1 -ModName SKY_Skyline -FilePatching`), spawning the prop by
+debug or temporary objectSpawnersArr entry inside the Tower A lobby. Then run it once in **Dedicated** (`-Mode Dedicated`, signed, `verifySignatures = 2`)
+with 2 clients. Gate for every run:
+- RPT has no `Cannot open object SKY_Skyline\sky_props\...`, no missing `.paa`/`.rvmat`, no `Updating base class`, and no `missing in CfgPatches`.
+- `script_*.log` has no `SCRIPT (E)`.
+- No `crash_*.log`.
+
+Quote the newest log lines with timestamps as evidence. Shared prop checks (apply to every class below; record per class):
+
+| ID | Item | Steps | Expected | Evidence | Diag | Ded |
+|---|---|---|---|---|---|---|
+| P3-01 | ReceptionDesk | spawn; walk into the counter and the return; vault/climb; shoot the walnut panel | Spawns upright at ground (z = 0 is the base). Player is blocked by the counter (1.05 m) and the return (0.75 m). Bullets stop or penetrate as wood. Shadow shows on the floor. Res 0 -> 1 -> 2 switch has no pop of the monitor quad that looks broken. | RPT clean; screenshot | | |
+| P3-02 | Desk | spawn; crouch under the desk; walk into the legs; shoot the top | Collision on the top (0.72-0.75 m) and legs. Monitor screen (wood sheet screen band) shows a dark blue-grey screen with no stretched texture. **No shadow volume** (category `interior_small`, D26). LOD switch. | | | |
+| P3-03 | Cubicle | spawn; walk around and into the 3 screens (1.4 m); enter through the open side; shoot a screen | Screens block the player and block AI view (View LOD). The L desk collides. Fabric texture tiles without seams. Res 2 shows the screens only (desk tops drop out, D28). | | | |
+| P3-04 | ServerRack | spawn; walk into it; shoot it | Solid 0.6 x 1.0 x 2.0 m. Rack atlas front faces -z. Shadow. LOD switch. | | | |
+| P3-05 | Sofa | spawn; walk into it; try to stand on the seat | Collision on the base, back and arms. Blue fabric with no stretching. **No shadow volume** (D26). | | | |
+| P3-06 | Bed | spawn; walk into the frame and headboard | Collision as modelled. The pillow shows in Res 0 only. **No shadow volume** (D26). | | | |
+| P3-07 | Kitchenette | spawn; walk into the counter and fridge; walk under the upper cabinets | The counter and fridge (1.9 m) block. Upper cabinets (1.5-2.2 m, rear 0.3 m) collide at head height. Appliance atlas cell on the fridge front. | | | |
+| P3-08 | All 10 props | for each: walk 5 / 30 / 80 / 200 m away (and zoom) | LOD switches Res 0 -> 1 -> 2 with no holes or flicker. Shadows (hull boxes on Locker/VendingMachine/ServerRack/Kitchenette, D26) switch with the LODs; door shadows swing with the doors. No z-fighting on the atlas quads (offset 1 mm). | | | |
+| P3-09 | All 10 props | place one inside the lobby next to a vanilla loot spot (or a SKY lobby loot point) | Loot is not hidden inside or under the prop, and the prop does not block a loot position. No loot spawns inside the prop (props have no proxies). | | | |
+| P3-10 | Locker door 1 (left) | stand in front; look at the door; `Open door`; then `Close door` | The action appears at about 0.7 m in front (`locker_door1_action`). The door rotates about its **left** vertical edge **outward toward the player** (~80 deg, 0.8 s). It does not pass through the carcass or the shelf, and does not hit door 2. `doorMetalSmallOpen` / `Close` play at the door. | screenshot open/closed; video | | |
+| P3-11 | Locker doors 2 and 3 | same as P3-10 for each door; then open all 3 at once | Each opens independently and about its own left edge. With all 3 open there is no leaf intersection. Collision follows each leaf. | | | |
+| P3-12 | Locker, each side | try the action from behind / beside the locker and from inside the swing arc | The action appears only within reach of the front. Opening while you stand in the arc: the door pushes or stops as vanilla doors do (no player launch). Closed door blocks; open door is passable only where the leaf is not. | | | |
+| P3-13 | ExtinguisherCabinet door | spawn on a wall (back at local y = 0, front -z); open and close | Glass door hinges on its left edge and swings **outward** ~80 deg. It does not enter the cabinet or hit the extinguisher. Glass is transparent in Res 0 (opaque `glassfar` from Res 1, D28). Sound plays. **No shadow volume** (D26). Shoot the glass: penetration is glass (P3). | | | |
+| P3-14 | VendingMachine flap | open and close the pickup flap | Tilts **outward/down** about its bottom edge (~48 deg). QA H1 fixed with per-door `orient` (D24); record the actual direction. | screenshot | | |
+| P3-15 | Door sounds | for each door type, open, close and fully open | `soundOpen/Close` heard at `<door>_action`, about 1 m in front. No `soundLocked` (doors are never locked). Nothing logged in RPT about missing sound classes. | RPT | | |
+| P3-16 [DED] | Door sync, 2 clients | client A opens locker door 2 and the flap; client B watches | B sees the same phase and animation. Collision for B matches the visual. | | | |
+| P3-17 [DED] | Relog | with doors open, relog A; connect a third client | Doors show the server state after reconnect (open stays open). | | | |
+| P3-18 [DED] | Server restart | open doors, restart the server | Doors are back to `initPhase 0` (closed) after the restart. This is expected because objectSpawnersArr props do not persist door state; record it. | | | |
+| P3-19 | Damage | shoot, melee and frag each door and each prop | No damage and no destruction (all `damage = 0`; P5 `FragGrenade` class name). No RPT warnings about the armor class. | RPT | | |
+| P3-20 | Death | die (e.g. suicide) next to an open locker; respawn | No change to the prop. The body does not fall through the prop or into it. | | | |
+| P3-21 | Dedicated vs listen | repeat P3-10, P3-13 and P3-14 on the dedicated server | Same direction and behaviour as diag. No `Signature check` / `Modified data` kick for `sky_props.pbo` (key in `keys\`). | RPT, server log | | |
+| P3-22 | Swing sign (P1) | **only after D-01 (lobby door) is confirmed** | If D-01 (lobby door) opened outward, set `DOOR_SWING_SIGN = -1`, run `python3 assets/gen_configs.py`, rebuild, and re-run D-01 and P3-10..14: the lobby door must open into the room and every prop door outward. If the lobby is right but a prop door is wrong, flip that door's `orient` in `skyspec.py` instead. | | | |
+| P3-23 | Regression (vanilla nearby) | open a vanilla building door and a vanilla locker/cabinet near the props; pick up loot from a vanilla container | Vanilla door actions, sounds and loot are unaffected. No new RPT lines for vanilla classes. | | | |
+| P3-24 | Regression (SKY) | lobby `door_sec` (D-01), a street prop (bus stop) and its atlas cells | Unchanged from batches 1-2. Atlas row 0 is pixel-identical. | | | |
+| P3-25 | Lockpick (D25 / PENDING B5) | with a lockpick in hand, look at a closed locker door, the cabinet door and the flap | No `Lock door` / `Unlock door` action is offered on any prop door. If one appears, apply the B5 fix. | screenshot | | |
+
 ---
 
 ### Sign-off
@@ -253,3 +292,4 @@ Record the results there, or link them from here.
 | Roof drop §10 | | | |
 | Clean logs §11 | | | |
 | Perf §13 | | | |
+| Interior props §14 | | | |

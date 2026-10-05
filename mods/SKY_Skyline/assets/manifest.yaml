@@ -84,10 +84,10 @@ street: {status: built-unverified, note: "all street-kit assets are listed under
 
 # ---------------------------------------------------------------- D. interior props
 props:
-  status: planned
-  items: [reception desk (placeholder box inside lobby P3D), cubicles, desks, server racks, vending machines, lockers,
-          sofas, beds, kitchenettes, extinguisher cabinets, animated elevator doors (DONE - inside core P3D),
-          keycard security doors (DONE - inside lobby P3D)]
+  status: built-unverified
+  note: "10 interior props (batch 3, pbo sky_props) are listed under generated_kit; doors on Locker, ExtinguisherCabinet,
+         VendingMachine use DOOR_SWING_SIGN (P1) with per-door orient (D24); elevator doors (core P3D) and keycard door
+         (lobby P3D) are part of Tower A"
 
 # ---------------------------------------------------------------- E. items
 items:
@@ -121,6 +121,8 @@ textures:
   - {name: sky_windows, maps: [co], size: 1024, use: window sets atlas 4x4 (unlit rvmat sky_windows, emissive rvmat sky_windows_lit; never both in one LOD, D23), status: built-unverified, note: no model uses it yet (facade models planned)}
   - {name: sky_brick, maps: [co, nohq], size: 2048, use: brick facade trim (bond / soldier / sill), mapped at 3.44 m per U (D20), status: built-unverified, note: no model uses it yet}
   - {name: sky_concpanel, maps: [co, nohq(1024)], size: 2048, use: precast panel facade trim (reveal / panel), status: built-unverified, note: no model uses it yet}
+  - {name: sky_wood, maps: [co], size: 1024, use: furniture trim (oak / walnut / laminate / monitor screen band); nohq/smdi/as procedural, status: built-unverified}
+  - {name: sky_fabric, maps: [co, nohq], size: 512, use: upholstery trim (grey / blue / beige), 8 px weave, status: built-unverified}
   - {name: HQ 4K facade atlas, status: planned}
 
 # ---------------------------------------------------------------- G. sounds (optional)
