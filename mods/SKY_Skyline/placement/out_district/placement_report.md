@@ -15,6 +15,7 @@ map: chernarusplus  site: district-template  status: **PASS (with warnings)**
 - tower T4: no base height (survey or base_y) - Y set to 0.0
 
 ## Notes
+- street plane y 0.00 (one height for every tile)
 - tower T1: 63 entities (7 modules + core, 55 props): TowerA_Lobby / TowerA_Floor_Office / TowerA_Floor_Office / TowerA_Floor_Office / TowerA_Floor_Office / TowerA_Floor_Office / TowerA_Roof_Helipad
 - tower T2: 68 entities (7 modules + core, 60 props): TowerA_Lobby / Floor_Apartments / Floor_Apartments / Floor_Apartments / Floor_Apartments / Floor_Apartments / Roof_Garden
 - tower T3: 68 entities (7 modules + core, 60 props): TowerA_Lobby / Floor_Hotel / Floor_Hotel / Floor_Hotel / Floor_Hotel / Floor_Hotel / Roof_Garden
@@ -32,63 +33,63 @@ map: chernarusplus  site: district-template  status: **PASS (with warnings)**
 ## Objects (323)
 - Land_SKY_Street_Intersection at [-48.0, 0.0, -48.0] yaw 0.0
 - Land_SKY_Street_Straight at [-48.0, 0.0, -36.0] yaw 0.0
-- Land_SKY_StreetLight at [-43.5, 0.15, -36.0] yaw 0.0
+- Land_SKY_StreetLight at [-52.5, 0.15, -36.0] yaw 0.0
 - Land_SKY_Street_Straight at [-48.0, 0.0, -24.0] yaw 0.0
 - Land_SKY_Street_Straight at [-48.0, 0.0, -12.0] yaw 0.0
-- Land_SKY_StreetLight at [-43.5, 0.15, -12.0] yaw 0.0
+- Land_SKY_StreetLight at [-52.5, 0.15, -12.0] yaw 0.0
 - Land_SKY_Street_Intersection at [-48.0, 0.0, 0.0] yaw 0.0
 - Land_SKY_Street_Straight at [-48.0, 0.0, 12.0] yaw 0.0
 - Land_SKY_Street_Straight at [-48.0, 0.0, 24.0] yaw 0.0
-- Land_SKY_StreetLight at [-43.5, 0.15, 24.0] yaw 0.0
+- Land_SKY_StreetLight at [-52.5, 0.15, 24.0] yaw 0.0
 - Land_SKY_Street_Straight at [-48.0, 0.0, 36.0] yaw 0.0
 - Land_SKY_Street_Intersection at [-48.0, 0.0, 48.0] yaw 0.0
 - Land_SKY_Street_Straight at [-36.0, 0.0, -48.0] yaw 90.0
-- Land_SKY_StreetLight at [-36.0, 0.15, -52.5] yaw 90.0
+- Land_SKY_StreetLight at [-36.0, 0.15, -43.5] yaw 90.0
 - Land_SKY_Street_Straight at [-36.0, 0.0, 0.0] yaw 90.0
+- Land_SKY_StreetLight at [-36.0, 0.15, 4.5] yaw 90.0
 - Land_SKY_Street_Straight at [-36.0, 0.0, 48.0] yaw 90.0
-- Land_SKY_StreetLight at [-36.0, 0.15, 43.5] yaw 90.0
+- Land_SKY_StreetLight at [-36.0, 0.15, 52.5] yaw 90.0
 - Land_SKY_Street_Straight at [-24.0, 0.0, -48.0] yaw 90.0
 - Land_SKY_Street_Crossing at [-24.0, 0.0, 0.0] yaw 90.0
 - Land_SKY_Street_Straight at [-24.0, 0.0, 48.0] yaw 90.0
-- Land_SKY_StreetLight at [-24.0, 0.15, 43.5] yaw 90.0
 - Land_SKY_Street_Straight at [-12.0, 0.0, -48.0] yaw 90.0
+- Land_SKY_StreetLight at [-12.0, 0.15, -43.5] yaw 90.0
 - Land_SKY_Street_Straight at [-12.0, 0.0, 0.0] yaw 90.0
-- Land_SKY_StreetLight at [-12.0, 0.15, -4.5] yaw 90.0
 - Land_SKY_Street_Straight at [-12.0, 0.0, 48.0] yaw 90.0
+- Land_SKY_StreetLight at [-12.0, 0.15, 52.5] yaw 90.0
 - Land_SKY_Street_Intersection at [0.0, 0.0, -48.0] yaw 0.0
 - Land_SKY_Street_Straight at [0.0, 0.0, -36.0] yaw 0.0
-- Land_SKY_StreetLight at [4.5, 0.15, -36.0] yaw 0.0
+- Land_SKY_StreetLight at [-4.5, 0.15, -36.0] yaw 0.0
 - Land_SKY_Street_Crossing at [0.0, 0.0, -24.0] yaw 0.0
 - Land_SKY_Street_Straight at [0.0, 0.0, -12.0] yaw 0.0
 - Land_SKY_Street_Intersection at [0.0, 0.0, 0.0] yaw 0.0
 - Land_SKY_Street_Straight at [0.0, 0.0, 12.0] yaw 0.0
-- Land_SKY_StreetLight at [4.5, 0.15, 12.0] yaw 0.0
+- Land_SKY_StreetLight at [-4.5, 0.15, 12.0] yaw 0.0
 - Land_SKY_Street_Crossing at [0.0, 0.0, 24.0] yaw 0.0
 - Land_SKY_Street_Straight at [0.0, 0.0, 36.0] yaw 0.0
 - Land_SKY_Street_Intersection at [0.0, 0.0, 48.0] yaw 0.0
 - Land_SKY_Street_Straight at [12.0, 0.0, -48.0] yaw 90.0
-- Land_SKY_StreetLight at [12.0, 0.15, -52.5] yaw 90.0
 - Land_SKY_Street_Straight at [12.0, 0.0, 0.0] yaw 90.0
+- Land_SKY_StreetLight at [12.0, 0.15, 4.5] yaw 90.0
 - Land_SKY_Street_Straight at [12.0, 0.0, 48.0] yaw 90.0
-- Land_SKY_StreetLight at [12.0, 0.15, 43.5] yaw 90.0
 - Land_SKY_Street_Straight at [24.0, 0.0, -48.0] yaw 90.0
+- Land_SKY_StreetLight at [24.0, 0.15, -43.5] yaw 90.0
 - Land_SKY_Street_Crossing at [24.0, 0.0, 0.0] yaw 90.0
 - Land_SKY_Street_Straight at [24.0, 0.0, 48.0] yaw 90.0
-- Land_SKY_StreetLight at [24.0, 0.15, 43.5] yaw 90.0
+- Land_SKY_StreetLight at [24.0, 0.15, 52.5] yaw 90.0
 - Land_SKY_Street_Straight at [36.0, 0.0, -48.0] yaw 90.0
 - Land_SKY_Street_Straight at [36.0, 0.0, 0.0] yaw 90.0
-- Land_SKY_StreetLight at [36.0, 0.15, -4.5] yaw 90.0
 - Land_SKY_Street_Straight at [36.0, 0.0, 48.0] yaw 90.0
 - Land_SKY_Street_Intersection at [48.0, 0.0, -48.0] yaw 0.0
 - Land_SKY_Street_Straight at [48.0, 0.0, -36.0] yaw 0.0
-- Land_SKY_StreetLight at [52.5, 0.15, -36.0] yaw 0.0
+- Land_SKY_StreetLight at [43.5, 0.15, -36.0] yaw 0.0
 - Land_SKY_Street_Straight at [48.0, 0.0, -24.0] yaw 0.0
 - Land_SKY_Street_Straight at [48.0, 0.0, -12.0] yaw 0.0
-- Land_SKY_StreetLight at [52.5, 0.15, -12.0] yaw 0.0
+- Land_SKY_StreetLight at [43.5, 0.15, -12.0] yaw 0.0
 - Land_SKY_Street_Intersection at [48.0, 0.0, 0.0] yaw 0.0
 - Land_SKY_Street_Straight at [48.0, 0.0, 12.0] yaw 0.0
 - Land_SKY_Street_Straight at [48.0, 0.0, 24.0] yaw 0.0
-- Land_SKY_StreetLight at [52.5, 0.15, 24.0] yaw 0.0
+- Land_SKY_StreetLight at [43.5, 0.15, 24.0] yaw 0.0
 - Land_SKY_Street_Straight at [48.0, 0.0, 36.0] yaw 0.0
 - Land_SKY_Street_Intersection at [48.0, 0.0, 48.0] yaw 0.0
 - Land_SKY_TowerA_Lobby at [-24.0, 0.0, 24.0] yaw 0.0
@@ -109,7 +110,7 @@ map: chernarusplus  site: district-template  status: **PASS (with warnings)**
 - Land_SKY_Kitchenette at [-15.5, 7.0, 20.0] yaw 0.0
 - Land_SKY_Locker at [-33.5, 7.0, 26.5] yaw 90.0
 - Land_SKY_VendingMachine at [-29.0, 7.0, 22.0] yaw 0.0
-- Land_SKY_ExtinguisherCabinet at [-27.0, 7.0, 24.0] yaw 90.0
+- Land_SKY_ExtinguisherCabinet at [-27.0, 8.0, 24.0] yaw 90.0
 - Land_SKY_Cubicle at [-20.5, 10.5, 14.5] yaw 0.0
 - Land_SKY_Cubicle at [-17.2, 10.5, 14.5] yaw 0.0
 - Land_SKY_Cubicle at [-20.5, 10.5, 33.0] yaw 0.0
@@ -120,7 +121,7 @@ map: chernarusplus  site: district-template  status: **PASS (with warnings)**
 - Land_SKY_Kitchenette at [-15.5, 10.5, 20.0] yaw 0.0
 - Land_SKY_Locker at [-33.5, 10.5, 26.5] yaw 90.0
 - Land_SKY_VendingMachine at [-29.0, 10.5, 22.0] yaw 0.0
-- Land_SKY_ExtinguisherCabinet at [-27.0, 10.5, 24.0] yaw 90.0
+- Land_SKY_ExtinguisherCabinet at [-27.0, 11.5, 24.0] yaw 90.0
 - Land_SKY_Cubicle at [-20.5, 14.0, 14.5] yaw 0.0
 - Land_SKY_Cubicle at [-17.2, 14.0, 14.5] yaw 0.0
 - Land_SKY_Cubicle at [-20.5, 14.0, 33.0] yaw 0.0
@@ -131,7 +132,7 @@ map: chernarusplus  site: district-template  status: **PASS (with warnings)**
 - Land_SKY_Kitchenette at [-15.5, 14.0, 20.0] yaw 0.0
 - Land_SKY_Locker at [-33.5, 14.0, 26.5] yaw 90.0
 - Land_SKY_VendingMachine at [-29.0, 14.0, 22.0] yaw 0.0
-- Land_SKY_ExtinguisherCabinet at [-27.0, 14.0, 24.0] yaw 90.0
+- Land_SKY_ExtinguisherCabinet at [-27.0, 15.0, 24.0] yaw 90.0
 - Land_SKY_Cubicle at [-20.5, 17.5, 14.5] yaw 0.0
 - Land_SKY_Cubicle at [-17.2, 17.5, 14.5] yaw 0.0
 - Land_SKY_Cubicle at [-20.5, 17.5, 33.0] yaw 0.0
@@ -142,7 +143,7 @@ map: chernarusplus  site: district-template  status: **PASS (with warnings)**
 - Land_SKY_Kitchenette at [-15.5, 17.5, 20.0] yaw 0.0
 - Land_SKY_Locker at [-33.5, 17.5, 26.5] yaw 90.0
 - Land_SKY_VendingMachine at [-29.0, 17.5, 22.0] yaw 0.0
-- Land_SKY_ExtinguisherCabinet at [-27.0, 17.5, 24.0] yaw 90.0
+- Land_SKY_ExtinguisherCabinet at [-27.0, 18.5, 24.0] yaw 90.0
 - Land_SKY_Cubicle at [-20.5, 21.0, 14.5] yaw 0.0
 - Land_SKY_Cubicle at [-17.2, 21.0, 14.5] yaw 0.0
 - Land_SKY_Cubicle at [-20.5, 21.0, 33.0] yaw 0.0
@@ -153,7 +154,7 @@ map: chernarusplus  site: district-template  status: **PASS (with warnings)**
 - Land_SKY_Kitchenette at [-15.5, 21.0, 20.0] yaw 0.0
 - Land_SKY_Locker at [-33.5, 21.0, 26.5] yaw 90.0
 - Land_SKY_VendingMachine at [-29.0, 21.0, 22.0] yaw 0.0
-- Land_SKY_ExtinguisherCabinet at [-27.0, 21.0, 24.0] yaw 90.0
+- Land_SKY_ExtinguisherCabinet at [-27.0, 22.0, 24.0] yaw 90.0
 - Land_SKY_TowerA_Lobby at [24.0, 0.0, 24.0] yaw 90.0
 - Land_SKY_Floor_Apartments at [24.0, 7.0, 24.0] yaw 90.0
 - Land_SKY_Floor_Apartments at [24.0, 10.5, 24.0] yaw 90.0
@@ -308,7 +309,7 @@ map: chernarusplus  site: district-template  status: **PASS (with warnings)**
 - Land_SKY_Kitchenette at [28.0, 7.0, -15.5] yaw 270.0
 - Land_SKY_Locker at [21.5, 7.0, -33.5] yaw 0.0
 - Land_SKY_VendingMachine at [26.0, 7.0, -29.0] yaw 270.0
-- Land_SKY_ExtinguisherCabinet at [24.0, 7.0, -27.0] yaw 0.0
+- Land_SKY_ExtinguisherCabinet at [24.0, 8.0, -27.0] yaw 0.0
 - Land_SKY_Cubicle at [33.5, 10.5, -20.5] yaw 270.0
 - Land_SKY_Cubicle at [33.5, 10.5, -17.2] yaw 270.0
 - Land_SKY_Cubicle at [15.0, 10.5, -20.5] yaw 270.0
@@ -319,7 +320,7 @@ map: chernarusplus  site: district-template  status: **PASS (with warnings)**
 - Land_SKY_Kitchenette at [28.0, 10.5, -15.5] yaw 270.0
 - Land_SKY_Locker at [21.5, 10.5, -33.5] yaw 0.0
 - Land_SKY_VendingMachine at [26.0, 10.5, -29.0] yaw 270.0
-- Land_SKY_ExtinguisherCabinet at [24.0, 10.5, -27.0] yaw 0.0
+- Land_SKY_ExtinguisherCabinet at [24.0, 11.5, -27.0] yaw 0.0
 - Land_SKY_ServerRack at [26.2, 14.0, -30.5] yaw 270.0
 - Land_SKY_ServerRack at [24.0, 14.0, -30.5] yaw 270.0
 - Land_SKY_ServerRack at [21.8, 14.0, -30.5] yaw 270.0
@@ -327,7 +328,7 @@ map: chernarusplus  site: district-template  status: **PASS (with warnings)**
 - Land_SKY_ServerRack at [24.0, 14.0, -17.5] yaw 270.0
 - Land_SKY_ServerRack at [21.8, 14.0, -17.5] yaw 270.0
 - Land_SKY_Locker at [32.5, 14.0, -24.0] yaw 270.0
-- Land_SKY_ExtinguisherCabinet at [24.0, 14.0, -27.0] yaw 0.0
+- Land_SKY_ExtinguisherCabinet at [24.0, 15.0, -27.0] yaw 0.0
 - Land_SKY_Cubicle at [33.5, 17.5, -20.5] yaw 270.0
 - Land_SKY_Cubicle at [33.5, 17.5, -17.2] yaw 270.0
 - Land_SKY_Cubicle at [15.0, 17.5, -20.5] yaw 270.0
@@ -338,7 +339,7 @@ map: chernarusplus  site: district-template  status: **PASS (with warnings)**
 - Land_SKY_Kitchenette at [28.0, 17.5, -15.5] yaw 270.0
 - Land_SKY_Locker at [21.5, 17.5, -33.5] yaw 0.0
 - Land_SKY_VendingMachine at [26.0, 17.5, -29.0] yaw 270.0
-- Land_SKY_ExtinguisherCabinet at [24.0, 17.5, -27.0] yaw 0.0
+- Land_SKY_ExtinguisherCabinet at [24.0, 18.5, -27.0] yaw 0.0
 - Land_SKY_Cubicle at [33.5, 21.0, -20.5] yaw 270.0
 - Land_SKY_Cubicle at [33.5, 21.0, -17.2] yaw 270.0
 - Land_SKY_Cubicle at [15.0, 21.0, -20.5] yaw 270.0
@@ -349,7 +350,7 @@ map: chernarusplus  site: district-template  status: **PASS (with warnings)**
 - Land_SKY_Kitchenette at [28.0, 21.0, -15.5] yaw 270.0
 - Land_SKY_Locker at [21.5, 21.0, -33.5] yaw 0.0
 - Land_SKY_VendingMachine at [26.0, 21.0, -29.0] yaw 270.0
-- Land_SKY_ExtinguisherCabinet at [24.0, 21.0, -27.0] yaw 0.0
+- Land_SKY_ExtinguisherCabinet at [24.0, 22.0, -27.0] yaw 0.0
 - Land_SKY_Decal_Graffiti_B at [11.975, 14.1, -30.0] yaw 90.0
 - Land_SKY_Decal_Dirt at [18.0, 14.1, -11.985] yaw 180.0
 - Land_SKY_Decal_Cracks at [36.02, 15.0, -24.0] yaw 270.0

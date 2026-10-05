@@ -429,10 +429,10 @@ ROOF_VARIANTS = {"helipad": CLASS_ROOF, "garden": KIT["Roof_Garden"]["cls"],
 # Model-space XY bounds (Blender x0, x1, y0, y1) of every spawnable prop's Geometry. Used by the
 # layout generator for aisle / overlap checks; test_kit.py verifies them against the P3D Geometry.
 PROP_BOX = {
-    "ReceptionDesk": (-1.5, 2.3, -0.4, 1.2), "Desk": (-0.8, 0.8, -0.4, 0.4), "Cubicle": (-1.0, 1.0, -1.0, 1.0),
+    "ReceptionDesk": (-1.55, 2.3, -0.5, 1.2), "Desk": (-0.8, 0.8, -0.4, 0.4), "Cubicle": (-1.0, 1.0, -1.0, 1.0),
     "ServerRack": (-0.3, 0.3, -0.5, 0.5), "VendingMachine": (-0.5, 0.5, -0.43, 0.4),
     "Locker": (-0.45, 0.45, -0.27, 0.25), "Sofa": (-1.0, 1.0, -0.45, 0.45), "Bed": (-0.75, 0.75, -1.0, 1.06),
-    "Kitchenette": (-1.2, 1.2, -0.3, 0.3), "ExtinguisherCabinet": (-0.2, 0.2, -0.27, 0.0),
+    "Kitchenette": (-1.22, 1.2, -0.32, 0.3), "ExtinguisherCabinet": (-0.2, 0.2, -0.27, 0.0),
 }
 
 
@@ -446,7 +446,8 @@ def _mirror4(props):
 
 
 # Furnish sets: props spawned per floor (objectSpawnersArr), model-space Blender (x, y) + DayZ
-# yaw (deg, clockwise) relative to the floor module. "for" = floor classes the set fits.
+# yaw (deg, clockwise) relative to the floor module [+ optional mounting height z, e.g. wall
+# cabinets on the core wall at 1.0 m]. "for" = floor classes the set fits.
 # test_kit.py checks every prop box against the floor's Geometry, core clear zones and loot
 # points; sky_layout.py checks PROP_CAPS and aisles.
 FURNISH = {
@@ -454,7 +455,7 @@ FURNISH = {
         # cubicles keep clear of Tower A's loot points at (+-9, +-9) (Tower A frozen)
         ("Cubicle", 3.5, -9.5, 0), ("Cubicle", 6.8, -9.5, 0), ("Cubicle", 3.5, 9.0, 0), ("Cubicle", 6.8, 9.0, 0),
         ("Cubicle", -3.5, 9.0, 0), ("Cubicle", -6.8, 9.0, 0), ("Desk", 9.5, 0.0, 90), ("Kitchenette", 8.5, -4.0, 0),
-        ("Locker", -9.5, 2.5, 90), ("VendingMachine", -5.0, -2.0, 0), ("ExtinguisherCabinet", -3.0, 0.0, 90)]},
+        ("Locker", -9.5, 2.5, 90), ("VendingMachine", -5.0, -2.0, 0), ("ExtinguisherCabinet", -3.0, 0.0, 90, 1.0)]},
     "apartments": {"for": [KIT["Floor_Apartments"]["cls"]], "props": _mirror4([
         ("Bed", 3.0, 10.0, 0), ("Sofa", 9.0, 3.0, 90), ("Kitchenette", 8.5, 9.5, 0)])},
     "hotel": {"for": [KIT["Floor_Hotel"]["cls"]], "props": [
@@ -462,7 +463,7 @@ FURNISH = {
         ("Bed", 9.0, 4.0, 0), ("Sofa", 9.5, 0.0, 90), ("Bed", -9.0, 4.0, 0), ("Sofa", -9.5, 0.0, 270)]},
     "mechanical": {"for": [KIT["Floor_Mechanical"]["cls"]], "props": [
         ("ServerRack", x, y, 0) for x in (-6.5, 6.5) for y in (-2.2, 0.0, 2.2)] + [
-        ("Locker", 0.0, -8.5, 0), ("ExtinguisherCabinet", -3.0, 0.0, 90)]},
+        ("Locker", 0.0, -8.5, 0), ("ExtinguisherCabinet", -3.0, 0.0, 90, 1.0)]},
 }
 
 # Street furniture density caps (perf batch-1 M1/L7, hypotheses): lights per straight street tile,

@@ -149,8 +149,8 @@
   "road": 6
  },
  "sky_kitchenette.p3d": {
-  "fire": 36,
-  "geo": 36,
+  "fire": 48,
+  "geo": 48,
   "res0": 62,
   "res1": 50,
   "res2": 24,
@@ -158,8 +158,8 @@
   "view": 24
  },
  "sky_locker.p3d": {
-  "fire": 120,
-  "geo": 120,
+  "fire": 132,
+  "geo": 132,
   "mem": 0,
   "res0": 132,
   "res1": 120,
@@ -182,12 +182,12 @@
   "shadow": 12
  },
  "sky_receptiondesk.p3d": {
-  "fire": 24,
-  "geo": 24,
+  "fire": 36,
+  "geo": 36,
   "res0": 38,
   "res1": 36,
   "res2": 24,
-  "shadow": 24,
+  "shadow": 36,
   "view": 12
  },
  "sky_road_crossing.p3d": {

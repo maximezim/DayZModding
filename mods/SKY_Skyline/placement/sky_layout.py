@@ -227,7 +227,9 @@ def furnish(ctx, t, mods, cx, cz, base_y, yaw):
             ctx.errors.append("tower %s level %d: %d props > PROP_CAPS per_floor %d"
                               % (t["id"], level, len(props), S.PROP_CAPS["per_floor"]))
         polys = []
-        for name, px, py, pyaw in props:
+        for entry in props:
+            name, px, py, pyaw = entry[:4]
+            pz = entry[4] if len(entry) > 4 else 0.0          # mounting height (wall cabinets)
             dx, dz = rot(px, py, yaw)
             wx, wz = cx + dx, cz + dz
             poly = box_corners(wx, wz, S.PROP_BOX[name], yaw + pyaw)
@@ -237,7 +239,7 @@ def furnish(ctx, t, mods, cx, cz, base_y, yaw):
                     ctx.errors.append("tower %s level %d: %s and %s only %.2f m apart (< %.1f m aisle)"
                                       % (t["id"], level, name, other_name, g, S.PROP_CAPS["aisle_min"]))
             polys.append((name, poly))
-            ctx.add("props", S.KIT[name]["cls"], (wx, base_y + z, wz), yaw + pyaw)
+            ctx.add("props", S.KIT[name]["cls"], (wx, base_y + z + pz, wz), yaw + pyaw)
         total += len(props)
     if total > S.PROP_CAPS["per_tower"]:
         ctx.errors.append("tower %s: %d props > PROP_CAPS per_tower %d" % (t["id"], total, S.PROP_CAPS["per_tower"]))
@@ -363,7 +365,8 @@ def main():
     tile_quads = []
     st = lay.get("streets") or {}
     lights_every = int(st.get("lights_every", 0) or 0)
-    n_straight = 0
+    # pass 1: geometry + survey samples per tile
+    rows = []
     for kind, i, j, tyaw in tiles:
         if (i, j) in street_cells:
             ctx.errors.append("street tile (%d, %d) placed twice" % (i, j))
@@ -371,39 +374,53 @@ def main():
         u, v = cell_center(lay, i, j)
         wx, wz = world(u, v)
         yaw = site_yaw + tyaw
-        quad = footprint_corners(wx, wz, TILE / 2, TILE / 2, yaw)
-        tile_quads.append(((i, j), quad))
-        base_y = st.get("base_y")
+        tile_quads.append(((i, j), footprint_corners(wx, wz, TILE / 2, TILE / 2, yaw)))
+        ys = []
         if survey is not None:
-            ys = survey_ground(survey, lambda x, z: inside(x, z, wx, wz, TILE / 2, TILE / 2, yaw))
+            ys = survey_ground(survey, lambda x, z, wx=wx, wz=wz, yaw=yaw: inside(x, z, wx, wz, TILE / 2, TILE / 2, yaw))
             if not ys:
                 ctx.errors.append("street tile (%d, %d) has no survey samples - extend the survey (halfW/halfD)" % (i, j))
-            foreign_objects(ctx, survey, "street tile (%d, %d)" % (i, j), lambda x, z: inside(x, z, wx, wz, TILE / 2, TILE / 2, yaw))
-            if 0 < len(ys) < 9:
+            elif len(ys) < 9:
                 ctx.warnings.append("street tile (%d, %d): only %d survey samples - survey the district in smaller pieces" % (i, j, len(ys)))
-            if ys:
-                auto = max(ys) + float(site.get("clearance", 0.05))
-                if base_y is None:
-                    base_y = auto
-                drop = base_y - min(ys)
-                lim = S.STREET["slab_t"] + S.STREET["skirt"]
-                if drop > lim:
-                    ctx.errors.append("street tile (%d, %d): ground falls %.2f m below the tile (> slab + skirt %.2f m)" % (i, j, drop, lim))
-                if base_y < max(ys) - 1e-6:
-                    ctx.errors.append("street tile (%d, %d): ground %.2f pokes through the tile at %.2f" % (i, j, max(ys), base_y))
-        if base_y is None:
-            base_y = float(site.get("base_y") or 0.0)
-        ctx.add("tiles", S.KIT[kind]["cls"], (wx, base_y, wz), yaw)
+            foreign_objects(ctx, survey, "street tile (%d, %d)" % (i, j),
+                            lambda x, z, wx=wx, wz=wz, yaw=yaw: inside(x, z, wx, wz, TILE / 2, TILE / 2, yaw))
+        rows.append((kind, i, j, tyaw, wx, wz, yaw, ys))
+    # one street plane for the whole district: no height steps at tile seams (QA batch-5 L3)
+    street_y = st.get("base_y")
+    all_ys = [y for r in rows for y in r[7]]
+    if street_y is None and all_ys:
+        street_y = max(all_ys) + float(site.get("clearance", 0.05))
+    if street_y is None:
+        street_y = float(site.get("base_y") or 0.0)
+    if rows:
+        ctx.notes.append("street plane y %.2f (one height for every tile)" % street_y)
+    lim = S.STREET["slab_t"] + S.STREET["skirt"]
+    # pass 2: checks, tiles, lights (every N-th straight tile counted per street line, QA L2)
+    per_line = {}
+    n_straight = 0
+    for kind, i, j, tyaw, wx, wz, yaw, ys in rows:
+        if ys:
+            if street_y - min(ys) > lim:
+                ctx.errors.append("street tile (%d, %d): ground falls %.2f m below the tile (> slab + skirt %.2f m)"
+                                  % (i, j, street_y - min(ys), lim))
+            if street_y < max(ys) - 1e-6:
+                ctx.errors.append("street tile (%d, %d): ground %.2f pokes through the tile at %.2f" % (i, j, max(ys), street_y))
+        ctx.add("tiles", S.KIT[kind]["cls"], (wx, street_y, wz), yaw)
         if kind == "Street_Straight":
             n_straight += 1
-            if lights_every and n_straight % lights_every == 1 % lights_every:   # 1st, (1+N)th, ... straight tile
-                # on the east (local +X) sidewalk, 0.5 m inside the curb
-                lu = S.STREET["carriageway"] / 2 + 0.5
+            line = ("ns", i) if tyaw == 0.0 else ("ew", j)
+            k = per_line.get(line, 0)
+            per_line[line] = k + 1
+            if lights_every and k % lights_every == 0:
+                # pole on the local -X sidewalk, 0.5 m inside the curb: the lamp arm (+X) hangs over
+                # the carriageway (QA batch-5 M1)
+                lu = -(S.STREET["carriageway"] / 2 + 0.5)
                 dx, dz = rot(lu, 0.0, yaw)
-                ctx.add("lights", S.KIT["StreetLight"]["cls"], (wx + dx, base_y + S.STREET["curb_h"], wz + dz), yaw)
+                ctx.add("lights", S.KIT["StreetLight"]["cls"], (wx + dx, street_y + S.STREET["curb_h"], wz + dz), yaw)
     if n_straight and ctx.counts.get("lights", 0) > S.LIGHT_CAP["per_tile"] * n_straight:
         ctx.errors.append("%d street lights on %d straight tiles > LIGHT_CAP %.2f per tile"
                           % (ctx.counts["lights"], n_straight, S.LIGHT_CAP["per_tile"]))
+    ctx.street_y = street_y if rows else None
 
     # ---- towers (blocks + legacy site-frame towers)
     placed, quads = [], []
@@ -421,6 +438,7 @@ def main():
             jobs.append((t, bu + t.get("at", [0, 0])[0], bv + t.get("at", [0, 0])[1], rect, b["id"]))
     for t in lay.get("towers", []) or []:
         jobs.append((t, t["offset"][0], t["offset"][1], None, None))
+    jobs_res = [any(v in ("apartments", "hotel") for v in (t.get("floors") or [])) for t, _u, _v, _r, _b in jobs]
     seen_ids = set()
     for t, u, v, rect, bid in jobs:
         if t["id"] in seen_ids:
@@ -450,6 +468,21 @@ def main():
         placed.append(place_tower(ctx, lay, t, cx, cz, yaw, survey, site))
 
     place_decals(ctx, lay, placed, site_yaw)
+    if ctx.street_y is not None:
+        for t in placed:
+            step = t["base_y"] - (ctx.street_y + S.STREET["curb_h"])
+            if abs(step) > 0.3:
+                ctx.warnings.append("tower %s: lobby floor %.2f m %s the sidewalk - entrance step" % (
+                    t["id"], abs(step), "above" if step > 0 else "below"))
+    # one InfectedCity zone per district (economy/README.md, perf batch-5 M4), vanilla
+    # env/zombie_territories.xml zone format (verified in dayzOffline.chernarusplus)
+    zone = None
+    if placed:
+        res = sum(1 for t in jobs_res if t)
+        dmax = min(15, 10 + res)
+        r = min(100.0, max(math.hypot(t["c"][0] - cx0, t["c"][1] - cz0) for t in placed) + 20.0)
+        zone = '<zone name="InfectedCity" smin="0" smax="0" dmin="%d" dmax="%d" x="%.1f" z="%.1f" r="%.0f"/>' % (
+            dmax // 2, dmax, cx0, cz0, r)
 
     def loot_of(objs):
         return sum(S.LOOT[o["name"]]["lootmax"] for o in objs if o["name"] in S.LOOT)
@@ -485,6 +518,13 @@ def main():
         for (x, y, z) in ctx.drops:
             fh.write('    <pos x="%.3f" z="%.3f" a="0" y="%.3f" />\n' % (x, z, y))
         fh.write("</event>\n")
+    if zone and not ctx.errors:
+        with open(os.path.join(a.out, "zombie_territories_snippet.xml"), "w") as fh:
+            fh.write("<!-- MERGE this <zone> into an existing <territory> of the mission's env/zombie_territories.xml.\n"
+                     "     One zone per district; dmin/dmax from the floor mix (economy/README.md, tune after B6). -->\n")
+            fh.write(zone + "\n")
+    elif os.path.exists(os.path.join(a.out, "zombie_territories_snippet.xml")):
+        os.remove(os.path.join(a.out, "zombie_territories_snippet.xml"))
     status = "FAIL" if ctx.errors else ("PASS (with warnings)" if ctx.warnings else "PASS")
     with open(os.path.join(a.out, "placement_report.md"), "w") as fh:
         fh.write("# Placement report\n\nmap: %s  site: %s  status: **%s**\n\n" % (lay["map"], site["name"], status))

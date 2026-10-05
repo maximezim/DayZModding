@@ -219,7 +219,7 @@ if ($Layout) {
     $srcMission = Join-DzPath $paths.ServerDir 'mpmissions' $Mission
     $valMission = Join-DzPath $paths.ServerDir 'mpmissions' "$Mission.validation"
     $valConfig  = Join-DzPath $repo 'server' 'serverDZ.validation.cfg'
-    Write-DzInfo "> copy $srcMission -> $valMission (storage wiped); merge sky_objects.json, cfggameplay, sky_ce, mapgroupproto, roof drops"
+    Write-DzInfo "> copy $srcMission -> $valMission (storage wiped); merge sky_objects.json, cfggameplay, sky_ce, mapgroupproto, roof drops, infected zone"
     Write-DzInfo "> render $valConfig (template = $Mission.validation)"
     if (-not $DryRun) {
         if (-not (Test-Path -LiteralPath $srcMission)) { throw "Vanilla mission not found: $srcMission" }
@@ -254,6 +254,15 @@ if ($Layout) {
             [xml]$drops = Get-Content -Raw -LiteralPath (Join-DzPath $layoutOut 'cfgeventspawns_snippet.xml')
             [void]$ev.eventposdef.AppendChild($ev.ImportNode($drops.event, $true))
             $ev.Save($evPath)
+            $zoneSnip = Join-DzPath $layoutOut 'zombie_territories_snippet.xml'
+            $ztPath = Join-DzPath $valMission 'env' 'zombie_territories.xml'
+            if ((Test-Path -LiteralPath $zoneSnip) -and (Test-Path -LiteralPath $ztPath)) {
+                [xml]$zt = Get-Content -Raw -LiteralPath $ztPath
+                [xml]$zs = '<root>' + ((Get-Content -Raw -LiteralPath $zoneSnip) -replace '<!--[\s\S]*?-->', '') + '</root>'
+                $terr = $zt.SelectSingleNode('//territory')
+                foreach ($z in $zs.root.SelectNodes('zone')) { [void]$terr.AppendChild($zt.ImportNode($z, $true)) }
+                $zt.Save($ztPath)
+            }
         }
         $text = Get-Content -Raw -LiteralPath $config
         $text = [regex]::Replace($text, 'template\s*=\s*"[^"]*"', "template = `"$Mission.validation`"")

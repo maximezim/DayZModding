@@ -77,7 +77,7 @@ def build_reception_desk():
     wood, met = {"mat": "wood", "uv": UV_WALNUT}, {"mat": "metal", "uv": UV_PAINT}
     solid(L, ALL, (-1.5, 1.5, -0.4, 0.4, 0.0, 1.05), wood, "wood")                 # front counter
     solid(L, ALL, (1.5, 2.3, -0.4, 1.2, 0.0, 0.75), wood, "wood")                  # return
-    solid(L, NEAR, (-1.55, 1.55, -0.5, 0.45, 1.05, 1.1), met, "metal")             # transaction top
+    solid(L, NEAR + ("geo", "fire"), (-1.55, 1.55, -0.5, 0.45, 1.05, 1.1), met, "metal")   # transaction top (loot surface)
     L["view"].box(-1.5, 1.5, -0.4, 0.4, 0.0, 1.05)
     face_screen(L, ("res0",), -0.3, 0.3, 1.1, 1.45, 0.2, (0, 1, 0))
     return finish(L, 300.0)
@@ -139,7 +139,7 @@ def build_locker():
         solid(L, ("res0", "res1", "geo", "fire", "view"), b, paint, "metal")
     for x in (-0.15, 0.15):
         solid(L, ("res0", "res1", "geo", "fire"), (x - 0.01, x + 0.01, -0.24, 0.22, 0.05, 1.78), paint, "metal")
-    solid(L, ("res0",), (-0.43, 0.43, -0.24, 0.22, 1.45, 1.47), paint, "metal")       # shelf
+    solid(L, ("res0", "geo", "fire"), (-0.43, 0.43, -0.24, 0.22, 1.45, 1.47), paint, "metal")   # shelf (loot surface, QA L1)
     L["res2"].box(-0.45, 0.45, -0.25, 0.25, 0.0, 1.8, **paint)
     for i, x0 in enumerate((-0.45, -0.15, 0.15)):
         hinged_door(L, "locker_door%d" % (i + 1), (x0 + 0.005, x0 + 0.295, -0.27, -0.25, 0.06, 1.77),
@@ -173,7 +173,7 @@ def build_kitchenette():
     L = props_lods(view=True)
     lam, met = {"mat": "wood", "uv": UV_LAMINATE}, {"mat": "metal", "uv": UV_ALU}
     solid(L, ("res0", "res1", "res2", "geo", "fire", "view"), (-1.2, 0.6, -0.3, 0.3, 0.0, 0.88), lam, "wood")
-    solid(L, NEAR, (-1.22, 0.6, -0.32, 0.3, 0.88, 0.92), met, "metal")               # worktop
+    solid(L, NEAR + ("geo", "fire"), (-1.22, 0.6, -0.32, 0.3, 0.88, 0.92), met, "metal")   # worktop (loot surface)
     solid(L, ("res0",), (-0.9, -0.4, -0.25, 0.2, 0.8, 0.88), met, "metal")             # sink basin
     solid(L, ("res0", "res1", "geo", "fire"), (-1.2, 0.6, 0.0, 0.3, 1.5, 2.2), lam, "wood")   # upper cabinets
     solid(L, ("res0", "res1", "res2", "geo", "fire", "view"), (0.6, 1.2, -0.3, 0.3, 0.0, 1.9), met, "metal")  # fridge

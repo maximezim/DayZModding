@@ -35,7 +35,7 @@
   {
    "name": "Land_SKY_StreetLight",
    "pos": [
-    -43.5,
+    -52.5,
     0.15,
     -36.0
    ],
@@ -83,7 +83,7 @@
   {
    "name": "Land_SKY_StreetLight",
    "pos": [
-    -43.5,
+    -52.5,
     0.15,
     -12.0
    ],
@@ -147,7 +147,7 @@
   {
    "name": "Land_SKY_StreetLight",
    "pos": [
-    -43.5,
+    -52.5,
     0.15,
     24.0
    ],
@@ -213,7 +213,7 @@
    "pos": [
     -36.0,
     0.15,
-    -52.5
+    -43.5
    ],
    "ypr": [
     90.0,
@@ -230,6 +230,22 @@
     -36.0,
     0.0,
     0.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_StreetLight",
+   "pos": [
+    -36.0,
+    0.15,
+    4.5
    ],
    "ypr": [
     90.0,
@@ -261,7 +277,7 @@
    "pos": [
     -36.0,
     0.15,
-    43.5
+    52.5
    ],
    "ypr": [
     90.0,
@@ -321,22 +337,6 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_StreetLight",
-   "pos": [
-    -24.0,
-    0.15,
-    43.5
-   ],
-   "ypr": [
-    90.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
    "name": "Land_SKY_Street_Straight",
    "pos": [
     -12.0,
@@ -353,11 +353,11 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_Street_Straight",
+   "name": "Land_SKY_StreetLight",
    "pos": [
     -12.0,
-    0.0,
-    0.0
+    0.15,
+    -43.5
    ],
    "ypr": [
     90.0,
@@ -369,11 +369,11 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_StreetLight",
+   "name": "Land_SKY_Street_Straight",
    "pos": [
     -12.0,
-    0.15,
-    -4.5
+    0.0,
+    0.0
    ],
    "ypr": [
     90.0,
@@ -390,6 +390,22 @@
     -12.0,
     0.0,
     48.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_StreetLight",
+   "pos": [
+    -12.0,
+    0.15,
+    52.5
    ],
    "ypr": [
     90.0,
@@ -435,7 +451,7 @@
   {
    "name": "Land_SKY_StreetLight",
    "pos": [
-    4.5,
+    -4.5,
     0.15,
     -36.0
    ],
@@ -515,7 +531,7 @@
   {
    "name": "Land_SKY_StreetLight",
    "pos": [
-    4.5,
+    -4.5,
     0.15,
     12.0
    ],
@@ -593,11 +609,11 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_StreetLight",
+   "name": "Land_SKY_Street_Straight",
    "pos": [
     12.0,
-    0.15,
-    -52.5
+    0.0,
+    0.0
    ],
    "ypr": [
     90.0,
@@ -609,11 +625,11 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_Street_Straight",
+   "name": "Land_SKY_StreetLight",
    "pos": [
     12.0,
-    0.0,
-    0.0
+    0.15,
+    4.5
    ],
    "ypr": [
     90.0,
@@ -641,11 +657,11 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_StreetLight",
+   "name": "Land_SKY_Street_Straight",
    "pos": [
-    12.0,
-    0.15,
-    43.5
+    24.0,
+    0.0,
+    -48.0
    ],
    "ypr": [
     90.0,
@@ -657,11 +673,11 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_Street_Straight",
+   "name": "Land_SKY_StreetLight",
    "pos": [
     24.0,
-    0.0,
-    -48.0
+    0.15,
+    -43.5
    ],
    "ypr": [
     90.0,
@@ -709,7 +725,7 @@
    "pos": [
     24.0,
     0.15,
-    43.5
+    52.5
    ],
    "ypr": [
     90.0,
@@ -742,22 +758,6 @@
     36.0,
     0.0,
     0.0
-   ],
-   "ypr": [
-    90.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_StreetLight",
-   "pos": [
-    36.0,
-    0.15,
-    -4.5
    ],
    "ypr": [
     90.0,
@@ -819,7 +819,7 @@
   {
    "name": "Land_SKY_StreetLight",
    "pos": [
-    52.5,
+    43.5,
     0.15,
     -36.0
    ],
@@ -867,7 +867,7 @@
   {
    "name": "Land_SKY_StreetLight",
    "pos": [
-    52.5,
+    43.5,
     0.15,
     -12.0
    ],
@@ -931,7 +931,7 @@
   {
    "name": "Land_SKY_StreetLight",
    "pos": [
-    52.5,
+    43.5,
     0.15,
     24.0
    ],
@@ -1268,7 +1268,7 @@
    "name": "Land_SKY_ExtinguisherCabinet",
    "pos": [
     -27.0,
-    7.0,
+    8.0,
     24.0
    ],
    "ypr": [
@@ -1444,7 +1444,7 @@
    "name": "Land_SKY_ExtinguisherCabinet",
    "pos": [
     -27.0,
-    10.5,
+    11.5,
     24.0
    ],
    "ypr": [
@@ -1620,7 +1620,7 @@
    "name": "Land_SKY_ExtinguisherCabinet",
    "pos": [
     -27.0,
-    14.0,
+    15.0,
     24.0
    ],
    "ypr": [
@@ -1796,7 +1796,7 @@
    "name": "Land_SKY_ExtinguisherCabinet",
    "pos": [
     -27.0,
-    17.5,
+    18.5,
     24.0
    ],
    "ypr": [
@@ -1972,7 +1972,7 @@
    "name": "Land_SKY_ExtinguisherCabinet",
    "pos": [
     -27.0,
-    21.0,
+    22.0,
     24.0
    ],
    "ypr": [
@@ -4452,7 +4452,7 @@
    "name": "Land_SKY_ExtinguisherCabinet",
    "pos": [
     24.0,
-    7.0,
+    8.0,
     -27.0
    ],
    "ypr": [
@@ -4628,7 +4628,7 @@
    "name": "Land_SKY_ExtinguisherCabinet",
    "pos": [
     24.0,
-    10.5,
+    11.5,
     -27.0
    ],
    "ypr": [
@@ -4756,7 +4756,7 @@
    "name": "Land_SKY_ExtinguisherCabinet",
    "pos": [
     24.0,
-    14.0,
+    15.0,
     -27.0
    ],
    "ypr": [
@@ -4932,7 +4932,7 @@
    "name": "Land_SKY_ExtinguisherCabinet",
    "pos": [
     24.0,
-    17.5,
+    18.5,
     -27.0
    ],
    "ypr": [
@@ -5108,7 +5108,7 @@
    "name": "Land_SKY_ExtinguisherCabinet",
    "pos": [
     24.0,
-    21.0,
+    22.0,
     -27.0
    ],
    "ypr": [

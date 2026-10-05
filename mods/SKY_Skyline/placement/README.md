@@ -19,7 +19,7 @@ objects with `ECE_UPDATEPATHGRAPH` and then calls
 
 ## 2. Deploy to the mission
 
-1. Copy `placement/out/sky_objects.json` to `<mission>\sky\sky_objects.json`.
+1. Copy `placement/out/sky_objects.json` (or `out_district/` for a district) to `<mission>\sky\sky_objects.json`. For a district also merge `zombie_territories_snippet.xml` into `<mission>\env\zombie_territories.xml`. `tools\tests\Invoke-ModValidation.ps1 -Layout ...` does all of this on a mission copy for testing.
 2. Merge `placement/out/cfggameplay_snippet.json` into `<mission>\cfggameplay.json` (`WorldsData.objectSpawnersArr`).
 3. Economy: see `economy/README.md` (CE folder, mapgroupproto merge, roof-drop event positions from `placement/out/cfgeventspawns_snippet.xml`).
 
@@ -55,6 +55,11 @@ until a surveyed site is filled in). It shows every key:
 * `decals`: placed flush on a tower facade (face N/E/S/W, `u` along it, `z` bottom height) at the
   per-type `DECAL_OFFSET` (D16, D19); cap `DECAL_CAPS` (12 per tower).
 * Roof drops: each roof class writes its own `ROOF_DROP_POINTS` into `cfgeventspawns_snippet.xml`.
+* Streets sit on **one** plane (max surveyed ground under any tile + clearance): no steps at seams; a
+  tile whose ground falls more than slab + skirt below it, or that has no survey samples, fails. Lobbies
+  more than 0.3 m off the sidewalk are warned (entrance step).
+* Infected: one `InfectedCity` zone per district in `zombie_territories_snippet.xml` (economy/README.md).
+* A failed run writes only `placement_report.md` and `*.FAILED.*` files - nothing deployable.
 
 Self-test: `python placement/tests/test_sky_layout.py` (synthetic surveys, no game).
 

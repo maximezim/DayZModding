@@ -252,8 +252,10 @@ def batch5_checks(builders):
             lods = lods_of(cls)
             walls = [b for _c, b in comp_boxes(lods["geo"]) if b[4] < 1.9 and b[5] > 0.1]
             boxes = []
-            for name, x, y, yaw in fs["props"]:
-                pb = placed_box(S.PROP_BOX[name], x, y, yaw) + (0.05, 1.0)
+            for entry in fs["props"]:
+                name, x, y, yaw = entry[:4]
+                pz = entry[4] if len(entry) > 4 else 0.0
+                pb = placed_box(S.PROP_BOX[name], x, y, yaw) + (pz + 0.05, pz + 1.0)
                 for w in walls:
                     check(not overlaps(pb, w), "FURNISH %s on %s: %s at (%g, %g) hits a wall/unit" % (set_name, cls, name, x, y))
                 for zone, cz in CORE_CLEAR.items():
@@ -294,6 +296,9 @@ def batch5_checks(builders):
                 check(pb[0] <= x <= pb[1] and pb[2] <= y <= pb[3], "LOOT %s: point (%g, %g) outside the prop" % (cls, x, y))
                 pt = (x - rng, x + rng, y - rng, y + rng, z + 0.01, z + 0.1)
                 check(not any(overlaps(pt, b) for b in comps), "LOOT %s: point (%g, %g, %g) inside its Geometry" % (cls, x, y, z))
+                # must rest on a collision surface (QA batch-5 L1): a component under (x, y) with its top at z
+                check(any(b[0] <= x <= b[1] and b[2] <= y <= b[3] and abs(b[5] - z) <= 0.03 for b in comps),
+                      "LOOT %s: point (%g, %g, %g) does not rest on a Geometry surface" % (cls, x, y, z))
 
 
 def convention_check():

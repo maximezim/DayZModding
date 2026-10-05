@@ -327,7 +327,6 @@ Expected clean logs: no `Cannot open object SKY_Skyline\sky_floors\...`, no `mis
 | F4-20 | all | 2 players on different floors of the same stack, dedicated | Both see the same geometry. No desync at the module seams | | |
 | F4-21 | all | Death on the floor/roof (fall from the parapet, shot) | The body stays on the slab and does not fall through | | |
 | F4-R | Tower A (regression) | Repeat S-10, C-04, C-05 and E-02 on the unchanged office stack | Same results as before batch 4 (Tower A P3Ds are byte-identical) | | |
-| P5-YAW | district | Deploy the template: T4 (yaw 270) carries the asymmetric `office_open` set. On T4 floor 1, check the cubicles stand on open floor north/south of the core, not inside the SW enclosed office, and the decals sit on T4's louvre storey | Props and decals where the report says; if mirrored, P9 `YAW_SIGN = -1` | screenshots | |
 
 ## 16. Street kit (batch 1, `sky_street`)
 
@@ -387,6 +386,39 @@ site filled in) or single pieces via a scratch objectSpawnersArr. RPT gate as in
 | R2-02 | Batch 1 billboard A-D, roadmark and street tiles | Unchanged. Billboard variants still swap. | | |
 | R2-03 | Vanilla wall decals or graffiti nearby (if any) | Unaffected. No vanilla texture overridden. | | |
 
+## 18. Economy and district placement (batch 5)
+
+Static results: `reviews/batch5_qa.md`. Deploy the district template on a surveyed site (fill
+`site.center/yaw/survey`, `placeholder: false`, `--strict` PASS) with
+`tools\tests\Invoke-ModValidation.ps1 -Layout mods\SKY_Skyline\placement\district_template.yaml -Minutes 10`.
+
+| ID | Steps | Logs | Expected | PASS/FAIL |
+|---|---|---|---|---|
+| P5-01 | Start the server with the filled template | RPT: no `Cannot create object`, no `missing in CfgPatches`. script log: no `SCRIPT (E)` from `objectspawner.c` | 4 towers (office / apartments / hotel / office+mech) stacked without gaps, roofs garden x2, helipad, mechanical | |
+| P5-02 | Walk every street tile, then drive a car over all seams | none | No tile under terrain, no hole (H1), one street plane, no steps at seams (L3 fixed), no wheel snag (P8) | |
+| P5-03 | Look at each street light at night | none | Head over the **carriageway** (QA M1 fixed: pole on the -X sidewalk); emissive reads "lit" (P7); pole does not block the 2 m sidewalk (B8) | |
+| P5-04 | Count lights per street | none | Every 2nd straight tile **on each street** (L2), none on intersections/crossings | |
+| P5-05 | Decals: check each placed decal from outside, inside and at grazing angle | none | Only on the mechanical louvre storey (D44), facing outward, no z-fight (D19), no see-in/see-out asymmetry | |
+| P5-06 | Furniture per floor: visit each furnished level of each tower | none | Props at FURNISH positions on the slab (not floating/sunk), aisles >= 1.2 m, every room reachable, core doors clear, extinguisher cabinet mounted on the core wall at 1.0 m | |
+| P5-07 | Rotated site (yaw != 0): repeat P5-01/06 on one tower | none | Props and decals rotate with the tower (yaw composition) | |
+| P5-08 | Restart the server twice | no duplicate-spawn warnings | Same objects, no duplicates (spawner objects are not persistent) | |
+| P5-09 | Count entities and FPS at the district centre (perf protocol) | server FPS in RPT/admin tool | Entity count = report total (323 for the template). FPS within the perf budget | |
+| L5-01 | Rerun the survey with `exportRadius` covering the district | script log `[SKY] site survey`; `storage_1/export/mapgrouppos.xml` written | `Land_SKY_*` entries for floors, roofs **and the 4 loot props** (B7). Record their `pos`/`a` and check that y is the model origin (slab top / prop base) | |
+| L5-02 | Merge the exported entries, wipe storage, restart | RPT: no `[CE]` errors for SKY groups | Loot on floors at the listed points: apartments 3 per unit, hotel 1 per room + suites, mechanical 4-5 points | |
+| L5-03 | Inspect each loot prop: Locker (open doors), Desk, ReceptionDesk, Kitchenette (Cubicle/Bed carry no loot, D43) | none | Items **on** the surfaces: locker floor + upper shelf (L1: not floating/falling), desk top, counter, worktop. None inside a mesh | |
+| L5-04 | Pick up loot from a locker bay and from the upper shelf | ADM: normal | Reachable via the door, no clipping through the locker sides | |
+| L5-05 | Categories per group | none | Only the listed categories (e.g. Kitchenette food, mech floor tools/containers) | |
+| L5-06 | Roof drops on every roof type | RPT: no event errors | Supply boxes at (+-8, +-8) on the helipad and (+-8, +-2) on garden/mech roofs, on the open roof | |
+| L5-07 | Relog / server restart persistence | none | Loot respawns per CE timers. No duplication on furniture | |
+| L5-08 | B7 rollback check: if L5-01 shows no prop entries, remove the prop groups | none | Floor loot unaffected | |
+| Z5-01 | Merge the generated `zombie_territories_snippet.xml` zone (template: dmin 6 / dmax 12, r 54) into `env/zombie_territories.xml` | RPT: no territory errors | Infected spawn at street level around players | |
+| Z5-02 | Spend 10 min on each floor type with 1 and then 3 players | none | Count infected per floor vs README targets: lobby 3-5, office 1-2, apartments 2-3, hotel 2-3, mech 0-1, roofs 0-1 (B6) | |
+| Z5-03 | Pathing: DayZDiag navmesh view on each floor type with furniture spawned | none | Navmesh around props (ECE_UPDATEPATHGRAPH), through doors, stairs, not through glass. Infected follow players to the roof | |
+| Z5-04 | Death + respawn near the district, then reconnect | none | No infected stuck in furniture or walls | |
+| R5-01 | Regression: vanilla town loot and infected nearby | no new CE warnings | Vanilla buildings still get loot. Vanilla zones unchanged | |
+| R5-02 | Regression: Tower A lobby security door + keycard + elevator on each variant | ADM: swipe/elevator lines as in TESTING.md | Works the same on every floor variant | |
+| P5-YAW | T4 (yaw 270) carries the asymmetric `office_open` set: on T4 floor 1 check the cubicles stand on open floor north/south of the core, not in the SW office, and the decals sit on T4's louvre storey | none | Props and decals where the report says; if mirrored, P9 `YAW_SIGN = -1` | |
+
 ---
 
 ### Sign-off
@@ -409,3 +441,4 @@ site filled in) or single pieces via a scratch objectSpawnersArr. RPT gate as in
 | Floor / roof variants §15 | | | |
 | Street kit §16 | | | |
 | Decals / windows §17 | | | |
+| Economy / district §18 | | | |
