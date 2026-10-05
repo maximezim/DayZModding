@@ -488,9 +488,9 @@ BUILDERS = {
     "Barrier_Concrete": build_barrier_concrete, "Barrier_Steel": build_barrier_steel, "BusStop": build_busstop,
     "Dumpster": build_dumpster, "Planter": build_planter, "Wreck_Sedan": build_wreck_sedan,
     "Wreck_Van": build_wreck_van, "Billboard": build_billboard,
-    "Decal_Dirt": lambda: build_decal("decal_dirt", 2.0, 3.0),
-    "Decal_Cracks": lambda: build_decal("decal_cracks", 2.0, 2.0),
-    "Decal_Graffiti": lambda: build_decal("decal_graffiti", 2.0, 2.0, camo=True),
+    "Decal_Dirt": lambda: build_decal("decal_dirt", *S.DECAL_SIZE["Decal_Dirt"]),
+    "Decal_Cracks": lambda: build_decal("decal_cracks", *S.DECAL_SIZE["Decal_Cracks"]),
+    "Decal_Graffiti": lambda: build_decal("decal_graffiti", *S.DECAL_SIZE["Decal_Graffiti"], camo=True),
 }
 
 KIT_MATS = dict(MATS)

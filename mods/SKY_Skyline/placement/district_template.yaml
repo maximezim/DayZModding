@@ -1,0 +1,68 @@
+# SKY_Skyline district TEMPLATE -> python placement/sky_layout.py --layout placement/district_template.yaml
+#
+# Site coordinates are deliberately UNFILLED: `sky_layout.py` runs on it offline (positions
+# relative to (0, 0), warnings) and `--strict` refuses it until a surveyed site is filled in:
+#   1. survey a candidate site (placement/README.md section 1) with halfW/halfD covering the
+#      whole district (here 9 x 9 cells of 12 m = 108 m -> halfW = halfD = 56, step 2-4 m)
+#   2. set site.center, site.yaw, site.survey and placeholder: false
+#   3. python placement/sky_layout.py --layout placement/district_template.yaml --strict -> PASS
+# Do NOT start the HQ landmark, the 25-floor Office Tower or the skybridge here (not built).
+map: chernarusplus
+mission: dayzOffline.chernarusplus
+
+site:
+  name: district-template
+  placeholder: true             # set false once the survey for this site passes
+  center: null                  # world [X, Z] - UNFILLED
+  yaw: null                     # degrees, DayZ yaw - UNFILLED (null = 0)
+  survey: null                  # e.g. surveys/district1.json - UNFILLED
+  base_y: null                  # null = from survey (max ground + clearance)
+  clearance: 0.05
+  max_ground_drop: 2.2          # tower foundation skirt (street tiles use STREET slab + skirt)
+
+# 12 m street grid in the site frame: N-S streets on columns `ns`, E-W streets on rows `ew`,
+# cells i0..i1 x j0..j1 (cell (0, 0) centred on `origin`). Intersections are automatic.
+streets:
+  origin: [0.0, 0.0]
+  extent: [-4, 4, -4, 4]
+  ns: [-4, 0, 4]
+  ew: [-4, 0, 4]
+  crossings: [[0, -2], [0, 2], [-2, 0], [2, 0]]   # zebra crossings mid-block
+  lights_every: 2               # a street light on every 2nd straight tile (LIGHT_CAP 0.5/tile)
+  base_y: null                  # null = from survey per tile
+
+# Blocks = grid cells between streets ([i0, j0, i1, j1]); a tower needs 3 x 3 cells (36 m)
+# for its 24 m footprint + BLOCK_SETBACK. Towers sit block-locally (`at` from the block centre).
+# floors: exactly 5 (the unchanged Tower A core's stops): office | apartments | hotel | mechanical
+# roof: helipad | garden | mechanical. furnish: {level 1..5: set} with sets from skyspec.FURNISH.
+blocks:
+  - id: NW
+    cells: [-3, 1, -1, 3]
+    towers:
+      - {id: T1, type: TowerA, at: [0.0, 0.0], yaw: 0, floors: [office, office, office, office, office], roof: helipad,
+         furnish: {1: office_open, 2: office_open, 3: office_open, 4: office_open, 5: office_open}}
+  - id: NE
+    cells: [1, 1, 3, 3]
+    towers:
+      - {id: T2, type: TowerA, at: [0.0, 0.0], yaw: 90, floors: [apartments, apartments, apartments, apartments, apartments],
+         roof: garden, furnish: {1: apartments, 2: apartments, 3: apartments, 4: apartments, 5: apartments}}
+  - id: SW
+    cells: [-3, -3, -1, -1]
+    towers:
+      - {id: T3, type: TowerA, at: [0.0, 0.0], yaw: 180, floors: [hotel, hotel, hotel, hotel, hotel], roof: garden,
+         furnish: {1: hotel, 2: hotel, 3: hotel, 4: hotel, 5: hotel}}
+  - id: SE
+    cells: [1, -3, 3, -1]
+    towers:
+      - {id: T4, type: TowerA, at: [0.0, 0.0], yaw: 270, floors: [office, office, mechanical, office, office],
+         roof: mechanical, furnish: {1: office_open, 2: office_open, 3: mechanical, 4: office_open, 5: office_open}}
+
+towers: []                      # legacy site-frame towers (offset: [u, v]) - use blocks instead
+
+# Wall decals, flush on a tower facade (D16): face N/E/S/W of the tower's own frame, u along
+# the face from its centre, z = bottom above the lobby floor. Types: Decal_Dirt, Decal_Cracks,
+# Decal_Graffiti_A..D. Caps: DECAL_CAPS.
+decals:
+  - {tower: T1, face: S, u: -6.0, z: 0.2, type: Decal_Graffiti_B}
+  - {tower: T1, face: S, u: 6.0, z: 4.0, type: Decal_Dirt}
+  - {tower: T3, face: E, u: 0.0, z: 0.5, type: Decal_Cracks}

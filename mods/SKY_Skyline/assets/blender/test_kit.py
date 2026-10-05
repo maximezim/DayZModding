@@ -208,6 +208,93 @@ def module_checks(n, lods):
         check(not overlaps(ob[:4] + (ob[4] - 0.01, ob[5] + 0.01), hole), "%s: %s covers the core hole" % (n, g))
 
 
+def placed_box(box, x, y, yaw_deg):
+    """XY bounds of a model-space box (x0, x1, y0, y1) rotated by a DayZ yaw (clockwise) and moved."""
+    import math
+    a = math.radians(yaw_deg)
+    pts = [(u * math.cos(a) + v * math.sin(a), -u * math.sin(a) + v * math.cos(a))
+           for u in box[:2] for v in box[2:]]
+    return (x + min(p[0] for p in pts), x + max(p[0] for p in pts), y + min(p[1] for p in pts), y + max(p[1] for p in pts))
+
+
+def module_builders():
+    """{floor/roof class: builder} incl. Tower A's (read-only use of build_towera)."""
+    import build_towera as T
+    out = {S.CLASS_FLOOR: T.build_floor_office, S.CLASS_ROOF: T.build_roof_helipad, S.CLASS_LOBBY: T.build_lobby}
+    try:
+        import build_floors as F
+        for n, (fn, _p, _f) in F.modules().items():
+            out[S.KIT[n]["cls"]] = fn
+    except ImportError:
+        pass
+    return out
+
+
+def batch5_checks(builders):
+    """Batch 5: PROP_BOX matches each prop's Geometry; every FURNISH set fits its floors
+    (no prop inside walls / core zones, rooms stay reachable around the furniture); every
+    LOOT point lies on open floor (not inside Geometry, the core or a furnish prop)."""
+    for name, box in S.PROP_BOX.items():
+        b = bounds({l.name: l for l in builders[name]()}["geo"])
+        check(all(abs(b[i] - box[i]) < 1e-6 for i in range(4)), "PROP_BOX[%s] %s != Geometry %s" % (name, box, b[:4]))
+    mods = module_builders()
+    cache = {}
+
+    def lods_of(cls):
+        if cls not in cache:
+            cache[cls] = {l.name: l for l in mods[cls]()}
+        return cache[cls]
+    by_cls = {e["cls"]: n for n, e in S.KIT.items()}
+    furnished = {}
+    for set_name, fs in S.FURNISH.items():
+        for cls in fs["for"]:
+            lods = lods_of(cls)
+            walls = [b for _c, b in comp_boxes(lods["geo"]) if b[4] < 1.9 and b[5] > 0.1]
+            boxes = []
+            for name, x, y, yaw in fs["props"]:
+                pb = placed_box(S.PROP_BOX[name], x, y, yaw) + (0.05, 1.0)
+                for w in walls:
+                    check(not overlaps(pb, w), "FURNISH %s on %s: %s at (%g, %g) hits a wall/unit" % (set_name, cls, name, x, y))
+                for zone, cz in CORE_CLEAR.items():
+                    check(not overlaps(pb, cz), "FURNISH %s on %s: %s at (%g, %g) blocks the core %s" % (set_name, cls, name, x, y, zone))
+                boxes.append(pb)
+            furnished.setdefault(cls, []).extend(boxes)
+            # rooms must stay reachable with the furniture in place
+            geo = lods["geo"]
+            saved = (list(geo.verts), {k: set(v) for k, v in geo.groups.items()}, list(geo.faces), geo._component)
+            for pb in boxes:
+                geo.box(pb[0], pb[1], pb[2], pb[3], 0.05, 1.0)
+            reachability("%s + FURNISH %s" % (by_cls.get(cls, cls), set_name), lods)
+            geo.verts, geo.groups, geo.faces, geo._component = saved
+    for cls, g in S.LOOT.items():
+        if cls not in mods:
+            continue                      # prop groups: checked against the prop below
+        lods = lods_of(cls)
+        comps = [b for _c, b in comp_boxes(lods["geo"])]
+        for c in g["containers"]:
+            for p in c["points"]:
+                x, y = p[0], p[1]
+                z = p[2] if len(p) == 5 else 0.0
+                pt = (x - 0.05, x + 0.05, y - 0.05, y + 0.05, z + 0.05, z + 0.15)
+                check(not any(overlaps(pt, b) for b in comps), "LOOT %s: point (%g, %g) inside Geometry" % (cls, x, y))
+                check(not overlaps(pt, CORE_CLEAR["core footprint"]), "LOOT %s: point (%g, %g) inside the core" % (cls, x, y))
+                for pb in furnished.get(cls, []):
+                    check(not overlaps(pt, pb), "LOOT %s: point (%g, %g) inside a furnish prop" % (cls, x, y))
+    for cls, g in S.LOOT.items():
+        n = by_cls.get(cls)
+        if n is None or n not in S.PROP_BOX:
+            continue
+        geo = {l.name: l for l in builders[n]()}["geo"]
+        comps = [b for _c, b in comp_boxes(geo)]
+        for c in g["containers"]:
+            for p in c["points"]:
+                x, y, z, rng = p[0], p[1], p[2], p[3]
+                pb = S.PROP_BOX[n]
+                check(pb[0] <= x <= pb[1] and pb[2] <= y <= pb[3], "LOOT %s: point (%g, %g) outside the prop" % (cls, x, y))
+                pt = (x - rng, x + rng, y - rng, y + rng, z + 0.01, z + 0.1)
+                check(not any(overlaps(pt, b) for b in comps), "LOOT %s: point (%g, %g, %g) inside its Geometry" % (cls, x, y, z))
+
+
 def convention_check():
     """P1 anchor: under the same convention the Tower A lobby door (read-only use of
     build_towera) must open INTO the security room, i.e. away from its action point."""
@@ -237,6 +324,8 @@ def main():
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     names = argv[argv.index("--only") + 1].split(",") if "--only" in argv else list(builders)
     convention_check()
+    if "--only" not in argv:
+        batch5_checks(builders)
     missing = [n for n in S.KIT if n not in builders]
     check(not missing, "KIT entries without a builder: %s" % missing)
     for n in names:

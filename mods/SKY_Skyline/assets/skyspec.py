@@ -331,6 +331,7 @@ MATERIALS.update({
 # never share a plane (perf batch-2 M2), and caps their count (DECAL_CAPS, hypothesis).
 DECAL_OFFSET = {"Decal_Dirt": 0.015, "Decal_Cracks": 0.020, "Decal_Graffiti": 0.025}
 DECAL_CAPS = {"per_tile": 6, "per_block": 40}
+DECAL_SIZE = {"Decal_Dirt": (2.0, 3.0), "Decal_Cracks": (2.0, 2.0), "Decal_Graffiti": (2.0, 2.0)}   # w, h (m)
 BUDGETS["decal"] = {"res0": 4, "res1": 4, "res2": 2, "sections_res0": 1}
 kit("Decal_Dirt", "sky_street", "decal", desc="2 x 3 m run-off grime (alpha-blended)")
 kit("Decal_Cracks", "sky_street", "decal", desc="2 x 2 m plaster/concrete cracks (alpha-tested)")
@@ -407,3 +408,104 @@ for _n, _c, _d in [
 ROOF_DROPS_CLEAR = [(-8.0, -2.0), (8.0, -2.0), (-8.0, 2.0), (8.0, 2.0)]
 ROOF_DROP_POINTS = {CLASS_ROOF: ROOF_DROPS, KIT["Roof_Garden"]["cls"]: ROOF_DROPS_CLEAR,
                     KIT["Roof_Mechanical"]["cls"]: ROOF_DROPS_CLEAR}
+
+
+# ===================================================================== batch 5: economy + placement prep
+# Tower variants: Tower A's core has len(elevator_stops()) stops (lobby + typical_floors + roof),
+# so every tower built on it has exactly TOWER_A["typical_floors"] typical floors; each may be
+# any floor variant, and the roof any roof variant (same stacking, D31).
+FLOOR_VARIANTS = {"office": CLASS_FLOOR, "apartments": KIT["Floor_Apartments"]["cls"],
+                  "hotel": KIT["Floor_Hotel"]["cls"], "mechanical": KIT["Floor_Mechanical"]["cls"]}
+ROOF_VARIANTS = {"helipad": CLASS_ROOF, "garden": KIT["Roof_Garden"]["cls"],
+                 "mechanical": KIT["Roof_Mechanical"]["cls"]}
+
+# Model-space XY bounds (Blender x0, x1, y0, y1) of every spawnable prop's Geometry. Used by the
+# layout generator for aisle / overlap checks; test_kit.py verifies them against the P3D Geometry.
+PROP_BOX = {
+    "ReceptionDesk": (-1.5, 2.3, -0.4, 1.2), "Desk": (-0.8, 0.8, -0.4, 0.4), "Cubicle": (-1.0, 1.0, -1.0, 1.0),
+    "ServerRack": (-0.3, 0.3, -0.5, 0.5), "VendingMachine": (-0.5, 0.5, -0.43, 0.4),
+    "Locker": (-0.45, 0.45, -0.27, 0.25), "Sofa": (-1.0, 1.0, -0.45, 0.45), "Bed": (-0.75, 0.75, -1.0, 1.06),
+    "Kitchenette": (-1.2, 1.2, -0.3, 0.3), "ExtinguisherCabinet": (-0.2, 0.2, -0.27, 0.0),
+}
+
+
+def _mirror4(props):
+    """Props given for the +X +Y quadrant -> all four quadrants (yaw mirrored)."""
+    out = []
+    for name, x, y, yaw in props:
+        out += [(name, x, y, yaw), (name, -x, y, (360 - yaw) % 360),
+                (name, x, -y, (180 - yaw) % 360), (name, -x, -y, (180 + yaw) % 360)]
+    return out
+
+
+# Furnish sets: props spawned per floor (objectSpawnersArr), model-space Blender (x, y) + DayZ
+# yaw (deg, clockwise) relative to the floor module. "for" = floor classes the set fits.
+# test_kit.py checks every prop box against the floor's Geometry, core clear zones and loot
+# points; sky_layout.py checks PROP_CAPS and aisles.
+FURNISH = {
+    "office_open": {"for": [CLASS_FLOOR], "props": [
+        # cubicles keep clear of Tower A's loot points at (+-9, +-9) (Tower A frozen)
+        ("Cubicle", 3.5, -9.5, 0), ("Cubicle", 6.8, -9.5, 0), ("Cubicle", 3.5, 9.0, 0), ("Cubicle", 6.8, 9.0, 0),
+        ("Cubicle", -3.5, 9.0, 0), ("Cubicle", -6.8, 9.0, 0), ("Desk", 9.5, 0.0, 90), ("Kitchenette", 8.5, -4.0, 0),
+        ("Locker", -9.5, 2.5, 90), ("VendingMachine", -5.0, -2.0, 0), ("ExtinguisherCabinet", -3.0, 0.0, 90)]},
+    "apartments": {"for": [KIT["Floor_Apartments"]["cls"]], "props": _mirror4([
+        ("Bed", 3.0, 10.0, 0), ("Sofa", 9.0, 3.0, 90), ("Kitchenette", 8.5, 9.5, 0)])},
+    "hotel": {"for": [KIT["Floor_Hotel"]["cls"]], "props": [
+        ("Bed", x, 10.2, 0) for x in (-9.0, -3.0, 3.0, 9.0)] + [("Bed", x, -10.2, 180) for x in (-9.0, -3.0, 3.0, 9.0)] + [
+        ("Bed", 9.0, 4.0, 0), ("Sofa", 9.5, 0.0, 90), ("Bed", -9.0, 4.0, 0), ("Sofa", -9.5, 0.0, 270)]},
+    "mechanical": {"for": [KIT["Floor_Mechanical"]["cls"]], "props": [
+        ("ServerRack", x, y, 0) for x in (-6.5, 6.5) for y in (-2.2, 0.0, 2.2)] + [
+        ("Locker", 0.0, -8.5, 0), ("ExtinguisherCabinet", -3.0, 0.0, 90)]},
+}
+
+# Street furniture density caps (perf batch-1 M1/L7, hypotheses): lights per straight street tile,
+# total entities per district (towers + core + tiles + props + decals + lights).
+LIGHT_CAP = {"per_tile": 0.5}
+ENTITY_CAP = {"per_district": 3000}
+BLOCK_SETBACK = 0.5          # m between a tower footprint and the block edge (street sidewalk)
+
+
+# ---- batch 5 loot groups (mapgroupproto). Points: (x, y) on the slab (Blender frame, floor
+# loot, LOOT_POINT range/height) or (x, y, z, range, height) for furniture surfaces (vanilla
+# "lootshelves" pattern: small range/height, tag "shelves"). Names verified against
+# dayzOffline.chernarusplus cfglimitsdefinition.xml (categories, usages, tags).
+def _m4(pts):
+    return [(sx * x, sy * y) for x, y in pts for sx in (1, -1) for sy in (1, -1)]
+
+
+LOOT.update({
+    KIT["Floor_Apartments"]["cls"]: {"usages": ["Town"], "lootmax": 8, "containers": [
+        {"name": "lootFloor", "lootmax": 8, "categories": ["tools", "containers", "clothes", "food", "books"],
+         "tags": ["floor"], "points": _m4([(5.0, 9.0), (8.5, 6.0), (9.5, 1.0)])}]},
+    KIT["Floor_Hotel"]["cls"]: {"usages": ["Town"], "lootmax": 8, "containers": [
+        {"name": "lootFloor", "lootmax": 8, "categories": ["clothes", "containers", "tools", "food"],
+         "tags": ["floor"], "points": [(x, y) for x in (-7.2, -1.2, 4.8, 10.8) for y in (-8.5, 8.5)] + [(7.0, -3.0), (-7.0, -3.0)]}]},
+    KIT["Floor_Mechanical"]["cls"]: {"usages": ["Industrial"], "lootmax": 4, "containers": [
+        {"name": "lootFloor", "lootmax": 4, "categories": ["tools", "containers"],
+         "tags": ["floor"], "points": [(-8.0, -5.0), (8.0, -5.0), (-8.0, 5.0), (8.0, 5.0), (0.0, 8.0)]}]},
+    KIT["Roof_Garden"]["cls"]: {"usages": ["Town"], "lootmax": 2, "containers": [
+        {"name": "lootFloor", "lootmax": 2, "categories": ["tools", "containers"],
+         "tags": ["ground"], "points": [(0.0, -8.0), (0.0, 8.0), (-8.0, -5.0)]}]},
+    KIT["Roof_Mechanical"]["cls"]: {"usages": ["Industrial"], "lootmax": 2, "containers": [
+        {"name": "lootFloor", "lootmax": 2, "categories": ["tools"],
+         "tags": ["ground"], "points": [(0.0, -8.0), (0.0, 8.0), (-8.0, -5.0)]}]},
+    # props (spawned per floor by FURNISH): small shelf-style points on their surfaces
+    KIT["Locker"]["cls"]: {"usages": ["Town", "Office", "Industrial"], "lootmax": 2, "containers": [
+        {"name": "lootshelves", "lootmax": 2, "categories": ["clothes", "tools", "containers"], "tags": ["shelves"],
+         "points": [(x, 0.0, z, 0.12, 0.3) for x in (-0.3, 0.0, 0.3) for z in (0.06, 1.48)]}]},
+    KIT["Desk"]["cls"]: {"usages": ["Office", "Town"], "lootmax": 1, "containers": [
+        {"name": "lootshelves", "lootmax": 1, "categories": ["tools", "books"], "tags": ["shelves"],
+         "points": [(-0.5, -0.15, 0.75, 0.2, 0.3), (0.5, -0.15, 0.75, 0.2, 0.3)]}]},
+    KIT["Cubicle"]["cls"]: {"usages": ["Office"], "lootmax": 1, "containers": [
+        {"name": "lootshelves", "lootmax": 1, "categories": ["tools", "books"], "tags": ["shelves"],
+         "points": [(0.5, 0.6, 0.75, 0.2, 0.3), (-0.65, -0.5, 0.75, 0.2, 0.3)]}]},
+    KIT["ReceptionDesk"]["cls"]: {"usages": ["Office", "Town"], "lootmax": 2, "containers": [
+        {"name": "lootshelves", "lootmax": 2, "categories": ["tools", "books", "containers"], "tags": ["shelves"],
+         "points": [(-1.0, 0.0, 1.1, 0.25, 0.3), (1.0, 0.0, 1.1, 0.25, 0.3), (1.9, 0.8, 0.75, 0.25, 0.3)]}]},
+    KIT["Kitchenette"]["cls"]: {"usages": ["Town", "Office"], "lootmax": 1, "containers": [
+        {"name": "lootshelves", "lootmax": 1, "categories": ["food"], "tags": ["shelves"],
+         "points": [(0.2, 0.0, 0.92, 0.2, 0.3), (-1.1, 0.0, 0.92, 0.1, 0.3)]}]},
+    KIT["Bed"]["cls"]: {"usages": ["Town"], "lootmax": 1, "containers": [
+        {"name": "lootshelves", "lootmax": 1, "categories": ["clothes"], "tags": ["shelves"],
+         "points": [(0.0, -0.3, 0.5, 0.3, 0.3)]}]},
+})

@@ -24,13 +24,14 @@ def survey(cx, cz, ground, objects=()):
             "minY": 0, "maxY": 0, "samples": samples, "objects": list(objects), "proxyExport": ""}
 
 
-def run(case, sv, towers=None, strict=True):
+def run(case, sv, towers=None, strict=True, extra=None):
     d = tempfile.mkdtemp()
     json.dump(sv, open(os.path.join(d, "s.json"), "w"))
     lay = {"map": "chernarusplus", "mission": "m", "blocks": [], "roads": [],
            "site": {"name": case, "placeholder": False, "center": [1000.0, 2000.0], "yaw": 0.0,
                     "survey": "s.json", "base_y": None, "clearance": 0.05, "max_ground_drop": 2.2},
            "towers": towers or [{"id": "A1", "type": "TowerA", "offset": [0, 0], "yaw": 0}]}
+    lay.update(extra or {})
     yaml.safe_dump(lay, open(os.path.join(d, "layout.yaml"), "w"))
     args = [sys.executable, TOOL, "--layout", os.path.join(d, "layout.yaml"), "--out", os.path.join(d, "out")]
     if strict:
@@ -38,6 +39,85 @@ def run(case, sv, towers=None, strict=True):
     r = subprocess.run(args, capture_output=True, text=True)
     objs = json.load(open(os.path.join(d, "out", "sky_objects.json")))["Objects"] if r.returncode == 0 else []
     return r.returncode, r.stdout, objs
+
+
+def run_layout(path, strict=False):
+    out = tempfile.mkdtemp()
+    args = [sys.executable, TOOL, "--layout", path, "--out", out] + (["--strict"] if strict else [])
+    r = subprocess.run(args, capture_output=True, text=True)
+    return r.returncode, r.stdout, out
+
+
+def variant(i, j, **kw):
+    t = {"id": "B1", "type": "TowerA", "at": [0, 0], "yaw": 0}
+    t.update(kw)
+    return {"streets": {"origin": [0, 0], "extent": [-2, 2, -2, 2], "ns": [-2, 2], "ew": [-2, 2]},
+            "blocks": [{"id": "C", "cells": [i, j, i + 2, j + 2], "towers": [t]}], "towers": []}
+
+
+def district_tests(expect):
+    tpl = os.path.join(os.path.dirname(HERE), "district_template.yaml")
+    rc, out, od = run_layout(tpl)
+    objs = json.load(open(os.path.join(od, "sky_objects.json")))["Objects"] if rc == 0 else []
+    rep = open(os.path.join(od, "placement_report.md")).read() if rc == 0 else ""
+    expect("district template runs offline (warnings only)", rc == 0 and "site.center is not set" in out, out)
+    expect("template: 4 towers x 8 modules", sum(o["name"].startswith(("Land_SKY_TowerA_", "Land_SKY_Floor_", "Land_SKY_Roof_")) for o in objs) == 32, rep[:400])
+    expect("template: variants placed", any(o["name"] == "Land_SKY_Floor_Hotel" for o in objs) and any(o["name"] == "Land_SKY_Roof_Garden" for o in objs))
+    expect("template: furnished props + entity counts in report", any(o["name"] == "Land_SKY_Cubicle" for o in objs) and "**total:" in rep)
+    ev = open(os.path.join(od, "cfgeventspawns_snippet.xml")).read() if rc == 0 else ""
+    expect("template: garden roof drops use ROOF_DROP_POINTS (+-8, +-2), not the helipad (+-8, +-8)",
+           'x="22.000" z="32.000"' in ev and 'x="26.000" z="16.000"' in ev, ev[:600])
+    rc, out, _ = run_layout(tpl, strict=True)
+    expect("district template refused by --strict", rc == 1 and "PLACEHOLDER" in out, out)
+
+    flat = survey(1000, 2000, lambda i, j: 150.0)
+    rc, out, objs = run("variants-ok", flat, towers=[{"id": "A1", "type": "TowerA", "offset": [0, 0], "yaw": 0,
+                                                     "floors": ["hotel"] * 5, "roof": "mechanical"}])
+    expect("legacy tower with variants passes", rc == 0 and any(o["name"] == "Land_SKY_Roof_Mechanical" for o in objs), out)
+    rc, out, _ = run("floors-4", flat, towers=[{"id": "A1", "type": "TowerA", "offset": [0, 0], "floors": ["office"] * 4}])
+    expect("wrong floor count fails (core stops)", rc == 1 and "typical-floor stops" in out, out)
+    rc, out, _ = run("variant-bad", flat, towers=[{"id": "A1", "type": "TowerA", "offset": [0, 0], "roof": "pool"}])
+    expect("unknown roof variant fails", rc == 1 and "unknown roof variant" in out, out)
+    rc, out, _ = run("furnish-bad", flat, towers=[{"id": "A1", "type": "TowerA", "offset": [0, 0], "furnish": {"2": "hotel"}}])
+    expect("furnish set on the wrong floor type fails", rc == 1 and "does not fit" in out, out)
+    rc, out, _ = run("street-overlap", flat, towers=[], extra=variant(-2, -1))
+    expect("tower over a street fails", rc == 1 and "overlaps street tile" in out, out)
+    big = variant(-1, -1)
+    big["blocks"][0]["towers"][0]["at"] = [6.0, 0.0]   # 6 + 12 > 18 - 0.5 setback
+    rc, out, _ = run("leaves-block", flat, towers=[], extra=big)
+    expect("tower leaving its block fails", rc == 1 and "leaves block" in out, out)
+    ok = variant(-1, -1)
+    rc, out, objs = run("block-ok", flat, towers=[], extra=ok)
+    expect("tower in a 3x3 block between streets passes", rc == 0 and sum(o["name"] == "Land_SKY_Street_Intersection" for o in objs) == 4, out)
+    lit = variant(-1, -1)
+    lit["streets"]["lights_every"] = 1
+    rc, out, _ = run("lights", flat, towers=[], extra=lit)
+    expect("street lights over LIGHT_CAP fail", rc == 1 and "LIGHT_CAP" in out, out)
+    dec = variant(-1, -1)
+    dec["decals"] = [{"tower": "B1", "face": "S", "u": 11.5, "z": 1.0, "type": "Decal_Graffiti_A"}]
+    rc, out, _ = run("decal-off", flat, towers=[], extra=dec)
+    expect("decal running off the facade fails", rc == 1 and "runs off" in out, out)
+    dec["decals"] = [{"tower": "B1", "face": "S", "u": 0.0, "z": 1.0, "type": "Decal_Graffiti_A"}]
+    rc, out, objs = run("decal-ok", flat, towers=[], extra=dec)
+    d = [o for o in objs if o["name"] == "Land_SKY_Decal_Graffiti_A"]
+    expect("decal placed flush at facade + DECAL_OFFSET", rc == 0 and d and abs(d[0]["pos"][2] - (2000.0 - 12.0 - 0.025)) < 1e-3, str(d))
+    slope = survey(1000, 2000, lambda i, j: 150.0)
+    # street tiles beyond |x| > 20 m sit over ground 2 m lower than the tower site (> slab + skirt 0.8 m)
+    slope["samples"] += [v for x in range(-30, 31, 3) for z in range(-30, 31, 3) for v in (1000 + x, 150.0 - (2.0 if abs(x) > 20 else 0.0), 2000 + z)]
+    rc, out, _ = run("tile-slope", slope, towers=[], extra=variant(-1, -1))
+    expect("street tile over a drop deeper than its skirt fails", rc == 1 and "skirt" in out, out)
+
+    sys.path.insert(0, os.path.dirname(HERE))
+    import sky_layout as SL
+    S = SL.S
+    S.FURNISH["_t_many"] = {"for": [S.CLASS_FLOOR], "props": [("ServerRack", -11.0 + 1.5 * k, 11.0, 0) for k in range(26)]}
+    S.FURNISH["_t_tight"] = {"for": [S.CLASS_FLOOR], "props": [("Desk", 8.0, -8.0, 0), ("Desk", 8.0, -7.0, 0)]}
+    ctx = SL.Ctx(True)
+    t = {"id": "X", "type": "TowerA", "furnish": {"1": "_t_many", "2": "_t_tight"}}
+    mods = SL.tower_modules(ctx, t)
+    SL.furnish(ctx, t, mods, 0.0, 0.0, 0.0, 0.0)
+    expect("PROP_CAPS per_floor enforced", any("per_floor" in e for e in ctx.errors), str(ctx.errors))
+    expect("aisle minimum enforced", any("aisle" in e for e in ctx.errors), str(ctx.errors))
 
 
 def main():
@@ -70,6 +150,7 @@ def main():
 
     rc, out, _ = run("nosurvey-strict", {"samples": [], "objects": []})
     expect("survey without samples in footprint fails", rc == 1, out)
+    district_tests(expect)
     print("%d failed" % fails)
     sys.exit(1 if fails else 0)
 

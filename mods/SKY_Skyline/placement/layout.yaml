@@ -17,7 +17,7 @@ site:
   clearance: 0.05               # lobby floor this far above the highest ground sample
   max_ground_drop: 2.2          # lobby foundation skirt reaches 2.2 m below the slab bottom
 
-# Blocks / roads come with the street kit (not part of the Tower A slice).
+# Streets / blocks / variants / furniture / decals: see district_template.yaml (batch 5).
 blocks: []
 roads: []
 

@@ -101,10 +101,13 @@ def proto_xml():
             out += '        <container name="%s" lootmax="%d">\n' % (c["name"], c["lootmax"])
             out += "".join('            <category name="%s" />\n' % x for x in c["categories"])
             out += "".join('            <tag name="%s" />\n' % x for x in c["tags"])
-            for (x, y) in c["points"]:
-                # model space: x = Blender X, y = height above the slab (origin = slab top), z = Blender Y
-                out += '            <point pos="%.6f %.6f %.6f" range="%.6f" height="%.6f" />\n' % (
-                    x, 0.0, y, S.LOOT_POINT["range"], S.LOOT_POINT["height"])
+            for p in c["points"]:
+                # model space: x = Blender X, y = height above the origin (slab top), z = Blender Y.
+                # (x, y) = floor point with LOOT_POINT range/height; (x, y, z, range, height) =
+                # furniture surface point (vanilla "lootshelves" pattern, batch 5 props).
+                x, y = p[0], p[1]
+                z, rng, h = (p[2], p[3], p[4]) if len(p) == 5 else (0.0, S.LOOT_POINT["range"], S.LOOT_POINT["height"])
+                out += '            <point pos="%.6f %.6f %.6f" range="%.6f" height="%.6f" />\n' % (x, z, y, rng, h)
             out += "        </container>\n"
         out += "    </group>\n"
     return out + "</prototype>\n"

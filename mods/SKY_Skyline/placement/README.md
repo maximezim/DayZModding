@@ -33,10 +33,33 @@ CE only spawns loot in buildings listed in `mapgrouppos.xml`. Spawned towers are
 
 The engine's own export is used instead of computing the `rpy`/`a` orientation fields by hand.
 
+## 4. Districts (batch 5): streets, blocks, tower variants, furniture, decals
+
+Start from `district_template.yaml` (site coordinates left blank on purpose; `--strict` refuses it
+until a surveyed site is filled in). It shows every key:
+
+* `streets`: 12 m grid of combined `Street_*` tiles - N-S columns `ns`, E-W rows `ew` over `extent`;
+  intersections are automatic, `crossings` become zebra tiles, `lights_every: N` puts a
+  `StreetLight` on every N-th straight tile (cap `LIGHT_CAP`). With a survey, every tile is checked:
+  ground may not poke through it nor fall more than slab + skirt (0.8 m) below it.
+* `blocks`: cell rectangles between streets (a tower needs 3 x 3 cells); towers inside use `at`
+  (block-local) and must keep `BLOCK_SETBACK` from the block edge; footprints may not overlap each
+  other or any street tile.
+* towers: `floors` = exactly 5 variants (`office | apartments | hotel | mechanical`; the unchanged core
+  has 5 typical-floor stops), `roof` = `helipad | garden | mechanical`, `furnish` = `{level: set}` from
+  `skyspec.FURNISH`. Caps `PROP_CAPS` (25 per floor, 600 per tower, 1.2 m aisles) and `ENTITY_CAP`
+  (3000 per district) fail the run; the report lists entity counts per kind.
+* `decals`: placed flush on a tower facade (face N/E/S/W, `u` along it, `z` bottom height) at the
+  per-type `DECAL_OFFSET` (D16, D19); per-tower cap `DECAL_CAPS`.
+* Roof drops: each roof class writes its own `ROOF_DROP_POINTS` into `cfgeventspawns_snippet.xml`.
+
+Self-test: `python placement/tests/test_sky_layout.py` (synthetic surveys, no game).
+
 ## Files
 | File | What |
 |---|---|
-| `layout.yaml` | Sites, towers (blocks/roads come with the street kit) |
+| `layout.yaml` | The Tower A slice site (one tower) |
+| `district_template.yaml` | District template: streets, blocks, 4 tower variants, furniture, decals (unfilled site) |
 | `sky_layout.py` | Generator + validation (`--strict` for live servers) |
 | `tests/test_sky_layout.py` | Synthetic-survey tests (flat, slope, building, vegetation, overlap) |
 | `out/` | Generated: `sky_objects.json`, `cfggameplay_snippet.json`, `cfgeventspawns_snippet.xml`, `placement_report.md` |

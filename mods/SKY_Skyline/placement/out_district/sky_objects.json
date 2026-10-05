@@ -1,0 +1,5172 @@
+{
+ "Objects": [
+  {
+   "name": "Land_SKY_Street_Intersection",
+   "pos": [
+    -48.0,
+    0.0,
+    -48.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Straight",
+   "pos": [
+    -48.0,
+    0.0,
+    -36.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_StreetLight",
+   "pos": [
+    -43.5,
+    0.15,
+    -36.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Straight",
+   "pos": [
+    -48.0,
+    0.0,
+    -24.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Straight",
+   "pos": [
+    -48.0,
+    0.0,
+    -12.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_StreetLight",
+   "pos": [
+    -43.5,
+    0.15,
+    -12.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Intersection",
+   "pos": [
+    -48.0,
+    0.0,
+    0.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Straight",
+   "pos": [
+    -48.0,
+    0.0,
+    12.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Straight",
+   "pos": [
+    -48.0,
+    0.0,
+    24.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_StreetLight",
+   "pos": [
+    -43.5,
+    0.15,
+    24.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Straight",
+   "pos": [
+    -48.0,
+    0.0,
+    36.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Intersection",
+   "pos": [
+    -48.0,
+    0.0,
+    48.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Straight",
+   "pos": [
+    -36.0,
+    0.0,
+    -48.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_StreetLight",
+   "pos": [
+    -36.0,
+    0.15,
+    -52.5
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Straight",
+   "pos": [
+    -36.0,
+    0.0,
+    0.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Straight",
+   "pos": [
+    -36.0,
+    0.0,
+    48.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_StreetLight",
+   "pos": [
+    -36.0,
+    0.15,
+    43.5
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Straight",
+   "pos": [
+    -24.0,
+    0.0,
+    -48.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Crossing",
+   "pos": [
+    -24.0,
+    0.0,
+    0.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Straight",
+   "pos": [
+    -24.0,
+    0.0,
+    48.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_StreetLight",
+   "pos": [
+    -24.0,
+    0.15,
+    43.5
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Straight",
+   "pos": [
+    -12.0,
+    0.0,
+    -48.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Straight",
+   "pos": [
+    -12.0,
+    0.0,
+    0.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_StreetLight",
+   "pos": [
+    -12.0,
+    0.15,
+    -4.5
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Straight",
+   "pos": [
+    -12.0,
+    0.0,
+    48.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Intersection",
+   "pos": [
+    0.0,
+    0.0,
+    -48.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Straight",
+   "pos": [
+    0.0,
+    0.0,
+    -36.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_StreetLight",
+   "pos": [
+    4.5,
+    0.15,
+    -36.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Crossing",
+   "pos": [
+    0.0,
+    0.0,
+    -24.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Straight",
+   "pos": [
+    0.0,
+    0.0,
+    -12.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Intersection",
+   "pos": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Straight",
+   "pos": [
+    0.0,
+    0.0,
+    12.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_StreetLight",
+   "pos": [
+    4.5,
+    0.15,
+    12.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Crossing",
+   "pos": [
+    0.0,
+    0.0,
+    24.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Straight",
+   "pos": [
+    0.0,
+    0.0,
+    36.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Intersection",
+   "pos": [
+    0.0,
+    0.0,
+    48.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Straight",
+   "pos": [
+    12.0,
+    0.0,
+    -48.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_StreetLight",
+   "pos": [
+    12.0,
+    0.15,
+    -52.5
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Straight",
+   "pos": [
+    12.0,
+    0.0,
+    0.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Straight",
+   "pos": [
+    12.0,
+    0.0,
+    48.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_StreetLight",
+   "pos": [
+    12.0,
+    0.15,
+    43.5
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Straight",
+   "pos": [
+    24.0,
+    0.0,
+    -48.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Crossing",
+   "pos": [
+    24.0,
+    0.0,
+    0.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Straight",
+   "pos": [
+    24.0,
+    0.0,
+    48.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_StreetLight",
+   "pos": [
+    24.0,
+    0.15,
+    43.5
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Straight",
+   "pos": [
+    36.0,
+    0.0,
+    -48.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Straight",
+   "pos": [
+    36.0,
+    0.0,
+    0.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_StreetLight",
+   "pos": [
+    36.0,
+    0.15,
+    -4.5
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Straight",
+   "pos": [
+    36.0,
+    0.0,
+    48.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Intersection",
+   "pos": [
+    48.0,
+    0.0,
+    -48.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Straight",
+   "pos": [
+    48.0,
+    0.0,
+    -36.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_StreetLight",
+   "pos": [
+    52.5,
+    0.15,
+    -36.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Straight",
+   "pos": [
+    48.0,
+    0.0,
+    -24.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Straight",
+   "pos": [
+    48.0,
+    0.0,
+    -12.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_StreetLight",
+   "pos": [
+    52.5,
+    0.15,
+    -12.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Intersection",
+   "pos": [
+    48.0,
+    0.0,
+    0.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Straight",
+   "pos": [
+    48.0,
+    0.0,
+    12.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Straight",
+   "pos": [
+    48.0,
+    0.0,
+    24.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_StreetLight",
+   "pos": [
+    52.5,
+    0.15,
+    24.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Straight",
+   "pos": [
+    48.0,
+    0.0,
+    36.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Street_Intersection",
+   "pos": [
+    48.0,
+    0.0,
+    48.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_TowerA_Lobby",
+   "pos": [
+    -24.0,
+    0.0,
+    24.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_TowerA_Floor_Office",
+   "pos": [
+    -24.0,
+    7.0,
+    24.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_TowerA_Floor_Office",
+   "pos": [
+    -24.0,
+    10.5,
+    24.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_TowerA_Floor_Office",
+   "pos": [
+    -24.0,
+    14.0,
+    24.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_TowerA_Floor_Office",
+   "pos": [
+    -24.0,
+    17.5,
+    24.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_TowerA_Floor_Office",
+   "pos": [
+    -24.0,
+    21.0,
+    24.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_TowerA_Roof_Helipad",
+   "pos": [
+    -24.0,
+    24.5,
+    24.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_TowerA_Core",
+   "pos": [
+    -24.0,
+    0.0,
+    24.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    -20.5,
+    7.0,
+    14.5
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    -17.2,
+    7.0,
+    14.5
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    -20.5,
+    7.0,
+    33.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    -17.2,
+    7.0,
+    33.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    -27.5,
+    7.0,
+    33.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    -30.8,
+    7.0,
+    33.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Desk",
+   "pos": [
+    -14.5,
+    7.0,
+    24.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Kitchenette",
+   "pos": [
+    -15.5,
+    7.0,
+    20.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Locker",
+   "pos": [
+    -33.5,
+    7.0,
+    26.5
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_VendingMachine",
+   "pos": [
+    -29.0,
+    7.0,
+    22.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_ExtinguisherCabinet",
+   "pos": [
+    -27.0,
+    7.0,
+    24.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    -20.5,
+    10.5,
+    14.5
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    -17.2,
+    10.5,
+    14.5
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    -20.5,
+    10.5,
+    33.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    -17.2,
+    10.5,
+    33.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    -27.5,
+    10.5,
+    33.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    -30.8,
+    10.5,
+    33.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Desk",
+   "pos": [
+    -14.5,
+    10.5,
+    24.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Kitchenette",
+   "pos": [
+    -15.5,
+    10.5,
+    20.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Locker",
+   "pos": [
+    -33.5,
+    10.5,
+    26.5
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_VendingMachine",
+   "pos": [
+    -29.0,
+    10.5,
+    22.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_ExtinguisherCabinet",
+   "pos": [
+    -27.0,
+    10.5,
+    24.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    -20.5,
+    14.0,
+    14.5
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    -17.2,
+    14.0,
+    14.5
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    -20.5,
+    14.0,
+    33.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    -17.2,
+    14.0,
+    33.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    -27.5,
+    14.0,
+    33.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    -30.8,
+    14.0,
+    33.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Desk",
+   "pos": [
+    -14.5,
+    14.0,
+    24.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Kitchenette",
+   "pos": [
+    -15.5,
+    14.0,
+    20.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Locker",
+   "pos": [
+    -33.5,
+    14.0,
+    26.5
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_VendingMachine",
+   "pos": [
+    -29.0,
+    14.0,
+    22.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_ExtinguisherCabinet",
+   "pos": [
+    -27.0,
+    14.0,
+    24.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    -20.5,
+    17.5,
+    14.5
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    -17.2,
+    17.5,
+    14.5
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    -20.5,
+    17.5,
+    33.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    -17.2,
+    17.5,
+    33.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    -27.5,
+    17.5,
+    33.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    -30.8,
+    17.5,
+    33.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Desk",
+   "pos": [
+    -14.5,
+    17.5,
+    24.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Kitchenette",
+   "pos": [
+    -15.5,
+    17.5,
+    20.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Locker",
+   "pos": [
+    -33.5,
+    17.5,
+    26.5
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_VendingMachine",
+   "pos": [
+    -29.0,
+    17.5,
+    22.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_ExtinguisherCabinet",
+   "pos": [
+    -27.0,
+    17.5,
+    24.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    -20.5,
+    21.0,
+    14.5
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    -17.2,
+    21.0,
+    14.5
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    -20.5,
+    21.0,
+    33.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    -17.2,
+    21.0,
+    33.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    -27.5,
+    21.0,
+    33.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    -30.8,
+    21.0,
+    33.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Desk",
+   "pos": [
+    -14.5,
+    21.0,
+    24.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Kitchenette",
+   "pos": [
+    -15.5,
+    21.0,
+    20.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Locker",
+   "pos": [
+    -33.5,
+    21.0,
+    26.5
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_VendingMachine",
+   "pos": [
+    -29.0,
+    21.0,
+    22.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_ExtinguisherCabinet",
+   "pos": [
+    -27.0,
+    21.0,
+    24.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_TowerA_Lobby",
+   "pos": [
+    24.0,
+    0.0,
+    24.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Floor_Apartments",
+   "pos": [
+    24.0,
+    7.0,
+    24.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Floor_Apartments",
+   "pos": [
+    24.0,
+    10.5,
+    24.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Floor_Apartments",
+   "pos": [
+    24.0,
+    14.0,
+    24.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Floor_Apartments",
+   "pos": [
+    24.0,
+    17.5,
+    24.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Floor_Apartments",
+   "pos": [
+    24.0,
+    21.0,
+    24.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Roof_Garden",
+   "pos": [
+    24.0,
+    24.5,
+    24.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_TowerA_Core",
+   "pos": [
+    24.0,
+    0.0,
+    24.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    34.0,
+    7.0,
+    21.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    34.0,
+    7.0,
+    27.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    14.0,
+    7.0,
+    21.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    14.0,
+    7.0,
+    27.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Sofa",
+   "pos": [
+    27.0,
+    7.0,
+    15.0
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Sofa",
+   "pos": [
+    27.0,
+    7.0,
+    33.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Sofa",
+   "pos": [
+    21.0,
+    7.0,
+    15.0
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Sofa",
+   "pos": [
+    21.0,
+    7.0,
+    33.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Kitchenette",
+   "pos": [
+    33.5,
+    7.0,
+    15.5
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Kitchenette",
+   "pos": [
+    33.5,
+    7.0,
+    32.5
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Kitchenette",
+   "pos": [
+    14.5,
+    7.0,
+    15.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Kitchenette",
+   "pos": [
+    14.5,
+    7.0,
+    32.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    34.0,
+    10.5,
+    21.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    34.0,
+    10.5,
+    27.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    14.0,
+    10.5,
+    21.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    14.0,
+    10.5,
+    27.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Sofa",
+   "pos": [
+    27.0,
+    10.5,
+    15.0
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Sofa",
+   "pos": [
+    27.0,
+    10.5,
+    33.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Sofa",
+   "pos": [
+    21.0,
+    10.5,
+    15.0
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Sofa",
+   "pos": [
+    21.0,
+    10.5,
+    33.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Kitchenette",
+   "pos": [
+    33.5,
+    10.5,
+    15.5
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Kitchenette",
+   "pos": [
+    33.5,
+    10.5,
+    32.5
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Kitchenette",
+   "pos": [
+    14.5,
+    10.5,
+    15.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Kitchenette",
+   "pos": [
+    14.5,
+    10.5,
+    32.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    34.0,
+    14.0,
+    21.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    34.0,
+    14.0,
+    27.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    14.0,
+    14.0,
+    21.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    14.0,
+    14.0,
+    27.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Sofa",
+   "pos": [
+    27.0,
+    14.0,
+    15.0
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Sofa",
+   "pos": [
+    27.0,
+    14.0,
+    33.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Sofa",
+   "pos": [
+    21.0,
+    14.0,
+    15.0
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Sofa",
+   "pos": [
+    21.0,
+    14.0,
+    33.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Kitchenette",
+   "pos": [
+    33.5,
+    14.0,
+    15.5
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Kitchenette",
+   "pos": [
+    33.5,
+    14.0,
+    32.5
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Kitchenette",
+   "pos": [
+    14.5,
+    14.0,
+    15.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Kitchenette",
+   "pos": [
+    14.5,
+    14.0,
+    32.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    34.0,
+    17.5,
+    21.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    34.0,
+    17.5,
+    27.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    14.0,
+    17.5,
+    21.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    14.0,
+    17.5,
+    27.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Sofa",
+   "pos": [
+    27.0,
+    17.5,
+    15.0
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Sofa",
+   "pos": [
+    27.0,
+    17.5,
+    33.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Sofa",
+   "pos": [
+    21.0,
+    17.5,
+    15.0
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Sofa",
+   "pos": [
+    21.0,
+    17.5,
+    33.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Kitchenette",
+   "pos": [
+    33.5,
+    17.5,
+    15.5
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Kitchenette",
+   "pos": [
+    33.5,
+    17.5,
+    32.5
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Kitchenette",
+   "pos": [
+    14.5,
+    17.5,
+    15.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Kitchenette",
+   "pos": [
+    14.5,
+    17.5,
+    32.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    34.0,
+    21.0,
+    21.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    34.0,
+    21.0,
+    27.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    14.0,
+    21.0,
+    21.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    14.0,
+    21.0,
+    27.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Sofa",
+   "pos": [
+    27.0,
+    21.0,
+    15.0
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Sofa",
+   "pos": [
+    27.0,
+    21.0,
+    33.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Sofa",
+   "pos": [
+    21.0,
+    21.0,
+    15.0
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Sofa",
+   "pos": [
+    21.0,
+    21.0,
+    33.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Kitchenette",
+   "pos": [
+    33.5,
+    21.0,
+    15.5
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Kitchenette",
+   "pos": [
+    33.5,
+    21.0,
+    32.5
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Kitchenette",
+   "pos": [
+    14.5,
+    21.0,
+    15.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Kitchenette",
+   "pos": [
+    14.5,
+    21.0,
+    32.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_TowerA_Lobby",
+   "pos": [
+    -24.0,
+    0.0,
+    -24.0
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Floor_Hotel",
+   "pos": [
+    -24.0,
+    7.0,
+    -24.0
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Floor_Hotel",
+   "pos": [
+    -24.0,
+    10.5,
+    -24.0
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Floor_Hotel",
+   "pos": [
+    -24.0,
+    14.0,
+    -24.0
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Floor_Hotel",
+   "pos": [
+    -24.0,
+    17.5,
+    -24.0
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Floor_Hotel",
+   "pos": [
+    -24.0,
+    21.0,
+    -24.0
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Roof_Garden",
+   "pos": [
+    -24.0,
+    24.5,
+    -24.0
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_TowerA_Core",
+   "pos": [
+    -24.0,
+    0.0,
+    -24.0
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -15.0,
+    7.0,
+    -34.2
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -21.0,
+    7.0,
+    -34.2
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -27.0,
+    7.0,
+    -34.2
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -33.0,
+    7.0,
+    -34.2
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -15.0,
+    7.0,
+    -13.8
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -21.0,
+    7.0,
+    -13.8
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -27.0,
+    7.0,
+    -13.8
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -33.0,
+    7.0,
+    -13.8
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -33.0,
+    7.0,
+    -28.0
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Sofa",
+   "pos": [
+    -33.5,
+    7.0,
+    -24.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -15.0,
+    7.0,
+    -28.0
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Sofa",
+   "pos": [
+    -14.5,
+    7.0,
+    -24.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -15.0,
+    10.5,
+    -34.2
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -21.0,
+    10.5,
+    -34.2
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -27.0,
+    10.5,
+    -34.2
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -33.0,
+    10.5,
+    -34.2
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -15.0,
+    10.5,
+    -13.8
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -21.0,
+    10.5,
+    -13.8
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -27.0,
+    10.5,
+    -13.8
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -33.0,
+    10.5,
+    -13.8
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -33.0,
+    10.5,
+    -28.0
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Sofa",
+   "pos": [
+    -33.5,
+    10.5,
+    -24.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -15.0,
+    10.5,
+    -28.0
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Sofa",
+   "pos": [
+    -14.5,
+    10.5,
+    -24.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -15.0,
+    14.0,
+    -34.2
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -21.0,
+    14.0,
+    -34.2
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -27.0,
+    14.0,
+    -34.2
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -33.0,
+    14.0,
+    -34.2
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -15.0,
+    14.0,
+    -13.8
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -21.0,
+    14.0,
+    -13.8
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -27.0,
+    14.0,
+    -13.8
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -33.0,
+    14.0,
+    -13.8
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -33.0,
+    14.0,
+    -28.0
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Sofa",
+   "pos": [
+    -33.5,
+    14.0,
+    -24.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -15.0,
+    14.0,
+    -28.0
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Sofa",
+   "pos": [
+    -14.5,
+    14.0,
+    -24.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -15.0,
+    17.5,
+    -34.2
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -21.0,
+    17.5,
+    -34.2
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -27.0,
+    17.5,
+    -34.2
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -33.0,
+    17.5,
+    -34.2
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -15.0,
+    17.5,
+    -13.8
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -21.0,
+    17.5,
+    -13.8
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -27.0,
+    17.5,
+    -13.8
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -33.0,
+    17.5,
+    -13.8
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -33.0,
+    17.5,
+    -28.0
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Sofa",
+   "pos": [
+    -33.5,
+    17.5,
+    -24.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -15.0,
+    17.5,
+    -28.0
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Sofa",
+   "pos": [
+    -14.5,
+    17.5,
+    -24.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -15.0,
+    21.0,
+    -34.2
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -21.0,
+    21.0,
+    -34.2
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -27.0,
+    21.0,
+    -34.2
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -33.0,
+    21.0,
+    -34.2
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -15.0,
+    21.0,
+    -13.8
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -21.0,
+    21.0,
+    -13.8
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -27.0,
+    21.0,
+    -13.8
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -33.0,
+    21.0,
+    -13.8
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -33.0,
+    21.0,
+    -28.0
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Sofa",
+   "pos": [
+    -33.5,
+    21.0,
+    -24.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Bed",
+   "pos": [
+    -15.0,
+    21.0,
+    -28.0
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Sofa",
+   "pos": [
+    -14.5,
+    21.0,
+    -24.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_TowerA_Lobby",
+   "pos": [
+    24.0,
+    0.0,
+    -24.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_TowerA_Floor_Office",
+   "pos": [
+    24.0,
+    7.0,
+    -24.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_TowerA_Floor_Office",
+   "pos": [
+    24.0,
+    10.5,
+    -24.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Floor_Mechanical",
+   "pos": [
+    24.0,
+    14.0,
+    -24.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_TowerA_Floor_Office",
+   "pos": [
+    24.0,
+    17.5,
+    -24.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_TowerA_Floor_Office",
+   "pos": [
+    24.0,
+    21.0,
+    -24.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Roof_Mechanical",
+   "pos": [
+    24.0,
+    24.5,
+    -24.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_TowerA_Core",
+   "pos": [
+    24.0,
+    0.0,
+    -24.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    33.5,
+    7.0,
+    -20.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    33.5,
+    7.0,
+    -17.2
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    15.0,
+    7.0,
+    -20.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    15.0,
+    7.0,
+    -17.2
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    15.0,
+    7.0,
+    -27.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    15.0,
+    7.0,
+    -30.8
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Desk",
+   "pos": [
+    24.0,
+    7.0,
+    -14.5
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Kitchenette",
+   "pos": [
+    28.0,
+    7.0,
+    -15.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Locker",
+   "pos": [
+    21.5,
+    7.0,
+    -33.5
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_VendingMachine",
+   "pos": [
+    26.0,
+    7.0,
+    -29.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_ExtinguisherCabinet",
+   "pos": [
+    24.0,
+    7.0,
+    -27.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    33.5,
+    10.5,
+    -20.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    33.5,
+    10.5,
+    -17.2
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    15.0,
+    10.5,
+    -20.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    15.0,
+    10.5,
+    -17.2
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    15.0,
+    10.5,
+    -27.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    15.0,
+    10.5,
+    -30.8
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Desk",
+   "pos": [
+    24.0,
+    10.5,
+    -14.5
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Kitchenette",
+   "pos": [
+    28.0,
+    10.5,
+    -15.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Locker",
+   "pos": [
+    21.5,
+    10.5,
+    -33.5
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_VendingMachine",
+   "pos": [
+    26.0,
+    10.5,
+    -29.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_ExtinguisherCabinet",
+   "pos": [
+    24.0,
+    10.5,
+    -27.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_ServerRack",
+   "pos": [
+    26.2,
+    14.0,
+    -30.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_ServerRack",
+   "pos": [
+    24.0,
+    14.0,
+    -30.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_ServerRack",
+   "pos": [
+    21.8,
+    14.0,
+    -30.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_ServerRack",
+   "pos": [
+    26.2,
+    14.0,
+    -17.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_ServerRack",
+   "pos": [
+    24.0,
+    14.0,
+    -17.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_ServerRack",
+   "pos": [
+    21.8,
+    14.0,
+    -17.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Locker",
+   "pos": [
+    32.5,
+    14.0,
+    -24.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_ExtinguisherCabinet",
+   "pos": [
+    24.0,
+    14.0,
+    -27.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    33.5,
+    17.5,
+    -20.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    33.5,
+    17.5,
+    -17.2
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    15.0,
+    17.5,
+    -20.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    15.0,
+    17.5,
+    -17.2
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    15.0,
+    17.5,
+    -27.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    15.0,
+    17.5,
+    -30.8
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Desk",
+   "pos": [
+    24.0,
+    17.5,
+    -14.5
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Kitchenette",
+   "pos": [
+    28.0,
+    17.5,
+    -15.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Locker",
+   "pos": [
+    21.5,
+    17.5,
+    -33.5
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_VendingMachine",
+   "pos": [
+    26.0,
+    17.5,
+    -29.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_ExtinguisherCabinet",
+   "pos": [
+    24.0,
+    17.5,
+    -27.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    33.5,
+    21.0,
+    -20.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    33.5,
+    21.0,
+    -17.2
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    15.0,
+    21.0,
+    -20.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    15.0,
+    21.0,
+    -17.2
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    15.0,
+    21.0,
+    -27.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Cubicle",
+   "pos": [
+    15.0,
+    21.0,
+    -30.8
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Desk",
+   "pos": [
+    24.0,
+    21.0,
+    -14.5
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Kitchenette",
+   "pos": [
+    28.0,
+    21.0,
+    -15.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Locker",
+   "pos": [
+    21.5,
+    21.0,
+    -33.5
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_VendingMachine",
+   "pos": [
+    26.0,
+    21.0,
+    -29.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_ExtinguisherCabinet",
+   "pos": [
+    24.0,
+    21.0,
+    -27.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Decal_Graffiti_B",
+   "pos": [
+    -30.0,
+    0.2,
+    11.975
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Decal_Dirt",
+   "pos": [
+    -18.0,
+    4.0,
+    11.985
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Decal_Cracks",
+   "pos": [
+    -36.02,
+    0.5,
+    -24.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  }
+ ]
+}
