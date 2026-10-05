@@ -111,8 +111,12 @@ if (Want 'GitHooks') {
 }
 if (Want 'Pillow') {
     if (Find-DzOnPath 'python') {
+        # 5.1 turns redirected native stderr into a terminating error under 'Stop' (QA RG-M1)
+        $eap = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
         & python -c 'import PIL, numpy, yaml' 2>$null      # the asset generators / checks need all three
-        if ($LASTEXITCODE -eq 0) { Record 'Pillow' 'already installed' }
+        $probe = $LASTEXITCODE
+        $ErrorActionPreference = $eap
+        if ($probe -eq 0) { Record 'Pillow' 'already installed' }
         elseif (Confirm-Install 'Pillow + numpy + PyYAML (pip --user)') { & python -m pip install --user --upgrade Pillow numpy PyYAML; Record 'Pillow' "pip exit $LASTEXITCODE" }
         else { Record 'Pillow' 'skipped by user' }
     } else { Record 'Pillow' 'needs Python first (new terminal after installing)' }

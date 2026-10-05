@@ -40,7 +40,8 @@ param(
     [switch]$Baseline,
     [string[]]$MapGroupPos = @(),
     [string[]]$ServerArgs = @(),
-    [string]$MissionOverlay,     # folder copied over the mission copy last (e.g. frozen cfgweather.xml for the FPS protocol)
+    [string]$MissionOverlay,
+    [string]$ServerTime,         # e.g. '2026/6/15/12/0': freezes the validation server clock (serverTime + acceleration 0)     # folder copied over the mission copy last (e.g. frozen cfgweather.xml for the FPS protocol)
     [switch]$NoWipe,
     [string]$Mission,
     [int]$Minutes = 3,
@@ -87,6 +88,16 @@ $script:NotePatterns = [ordered]@{
     'other-mod / vanilla load errors' = '__scoped__'
 }
 
+function Read-DzShared([string]$Path) {
+    # The server keeps its RPT / logs open for writing: open with FileShare.ReadWrite (a plain
+    # File.ReadAllText fails with a sharing violation on Windows, QA batch-6 re-gate RG-H1).
+    try {
+        $fs = New-Object System.IO.FileStream($Path, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read,
+            ([System.IO.FileShare]::ReadWrite -bor [System.IO.FileShare]::Delete))
+        try { $sr = New-Object System.IO.StreamReader($fs); return $sr.ReadToEnd() } finally { $fs.Dispose() }
+    } catch { return '' }
+}
+
 function Save-DzText([string]$Path, [string]$Text) {
     [System.IO.File]::WriteAllText($Path, $Text, (New-Object System.Text.UTF8Encoding($false)))   # no BOM (QA Info)
 }
@@ -111,7 +122,7 @@ function Get-DzLogSummary {
     foreach ($f in $files) {
         if ($f.Name -like 'crash*' -or $f.Name -like '*.mdmp') { [void]$fails['crash'].Add("$($f.Name): crash log / dump present"); if ($f.Name -like '*.mdmp') { continue } }
         $n = 0
-        foreach ($line in [System.IO.File]::ReadLines($f.FullName)) {
+        foreach ($line in ((Read-DzShared $f.FullName) -split "`r?`n")) {
             $n++
             foreach ($k in $script:FailPatterns.Keys) {
                 # case-sensitive: vanilla "StaticHeliCrash" / lower-case "sky_" paths must not match (QA R-L4)
@@ -131,7 +142,7 @@ function Get-DzLogSummary {
     }
     $total = 0
     foreach ($k in $fails.Keys) { $total += $fails[$k].Count }
-    $noLogs = (@($files | Where-Object { $_.Name -match '\.(RPT|log)$' }).Count -eq 0)
+    $noLogs = (@($files | Where-Object { $_.Name -match '\.RPT$' }).Count -eq 0) -or (@($files | Where-Object { $_.Name -like 'script*.log' }).Count -eq 0)
     return [pscustomobject]@{ Files = $files; Fails = $fails; Notes = $notes; FailCount = $total; NoLogs = $noLogs }
 }
 
@@ -153,7 +164,7 @@ function Write-DzSummary {
     [void]$md.AppendLine('|---|---|---|')
     foreach ($s in $Steps) { [void]$md.AppendLine("| $($s.Name) | $($s.Result) | $($s.Detail) |") }
     [void]$md.AppendLine('')
-    if ($Summary.NoLogs) { [void]$md.AppendLine('**No RPT / script log found** - nothing was validated (FAIL unless dry run).'); [void]$md.AppendLine('') }
+    if ($Summary.NoLogs) { [void]$md.AppendLine('**RPT or script log missing** - nothing was validated (FAIL unless dry run).'); [void]$md.AppendLine('') }
     if ($script:Placeholder) { [void]$md.AppendLine('**Placeholder layout (-AllowPlaceholder): not a release-like placement.**'); [void]$md.AppendLine('') }
     [void]$md.AppendLine('## Log findings (FAIL patterns)')
     foreach ($k in $Summary.Fails.Keys) {
@@ -220,6 +231,7 @@ $script:Placeholder = [bool]$AllowPlaceholder
 Write-DzStep "Validation of $ModName ($stamp)"
 if (-not (Test-Path -LiteralPath $modDir)) { throw "Mod not found: $modDir" }
 
+try {
 # 1. static checks
 if ($SkipStatic) { Add-Step 'static checks' 'SKIP' '-SkipStatic' }
 elseif (Test-Path -LiteralPath (Join-DzPath $modDir 'assets' 'check_assets.py')) {
@@ -293,14 +305,18 @@ if ($Layout.Count -or $Baseline) {
     if ($layoutOuts.Count) { $what = "$($layoutOuts.Count) layout(s)" }
     Write-DzStep "Mission copy '$Mission.validation': $what"
     # what this copy was built from: -NoWipe must not silently reuse another config's copy (perf re-gate M-5)
-    $markerParts = @("baseline=$Baseline") + ($Layout + $MapGroupPos | ForEach-Object {
+    $ovl = @()
+    if ($MissionOverlay -and (Test-Path -LiteralPath $MissionOverlay)) {
+        $ovl = @(Get-ChildItem -LiteralPath $MissionOverlay -File -Recurse | ForEach-Object { $_.FullName })
+    }
+    $markerParts = @("baseline=$Baseline", "placeholder=$AllowPlaceholder") + ($Layout + $MapGroupPos + $ovl | ForEach-Object {
         if (Test-Path -LiteralPath $_) { "$_=" + (Get-FileHash -LiteralPath $_ -Algorithm SHA256).Hash } else { "$_=missing" } })
     $marker = ($markerParts -join "`n")
     $markerPath = Join-DzPath $valMission 'sky_validation_marker.txt'
     $reuse = $NoWipe -and (Test-Path -LiteralPath $valMission)
     if ($reuse -and -not $DryRun) {
         $old = ''
-        if (Test-Path -LiteralPath $markerPath) { $old = [System.IO.File]::ReadAllText($markerPath) }
+        if (Test-Path -LiteralPath $markerPath) { $old = Read-DzShared $markerPath }
         if ($old -ne $marker) { throw "-NoWipe: $valMission was built for a different config (marker mismatch) - run it once without -NoWipe" }
     }
     if ($reuse) { Write-DzInfo "> -NoWipe: reuse $valMission and its storage (warm start); nothing merged again" }
@@ -398,6 +414,12 @@ if ($Layout.Count -or $Baseline) {
     if (-not $DryRun) {
         $text = Get-Content -Raw -LiteralPath $config
         $text = [regex]::Replace($text, 'template\s*=\s*"[^"]*"', ('template = "' + $Mission + '.validation"').Replace('$', '$$'))
+        if ($ServerTime) {      # server-cfg keys (template lines serverTime / serverTimeAcceleration); value format: PENDING B12
+            if ($ServerTime -notmatch '^\d{4}/\d{1,2}/\d{1,2}/\d{1,2}/\d{1,2}$') { throw "-ServerTime must look like 2026/6/15/12/0" }
+            $text = [regex]::Replace($text, 'serverTime\s*=\s*"[^"]*"\s*;', 'serverTime = "' + $ServerTime + '";')
+            $text = [regex]::Replace($text, 'serverTimeAcceleration\s*=\s*[0-9.]+\s*;', 'serverTimeAcceleration = 0;')
+            $text = [regex]::Replace($text, 'serverNightTimeAcceleration\s*=\s*[0-9.]+\s*;', 'serverNightTimeAcceleration = 0;')
+        }
         Set-Content -LiteralPath $valConfig -Value $text -Encoding ASCII
     }
     $config = $valConfig
@@ -449,20 +471,20 @@ if ($DryRun) {
         $deadline = $t0.AddMinutes($Minutes + 10)      # boot allowance until ready
         $died = $false
         while ((Get-Date) -lt $deadline) {
-            Start-Sleep -Seconds 5
+            if ($readyAt) { Start-Sleep -Seconds 5 } else { Start-Sleep -Seconds 1 }   # 1 s resolution for S7 (RG-L1)
             $proc.Refresh()
             if ($proc.HasExited) { $died = $true; break }
             if (-not $readyAt) {
                 $rpt = Get-ChildItem -LiteralPath $profileDir -Filter '*.RPT' -ErrorAction SilentlyContinue | Where-Object { $_.LastWriteTime -ge $t0 }
                 foreach ($r in $rpt) {
-                    $txt = [System.IO.File]::ReadAllText($r.FullName)
+                    $txt = Read-DzShared $r.FullName
                     if ($txt -match 'Player connect enabled') { $readyAt = Get-Date; $deadline = $readyAt.AddMinutes($Minutes); break }
                 }
             }
         }
         if ($readyAt) { Add-Step 'server ready' 'PASS' ('{0:N0} s from launch to "Player connect enabled"' -f ($readyAt - $proc.StartTime).TotalSeconds) }
         elseif (-not $died) { Add-Step 'server ready' 'FAIL' "no 'Player connect enabled' within $Minutes + 10 min" }
-        if ($died) { Add-Step 'server run' 'FAIL' "server exited early (code $($proc.ExitCode))" }
+        if ($died) { Add-Step 'server run' 'FAIL' ("server exited early (exit code " + $proc.ExitCode + ")") }
         else {
             Add-Step 'server run' 'PASS' ("$Minutes min, PID $($proc.Id), started " + $proc.StartTime.ToString('yyyy-MM-dd HH:mm:ss'))
             if (-not $KeepRunning) { Stop-Process -Id $proc.Id -Force; Add-Step 'server stop' 'PASS' 'stopped' }
@@ -484,3 +506,10 @@ $status = Write-DzSummary -Summary $sum -Steps $steps -OutDir $outDir -Title "Va
 Write-DzStep "Validation $status -> $(Join-DzPath $outDir 'summary.md')"
 if ($status -eq 'FAIL') { exit 1 }
 exit 0
+} catch {
+    # any refusal / unexpected error still leaves a summary (QA batch-6 re-gate RG-L2)
+    Add-Step 'error' 'FAIL' $_.Exception.Message
+    $st = Write-DzSummary -Summary (Get-DzLogSummary -LogDir $outDir) -Steps $steps -OutDir $outDir -Title "Validation $ModName $stamp"
+    Write-DzFail "Validation $st -> $(Join-DzPath $outDir 'summary.md') ($($_.Exception.Message))"
+    exit 1
+}

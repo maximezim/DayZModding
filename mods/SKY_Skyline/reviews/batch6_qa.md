@@ -253,3 +253,242 @@ The mission merge ran for real against a fake `<ServerDir>`. A scratch `workspac
   - `qa6_*.log`: run logs
 
 GATE: FAIL
+
+---
+
+## Re-gate (6520175)
+
+Commit `6520175` (range `8a6616d..6520175`, D47-D50), clean snapshot (`git archive 6520175`) in the session scratchpad. No mod or repo code was changed; only this section was appended.
+Tools: PowerShell 7.4 on Linux (PS 5.1 by reading), Blender 4.2 LTS + `ARMATOOLBOX_PATH`, vanilla `dayzOffline.chernarusplus`.
+The two user commits (setup scripts, SETUP_REPORT.md) are out of scope except for the self-test, which passes.
+
+**GATE: FAIL.** H1, M1-M5, M8 and most Lows are fixed and were verified by running them. M6 is fixed by a general evidence rule, which I accept. M7 is fixed except time freezing.
+The gate fails on a new High: the new ready-line wait reads the live RPT with `[System.IO.File]::ReadAllText`. On Windows this throws a sharing violation while the server is writing the file, so every real validation run would abort mid-run (RG-H1). It was introduced in `6520175` and could not be exercised on Linux.
+
+### Standard suite (snapshot 6520175)
+
+| Check | Result | Evidence |
+|---|---|---|
+| `gen_configs.py --check` / `gen_manifest.py --check` / `gen_economy.py --check` | PASS, exit 0 | `up to date` / (no output) / `up to date` |
+| `check_assets.py` (with the new far-LOD alpha gate) | PASS, exit 0 | `44 checked, 0 fail, 5 over budget (hypotheses)` |
+| `placement/tests/test_sky_layout.py` (now with the D/D0/D-dec site-identity test) | PASS, exit 0 | `0 failed` |
+| `test_kit.py` (`--python-exit-code 1`) | PASS, exit 0 | `KIT GEOMETRY TESTS: PASS (39 assets)` |
+| `test_towera.py` (`--python-exit-code 1`) | PASS, exit 0 | `TOWER A GEOMETRY TESTS: PASS (81 core components checked)` |
+| `tools\tests\Invoke-SelfTest.ps1` | PASS, exit 0 | 51 `[OK]` lines, `[OK] all self-tests passed`; new rows `validation analysis 'clean' -> PASS`, `'spawnfail' / 'lowerpath' / 'scripterr' -> FAIL`, `no logs -> FAIL` |
+| Python checks with `PYTHONIOENCODING=cp1252` | PASS | no encoding errors |
+
+The far-LOD alpha gate was tested by mutation: a harness patched `p3d_inspect.parse` without touching the repo.
+
+| Mutation | Result | Correct? |
+|---|---|---|
+| `sky_glass.rvmat` added to Res2 of Locker / Floor_Hotel / Decal_Cracks | exit 1: `Land_SKY_Locker FAIL ... blended alpha in Res2 (far LOD): sky_glass.rvmat`, same for Floor_Hotel; the decal is exempt (D22) | yes |
+| `sky_window_ca.paa` added to Res2 | exit 1, `blended alpha in Res2 (far LOD): ['sky_skyline\\...\\sky_window_ca.paa']` | yes |
+| Control: `sky_foliage_ca.paa` and `sky_decal_graffiti_c_ca.paa` (alpha-tested) in Res2 | exit 0 | yes |
+| `sky_glass.rvmat` in Res1 | exit 0 | yes (by design: Res2 and beyond only) |
+
+### Previous findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| H1 spawner / `[SKY] WARNING` | **FIXED** | `-AnalyzeOnly` fixtures, one line each (results below). `Object spawner failed to spawn Land_SKY_Floor_Hotel` -> exit 1 `object spawner: 1`. `Object spawner: invalid path sky/sky_objects_1.json` -> exit 1. `[SKY] WARNING:` in the RPT -> exit 1, and in `script_*.log` -> exit 1 (`SKY warning: 1`). `[SKY] ERROR:` -> exit 1. Patterns: `Invoke-ModValidation.ps1:77-78`. They match `objectspawner.c:68/:89` and `SKY_Constants.c:47` |
+| M1 case-insensitive mod scope | **FIXED** | Lower-case `sky_skyline\...` missing object -> exit 1 `missing object: 1`. Texture -> exit 1 `missing file: 1`. `.rvmat` -> exit 1. `land_sky_foo` `No entry` -> exit 1 `config entry: 1`. Mixed-case `Sky_Skyline/...` -> exit 1. Vanilla fixture (`StaticHeliCrash`, `Cannot open file dz\...`, `dz\data\data\sky_clouds_co.paa`, `dz\data\sky\sky_skybox.rvmat`, vanilla `Updating base class` / `No entry`, `SCRIPT (W)`) -> exit 0 PASS, `other-mod / vanilla load errors : 6`. Filter `sky_skyline\|land_sky_\|\[sky\]` with `-notmatch` (`:104`, `:119`); failure patterns stay case-sensitive (`:118`) |
+| M2 Blender crash | **FIXED** | Scratch copy with `raise RuntimeError` at the top of `test_kit.py` / `test_towera.py`: `[FAIL] test_kit: FAIL exit 1 - Blender quit`, same for `test_towera`, run exit 1. `--python-exit-code 1` raises a crashing `build_towera.py` to exit 1 (exit 0 without the flag). `Build-SkyAssets.ps1` passes the flag on all 6 Blender calls, each followed by a `$LASTEXITCODE` check (read) |
+| M3 missing tool, stale exit code | **FIXED** | Same pwsh session: `python3 -c pass` (`last=0`), then `-Python nosuchpython -Blender nosuchblender`. Every static step shows `FAIL tool not found: nosuchpython` / `nosuchblender`, `exit=1`. Code: `Get-Command` check plus `$global:LASTEXITCODE = 0` (`:207-208`) |
+| M4 no logs | **FIXED** (residual RG-L6) | `-AnalyzeOnly` on an empty folder, an ADM-only folder or a missing folder -> exit 1 with `**No RPT / script log found**`. Full run (fake server exits without writing logs) -> `Status: **FAIL**` with the same line. Dry run -> `DRYRUN`, exit 0 |
+| M5 PyYAML / numpy | **FIXED** (residual RG-M1, RG-L7) | The validation step `python modules (yaml, PIL, numpy)` gives `FAIL exit 1 - ModuleNotFoundError: No module named 'yaml'` with a stub interpreter that lacks yaml. `Get-ToolchainStatus.ps1:114-120` adds PyYAML and numpy rows. `Install-Toolchain.ps1:114-116` installs `Pillow numpy PyYAML` |
+| M6 TESTING evidence | **FIXED (accepted as a rule)** | TESTING.md:11-13: a general evidence rule for every empty/"none" cell ("A row without evidence is not a PASS"). E-07, E-11 and E-14 now have Steps and Evidence. Rows B3-MC, B9-VAL and B10-EXP exist in §13, but see RG-L4/RG-L5. ID namespace note at :14-16. Test IDs are still unique |
+| M7 FPS reproducibility | **FIXED except (c) time** | Verified in real runs (below): multi `-Layout`, `-Baseline`, `-MapGroupPos` list with de-dup, `-MissionOverlay`, `-ServerArgs`, `-NoWipe` marker, and `Start-DiagLocal -Mission` (rooted path accepted, `:43-45`, read). (a) The probe is explicitly blocked as B11 (D48), so this is accepted. (e) Config B needs the site filled in (FPS_PROTOCOL :21). (f) `district_template_noprops/decals.yaml` both generate: D 323 entities / 226 loot, D0 96 / 178, D-dec 332 / 226, matching the FPS_PROTOCOL §1 table. The site block is identical (test). (g) S4 now says dmax 12. **(c) weather is frozen, time is not** (RG-M2) |
+| M8 AFTER_TESTING | **FIXED** | §2 has a "Deciding test" column for B1-B12. P4, P6, P7 and P8 name test IDs. P2/P3/P6/P8 give full Blender / `Build-SkyAssets.ps1 -Models` commands with `--python-exit-code 1`; `build_kit.py` / `build_towera.py` accept `-- --out` / `--only`. The `packed` rule requires a non-placeholder `-Layout` run that spawned the asset, and notes that `gen_manifest.py` sets the status |
+| L1 launcher failure | FIXED | `@SKY_Skyline` hidden on the fake server: `[FAIL] server start: FAIL @SKY_Skyline is not deployed ...`, summary written, exit 1 |
+| L2 placeholder marked | FIXED | `-AllowPlaceholder` run: summary has `**Placeholder layout (-AllowPlaceholder): not a release-like placement.**` (status still PASS; AFTER_TESTING §4 excludes such runs) |
+| L3 dry-run status | FIXED | Every step reports `DRYRUN`, overall `Validation DRYRUN`, exit 0. Dry runs still write `build\validation\<stamp>\summary.*`, and `Build-Mod -DryRun` writes `build\@SKY_Skyline\build-manifest.json` (`"dryRun": true`). Both are pre-existing; accepted |
+| L4 TESTING text | FIXED | S-05 is now a check. A header note says templates need the site filled in or `-AllowPlaceholder`. §16 says "site filled in" (the §0b line 64 example is still bare but is covered by the note) |
+| L5 ID collisions | FIXED (documented) | TESTING.md:14-16 namespace note |
+| L6 CSV | FIXED | `run_id,section,id,config,vd,metric,unit,repeat_n,value_raw,median,delta_vs,delta,verdict,notes`, plus a `RUN,info` row |
+| L7 status rules | FIXED | see M8 |
+| L8 self-test | FIXED | 5 analysis checks in `Invoke-SelfTest.ps1` (see the suite) |
+
+`-AnalyzeOnly` fixture results (`qa6b_logs/`), all exit codes as expected:
+
+| Fixture | Exit / status |
+|---|---|
+| clean | 0 / PASS |
+| sp_fail | 1 / FAIL |
+| sp_fail_other | 1 / FAIL |
+| sp_path | 1 / FAIL |
+| sky_warn_rpt | 1 / FAIL |
+| sky_warn_script | 1 / FAIL |
+| sky_error | 1 / FAIL |
+| low_obj | 1 / FAIL |
+| low_tex | 1 / FAIL |
+| low_rvmat | 1 / FAIL |
+| low_cls | 1 / FAIL |
+| mixed_obj | 1 / FAIL |
+| vanilla | 0 / PASS |
+| empty | 1 / FAIL |
+| only_adm | 1 / FAIL |
+| missing | 1 / FAIL |
+| rpt_only | 0 / PASS |
+| skyerr (6 categories) | 1 / FAIL |
+| crashlog | 1 / FAIL |
+| dmp | 1 / FAIL |
+
+### Mission merge, real runs against a fake `<ServerDir>`
+
+**Setup:**
+- The fake `DayZServer_x64.exe` writes an RPT and a script log, then `exec`s a binary named `DayZServer_x64`, so `Get-Process -Name DayZServer_x64` finds it on Linux. That makes the ready-wait loop run for real.
+- `FAKE_MODE=ready` appends `Player connect enabled` after 8 s, `noready` never appends it, and `die` exits after 8 s with no logs.
+- Vanilla mission md5s were taken before the runs (43 files) and match after all runs.
+
+**Run 1:**
+```
+-SkipStatic -SkipBuild -Minutes 1 -AllowPlaceholder
+-Layout district_template.yaml,district_template_noprops.yaml
+-MapGroupPos mgp_a.xml,mgp_b.xml
+-MissionOverlay overlay
+-ServerArgs '-limitFPS=1000'
+```
+Result: exit 0.
+- **Steps:**
+  - `sky_layout 1/2: PASS`
+  - `mapgrouppos: PASS 4 Land_SKY_* groups merged`
+  - `mission overlay: PASS`
+  - `release settings: PASS`
+  - `server ready: PASS 10 s from launch to "Player connect enabled"`
+  - `server run: PASS 1 min`
+  - `server stop: PASS`
+  - The run took 1 min 12 s, so `-Minutes` counts from the ready line.
+- **`cfggameplay.json`:** `objectSpawnersArr = ['sky/sky_objects_1.json', 'sky/sky_objects_2.json']` (323 and 96 objects). Every other key and value type is identical to vanilla (recursive compare).
+- **`cfgeventspawns.xml`:** 34 -> 35 events. **One** `StaticSKYRoofDrop` with 32 positions (16 + 16), not two events.
+- **`mapgrouppos.xml`:** 11679 -> 11683. Each export had a duplicate `Land_SKY_Locker`, and the same position appeared in both files: both duplicates were dropped. Vanilla `Land_Mil_Barracks1` in the export was not merged.
+- **Other files:**
+  - `mapgroupproto` 436 -> 448
+  - `cfgeconomycore.xml` gained `<ce folder="sky_ce">` with 3 files
+  - `InfectedCity` territory gained 2 zones (one per layout; dmin 6 / dmax 12, r 54)
+  - all 6 XMLs parse
+- **Overlay and marker:** the overlay `cfgweather.xml` and `env/` file were copied last. `storage_1` was wiped. The marker file holds a SHA256 for each layout and MapGroupPos file.
+- **Server command line:**
+  - `fake_args.txt` ends with `-mod=@SKY_Skyline -limitFPS=1000`
+  - `-config=...serverDZ.validation.cfg`, which contains `template = "dayzOffline.chernarusplus.validation";`
+
+**Other runs:**
+
+| Run | Options | Exit | Result |
+|---|---|---|---|
+| E-style | two surveyed layouts (`e1.yaml`, `e2.yaml`), strict | 0 | `status: PASS entities: 323` each, the second with `--others` |
+| `-NoWipe`, same config | as above | 0 | `reused (-NoWipe, warm start)`; a planted `storage_1/data/qa6b_keep.bin` survived |
+| `-NoWipe`, other config | one layout instead of two | 1 | `-NoWipe: ... was built for a different config (marker mismatch)`; storage untouched; no summary (RG-L2) |
+| `-Baseline` | | 0 | `objectSpawnersArr = []`, 34 events (no roof drop), mapgroupproto 448 (same CE as D) |
+| `-Baseline -MapGroupPos` | | 1 | refused (`:271`) |
+| `die` | | 1 | `server run: FAIL server exited early (code )` + `No RPT / script log found` |
+| `noready`, `-Minutes 0` | | 1 | after 10 min 2 s: `server ready: FAIL no 'Player connect enabled' within 0 + 10 min`, then `server stop: PASS stopped`; no server left running. (The first attempt used a fake that lived 600 s; it exited just before the deadline and correctly gave `server exited early`.) |
+
+Ready-wait logic (`:446-470`), by reading:
+- The deadline is launch + `Minutes` + 10 min until ready, then ready + `Minutes`.
+- An early exit is `server run FAIL`. No ready line is `server ready FAIL`, then the server is stopped.
+- S7 = detection time - `proc.StartTime`.
+
+### PowerShell 5.1 (by reading)
+
+- None of the changed `.ps1` files (`Invoke-ModValidation`, `Invoke-SelfTest`, `Start-DiagLocal`, `Start-DedicatedServer`, `Get-ToolchainStatus`, `Install-Toolchain`, `Build-SkyAssets`) contain `??`, ternaries, `&&`/`||`, `$IsWindows`, `-AsHashtable`, `-Parallel`, `utf8NoBOM`, `::new(` or multi-child `Join-Path`.
+- They contain no non-ASCII bytes, and are `attr/text eol=crlf`.
+- `Invoke-DzCheck` still switches to `Continue` around native stderr.
+- Exceptions: RG-H1 (a runtime issue, not syntax) and RG-M1.
+
+### New findings
+
+#### High
+
+**RG-H1. The ready-line poll reads the live RPT with `File.ReadAllText`. On Windows that fails while the server writes, so every real validation run aborts.**
+- `Invoke-ModValidation.ps1:458`: `$txt = [System.IO.File]::ReadAllText($r.FullName)`.
+- .NET opens the file with `FileShare.Read`. Windows refuses that open (sharing violation, `IOException: ... being used by another process`) while another process holds a write handle, and the running server keeps its RPT open for writing.
+- Under `$ErrorActionPreference = 'Stop'` the exception ends the script at the first poll after the RPT appears (about 5-10 s after launch):
+  - no `server ready` / `server run` step and no `summary.md`;
+  - exit 1;
+  - **the server is left running** (the stop at `:468` is never reached), holding port 2302 for the next run.
+- This blocks B9-VAL, the FPS protocol (S7 comes from this step) and the `packed` promotion rule.
+- `Test-Toolchain.ps1:70` (the user-verified smoke test) reads with `Get-Content -Raw -ErrorAction SilentlyContinue`, which opens with `FileShare.ReadWrite`. That is why the smoke test works on the user's machine; this path has never run there.
+- Not reproducible on Linux (no mandatory locks), so the fake-server run passed.
+- Fix (script only):
+  - read through `Get-Content -Raw -LiteralPath $r.FullName -ErrorAction SilentlyContinue`, or `New-Object IO.FileStream($p, 'Open', 'Read', 'ReadWrite')` + StreamReader inside try/catch;
+  - optionally wrap the wait loop so any exception still stops the server and writes a summary.
+
+#### Medium
+
+**RG-M1. `Install-Toolchain.ps1 -Only Pillow` throws on Windows PowerShell 5.1 exactly when PyYAML or numpy is missing.**
+- `:114`: `& python -c 'import PIL, numpy, yaml' 2>$null` under `$ErrorActionPreference = 'Stop'` (`:27`).
+- In 5.1, redirected native stderr is subject to the error preference. PS 7.2 removed this (`PSNotApplyErrorActionToStderr`). So the `ModuleNotFoundError` traceback becomes a terminating `NativeCommandError` before `$LASTEXITCODE` is checked, and the pip install is never offered.
+- SETUP_REPORT lists Python 3.11 + Pillow only, so this is the user's case.
+- The pattern existed before for `PIL`, but the M5 fix now depends on it.
+- `Get-ToolchainStatus.ps1` is safe (try/catch in `Get-CmdOutput`). The validation module check is safe (`Continue`).
+- Fix: set `$ErrorActionPreference = 'Continue'` around the probe (as in `Invoke-DzCheck`). Workaround: `python -m pip install --user PyYAML numpy`.
+
+**RG-M2. FPS time freeze cannot be applied as documented (residual of M7(c)).**
+- FPS_PROTOCOL §0.45 says to put "the time settings the mission uses" in the `-MissionOverlay` folder.
+- But time is a server-cfg setting: `serverTime`, `serverTimeAcceleration`, `serverTimePersistent` (`server/templates/serverDZ.dedicated.cfg:19-22`, acceleration 12).
+- `serverDZ.validation.cfg` is re-rendered from `server\serverDZ.dedicated.cfg` on every run, and only `template` is replaced (`:398-402`).
+- perf_review §4 step 3 requires fixed `serverTime` + `serverTimeAcceleration = 0`, at noon and at 17:00 for S5. With the documented procedure every run starts at system time with 12x acceleration, so the client rows (Q1-Q7) are not comparable.
+- Fix, either:
+  - document editing the rendered `server\serverDZ.dedicated.cfg` (persists across validation runs; revert afterwards); or
+  - add a `-ServerTime` option that patches the three keys in the rendered validation cfg.
+
+#### Low
+
+- **RG-L1. S7 resolution is 5 s, but the D vs D0 S7 pass threshold is +5 s** (FPS_PROTOCOL :94).
+  - The ready line is detected on a 5 s poll (`:452`), so start-to-ready carries 0-5 s of detection lag.
+  - Use the RPT line's own `hh:mm:ss` against the process start, or poll every 1 s.
+  - The §0.5 noise band (2x) limits the damage.
+- **RG-L2. Some refusals still exit without a summary.**
+  - `-NoWipe` marker mismatch (`:304`), `-Baseline` with `-Layout`/`-MapGroupPos` (`:270-271`), invalid `-Mission` (`:193`) and a missing vanilla mission (`:310`) all `throw` with exit 1 and no `summary.md` (same class as L1).
+- **RG-L3. The `-NoWipe` marker omits `-MissionOverlay` and `-AllowPlaceholder`.**
+  - A warm run with a different overlay or placeholder flag reuses the copy silently.
+  - Paths are hashed as typed: relative vs absolute paths to the same file mismatch, which fails safe.
+- **RG-L4. TESTING §13 table shape.** The table header has 3 columns (`| ID | Expected | PASS/FAIL |`), but B3-MC, B9-VAL and B10-EXP have 4 cells. GFM drops the extra cell: the steps render under "Expected" and the expected text under "PASS/FAIL". Add a Steps column.
+- **RG-L5. B10-EXP cannot be run as written.**
+  - It says `Build-SkyAssets.ps1 -Models -Blender <exe>` "into a scratch `--out`". The script has no output parameter: it re-exports into `mods\SKY_Skyline\addons`, overwriting the committed P3Ds, and also regenerates the textures/PAAs.
+  - Use the direct `blender -b --factory-startup --python-exit-code 1 -P build_*.py -- --out <scratch>` lines (with `ARMATOOLBOX_PATH`).
+- **RG-L6. M4 accepts an RPT without a script log** (`:134`, "RPT **or** log"). The `rpt_only` fixture gives PASS. The original ask was at least one of each.
+- **RG-L7. TESTING S-01 still does not mention PyYAML/numpy** (M5 asked for it). Covered in practice by the new status rows and the validation module check.
+- **RG-L8 (cosmetic).**
+  - `server exited early (code )`: a process obtained with `Get-Process` may not expose `ExitCode`.
+  - `-AnalyzeOnly <missing path>` still creates the folder to write the summary.
+
+#### Info
+
+- The `object spawner` pattern is not mod-scoped: any spawner failure FAILs the run. This is stricter than suggested and acceptable, since vanilla ships no `objectSpawnersArr`.
+- The roof-drop merge appends positions without de-duplication. Two layouts on the same site give 32 positions / 16 distinct. E uses distinct centres, so this is not an issue there.
+- `sky_layout.py --others` checks entity caps only, not cross-district overlap. FPS_PROTOCOL requires E districts at different centres.
+- The ready line is searched only in `*.RPT`; Test-Toolchain also searched `*.log`. This fails closed (`server ready FAIL`). Confirm the file on the first run (B12).
+- Carried from the previous gate: on 5.1, check the `ConvertFrom-Json`/`ConvertTo-Json` round trip of `cfggameplay.json`, including that `objectSpawnersArr` stays a plain array and does not turn into `{"value": ..., "Count": ...}`. Diff the file on the first Windows run.
+
+### Files and artefacts
+
+- Reviewed:
+  - `tools/tests/Invoke-ModValidation.ps1`
+  - `tools/tests/Invoke-SelfTest.ps1`
+  - `tools/launch/Start-DiagLocal.ps1`
+  - `tools/launch/Start-DedicatedServer.ps1`
+  - `tools/setup/Get-ToolchainStatus.ps1`
+  - `tools/setup/Install-Toolchain.ps1`
+  - `tools/setup/Test-Toolchain.ps1` (comparison only)
+  - `mods/SKY_Skyline/assets/Build-SkyAssets.ps1`
+  - `mods/SKY_Skyline/assets/check_assets.py`
+  - `mods/SKY_Skyline/placement/district_template{,_noprops,_decals}.yaml`
+  - `mods/SKY_Skyline/placement/tests/test_sky_layout.py`
+  - `mods/SKY_Skyline/TESTING.md`
+  - `mods/SKY_Skyline/FPS_PROTOCOL.md`
+  - `mods/SKY_Skyline/AFTER_TESTING.md`
+  - `mods/SKY_Skyline/PENDING_VERIFICATION.md`
+  - `mods/SKY_Skyline/DECISIONS.md` D47-D50
+  - `mods/SKY_Skyline/reviews/fps_results_template.csv`
+- Scratch (not in the repo), under the session scratchpad:
+  - `qa6b/`: snapshot
+  - `qa6b_m2/`: crash-injected copy
+  - `qa6b_srv/`: fake server
+  - `qa6b_logs/`: fixtures
+  - `qa6b_fix/`: mapgrouppos and overlay fixtures
+  - `qa6b_*.log`: run logs
+  - `qa6b_alpha_mut.py`: alpha-gate mutation harness
+- The `build/` folders created in the scratch snapshots were deleted afterwards.
+
+GATE: FAIL

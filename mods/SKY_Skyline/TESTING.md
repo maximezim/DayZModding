@@ -23,7 +23,7 @@ How to use this checklist:
 
 | ID | Step | Expected | PASS/FAIL |
 |---|---|---|---|
-| S-01 | Run `tools\setup\Get-ToolchainStatus.ps1`. If anything is missing, run `tools\setup\Initialize-WorkDrive.ps1` (P: + game data) and `tools\setup\Initialize-TestServer.ps1` | DayZ, DayZ Tools, DayZ Server and P: all found. `server\serverDZ.diag.cfg` and `server\serverDZ.dedicated.cfg` rendered | |
+| S-01 | Run `tools\setup\Get-ToolchainStatus.ps1` (includes Python + Pillow / PyYAML / numpy for the asset tools; `Install-Toolchain.ps1 -Only Pillow` installs all three). If anything is missing, run `tools\setup\Initialize-WorkDrive.ps1` (P: + game data) and `tools\setup\Initialize-TestServer.ps1` | DayZ, DayZ Tools, DayZ Server and P: all found. `server\serverDZ.diag.cfg` and `server\serverDZ.dedicated.cfg` rendered | |
 | S-02 | Run `mods\SKY_Skyline\assets\Build-SkyAssets.ps1` | 41 `.paa` files are written into `addons\sky_textures\data` (36) and `addons\sky_items\data` (5). They include all 40 referenced names (QA-03). Every `dz\` path resolves on P:: `concrete.rvmat`, `glass.rvmat` and `env_land_co.paa` are the unverified ones (QA-08). Ends with `SKY assets ready` | |
 | S-03 | Run `tools\build\Build-Mod.ps1 -ModName SKY_Skyline`, then `tools\build\Sign-Mod.ps1 -ModName SKY_Skyline` | 4 PBOs in `build\@SKY_Skyline\addons`. `sky_items` and `sky_towera` are binarized; `sky_scripts` and `sky_textures` are pack-only. Newest `DayZ Tools\Bin\Logs\AddonBuilder*.rpt` has no `non-convex`, `missing`, `Cannot open` or `error` lines for SKY files | |
 | S-04 | Create the test mission. Do **not** edit the vanilla copy (`CLAUDE.md`, QA-10). Copy `server\mpmissions\dayzOffline.chernarusplus` to `server\mpmissions\dayzOffline.chernarusplus_sky`. Run `tools\setup\Initialize-TestServer.ps1 -Mission dayzOffline.chernarusplus_sky -Force`; it skips the copy because the folder exists. For dedicated, put the same folder in `<ServerDir>\mpmissions\` | Both rendered configs show `template = "dayzOffline.chernarusplus_sky"` | |
@@ -261,9 +261,9 @@ Record the results there, or link them from here.
 |---|---|---|
 | PERF-01 | All `perf_review.md` §4 thresholds are in "Pass" | |
 | PERF-02 | All `FPS_PROTOCOL.md` §4 thresholds are in "Pass" (district: configs A/B/D/D0/D-dec/E; prerequisites §0 done) | |
-| B3-MC | Search `P:\DZ\structures\**\data\*.rvmat` for a Stage3 texture ending in `_mc` (PENDING B3) | found / not found, with one example path | |
-| B9-VAL | First real `Invoke-ModValidation.ps1` run: clean start -> summary 0 SKY FAIL lines; then rename one SKY texture in a scratch build -> summary FAIL naming it (PENDING B9) | both behave as stated | |
-| B10-EXP | On the test machine: `Build-SkyAssets.ps1 -Models -Blender <exe>` into a scratch `--out`, then `python tools/assets/p3d_inspect.py` on old vs new P3Ds (PENDING B10) | identical LOD/selection/triangle counts (or byte-identical) | |
+| B3-MC | Search `P:\DZ\structures\**\data\*.rvmat` for a Stage3 texture ending in `_mc` (PENDING B3). Expected: found / not found, with one example path | |
+| B9-VAL | First real `Invoke-ModValidation.ps1` run: clean start -> summary 0 SKY FAIL lines; then rename one SKY texture in a scratch build -> summary FAIL naming it (PENDING B9). Expected: both behave as stated | |
+| B10-EXP | On the test machine export into a **scratch** folder (never over `addons\`): create `C:\tmp\skyexp\addons` and `C:\tmp\skyexp\assets`, then per builder `blender -b --factory-startup --python-exit-code 1 -P mods\SKY_Skyline\assets\blender\build_kit.py -- --out C:\tmp\skyexp\addons` (same for build_props / build_floors / build_towera); compare with `python tools\assets\p3d_inspect.py` old vs new (PENDING B10). Expected: identical LOD / selection / triangle counts (or byte-identical) | |
 
 ## 14. Interior props (batch 3, `sky_props`)
 
