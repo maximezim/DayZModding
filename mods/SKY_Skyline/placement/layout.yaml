@@ -8,11 +8,11 @@ map: chernarusplus
 mission: dayzOffline.chernarusplus
 
 site:
-  name: placeholder-site
-  placeholder: true             # set false once the survey for this site passes
-  center: [7500.0, 7500.0]      # world X, Z  (PLACEHOLDER - replace with your flat site)
+  name: site2-flat-field
+  placeholder: false            # site2 survey passes --strict (flat 4 cm, 0 objects)
+  center: [1610.0, 4350.0]      # world X, Z (found by a terrain scan: flat, no objects within 40 m)
   yaw: 0.0                      # degrees, DayZ orientation yaw
-  survey: null                  # e.g. surveys/site1.json (SKY_survey_result.json)
+  survey: surveys/site2.json    # SKY_survey_result.json
   base_y: null                  # override floor height; null = from survey (max ground + clearance)
   clearance: 0.05               # lobby floor this far above the highest ground sample
   max_ground_drop: 2.2          # lobby foundation skirt reaches 2.2 m below the slab bottom
