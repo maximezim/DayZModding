@@ -14,6 +14,7 @@ mods/<Mod>/                 mod sources (one folder per mod)
   economy/                  CE files shipped with the mod (types.xml ...), never merged into vanilla
   assets/                   manifest.yaml, generator scripts (Blender/Pillow), MANUAL_STEPS.md (not packed)
   placement/                layout.yaml -> objectSpawnersArr JSON (+ survey validation)
+  terrain/                  optional: heightmap/mask generators for a custom terrain (MOD_DEVELOPMENT_GUIDE section 4.3)
 templates/ModTemplate/      empty skeleton (CfgPatches only) used by New-Mod.ps1 and smoke tests
 tools/lib/DzCommon.psm1     shared helpers: config, Steam/tool detection, dry-run process runner
 tools/setup/                install / detect / work drive / keys / test server / smoke test
@@ -25,6 +26,7 @@ tools/assets/               p3d_inspect.py (MLOD LOD/selection gate), enscript_x
 server/templates/           serverDZ.diag.cfg / serverDZ.dedicated.cfg templates (placeholders only)
 server/{profiles,mpmissions,serverDZ.*.cfg}   generated, git-ignored
 build/                      output: build/@<Mod>/{addons/*.pbo,*.bisign,keys/*.bikey,mod.cpp} (git-ignored)
+docs/                       ASSET_QUALITY_GUIDE.md, MOD_DEVELOPMENT_GUIDE.md (read first)
 .claude/agents/             specialist subagents (see below)
 ```
 
@@ -66,6 +68,15 @@ Build rules: PBO folders containing `.p3d/.rtm/.wrp` are binarized through `P:\`
 edits always need a rebuild.
 
 Logs: `server\profiles\{diag-server,diag-client,dedicated}\` (`script_*.log`, `*.RPT`, `*.ADM`).
+
+## Guides (read before planning or building)
+
+- `docs/MOD_DEVELOPMENT_GUIDE.md`: how agents plan, build, gate and ship a city mod. Priorities: security
+  and performance are pass/fail gates; building quality and mapping get the creative effort. Includes
+  terrain mapping/modification levels (objectSpawnersArr -> in-game editor -> custom terrain with
+  Terrain Builder) and when each is allowed.
+- `docs/ASSET_QUALITY_GUIDE.md`: the quality bar for realistic models and buildings (scale, facade
+  depth, bevels, baked maps, materials, LODs, collision, definition of done, SKY upgrade roadmap).
 
 ## Conventions
 

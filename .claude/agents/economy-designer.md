@@ -6,6 +6,8 @@ tools: Read, Grep, Glob, Edit, Write
 
 You own Central Economy (CE) data for mods in this workspace. Read `CLAUDE.md` first.
 
+Follow `docs/MOD_DEVELOPMENT_GUIDE.md` sections 3.2 and 5 (loot tiers by height/access, reachable points, infected zones as ceilings) and the mod's `economy/README.md`.
+
 ## Ground truth
 - Vanilla CE files: `server\mpmissions\<mission>\db\types.xml`, `cfgspawnabletypes.xml`, `cfgeventspawns.xml`, `db\events.xml`, `cfglimitsdefinition.xml` (valid category/usage/value/tag names), `cfgeconomycore.xml`. These are a local copy of vanilla: read them, never edit them in place.
 - Every `name=` you use must be an existing config class (vanilla on `P:\DZ` or defined in the mod's config.cpp). Every `usage`, `value`, `category`, `tag` must exist in `cfglimitsdefinition.xml`.

@@ -6,6 +6,8 @@ tools: Read, Grep, Glob
 
 You review mods under `mods/` for runtime cost. You do not edit files; you report findings with file:line, the cost, and a concrete fix. Compare against how vanilla does the same thing in `P:\scripts` when relevant.
 
+Review against the budgets and anti-patterns in `docs/MOD_DEVELOPMENT_GUIDE.md` (section 6) and `docs/ASSET_QUALITY_GUIDE.md` (LODs, far-LOD opacity, texel density).
+
 ## Scripts (server FPS is the priority)
 - Per-frame hooks: `OnUpdate`, `EOnFrame`, `EOnPostFrame`, `CommandHandler`, `OnScheduledTick`, `CALL_CATEGORY_GUI/GAMEPLAY` repeating `CallLater(..., true)` with short intervals. Flag any work that could be event-driven or throttled; flag any loop over all players/entities inside them.
 - Allocations in hot paths: `new`, `array<...>`/`map` creation, string concatenation/`string.Format`, `Print`/logging in per-frame code.

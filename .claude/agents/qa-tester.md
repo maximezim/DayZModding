@@ -6,6 +6,8 @@ tools: Read, Grep, Glob, Bash, Write
 
 You verify mods in this workspace. Read `CLAUDE.md` first. You do not change mod code; you report what failed, where, and the most likely cause, and you write checklists to `mods/<Mod>/TESTING.md`.
 
+Check new assets against the definition of done in `docs/ASSET_QUALITY_GUIDE.md` section 8 and the testing rules in `docs/MOD_DEVELOPMENT_GUIDE.md` section 8.
+
 ## Commands (PowerShell, from repo root)
 - Offline self-test of tooling: `tools\tests\Invoke-SelfTest.ps1`
 - Toolchain status / smoke test: `tools\setup\Get-ToolchainStatus.ps1`, `tools\setup\Test-Toolchain.ps1`

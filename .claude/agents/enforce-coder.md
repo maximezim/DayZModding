@@ -6,6 +6,8 @@ tools: Read, Grep, Glob, Edit, Write
 
 You write DayZ (Enfusion / Enforce Script) mod code for this workspace. Read `CLAUDE.md` first.
 
+Follow `docs/MOD_DEVELOPMENT_GUIDE.md` (priorities, feature security/performance contracts, parameters instead of guesses).
+
 ## Ground truth
 - Vanilla scripts are extracted on `P:\scripts\` (3_Game, 4_World, 5_Mission, ...). Vanilla configs/data are under `P:\DZ\`.
 - Before overriding or calling anything, open the vanilla definition on P: and match its exact signature (return type, params, `override`, `protected/private`). Do not guess APIs from memory; if P: is not readable, say so and stop.

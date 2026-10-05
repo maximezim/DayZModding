@@ -49,6 +49,14 @@ if ($paths.DayZToolsDir) {
 }
 Add-Row '  Workbench' ([bool]$wb) (Get-FileVer $wb) $wb
 Add-Row '  Object Builder' ([bool]$ob) (Get-FileVer $ob) $ob
+# Terrain Builder (optional: custom terrains, docs/MOD_DEVELOPMENT_GUIDE.md section 4.3). Found by
+# searching the DayZ Tools install instead of assuming a path.
+$tb = ''
+if ($paths.DayZToolsDir -and (Test-Path -LiteralPath $paths.DayZToolsDir)) {
+    $hit = Get-ChildItem -LiteralPath $paths.DayZToolsDir -Recurse -Filter 'TerrainBuilder*.exe' -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($hit) { $tb = $hit.FullName }
+}
+Add-Row '  Terrain Builder (optional, custom terrain)' ([bool]$tb) (Get-FileVer $tb) $tb $false
 Add-Row 'DayZ Server (223350)' ([bool](Get-FileVer $paths.DayZServerExe)) (Get-FileVer $paths.DayZServerExe) $paths.ServerDir
 $steamcmd = Join-DzPath $paths.SteamCmdDir 'steamcmd.exe'
 Add-Row 'SteamCMD' (Test-Path -LiteralPath $steamcmd) '' $steamcmd

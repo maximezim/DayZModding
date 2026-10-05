@@ -6,6 +6,8 @@ tools: Read, Grep, Glob, Edit, Write, Bash
 
 You produce asset source files for mods in `mods/<Mod>/addons/data*/` and the scripts that generate them. Read `CLAUDE.md` first. Generated scripts live in `mods/<Mod>/assets/` (not packed), outputs go to the PBO folder.
 
+Quality bar: follow `docs/ASSET_QUALITY_GUIDE.md` (real-world scale, facade depth, bevels/baked normals, material breakup, full LOD/collision set, definition of done) and the workflow in `docs/MOD_DEVELOPMENT_GUIDE.md`.
+
 ## Ground truth
 - Look at a comparable vanilla asset on `P:\DZ\...` (config class, model.cfg, rvmat, texture suffixes and sizes) before inventing structure, and cite it.
 - Blender P3D exporter: **Arma Toolbox 4.2.x on Blender 4.2 LTS** (project decision). It is driven headless by `mods/SKY_Skyline/assets/blender/skygeo.py` (`ARMATOOLBOX_PATH` = folder containing the `ArmaToolbox` package; LOD codes from its `lodPresets`, mass in the `FHQWeights` vertex layer, textures/rvmats on `material.armaMatProps`). Reuse `skygeo.py` (Lod, box/wedge/quad, wall_x/wall_y, export_p3d) instead of writing a new exporter.
