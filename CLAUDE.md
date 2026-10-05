@@ -51,6 +51,10 @@ Machine-specific paths go in `workspace.config.json` (git-ignored, copy of
 | Build + dedicated (signed) | `tools\build\Build-And-Run.ps1 -ModName <Mod> -Mode Dedicated` |
 | Launch only | `tools\launch\Start-DiagLocal.ps1 -Mods <Mod>` / `tools\launch\Start-DedicatedServer.ps1 -Mods <Mod> -ServerMods <Srv>` |
 
+Install notes: DayZ Server (223350) needs `-SteamUser <login>` (anonymous is refused); `Initialize-WorkDrive.ps1`
+junctions `<Documents>\DayZ Projects` to the work-drive source dir because WorkDrive.exe extracts there; the
+editor of choice is VS Code Insiders (`code-insiders` is preferred over `code`). Details: `SETUP_REPORT.md`.
+
 Every build/launch script accepts `-DryRun` (prints the exact tool command lines).
 If execution policy blocks scripts: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`.
 

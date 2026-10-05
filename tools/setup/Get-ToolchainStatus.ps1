@@ -73,7 +73,8 @@ $hooks = ''
 if ($git) { $hooks = (& git -C (Get-DzRepoRoot) config core.hooksPath 2>$null) }
 Add-Row '  repo hooksPath=.githooks' ($hooks -eq '.githooks') $hooks '' $false
 
-$code = Find-DzOnPath 'code'
+$code = Find-DzOnPath 'code-insiders'
+if (-not $code) { $code = Find-DzOnPath 'code' }
 if (-not $code) { $code = Find-DzOnPath 'code.cmd' }
 $codeVer = ''; $exts = @()
 if ($code) {

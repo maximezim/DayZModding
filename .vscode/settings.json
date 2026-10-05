@@ -5,6 +5,7 @@
     "*.rvmat": "cpp",
     "mod.cpp": "cpp"
   },
+  "enscript.includePaths": ["P:\\scripts"],
   "files.eol": "\r\n",
   "files.exclude": { "build/": true },
   "search.exclude": { "build/": true, "server/profiles/": true }

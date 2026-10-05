@@ -69,7 +69,8 @@ if (Get-DzSteamDir -Config $cfg) { if (Want 'Steam') { Record 'Steam' 'already i
 else { Install-Winget 'Steam' 'Valve.Steam' '' }
 Install-Winget 'Git'     'Git.Git' 'git'
 Install-Winget 'GitLFS'  'GitHub.GitLFS' 'git-lfs'
-Install-Winget 'VSCode'  'Microsoft.VisualStudioCode' 'code'
+if (-not (Find-DzOnPath 'code-insiders')) { Install-Winget 'VSCode'  'Microsoft.VisualStudioCode' 'code' }
+elseif (Want 'VSCode') { Record 'VSCode' 'already installed (Insiders)' }
 Install-Winget 'Blender' 'BlenderFoundation.Blender' 'blender'
 Install-Winget 'Python'  'Python.Python.3.13' 'python'
 
@@ -95,7 +96,7 @@ if (Want 'DayZServer') {
         if ($SteamUser) { $login = @($SteamUser) }
         & $sc +force_install_dir $paths.ServerDir +login @login +app_update 223350 validate +quit
         if (-not (Test-Path -LiteralPath $serverExe) -and -not $SteamUser) {
-            Write-DzWarn 'Anonymous download failed. Re-run with -SteamUser <account that owns DayZ> (Steam Guard prompt appears in this console).'
+            Write-DzWarn 'Anonymous download is refused ("No subscription") for 223350 now. Re-run with -SteamUser <account that owns DayZ> (password / Steam Guard prompt appears in this console), or install "DayZ Server" from the Steam library Tools list.'
             Record 'DayZServer' 'FAILED anonymous - retry with -SteamUser'
         } elseif (Test-Path -LiteralPath $serverExe) { Record 'DayZServer' "installed ($($paths.ServerDir))" }
         else { Record 'DayZServer' 'FAILED - see SteamCMD output' }
@@ -131,8 +132,20 @@ if (Want 'Mikero') {
     }
 }
 if (Want 'BlenderAddon') {
-    Record 'BlenderAddon' 'MANUAL: Blender 4.4+ -> DayZ Object Builder (github.com/SXDIST/DayZObjectBuilder/releases); legacy: Arma Toolbox / Arma 3 Object Builder'
-    if (Confirm-Install 'nothing - just open the DayZ Object Builder releases page') { Start-Process 'https://github.com/SXDIST/DayZObjectBuilder/releases' }
+    # DayZ Object Builder (Blender 4.4+), installed through Blender's own extension CLI.
+    $blender = Find-DzOnPath 'blender'
+    if (-not $blender) {
+        $blender = Get-ChildItem "$env:ProgramFiles\Blender Foundation" -Recurse -Filter blender.exe -ErrorAction SilentlyContinue |
+            Sort-Object FullName -Descending | Select-Object -First 1 -ExpandProperty FullName
+    }
+    if (-not $blender) { Record 'BlenderAddon' 'needs Blender first' }
+    elseif (Confirm-Install 'DayZ Object Builder add-on into Blender (GitHub SXDIST/DayZObjectBuilder latest release)') {
+        $rel = Invoke-RestMethod 'https://api.github.com/repos/SXDIST/DayZObjectBuilder/releases/latest' -Headers @{ 'User-Agent' = 'dayz-workspace' }
+        $zip = Join-DzPath $env:TEMP 'DZObjectBuilder.zip'
+        Invoke-WebRequest -UseBasicParsing -Uri $rel.assets[0].browser_download_url -OutFile $zip
+        & $blender --command extension install-file -r user_default --enable $zip
+        Record 'BlenderAddon' "DZOB $($rel.tag_name) installed (exit $LASTEXITCODE)"
+    } else { Record 'BlenderAddon' 'skipped by user' }
 }
 
 Write-DzStep 'Summary'

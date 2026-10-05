@@ -80,7 +80,8 @@ try {
     Check 'public key folder created' (Test-Path (Join-DzPath $out '@SelfTestMod' 'keys'))
     $threw = $false
     try { Run { & (Join-DzPath $build 'Sign-Mod.ps1') -ModName SelfTestMod -OutputRoot $out -DryRun } | Out-Null } catch { $threw = $_.ToString() -match 'No signing key' }
-    Check 'refuses to sign without a configured key' $threw
+    # Only meaningful while workspace.config.json has no signing.keyName (New-SigningKey.ps1 sets it).
+    Check 'refuses to sign without a configured key' ($threw -or (Get-DzPaths).KeyName)
 
     Write-DzStep 'Launchers'
     $launch = Join-DzPath $repo 'tools' 'launch'
