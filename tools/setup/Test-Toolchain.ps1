@@ -69,7 +69,7 @@ else {
         foreach ($l in $logs) {
             $t = Get-Content -Raw -LiteralPath $l.FullName -ErrorAction SilentlyContinue
             if (-not $t) { continue }
-            if ($t -match 'Dedicated host created|BattlEye Server: Initialized|Mission read') { $ready = $true }
+            if ($t -match 'Dedicated host created|BattlEye Server: Initialized|Mission read|Player connect enabled') { $ready = $true }
             $m = [regex]::Match($t, '(?m)^.*(SCRIPT\s+\(E\)|Can''t compile|ErrorMessage).*$')
             if ($m.Success) { $errLine = $m.Value.Trim() }
         }

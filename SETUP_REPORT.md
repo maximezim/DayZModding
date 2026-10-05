@@ -26,7 +26,7 @@ Date: 2026-10-05. Machine: Windows 11, Steam library on `D:`, VS Code Insiders.
 | `Test-Toolchain.ps1`: vanilla scripts readable (2810 files) | PASS |
 | `Test-Toolchain.ps1`: build empty template (AddonBuilder) | PASS |
 | `Test-Toolchain.ps1`: sign template (`MZ`) | PASS |
-| `Test-Toolchain.ps1`: dedicated server starts | see "Open items" |
+| `Test-Toolchain.ps1`: dedicated server starts (ready ~90 s after launch) | PASS |
 | `Invoke-SelfTest.ps1` | PASS (the key-less sign assertion is skipped once a key is configured) |
 
 ## Findings that shaped the scripts
@@ -35,7 +35,7 @@ Date: 2026-10-05. Machine: Windows 11, Steam library on `D:`, VS Code Insiders.
 2. **`WorkDrive.exe /ExtractGameData` ignores the mounted drive.** It unpacks to `<Documents>\DayZ Projects` (inside OneDrive here). `Initialize-WorkDrive.ps1` now junctions that folder to `workDrive.sourceDir` first and refuses to touch an existing non-junction folder.
 3. **WorkDrive.exe always exits with -532462766** (it calls `Console.ReadKey` without a console). The mount/extract succeeds; the script now accepts that exit code.
 4. Extraction is ~25 GB and takes 30+ minutes with the Sakhal DLC map present.
-5. **The first dedicated-server load of Chernarus is slow** (several minutes, more while extraction runs), so the smoke test timeout is now 600 s. Playing the same Steam account on another PC freezes the local server.
+5. **The dedicated server prints `Player connect enabled` / `[CE][Hive] :: Init sequence finished` when ready**, not the "Mission read" text the smoke test first looked for. Once ready and idle it stops logging and burns one core, which looks like a hang but isn't. The smoke test now matches `Player connect enabled` (timeout 600 s). Playing the same Steam account on another PC froze the local server during one run.
 6. AddonBuilder must not be left open (GUI) while `Build-Mod.ps1` runs; a stale window made one smoke-test build report a missing PBO.
 7. JSON paths in `workspace.config.json` need single escaped backslashes (`D:\\DayZWork`).
 8. Install scripts prefer `code-insiders` when it is on PATH.
@@ -43,7 +43,6 @@ Date: 2026-10-05. Machine: Windows 11, Steam library on `D:`, VS Code Insiders.
 
 ## Open items
 
-- Confirm the dedicated-server smoke check passes with the 600 s timeout (log: `server\profiles\smoketest`).
 - Optional: install Mikero tools from https://mikero.bytex.digital/Downloads.
 - Optional: try `tools\launch\Start-DiagLocal.ps1` for a vanilla diag server + client.
 
