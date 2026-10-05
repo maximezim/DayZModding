@@ -106,7 +106,7 @@ CORE_CLEAR = {
 }
 
 
-def reachability(n, lods, cell=0.25):
+def reachability(n, lods, cell=0.1, radius=0.3):
     """Flood fill over the walkable slab (security batch-4 H1): 0.25 m grid, blocked by every
     Geometry component spanning body height (z 0.1..1.9) and by the core footprint; seeds are
     the core's stair / elevator door clear zones. Any unreached free region > 1 m2 fails."""
@@ -114,6 +114,8 @@ def reachability(n, lods, cell=0.25):
     nx, ny = int(round(2 * hw / cell)), int(round(2 * hd / cell))
     blockers = [b for _c, b in comp_boxes(lods["geo"]) if b[4] < 1.9 and b[5] > 0.1]
     blockers.append(CORE_CLEAR["core footprint"][:4] + (0.0, 2.0))
+    # grow by the player radius so a gap narrower than a player blocks (QA re-gate L-R1)
+    blockers = [(b[0] - radius, b[1] + radius, b[2] - radius, b[3] + radius, b[4], b[5]) for b in blockers]
     free = [[True] * ny for _ in range(nx)]
     for i in range(nx):
         for j in range(ny):
@@ -185,6 +187,7 @@ def module_checks(n, lods):
                   "%s: roof_drop_%d memory point != skyspec.ROOF_DROP_POINTS" % (n, i + 1))
             # supply crate ~1.5 m cube must fit, >= 1 m from the parapet (security batch-4 M1)
             crate = (x - 0.75, x + 0.75, y - 0.75, y + 0.75, 0.05, 1.55)
+            check(not overlaps(crate, CORE_CLEAR["core footprint"]), "%s: roof_drop_%d crate overlaps the core (QA L-R2)" % (n, i + 1))
             for comp, box in comp_boxes(lods["geo"]):
                 check(not overlaps(crate, box), "%s: roof_drop_%d crate overlaps Geometry %s" % (n, i + 1, comp))
             check(hw - abs(x) - 0.75 >= 1.25 - 1e-6 and hd - abs(y) - 0.75 >= 1.25 - 1e-6,
@@ -199,6 +202,10 @@ def module_checks(n, lods):
         check(not overlaps(fb, hole), "%s: a Roadway face covers the core hole" % n)
     occ = [g for g in lods["view"].groups if g.startswith("occluder_")]
     check(len(occ) >= 4, "%s: %d slab occluders (< 4)" % (n, len(occ)))
+    for g in occ:                                   # no occluder may cover the core hole (QA L-R3)
+        pts = [lods["view"].verts[i] for i in lods["view"].groups[g]]
+        ob = tuple(f(p[j] for p in pts) for j in range(3) for f in (min, max))
+        check(not overlaps(ob[:4] + (ob[4] - 0.01, ob[5] + 0.01), hole), "%s: %s covers the core hole" % (n, g))
 
 
 def convention_check():

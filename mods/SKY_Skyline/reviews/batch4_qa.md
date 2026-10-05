@@ -181,3 +181,142 @@ Expected clean logs: no `Cannot open object SKY_Skyline\sky_floors\...`, no `mis
 | F4-20 | all | 2 players on different floors of the same stack, dedicated | Both see the same geometry. No desync at the module seams | | |
 | F4-21 | all | Death on the floor/roof (fall from the parapet, shot) | The body stays on the slab and does not fall through | | |
 | F4-R | Tower A (regression) | Repeat S-10, C-04, C-05 and E-02 on the unchanged office stack | Same results as before batch 4 (Tower A P3Ds are byte-identical) | | |
+
+---
+
+## Re-gate (20746e8)
+
+Date: 2026-10-05. Static checks only. Nothing ran in DayZ, and every asset stays **built-unverified**. All results come from a clean
+`git archive 20746e8` snapshot (`scratchpad/qa4b`). Mutations ran on throw-away copies of `assets/` (`scratchpad/qa4b_mut`, rebuilt from the
+snapshot before each run). Afterwards `git archive 20746e8 | tar -d` against the snapshot reported no differences. This run changed no mod code
+and appended only this section.
+
+**Verdict for 20746e8: GATE: PASS.** H1 is fixed and independently confirmed. There are no High or Medium findings. 3 Low test-coverage gaps
+and the known-latent M3 (Batch 5) remain.
+
+> **Note:** HEAD moved to `226f4c0` ("security re-gate fixes") during this run. That commit changes the apartments, hotel and both roof P3Ds.
+> It **reverts** perf item (4) "Geometry without lintels" (D37: Apartments Geometry 40 comps, Hotel 38) and changes roof Res3 to a band plus a lid at z = 0.
+> This verdict covers `20746e8` only, so `226f4c0` needs its own QA pass. A quick, non-gating look at the committed HEAD P3Ds with the flood fill
+> from R2: all 4 changed modules are fully reachable at r = 0.30 and r = 0.49. Geometry lintels are 12 (apartments) and 10 (hotel). Roof Res3 is still 5 faces / 10 tris / 1 section.
+
+### R1. Standard suite (cwd `mods/SKY_Skyline`, `PYTHONDONTWRITEBYTECODE=1`)
+
+| # | Command | Result |
+|---|---|---|
+| 1 | `python3 assets/check_assets.py` | exit 0, `44 checked, 0 fail, 5 over budget (hypotheses)`: `Floor_Apartments geo comps 28 > 24; geo tris 336 > 300`, `Floor_Hotel geo comps 28 > 24; geo tris 336 > 300`, `Floor_Mechanical PASS res=152 -> 128 -> 80 -> 8`, `Roof_Garden res1 128 > 120; res0 sections 3 > 2`, `Roof_Mechanical res1 128 > 120`, plus the pre-existing `TowerA_Core geo comps 81 > 80`. Res3: floors 8 tris, roofs 10 tris |
+| 2 | `gen_configs.py --check` / `gen_manifest.py --check` / `economy/gen_economy.py --check` | all exit 0 (`up to date`) |
+| 3 | `blender -b --factory-startup --python-exit-code 1 -P assets/blender/test_kit.py` | exit 0, `KIT GEOMETRY TESTS: PASS (39 assets)` |
+| 4 | `... -P assets/blender/test_towera.py` | exit 0, `TOWER A GEOMETRY TESTS: PASS (81 core components checked)` |
+| 5 | `build_floors / build_props / build_kit / build_towera -- --out scratch/qa4b_rb/addons`, then `cmp` | all exit 0. 5 + 10 + 24 + 5 `EXPORTED`, 0 `EXPORT FAILED`. **44/44 P3Ds byte-identical** to the committed files. The regenerated `build_stats.json` and `build_stats_kit.json` are identical |
+| 6 | `gen_textures.py --out scratch/qa4b_tex` | exit 0, 1 min 18 s, 69 PNGs, 0 non-power-of-two. **69/69 pixel files byte-identical to the fcc7f4c gate run** |
+| 7 | Reference resolution (all P3D textures/materials, config and rvmat strings) | 86 `SKY_Skyline\...` refs (64 `.paa`), **0 unresolved**. Orphans are unchanged (`sky_brick_co`, `sky_concpanel_co`, `sky_windows_co`). sky_floors uses carpet, concrete, foliage, glass, glassfar, metal, paver, tile and wallpaper, plus vanilla `bricks`/`metalplate` (verified), `concrete`/`glass` penetration (P3) and roadway `concrete_int.tga`/`concrete_ext.paa` |
+| 8 | `enscript_xref.py --vanilla dzs/scripts --mod addons/sky_scripts/scripts` | exit 0, `OK: 11 files, all calls/types resolve` |
+| 9 | Tower A vs `681ecdc` | `git diff 681ecdc 20746e8 -- addons/sky_towera addons/sky_items` is empty. All 10 files pass `sha256sum -c` against the baseline list. The rebuild (#5) is byte-identical. `build_towera.py` has no change since `fcc7f4c` |
+
+### R2. H1 - independent flood fill (`scratchpad/qa4b_flood.py`, reads the exported MLOD P3Ds directly and shares no code with builders or test_kit)
+
+Method: parse the Geometry LOD components. Block every component that spans body height (z 0.1..1.9) and the core footprint (x +-3, y +-4.5).
+Inflate the blockers by the player radius r. Seed the stair (x -1.8..-0.6, y -5.7..-4.5) and elevator (x -0.6..0.6, y 4.5..5.7) clear zones,
+then flood with 4-connectivity. **r = 0.30 on a 0.05 m grid** gives walkability. **r = 0.49 on a 0.01 m grid** checks that every room is reachable through openings >= 0.98 m.
+In addition, each partition gap is measured and any other body-height box within 0.3 m of the wall line is subtracted to get the clear width.
+Sanity check: on the old `fcc7f4c` apartments P3D the tool reproduces H1 (`82.5 m2 x -11.6..-0.5 y 0.4..11.6`, `82.4 m2 x 0.4..11.6 y -11.6..-0.5`) and L1 (`x=-5.500 -1.000..0.000 gap 1.000 clear 0.875 <1.0!`).
+
+| Module | r = 0.30: free / reached | r = 0.49: free / reached | Unreached > 1 m2 | Door clear widths |
+|---|---|---|---|---|
+| Floor_Apartments | 404.3 / 404.3 m2 | 341.3 / 341.3 m2 | none | Hall S/N y = +-7: x -1.5..-0.3 and 0.3..1.5 = **1.200**. Hall W/E x = +-5.5: y -1.2..-0.2 and 0.2..1.2 = **1.000** (the party-wall butt is gone, so L1 is fixed). Internal x +-(7..8) = 1.000 |
+| Floor_Hotel | 400.0 / 400.0 | 335.9 / 335.9 | none | Rooms y = +-6.5 at x +-(3.5..4.5) and +-(8.5..9.5) = 1.000. Suites x = +-5, y -1..1 = 2.000 |
+| Floor_Mechanical | 401.4 / 401.4 | 362.0 / 362.0 | none | open plan |
+| Roof_Garden | 367.2 / 367.2 | 328.3 / 328.3 | none | open |
+| Roof_Mechanical | 385.6 / 385.6 | 348.2 / 348.2 | none | open |
+
+Each apartment has 2 hall doors, as D35 says: SW = S(-1.5..-0.3) + W(-1.2..-0.2), NW = N(-1.5..-0.3) + W(0.2..1.2),
+SE = S(0.3..1.5) + E(-1.2..-0.2), NE = N(0.3..1.5) + E(0.2..1.2). **H1: FIXED (PASS).**
+
+### R3. test_kit new checks vs mutations (`test_kit.py -- --only <module>`)
+
+| Mutation | Expected | Result |
+|---|---|---|
+| a1 Apartments hall walls reverted to the fcc7f4c openings (H1) | fail | FAIL x2 `91.2 m2 unreachable ... (near x -11.8, y 0.2)` and `(near x 0.2, y -11.8)`: **caught** |
+| a2 NW apartment's two hall doors removed | fail | FAIL `91.2 m2 unreachable (near x -11.8, y 0.2)`: **caught** |
+| a3 only the N-wall NW door removed (NW still has its W door) | pass | PASS (correct negative) |
+| a5 Mechanical: 2 extra Geometry walls fence off the NW corner | fail | FAIL `28.8 m2 unreachable`: **caught** |
+| a6 Hotel: west suite door removed | fail | FAIL `137.2 m2 unreachable`: **caught** |
+| **a4 NW doors narrowed to 0.3 m (N -0.6..-0.3, W 0.2..0.5)** | fail | **PASS: not caught** (L-R1) |
+| b1 Roadway quad spanning the hole (-4..4, -5..5) | fail | FAIL `a Roadway face covers the core hole`: **caught** (was M2(b)) |
+| b2 Roadway quad on the hole edges (-3..3, -4.5..4.5) | fail | **caught** |
+| b3 Roadway quad that overlaps the hole edge with no vertex inside (-5..5, 4..6) | fail | **caught** |
+| b4 Roadway quad that only touches the hole edge (-5..5, 4.5..6) | pass | PASS (correct negative) |
+| c1 / c2 `occluder_004` removed (Hotel) / `occluder_001` removed (Roof_Mechanical) | fail | FAIL `3 slab occluders (< 4)`: **caught** |
+| **c3 extra `occluder_005` over the core hole** | fail | **PASS: not caught** (count only, L-R3) |
+| d1 `ROOF_DROPS_CLEAR[0]` = (-8, -8) (inside planter / HVAC) | fail | FAIL `roof_drop_1 crate overlaps Geometry Component09` on both roofs: **caught** |
+| d3 drop at (-10.2, -2) (crate 1.05 m from the parapet) | fail | FAIL `crate closer than 1 m to the parapet` on both: **caught** |
+| d4 drop at (-10.0, -2) (exactly 1.25 m) | pass | PASS (correct boundary) |
+| d5 builder writes x + 0.5 (diverges from skyspec) | fail | FAIL x4 `memory point != skyspec.ROOF_DROP_POINTS`: **caught** |
+| d6 builder emits only 3 drop points | fail | FAIL `roof_drop_4 memory point != ...`: **caught** |
+| **d2 drop at (-1, -2) (over the core hole / penthouse)** | fail | **PASS: not caught** (L-R2) |
+
+All 4 new checks fail on the defects they target and pass on the real modules (R1 #3). PASS.
+
+### R4. DECISIONS, skyspec and memory points
+
+- **D36** matches check_assets exactly: Apartments and Hotel 28 / 336, Roof_Garden res1 128 > 120 and 3 sections, Roof_Mechanical res1 128 > 120.
+- **D35** matches the code and the P3Ds: 2 hall doors per apartment (R2); test_kit flood fill > 1 m2 (R3); crate 1.5 m with parapet margin >= 1 m
+  (`test_kit.py:186-191`); plant units z 0..3.20 (P3D Geometry Component09-12); garden planters in View (garden View 12 comps, the same as Geometry) and
+  1.25 m inside the parapet (`build_floors.py:155`, x/y +-10.5); Res3 1 section; Geometry lintels dropped while View/Fire keep them (R5).
+  Wording nit: "floors' Res3 is one glassfar band" holds for apartments and hotel. The mechanical floor's Res3 is one **metal** louvre band (`build_floors.py:133`),
+  which TESTING F4-16 states correctly (Info).
+- **ROOF_DROP_POINTS** (`skyspec.py:407-409`) vs the P3D memory LOD: garden and mechanical `roof_drop_1..4` = (-8,-2), (8,-2), (-8,2), (8,2) at h 0.05.
+  Helipad = (+-8, +-8). **12/12 match.** Each 1.5 m crate hits 0 Geometry components, sits 3.0 m from the parapet inner face and is not over the core.
+- **Known latent (Batch 5, not a Batch 4 failure):** `placement/sky_layout.py:148` still iterates `S.ROOF_DROPS` (helipad positions), so M3 stays open
+  until Batch 5. The comments `build_floors.py:167,183` ("shared with sky_layout") and `skyspec.py:404-406` ("Read by ... placement/sky_layout.py")
+  describe the Batch 5 target state, not current code. TESTING F4-15 at 20746e8 says sky_layout "writes per roof class", which is not true yet.
+  (226f4c0 rewords F4-15 to "from batch 5 on".)
+
+### R5. Perf fixes (measured from the 20746e8 P3Ds, `scratchpad/qa4b_perf.py`)
+
+| Item | Result |
+|---|---|
+| Floors Res3 = 1 band | Apartments and Hotel: 4 faces / 8 tris / 1 section `sky_glassfar.rvmat`, z -0.30..3.20. Mechanical: 4 / 8 / 1 `sky_metal.rvmat`. PASS |
+| Roofs Res3 = 1 closed box | Garden and Mechanical: 5 faces / 10 tris / 1 section `sky_concrete.rvmat`, z -0.30..1.10, open bottom (Mechanical was 24 faces at fcc7f4c). PASS. (Security re-gate N1 later moved the lid to z = 0 in 226f4c0) |
+| Geometry without lintels, Fire/View keep them | Lintel components (z0 1.9..2.5, top > 2.5): Apartments geo **0** / view 12 / fire 12; Hotel geo **0** / view 10 / fire 10. PASS. (Reverted by 226f4c0 / D37) |
+| Plant units full height | Mechanical Geometry Component09-12 = z 0.00..3.20 (were 2.20). PASS |
+| Louvre corners non-overlapping | Same-facing coplanar overlapping face pairs in Res0/1/2: **0** (fcc7f4c had 8 in Res0, at x = +-12 and y = +-12). Pairs that remain are only back-to-back contacts (E/W band end caps against the N/S band inner faces, slab hole edges, unit bases on the slab). These are hidden faces, so there is no z-fighting. L5 fixed: PASS |
+
+### R6. Docs
+
+- **TESTING.md §15**: F4-01..F4-21 and F4-R are present and updated for the fixes. F4-06 covers two hall doors, F4-07 the connecting corner rooms (M1, now by design),
+  F4-08 full-height units, F4-09 planter inset, F4-10/11 1.0 m doors, F4-16 Res3 band/box, and F4-17 the louvre fix. The sign-off row
+  `Floor / roof variants §15` is present. Nits at 20746e8: F4-06 says "two 1.0 m" (N/S doors are 1.2 m) and F4-15 is as noted in R4. Both are reworded in 226f4c0. PASS.
+- **manifest.yaml section A**: Floor_Apartments, Floor_Hotel, Floor_Mechanical, Roof_Mechanical and Roof_Garden are now `built-unverified` with `note: batch 4 - see generated_kit`.
+  No batch-4 entry still says `planned` (the remaining `planned` entries are Lobby_B, Skybridge, facades and towers). The hotel description matches skyspec and config.cpp. L2 fixed: PASS.
+- **PENDING_VERIFICATION P3** now names every `sky_floors` module (slabs, partitions = masonry, facade glass, louvre/HVAC = metal). L3 fixed: PASS.
+
+### R7. Status of earlier findings
+
+| Finding | Status |
+|---|---|
+| H1 sealed NW/SE apartments | **Fixed** (R2, independent) |
+| M1 hotel corner rooms | Resolved as design: description changed in skyspec, config.cpp, manifest and F4-07 |
+| M2 test_kit gaps (a-d) | Fixed. Residual gaps: L-R1, L-R2, L-R3 |
+| M3 CE drop positions | **Open, known latent**: skyspec side done, `sky_layout.py` is Batch 5 work |
+| L1 0.875 m doors | Fixed (all doors >= 1.0 m) |
+| L2 manifest | Fixed |
+| L3 TESTING / PENDING | Fixed |
+| L4 LOD/shadow simplifications | Unchanged by design (D36). Still watch in F4-16 / F4-18 |
+| L5 louvre corner z-fight | Fixed (R5) |
+
+### R8. New findings (20746e8)
+
+- **High**: none.
+- **Medium**: none.
+- **L-R1** - `test_kit.reachability` (`test_kit.py:109-158`) does not inflate the blockers by the player radius. A 0.3 m opening passes (mutation a4),
+  so the test proves connectivity, not passability. Suggested fix: inflate blockers by ~0.3 m (or require door gaps >= 0.9 m) before flooding.
+  Today's doors are >= 1.0 m (R2).
+- **L-R2** - The roof-drop crate check (`test_kit.py:178-191`) ignores the core footprint. A drop at (-1, -2) passes (mutation d2) even though the crate
+  would spawn inside the core penthouse. Suggested fix: add `CORE_CLEAR["core footprint"]` to the crate overlap test. Today's points are 5 m clear of the core.
+- **L-R3** - The occluder check only counts `occluder_*` groups (>= 4). An occluder over the core hole passes (mutation c3). Suggested fix: require every
+  occluder's bounding box to lie outside the core hole.
+- **Info** - D35 wording "glassfar" vs the mechanical floor's metal Res3 (R4). The skyspec/builder comments describe the Batch 5 `sky_layout` state (R4).
+  HEAD `226f4c0` landed during this gate and needs its own QA pass (see the note at the top of this section).
+
+**GATE: PASS (20746e8)**
