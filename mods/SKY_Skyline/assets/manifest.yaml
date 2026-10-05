@@ -1,0 +1,115 @@
+# SKY_Skyline asset manifest.
+#
+# status:  planned -> spec -> generated -> configured -> packed -> tested -> done
+#   generated  : P3D/texture produced by the generators in assets/ (MLOD / PNG source)
+#   configured : config.cpp / model.cfg / rvmat written (assets/gen_configs.py)
+#   packed     : binarized + signed PBO (Windows: Build-Mod / Sign-Mod)          [needs Windows]
+#   tested     : DayZDiag gates passed (perf FPS, qa collisions/doors/AI, clean logs) [needs Windows]
+#   done       : all three gates (perf-engineer, security-auditor, qa-tester) signed off
+#
+# Budgets are HYPOTHESES (reviews/perf_review.md) until confirmed by the DayZDiag
+# FPS protocol at 2 view distances. Units: tris per LOD; sec = sections (materials);
+# comps = Geometry ComponentNN. assets/check_assets.py enforces the numeric budgets.
+#
+# Grid: 3.0 m bays, floor-to-floor 3.5 m, module origin = top of slab, autocenter=0.
+
+defaults:
+  texture_size: 2048
+  constant_maps: constant-value smdi/as maps are emitted at 256 px
+  required_lods_enterable: [Resolution x3+, Shadow Volume, Geometry, Fire Geometry, View Geometry, Roadway, Memory]
+  paths_lod: >-
+    Not generated. DayZ AI uses the runtime navmesh: objectSpawnersArr creates
+    buildings with ECE_UPDATEPATHGRAPH and calls ProcessMarkedObjectsForPathgraphUpdate()
+    (3_game/objectspawner.c), and Bohemia's Test_Building sample has no Paths LOD.
+    AI pathing is verified in DayZDiag instead (qa gate).
+
+# ---------------------------------------------------------------- A. modular kit
+kit:
+  - name: Land_SKY_TowerA_Lobby
+    type: lobby/podium (double height, keycard security room)
+    p3d: addons/sky_towera/sky_towera_lobby.p3d
+    budget: {res0: 2000, res1: 1200, res2: 150, res3: 30, shadow: 120, geo_comps: 32, geo_tris: 400, sections_res0: 5}
+    textures: [concrete, glass, metal, tile, glassfar]
+    status: configured
+  - name: Land_SKY_Lobby_B
+    type: lobby/podium variant 2 (retail frontage)
+    status: planned
+  - name: Land_SKY_TowerA_Floor_Office
+    type: typical floor (office)
+    p3d: addons/sky_towera/sky_towera_floor_office.p3d
+    budget: {res0: 1500, res1: 900, res2: 120, res3: 24, shadow: 100, geo_comps: 24, geo_tris: 300, sections_res0: 5}
+    textures: [concrete, glass, metal, carpet, wall, glassfar]
+    status: configured
+  - {name: Land_SKY_Floor_Apartments, type: typical floor (apartments), status: planned}
+  - {name: Land_SKY_Floor_Hotel, type: typical floor (hotel), status: planned}
+  - name: Land_SKY_TowerA_Core
+    type: stair + elevator core (7 stops, teleport elevator, script Land_SKY_TowerA_Core)
+    p3d: addons/sky_towera/sky_towera_core.p3d
+    budget: {res0: 2000, res1: 1000, res2: 150, res3: 20, shadow: 24, geo_comps: 80, geo_tris: 1000, sections_res0: 3}
+    textures: [concrete, metal, tile]
+    status: configured
+    open_items: [Res0 2322 > 2000 (stair steps), Res2 252 > 150, Geometry 99 comps > 80 (merge plan in perf_review M2)]
+  - {name: Land_SKY_Floor_Mechanical, type: mechanical floor, status: planned}
+  - name: Land_SKY_TowerA_Roof_Helipad
+    type: roof (helipad)
+    p3d: addons/sky_towera/sky_towera_roof_helipad.p3d
+    budget: {res0: 300, res1: 120, res2: 100, res3: 50, shadow: 100, geo_comps: 12, geo_tris: 150, sections_res0: 2}
+    textures: [concrete, roofmark]
+    status: configured
+  - {name: Land_SKY_Roof_Mechanical, type: roof (mechanical), status: planned}
+  - {name: Land_SKY_Roof_Garden, type: roof (garden), status: planned}
+  - {name: Land_SKY_Skybridge, type: skybridge, status: planned}
+  - {name: SKY_Facade_Glass, type: facade variant, status: generated, note: built into floor/lobby generators (facade())}
+  - {name: SKY_Facade_Concrete, type: facade variant, status: planned}
+  - {name: SKY_Facade_Brick, type: facade variant, status: planned}
+
+# ---------------------------------------------------------------- B. assembled buildings
+buildings:
+  - {name: TowerA, type: vertical slice (lobby + 5 office floors + core + helipad roof), floors: 5, status: configured,
+     placement: placement/out/sky_objects.json, budget_total: {res0: 12000, sections: 36, alpha_sections_far: 0}}
+  - {name: Office Tower, floors: 25, status: planned}
+  - {name: Residential Tower, floors: 20, status: planned}
+  - {name: Hotel, floors: 18, status: planned}
+  - {name: HQ landmark, floors: 35, status: planned, note: only asset allowed a 4K facade atlas}
+  - {name: Parking garage, levels: 6, status: planned}
+  - {name: Low-rise shops, status: planned}
+  - {name: Low-rise bank, status: planned}
+  - {name: Gas station, status: planned}
+
+# ---------------------------------------------------------------- C. street kit
+street: {status: planned, items: [road/sidewalk/curb modules, intersections, street lights, traffic lights, barriers,
+         bus stop, dumpsters, generic billboards, planters, wreck props, manholes]}
+
+# ---------------------------------------------------------------- D. interior props
+props:
+  status: planned
+  items: [reception desk (placeholder box inside lobby P3D), cubicles, desks, server racks, vending machines, lockers,
+          sofas, beds, kitchenettes, extinguisher cabinets, animated elevator doors (DONE - inside core P3D),
+          keycard security doors (DONE - inside lobby P3D)]
+
+# ---------------------------------------------------------------- E. items
+items:
+  - name: SKY_Keycard_T1 / T2 / T3
+    type: keycard (config + model + texture; inventory uses the 3D model, DayZ has no separate icon texture)
+    p3d: addons/sky_items/sky_keycard.p3d
+    budget: {res0: 100, geo_comps: 1}
+    textures: [sky_keycard_t1_co, sky_keycard_t2_co, sky_keycard_t3_co (256)]
+    status: configured
+
+# ---------------------------------------------------------------- F. textures (generated, assets/textures/gen_textures.py -> PNG -> ImageToPAA)
+textures:
+  - {name: sky_concrete, maps: [co, nohq, smdi, as], size: 2048, use: trim sheet (panel / board / reveal bands), status: generated}
+  - {name: sky_glass, maps: [ca, nohq, smdi, as], size: 512, use: near facade glass (alpha), status: generated}
+  - {name: sky_glassfar, maps: [co, nohq, smdi, as], size: 256, use: opaque glass for Res2/Res3, status: generated}
+  - {name: sky_metal, maps: [co, nohq, smdi, as], size: 2048, use: trim sheet (alu / steel / painted), status: generated}
+  - {name: sky_tile, maps: [co, nohq, smdi, as], size: 2048, status: generated}
+  - {name: sky_carpet, maps: [co, nohq, smdi, as], size: 2048, status: generated, note: perf suggests 1024}
+  - {name: sky_wallpaper, maps: [co, nohq, smdi, as], size: 2048, status: generated, note: mapped at 4 m (512 px/m)}
+  - {name: sky_asphalt, maps: [co, nohq, smdi, as], size: 2048, status: generated, use: street kit}
+  - {name: sky_roofmark, maps: [ca, nohq, smdi, as], size: 1024, use: generic helipad decal, status: generated}
+  - {name: decals (dirt, cracks, graffiti), status: planned}
+  - {name: emissive window sets, status: planned}
+  - {name: HQ 4K facade atlas, status: planned}
+
+# ---------------------------------------------------------------- G. sounds (optional)
+sounds: {status: planned, items: [elevator hum, elevator ding]}

@@ -12,13 +12,16 @@ mods/<Mod>/                 mod sources (one folder per mod)
     config.cpp              CfgPatches (+ CfgMods, CfgVehicles ...)
     scripts/3_Game|4_World|5_Mission/   Enforce Script (if this PBO carries scripts)
   economy/                  CE files shipped with the mod (types.xml ...), never merged into vanilla
-  assets-src/               Blender/Pillow generator scripts, MANUAL_STEPS.md (not packed)
+  assets/                   manifest.yaml, generator scripts (Blender/Pillow), MANUAL_STEPS.md (not packed)
+  placement/                layout.yaml -> objectSpawnersArr JSON (+ survey validation)
 templates/ModTemplate/      empty skeleton (CfgPatches only) used by New-Mod.ps1 and smoke tests
 tools/lib/DzCommon.psm1     shared helpers: config, Steam/tool detection, dry-run process runner
 tools/setup/                install / detect / work drive / keys / test server / smoke test
 tools/build/                New-Mod, Build-Mod, Sign-Mod, Deploy-Mod, Build-And-Run
 tools/launch/               Start-DiagLocal (DayZDiag server+client), Start-DedicatedServer
 tools/tests/                Invoke-SelfTest.ps1 (offline, no game needed)
+tools/assets/               p3d_inspect.py (MLOD LOD/selection gate), enscript_xref.py (script API lint
+                            against P:\scripts), Convert-Textures.ps1 (ImageToPAA)
 server/templates/           serverDZ.diag.cfg / serverDZ.dedicated.cfg templates (placeholders only)
 server/{profiles,mpmissions,serverDZ.*.cfg}   generated, git-ignored
 build/                      output: build/@<Mod>/{addons/*.pbo,*.bisign,keys/*.bikey,mod.cpp} (git-ignored)
@@ -67,7 +70,11 @@ Logs: `server\profiles\{diag-server,diag-client,dedicated}\` (`script_*.log`, `*
 - Prefix every new class, RPC id, config class and file with the mod tag.
 - `CfgPatches.requiredAddons[]` lists every addon you modify or inherit from.
 - Lowercase `addons\`, `keys\`, PBO and asset file names (Linux servers are case-sensitive).
-- Binary assets go through Git LFS (`.gitattributes`); generator scripts live next to them in `assets-src/`.
+- Binary assets go through Git LFS (`.gitattributes`); generator scripts live next to them in `mods/<Mod>/assets/`.
+  Generated outputs (configs, CE files, P3Ds) are committed; regenerate instead of hand-editing (`--check` flags stale files).
+- No Paths LOD: DayZ AI uses the runtime navmesh (objectSpawnersArr spawns with ECE_UPDATEPATHGRAPH).
+- Prefer vanilla user actions over custom RPCs: the server re-runs ActionCondition; re-validate in the server entry point.
+- Never put `*/` inside a `/* */` comment in Enforce Script (e.g. `storage_*/export`) - it ends the comment.
 - Windows scripts use CRLF; keep PowerShell 5.1-compatible syntax (no `??`, ternary, `&&`), and use `Join-DzPath` (Join-Path throws when P: is not mounted).
 - Do not create mods, items or gameplay code unless the user asks for it.
 

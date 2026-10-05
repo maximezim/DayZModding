@@ -1,0 +1,6 @@
+<!-- Add inside <economycore> of the mission's cfgeconomycore.xml; copy economy/sky_ce/ to <mission>/sky_ce/ -->
+<ce folder="sky_ce">
+    <file name="types.xml" type="types" />
+    <file name="cfgspawnabletypes.xml" type="spawnabletypes" />
+    <file name="events.xml" type="events" />
+</ce>

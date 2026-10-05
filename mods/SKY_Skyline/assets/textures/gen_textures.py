@@ -1,0 +1,299 @@
+#!/usr/bin/env python3
+"""Generate SKY_Skyline texture sources (PNG) procedurally.
+
+Deterministic (fixed seeds) so the PNGs are build artifacts, not source: run
+this, then tools\\assets\\Convert-SkyTextures.ps1 (ImageToPAA) on Windows.
+
+    python gen_textures.py --out <dir> [--size 2048] [--only concrete,glass]
+
+Each material gets the DayZ map set:
+    _co / _ca  colour (alpha for _ca)
+    _nohq      tangent-space normal (standard RGB; ImageToPAA applies the
+               _nohq conversion based on the suffix)
+    _smdi      R = 1 (unused), G = specular intensity, B = glossiness
+    _as        ambient shadow (white = unoccluded)
+All designs are original: no brands, logos or real-building references.
+"""
+import argparse
+import os
+
+import numpy as np
+from PIL import Image, ImageDraw, ImageFont
+
+
+# ------------------------------------------------------------------ helpers
+def value_noise(size, cells, seed):
+    rng = np.random.default_rng(seed)
+    small = rng.random((cells, cells)).astype(np.float32)
+    img = Image.fromarray((small * 255).astype(np.uint8), "L").resize((size, size), Image.BICUBIC)
+    return np.asarray(img, dtype=np.float32) / 255.0
+
+
+def fbm(size, seed, octaves=5, base=4):
+    acc = np.zeros((size, size), np.float32)
+    amp, total = 1.0, 0.0
+    for o in range(octaves):
+        acc += amp * value_noise(size, base * (2 ** o), seed + o)
+        total += amp
+        amp *= 0.5
+    return acc / total
+
+
+def normal_from_height(h, strength):
+    gy, gx = np.gradient(h)
+    nx, ny, nz = -gx * strength, -gy * strength, np.ones_like(h)
+    n = np.sqrt(nx * nx + ny * ny + nz * nz)
+    rgb = np.stack([nx / n, ny / n, nz / n], -1) * 0.5 + 0.5
+    return Image.fromarray((rgb * 255).astype(np.uint8), "RGB")
+
+
+def to_rgb(arr):
+    return Image.fromarray(np.clip(arr * 255, 0, 255).astype(np.uint8), "RGB")
+
+
+def gray(arr):
+    return np.repeat(arr[..., None], 3, -1)
+
+
+CONST_SIZE = 256   # constant-value maps don't need full resolution
+
+
+def smdi(size, spec, gloss):
+    if np.ndim(spec) == 0 and np.ndim(gloss) == 0:
+        size = min(size, CONST_SIZE)
+    s = np.broadcast_to(np.asarray(spec, np.float32), (size, size))
+    g = np.broadcast_to(np.asarray(gloss, np.float32), (size, size))
+    rgb = np.stack([np.ones((size, size), np.float32), s, g], -1)
+    return to_rgb(rgb)
+
+
+def save(img, out, name):
+    path = os.path.join(out, name + ".png")
+    img.save(path, optimize=True)
+    return path
+
+
+def band_rows(size, v0, v1):
+    return int(size * v0), int(size * v1)
+
+
+# ------------------------------------------------------------------ materials
+def concrete(size, out):
+    n = fbm(size, 11)
+    fine = fbm(size, 17, octaves=3, base=64)
+    h = np.zeros((size, size), np.float32)
+    col = 0.56 + 0.10 * (n - 0.5) + 0.05 * (fine - 0.5)
+    ao = np.ones((size, size), np.float32)
+    # Band 1 (panel, V 0-0.5): 2 x 1 precast panels, seams + tie holes.
+    r0, r1 = band_rows(size, 0.0, 0.5)
+    seam = max(2, size // 512)
+    for x in (0, size // 2):
+        h[r0:r1, x:x + seam] -= 1.0
+        ao[r0:r1, x:x + seam] *= 0.6
+    h[r1 - seam:r1, :] -= 1.0
+    yy, xx = np.mgrid[0:size, 0:size]
+    for cy in np.linspace(r0 + size * 0.08, r1 - size * 0.08, 3):
+        for cx in np.linspace(size * 0.08, size * 0.92, 6):
+            m = (yy - cy) ** 2 + (xx - cx) ** 2 < (size * 0.006) ** 2
+            h[m] -= 0.8
+            col[m] *= 0.7
+            ao[m] *= 0.55
+    # Band 2 (board-formed, V 0.5-0.75): horizontal boards with grain.
+    r0, r1 = band_rows(size, 0.5, 0.75)
+    boards = 8
+    bh = (r1 - r0) // boards
+    for b in range(boards):
+        y = r0 + b * bh
+        h[y:y + seam, :] -= 0.7
+        ao[y:y + seam, :] *= 0.75
+        col[y:y + bh, :] += 0.03 * ((b * 7919) % 5 - 2) / 2
+    grain = value_noise(size, 256, 23)
+    col[r0:r1, :] += 0.04 * (np.repeat(grain[r0:r1, :1], size, 1) - 0.5)
+    # Band 3 (reveal, V 0.75-1): smooth with one recessed groove.
+    r0, r1 = band_rows(size, 0.75, 1.0)
+    g0 = r0 + (r1 - r0) // 2
+    h[g0:g0 + seam * 3, :] -= 1.0
+    ao[g0:g0 + seam * 3, :] *= 0.65
+    h += 0.15 * fine
+    save(to_rgb(gray(col)), out, "sky_concrete_co")
+    save(normal_from_height(h, 2.5), out, "sky_concrete_nohq")
+    save(smdi(size, 0.12 + 0.05 * fine, 0.25), out, "sky_concrete_smdi")
+    save(to_rgb(gray(0.75 + 0.25 * ao)), out, "sky_concrete_as")
+
+
+def metal(size, out):
+    streak = np.repeat(value_noise(size, 512, 31)[:, :1], size, 1)
+    n = fbm(size, 37, octaves=3, base=16)
+    col = np.zeros((size, size, 3), np.float32)
+    spec = np.zeros((size, size), np.float32)
+    gloss = np.zeros((size, size), np.float32)
+    h = 0.1 * n
+    r0, r1 = band_rows(size, 0.0, 0.5)          # brushed aluminium (mullions)
+    col[r0:r1] = gray(0.68 + 0.06 * (streak[r0:r1] - 0.5) + 0.02 * (n[r0:r1] - 0.5))
+    spec[r0:r1], gloss[r0:r1] = 0.7, 0.6
+    r0, r1 = band_rows(size, 0.5, 0.75)         # dark steel
+    col[r0:r1] = gray(0.22 + 0.05 * (n[r0:r1] - 0.5))
+    spec[r0:r1], gloss[r0:r1] = 0.45, 0.4
+    r0, r1 = band_rows(size, 0.75, 1.0)         # painted panel (warm grey)
+    col[r0:r1] = np.array([0.62, 0.60, 0.56]) + 0.03 * gray(n[r0:r1] - 0.5)
+    spec[r0:r1], gloss[r0:r1] = 0.25, 0.35
+    save(to_rgb(col), out, "sky_metal_co")
+    save(normal_from_height(h, 1.0), out, "sky_metal_nohq")
+    save(smdi(size, spec, gloss), out, "sky_metal_smdi")
+    save(to_rgb(gray(np.full((CONST_SIZE, CONST_SIZE), 0.95, np.float32))), out, "sky_metal_as")
+
+
+def glassfar(size, out):
+    """Opaque far-LOD glass: dark tinted, slight sky gradient, no alpha."""
+    size = min(size, 256)
+    v = np.linspace(0, 1, size, dtype=np.float32)[:, None] * np.ones((1, size), np.float32)
+    rgb = np.stack([0.20 + 0.10 * v, 0.26 + 0.10 * v, 0.31 + 0.08 * v], -1)
+    save(to_rgb(rgb), out, "sky_glassfar_co")
+    save(normal_from_height(np.zeros((size, size), np.float32), 1.0), out, "sky_glassfar_nohq")
+    save(smdi(size, 0.8, 0.8), out, "sky_glassfar_smdi")
+    save(to_rgb(gray(np.ones((size, size), np.float32))), out, "sky_glassfar_as")
+
+
+def glass(size, out):
+    size = min(size, 512)                       # flat colour: 512 is plenty
+    v = np.linspace(0, 1, size, dtype=np.float32)[:, None] * np.ones((1, size), np.float32)
+    rgb = np.stack([0.30 + 0.08 * v, 0.38 + 0.08 * v, 0.44 + 0.06 * v], -1)
+    alpha = np.full((size, size), 0.38, np.float32)
+    rgba = np.concatenate([rgb, alpha[..., None]], -1)
+    Image.fromarray((rgba * 255).astype(np.uint8), "RGBA").save(os.path.join(out, "sky_glass_ca.png"))
+    save(normal_from_height(np.zeros((size, size), np.float32), 1.0), out, "sky_glass_nohq")
+    save(smdi(size, 0.9, 0.9), out, "sky_glass_smdi")
+    save(to_rgb(gray(np.ones((size, size), np.float32))), out, "sky_glass_as")
+
+
+def tiled(size, out, name, tiles, base_rgb, grout_rgb, grout_px, seed, spec, gloss, tile_var=0.03):
+    n = fbm(size, seed, octaves=4, base=8)
+    col = np.array(base_rgb, np.float32) + 0.06 * gray(n - 0.5)
+    h = 0.2 * n
+    ao = np.ones((size, size), np.float32)
+    step = size // tiles
+    rng = np.random.default_rng(seed)
+    for ty in range(tiles):
+        for tx in range(tiles):
+            col[ty * step:(ty + 1) * step, tx * step:(tx + 1) * step] += tile_var * (rng.random() - 0.5)
+    for i in range(tiles + 1):
+        p = min(i * step, size - grout_px)
+        col[p:p + grout_px, :] = grout_rgb
+        col[:, p:p + grout_px] = grout_rgb
+        h[p:p + grout_px, :] -= 1.0
+        h[:, p:p + grout_px] -= 1.0
+        ao[p:p + grout_px, :] *= 0.8
+        ao[:, p:p + grout_px] *= 0.8
+    save(to_rgb(col), out, name + "_co")
+    save(normal_from_height(h, 2.0), out, name + "_nohq")
+    save(smdi(size, spec, gloss), out, name + "_smdi")
+    save(to_rgb(gray(0.8 + 0.2 * ao)), out, name + "_as")
+
+
+def carpet(size, out):
+    # Carpet tiles: high-frequency fibre noise, 8 x 8 tiles (0.5 m at 4 m mapping).
+    fibre = fbm(size, 53, octaves=3, base=256)
+    n = fbm(size, 59, octaves=3, base=8)
+    col = np.array([0.30, 0.33, 0.37], np.float32) + 0.07 * gray(fibre - 0.5) + 0.04 * gray(n - 0.5)
+    step = size // 8
+    for i in range(9):
+        p = min(i * step, size - 2)
+        col[p:p + 2, :] *= 0.85
+        col[:, p:p + 2] *= 0.85
+    save(to_rgb(col), out, "sky_carpet_co")
+    save(normal_from_height(0.5 * fibre, 1.5), out, "sky_carpet_nohq")
+    save(smdi(size, 0.03, 0.05), out, "sky_carpet_smdi")
+    save(to_rgb(gray(np.full((CONST_SIZE, CONST_SIZE), 0.97, np.float32))), out, "sky_carpet_as")
+
+
+def wallpaper(size, out):
+    n = fbm(size, 71, octaves=4, base=8)
+    x = np.linspace(0, 1, size, dtype=np.float32)[None, :] * np.ones((size, 1), np.float32)
+    stripes = 0.5 + 0.5 * np.sign(np.sin(x * np.pi * 2 * 32))
+    col = np.array([0.80, 0.78, 0.73], np.float32) + 0.02 * gray(stripes - 0.5) + 0.03 * gray(n - 0.5)
+    save(to_rgb(col), out, "sky_wallpaper_co")
+    save(normal_from_height(0.05 * stripes + 0.1 * n, 1.0), out, "sky_wallpaper_nohq")
+    save(smdi(size, 0.08, 0.15), out, "sky_wallpaper_smdi")
+    save(to_rgb(gray(np.full((CONST_SIZE, CONST_SIZE), 0.97, np.float32))), out, "sky_wallpaper_as")
+
+
+def asphalt(size, out):
+    n = fbm(size, 83, octaves=6, base=8)
+    grit = (np.random.default_rng(89).random((size, size)) > 0.985).astype(np.float32)
+    col = gray(0.20 + 0.06 * (n - 0.5) + 0.12 * grit)
+    save(to_rgb(col), out, "sky_asphalt_co")
+    save(normal_from_height(0.4 * n + 0.6 * grit, 2.0), out, "sky_asphalt_nohq")
+    save(smdi(size, 0.06 + 0.1 * grit, 0.1), out, "sky_asphalt_smdi")
+    save(to_rgb(gray(np.full((CONST_SIZE, CONST_SIZE), 0.95, np.float32))), out, "sky_asphalt_as")
+
+
+def roofmark(size, out):
+    """Generic heliport marking: yellow ring + white 'H' on transparent."""
+    size = min(size, 1024)
+    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    c, r, w = size // 2, int(size * 0.46), int(size * 0.035)
+    d.ellipse([c - r, c - r, c + r, c + r], outline=(222, 184, 40, 235), width=w)
+    bw, bh = int(size * 0.07), int(size * 0.42)
+    gap = int(size * 0.14)
+    d.rectangle([c - gap - bw, c - bh // 2, c - gap, c + bh // 2], fill=(235, 235, 230, 235))
+    d.rectangle([c + gap, c - bh // 2, c + gap + bw, c + bh // 2], fill=(235, 235, 230, 235))
+    d.rectangle([c - gap, c - bw // 2, c + gap, c + bw // 2], fill=(235, 235, 230, 235))
+    img.save(os.path.join(out, "sky_roofmark_ca.png"))
+    save(normal_from_height(np.zeros((size, size), np.float32), 1.0), out, "sky_roofmark_nohq")
+    save(smdi(size, 0.2, 0.3), out, "sky_roofmark_smdi")
+    save(to_rgb(gray(np.ones((size, size), np.float32))), out, "sky_roofmark_as")
+
+
+KEYCARD_COLOURS = {1: (46, 140, 87), 2: (214, 150, 32), 3: (190, 50, 45)}
+
+
+def keycards(size, out):
+    """512 card textures: tier stripe, chip, generic text. UV: whole card face."""
+    size = min(size, 256)
+    try:
+        font = ImageFont.load_default(size=int(size * 0.07))
+    except TypeError:                            # Pillow < 10.1
+        font = ImageFont.load_default()
+    for tier, rgb in KEYCARD_COLOURS.items():
+        img = Image.new("RGB", (size, size), (228, 228, 224))
+        d = ImageDraw.Draw(img)
+        d.rectangle([0, 0, size, int(size * 0.28)], fill=rgb)
+        d.rounded_rectangle([int(size * 0.08), int(size * 0.40), int(size * 0.30), int(size * 0.58)],
+                            radius=int(size * 0.02), fill=(196, 170, 90), outline=(120, 100, 50), width=3)
+        d.text((int(size * 0.08), int(size * 0.07)), "SKYLINE", fill=(250, 250, 250), font=font)
+        d.text((int(size * 0.40), int(size * 0.44)), "ACCESS", fill=(60, 60, 60), font=font)
+        d.text((int(size * 0.40), int(size * 0.54)), "LEVEL %d" % tier, fill=rgb, font=font)
+        d.rectangle([0, int(size * 0.82), size, int(size * 0.90)], fill=(30, 30, 30))   # mag stripe
+        img.save(os.path.join(out, "sky_keycard_t%d_co.png" % tier))
+    save(normal_from_height(np.zeros((size, size), np.float32), 1.0), out, "sky_keycard_nohq")
+    save(smdi(size, 0.3, 0.5), out, "sky_keycard_smdi")
+
+
+GENERATORS = {
+    "concrete": concrete, "metal": metal, "glass": glass, "glassfar": glassfar,
+    "tile": lambda s, o: tiled(s, o, "sky_tile", 5, (0.72, 0.71, 0.68), (0.45, 0.45, 0.43), max(3, s // 400), 41, 0.3, 0.5),
+    "carpet": carpet, "wallpaper": wallpaper, "asphalt": asphalt,
+    "roofmark": roofmark, "keycards": keycards,
+}
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--out", required=True)
+    ap.add_argument("--size", type=int, default=2048)
+    ap.add_argument("--only", default="")
+    a = ap.parse_args()
+    if a.size & (a.size - 1):
+        raise SystemExit("--size must be a power of two")
+    os.makedirs(a.out, exist_ok=True)
+    only = [x for x in a.only.split(",") if x]
+    for name, fn in GENERATORS.items():
+        if only and name not in only:
+            continue
+        fn(a.size, a.out)
+        print("generated", name)
+
+
+if __name__ == "__main__":
+    main()

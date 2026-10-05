@@ -1,0 +1,8 @@
+<!-- MERGE into the mission cfgeventspawns.xml (inside <eventposdef>). y = roof height. -->
+<event name="StaticSKYRoofDrop">
+    <zone smin="0" smax="0" dmin="0" dmax="0" r="0" />
+    <pos x="7492.000" z="7492.000" a="0" y="24.550" />
+    <pos x="7508.000" z="7492.000" a="0" y="24.550" />
+    <pos x="7492.000" z="7508.000" a="0" y="24.550" />
+    <pos x="7508.000" z="7508.000" a="0" y="24.550" />
+</event>

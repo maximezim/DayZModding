@@ -36,3 +36,7 @@ desktop.ini
 # Blender autosaves
 *.blend1
 *.blend2
+
+# --- SKY_Skyline generated textures (assets/Build-SkyAssets.ps1 regenerates them) ---
+/mods/SKY_Skyline/addons/sky_textures/data/*.paa
+/mods/SKY_Skyline/addons/sky_items/data/*.paa

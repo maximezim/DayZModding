@@ -1,0 +1,57 @@
+{
+ "sky_keycard.p3d": {
+  "fire": 12,
+  "geo": 12,
+  "mem": 0,
+  "res0": 12,
+  "res1": 12
+ },
+ "sky_towera_core.p3d": {
+  "fire": 972,
+  "geo": 972,
+  "mem": 0,
+  "res0": 1602,
+  "res1": 846,
+  "res2": 132,
+  "res3": 10,
+  "road": 72,
+  "shadow": 12,
+  "view": 628
+ },
+ "sky_towera_floor_office.p3d": {
+  "fire": 144,
+  "geo": 144,
+  "mem": 0,
+  "res0": 928,
+  "res1": 536,
+  "res2": 56,
+  "res3": 16,
+  "road": 8,
+  "shadow": 48,
+  "view": 104
+ },
+ "sky_towera_lobby.p3d": {
+  "fire": 204,
+  "geo": 204,
+  "mem": 0,
+  "res0": 1064,
+  "res1": 668,
+  "res2": 92,
+  "res3": 16,
+  "road": 8,
+  "shadow": 60,
+  "view": 128
+ },
+ "sky_towera_roof_helipad.p3d": {
+  "fire": 96,
+  "geo": 96,
+  "mem": 0,
+  "res0": 98,
+  "res1": 98,
+  "res2": 96,
+  "res3": 48,
+  "road": 8,
+  "shadow": 96,
+  "view": 104
+ }
+}

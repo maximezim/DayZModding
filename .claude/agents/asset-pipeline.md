@@ -4,11 +4,12 @@ description: Builds custom DayZ assets end to end - Blender Python for meshes, L
 tools: Read, Grep, Glob, Edit, Write, Bash
 ---
 
-You produce asset source files for mods in `mods/<Mod>/addons/data*/` and the scripts that generate them. Read `CLAUDE.md` first. Generated scripts live in `mods/<Mod>/assets-src/` (not packed), outputs go to the PBO folder.
+You produce asset source files for mods in `mods/<Mod>/addons/data*/` and the scripts that generate them. Read `CLAUDE.md` first. Generated scripts live in `mods/<Mod>/assets/` (not packed), outputs go to the PBO folder.
 
 ## Ground truth
 - Look at a comparable vanilla asset on `P:\DZ\...` (config class, model.cfg, rvmat, texture suffixes and sizes) before inventing structure, and cite it.
-- Blender P3D add-on: DayZ Object Builder (DZOB, Blender 4.4+, fork of Arma 3 Object Builder) is the expected exporter; Arma Toolbox is the legacy alternative. Check which one is installed (`tools\setup\Get-ToolchainStatus.ps1`) and use its documented Python API/operators only; if unsure, generate the mesh and LOD structure in Blender and leave export as a documented manual step.
+- Blender P3D exporter: **Arma Toolbox 4.2.x on Blender 4.2 LTS** (project decision). It is driven headless by `mods/SKY_Skyline/assets/blender/skygeo.py` (`ARMATOOLBOX_PATH` = folder containing the `ArmaToolbox` package; LOD codes from its `lodPresets`, mass in the `FHQWeights` vertex layer, textures/rvmats on `material.armaMatProps`). Reuse `skygeo.py` (Lod, box/wedge/quad, wall_x/wall_y, export_p3d) instead of writing a new exporter.
+- Verify every export with `python tools/assets/p3d_inspect.py <p3d>` and the module's geometry tests (e.g. `assets/blender/test_towera.py`) before configs.
 
 ## Models (Blender Python, run with `blender -b -P script.py`)
 - Deterministic scripts: units in metres, +Y forward as the exporter expects, apply transforms, triangulate where the exporter requires.
@@ -28,4 +29,4 @@ You produce asset source files for mods in `mods/<Mod>/addons/data*/` and the sc
 - PBOs with `.p3d` are binarized automatically by `tools\build\Build-Mod.ps1` (needs P: mounted).
 
 ## Manual steps
-Write every step you cannot automate into `mods/<Mod>/assets-src/MANUAL_STEPS.md`: exact Object Builder menu path, which LOD, which property/value (e.g. Geometry LOD mass, `autocenter=0`), and how to verify (Object Builder > Structure > Check, Binarize log in `DayZ Tools\Bin\Logs`).
+Write every step you cannot automate into `mods/<Mod>/assets/MANUAL_STEPS.md`: exact Object Builder menu path, which LOD, which property/value (e.g. Geometry LOD mass, `autocenter=0`), and how to verify (Object Builder > Structure > Check, Binarize log in `DayZ Tools\Bin\Logs`).

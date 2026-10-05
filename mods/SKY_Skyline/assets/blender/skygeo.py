@@ -1,0 +1,361 @@
+"""Geometry helpers for SKY_Skyline Blender generators (Blender 4.2 + Arma Toolbox 4.2.x).
+
+Model in the Blender frame (X east, Y north, Z up, metres). Each `Lod` collects
+convex boxes / wedges / quads with materials, UVs and named selections, then
+`export_p3d()` turns them into Arma Toolbox objects and writes an MLOD P3D.
+
+Convex-component LODs (Geometry, View Geometry, Fire Geometry) get one
+ComponentNN selection per solid automatically, which is what Object Builder's
+"Find Components" would produce for disjoint convex boxes.
+"""
+import math
+import os
+import sys
+
+import bmesh
+import bpy
+
+# LOD codes - exact strings from ArmaToolbox/properties.py lodPresets.
+LOD_RES = "-1.0"            # graphical LOD, resolution = Lod.distance
+LOD_SHADOW = "1.000e+4"     # Shadow Volume 0 (resolution 10000)
+LOD_GEOMETRY = "1.000e+13"
+LOD_MEMORY = "1.000e+15"
+LOD_ROADWAY = "3.000e+15"
+LOD_VIEWGEO = "6.000e+15"
+LOD_FIREGEO = "7.000e+15"
+
+COMPONENT_LODS = {LOD_GEOMETRY, LOD_VIEWGEO, LOD_FIREGEO}
+
+
+# ------------------------------------------------------------------ UV mappers
+class UVWorld:
+    """Planar projection on the face's dominant axis; `scale` metres per UV unit."""
+
+    def __init__(self, scale=3.0, offset=(0.0, 0.0)):
+        self.scale, self.offset = scale, offset
+
+    def __call__(self, pts, normal):
+        ax = max(range(3), key=lambda i: abs(normal[i]))
+        a, b = [(1, 2), (0, 2), (0, 1)][ax]
+        return [(p[a] / self.scale + self.offset[0], p[b] / self.scale + self.offset[1]) for p in pts]
+
+
+class UVBand:
+    """Trim-sheet band: vertical faces stretch their height over V band (v0, v1);
+    U runs along the face every `scale` metres. Horizontal faces use the band's
+    centre line so slab tops/undersides still sample the same strip."""
+
+    def __init__(self, band, scale=3.0):
+        self.v0, self.v1 = band
+        self.scale = scale
+
+    def __call__(self, pts, normal):
+        ax = max(range(3), key=lambda i: abs(normal[i]))
+        # (U axis, axis stretched across the band)
+        along, across = {0: (1, 2), 1: (0, 2), 2: (0, 1)}[ax]
+        cs = [p[across] for p in pts]
+        c0, c1 = min(cs), max(cs)
+        h = (c1 - c0) or 1.0
+        # Image rows grow downwards while Blender V grows upwards -> 1 - v.
+        return [(p[along] / self.scale, 1.0 - (self.v1 - (p[across] - c0) / h * (self.v1 - self.v0))) for p in pts]
+
+
+class UVFit:
+    """Fit a rectangle (x0, x1, y0, y1) exactly onto UV 0..1 (decals, card faces)."""
+
+    def __init__(self, x0, x1, y0, y1):
+        self.r = (x0, x1, y0, y1)
+
+    def __call__(self, pts, normal):
+        x0, x1, y0, y1 = self.r
+        return [((p[0] - x0) / (x1 - x0), (p[1] - y0) / (y1 - y0)) for p in pts]
+
+
+def _sub(a, b):
+    return (a[0] - b[0], a[1] - b[1], a[2] - b[2])
+
+
+def _cross(a, b):
+    return (a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0])
+
+
+def _dot(a, b):
+    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+
+
+def _normal(pts):
+    n = _cross(_sub(pts[1], pts[0]), _sub(pts[2], pts[0]))
+    l = math.sqrt(_dot(n, n)) or 1.0
+    return (n[0] / l, n[1] / l, n[2] / l)
+
+
+# ------------------------------------------------------------------ LOD container
+class Lod:
+    def __init__(self, name, lod, distance=0.0):
+        self.name, self.lod, self.distance = name, lod, distance
+        self.verts = []
+        self.faces = []        # (vertex index tuple, material key or None, uv list or None)
+        self.groups = {}       # selection name -> set(vertex index)
+        self.props = {}
+        self.mass = 0.0
+        self._component = 0
+
+    # -- primitives ---------------------------------------------------
+    def _add_face(self, pts, outward, mat, uv, vidx_base_sel):
+        n = _normal(pts)
+        if outward is not None and _dot(n, outward) < 0:
+            pts = list(reversed(pts))
+            n = _normal(pts)
+        base = len(self.verts)
+        self.verts.extend(pts)
+        idx = tuple(range(base, base + len(pts)))
+        self.faces.append((idx, mat, uv(pts, n) if (uv and mat) else None))
+        for s in vidx_base_sel:
+            self.groups.setdefault(s, set()).update(idx)
+        return idx
+
+    def _next_component(self):
+        self._component += 1
+        return "Component%02d" % self._component
+
+    def box(self, x0, x1, y0, y1, z0, z1, mat=None, uv=None, sel=(), skip=(), component=None):
+        """Axis-aligned box. skip: subset of {'-x','+x','-y','+y','-z','+z'} faces to omit
+        (only for graphical LODs - collision boxes must stay closed)."""
+        if x1 - x0 < 1e-4 or y1 - y0 < 1e-4 or z1 - z0 < 1e-4:
+            return
+        sel = list(sel)
+        if component is None:
+            component = self.lod in COMPONENT_LODS
+        closed = component or self.lod == LOD_SHADOW
+        if component:
+            sel.append(self._next_component())
+        if closed:
+            skip = ()
+        c = [(x, y, z) for x in (x0, x1) for y in (y0, y1) for z in (z0, z1)]
+        P = lambda i, j, k: c[i * 4 + j * 2 + k]
+        quads = {
+            "-x": ([P(0, 0, 0), P(0, 1, 0), P(0, 1, 1), P(0, 0, 1)], (-1, 0, 0)),
+            "+x": ([P(1, 0, 0), P(1, 1, 0), P(1, 1, 1), P(1, 0, 1)], (1, 0, 0)),
+            "-y": ([P(0, 0, 0), P(1, 0, 0), P(1, 0, 1), P(0, 0, 1)], (0, -1, 0)),
+            "+y": ([P(0, 1, 0), P(1, 1, 0), P(1, 1, 1), P(0, 1, 1)], (0, 1, 0)),
+            "-z": ([P(0, 0, 0), P(1, 0, 0), P(1, 1, 0), P(0, 1, 0)], (0, 0, -1)),
+            "+z": ([P(0, 0, 1), P(1, 0, 1), P(1, 1, 1), P(0, 1, 1)], (0, 0, 1)),
+        }
+        if closed:
+            # Closed convex solid: share 8 vertices so the component / shadow volume is watertight.
+            base = len(self.verts)
+            self.verts.extend(c)
+            remap = {v: base + i for i, v in enumerate(c)}
+            for key, (pts, out) in quads.items():
+                n = _normal(pts)
+                if _dot(n, out) < 0:
+                    pts = list(reversed(pts))
+                idx = tuple(remap[p] for p in pts)
+                self.faces.append((idx, mat, uv(pts, _normal(pts)) if (uv and mat) else None))
+            for s in sel:
+                self.groups.setdefault(s, set()).update(range(base, base + 8))
+            return
+        for key, (pts, out) in quads.items():
+            if key not in skip:
+                self._add_face(pts, out, mat, uv, sel)
+
+    def wedge(self, x0, x1, y_low, y_high, z_base, z_low, z_high, mat=None, uv=None, sel=(), component=None):
+        """Stair ramp solid running along Y from (y_low, z_low) to (y_high, z_high),
+        bottom flat at z_base (must be below both ends). Convex (a prism)."""
+        if z_base >= min(z_low, z_high) - 1e-4:
+            raise ValueError("wedge base must be below the ramp")
+        sel = list(sel)
+        if component is None:
+            component = self.lod in COMPONENT_LODS
+        if component:
+            sel.append(self._next_component())
+        a = [(x0, y_low, z_base), (x0, y_high, z_base), (x0, y_high, z_high), (x0, y_low, z_low)]
+        b = [(x1, p[1], p[2]) for p in a]
+        cx = (x0 + x1) / 2
+        cy = (y_low + y_high) / 2
+        cz = (z_base + max(z_low, z_high)) / 2
+        centre = (cx, cy, cz)
+        base = len(self.verts)
+        verts = a + b
+        self.verts.extend(verts)
+        quads = [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)]
+        for q in quads:
+            pts = [verts[i] for i in q]
+            n = _normal(pts)
+            fc = tuple(sum(p[i] for p in pts) / 4 for i in range(3))
+            if _dot(n, _sub(fc, centre)) < 0:
+                q = tuple(reversed(q))
+                pts = [verts[i] for i in q]
+            self.faces.append((tuple(base + i for i in q), mat, uv(pts, _normal(pts)) if (uv and mat) else None))
+        for s in sel:
+            self.groups.setdefault(s, set()).update(range(base, base + 8))
+
+    def quad(self, pts, facing, mat=None, uv=None, sel=(), double=False):
+        """Single quad; `facing` = desired normal. double=True adds the back face."""
+        self._add_face(list(pts), facing, mat, uv, sel)
+        if double:
+            self._add_face(list(pts), tuple(-f for f in facing), mat, uv, sel)
+
+    def hquad(self, x0, x1, y0, y1, z, mat=None, uv=None, sel=(), up=True):
+        pts = [(x0, y0, z), (x1, y0, z), (x1, y1, z), (x0, y1, z)]
+        self.quad(pts, (0, 0, 1 if up else -1), mat, uv, sel)
+
+    def ramp(self, x0, x1, y_low, y_high, z_low, z_high, mat=None, uv=None, sel=()):
+        pts = [(x0, y_low, z_low), (x1, y_low, z_low), (x1, y_high, z_high), (x0, y_high, z_high)]
+        self.quad(pts, (0, 0, 1), mat, uv, sel)
+
+    def occluder(self, pts, name):
+        """Single-face occluder plane in View Geometry (pattern from Bohemia's
+        Test_Building sample: selections occluder_NNN, 4 points, 1 face)."""
+        self._add_face(list(pts), None, None, None, [name])
+
+    def point(self, name, co):
+        """Memory point (or 2-point axis when called twice with the same name)."""
+        idx = len(self.verts)
+        self.verts.append(tuple(co))
+        self.groups.setdefault(name, set()).add(idx)
+
+    def tri_count(self):
+        return sum(1 if len(f[0]) == 3 else 2 for f in self.faces)
+
+
+# ------------------------------------------------------------------ composite helpers
+def _column_spans(openings, a, b, z0, z1):
+    """Solid Z spans of the wall column [a, b] around ALL openings covering it
+    (several openings may be stacked, e.g. one door per storey)."""
+    holes = sorted((o[2], o[3]) for o in openings if o[0] <= a + 1e-6 and o[1] >= b - 1e-6)
+    spans, cur = [], z0
+    for h0, h1 in holes:
+        if h0 > cur + 1e-6:
+            spans.append((cur, min(h0, z1)))
+        cur = max(cur, h1)
+    if cur < z1 - 1e-6:
+        spans.append((cur, z1))
+    return spans
+
+def wall_x(lod, x0, x1, y0, y1, z0, z1, openings=(), **kw):
+    """Wall running along X (thickness y0..y1) with rectangular openings
+    [(ox0, ox1, oz0, oz1), ...]; emitted as convex boxes."""
+    xs = sorted({x0, x1} | {o[0] for o in openings} | {o[1] for o in openings})
+    for a, b in zip(xs, xs[1:]):
+        for c0, c1 in _column_spans(openings, a, b, z0, z1):
+            lod.box(a, b, y0, y1, c0, c1, **kw)
+
+
+def wall_y(lod, x0, x1, y0, y1, z0, z1, openings=(), **kw):
+    """Wall running along Y (thickness x0..x1); openings [(oy0, oy1, oz0, oz1)]."""
+    ys = sorted({y0, y1} | {o[0] for o in openings} | {o[1] for o in openings})
+    for a, b in zip(ys, ys[1:]):
+        for c0, c1 in _column_spans(openings, a, b, z0, z1):
+            lod.box(x0, x1, a, b, c0, c1, **kw)
+
+
+def slab_with_hole(lod, half_w, half_d, hole, z0, z1, **kw):
+    """Rectangular slab (+-half_w, +-half_d) with one rectangular hole (hx0,hx1,hy0,hy1)."""
+    hx0, hx1, hy0, hy1 = hole
+    lod.box(-half_w, half_w, -half_d, hy0, z0, z1, **kw)
+    lod.box(-half_w, half_w, hy1, half_d, z0, z1, **kw)
+    lod.box(-half_w, hx0, hy0, hy1, z0, z1, **kw)
+    lod.box(hx1, half_w, hy0, hy1, z0, z1, **kw)
+
+
+def floor_quads_with_hole(lod, half_w, half_d, hole, z, **kw):
+    hx0, hx1, hy0, hy1 = hole
+    lod.hquad(-half_w, half_w, -half_d, hy0, z, **kw)
+    lod.hquad(-half_w, half_w, hy1, half_d, z, **kw)
+    lod.hquad(-half_w, hx0, hy0, hy1, z, **kw)
+    lod.hquad(hx1, half_w, hy0, hy1, z, **kw)
+
+
+# ------------------------------------------------------------------ Blender / Arma Toolbox export
+_ATB = None
+
+
+def load_arma_toolbox():
+    """Import + register Arma Toolbox from ARMATOOLBOX_PATH (folder containing
+    the 'ArmaToolbox' package) - works headless without installing the extension."""
+    global _ATB
+    if _ATB:
+        return _ATB
+    root = os.environ.get("ARMATOOLBOX_PATH")
+    if not root or not os.path.isdir(os.path.join(root, "ArmaToolbox")):
+        raise RuntimeError("Set ARMATOOLBOX_PATH to the folder that contains the ArmaToolbox package")
+    if root not in sys.path:
+        sys.path.insert(0, root)
+    import ArmaToolbox
+    try:
+        ArmaToolbox.register()
+    except ValueError:
+        pass   # already registered (installed as an extension)
+    from ArmaToolbox import MDLExporter
+    _ATB = MDLExporter
+    return _ATB
+
+
+def _material(key, materials, cache):
+    if key in cache:
+        return cache[key]
+    m = bpy.data.materials.new(key)
+    info = materials[key]
+    m.armaMatProps.texType = "Texture"
+    m.armaMatProps.texture = info.get("co", "")
+    m.armaMatProps.rvMat = info.get("rvmat", "")
+    cache[key] = m
+    return m
+
+
+def build_object(lod, materials, cache):
+    me = bpy.data.meshes.new(lod.name)
+    obj = bpy.data.objects.new(lod.name, me)
+    bpy.context.scene.collection.objects.link(obj)
+    bm = bmesh.new()
+    # Create custom layers BEFORE elements: adding a layer later invalidates BMVert refs.
+    uvl = bm.loops.layers.uv.new("UVMap")
+    w = bm.verts.layers.float.new("FHQWeights")
+    bverts = [bm.verts.new(v) for v in lod.verts]
+    bm.verts.ensure_lookup_table()
+    mat_keys = []
+    for idx, mat, uv in lod.faces:
+        try:
+            f = bm.faces.new([bverts[i] for i in idx])
+        except ValueError:
+            continue   # duplicate face (coplanar overlap); skip
+        if mat:
+            if mat not in mat_keys:
+                mat_keys.append(mat)
+            f.material_index = mat_keys.index(mat)
+        if uv:
+            for loop, (u, v) in zip(f.loops, uv):
+                loop[uvl].uv = (u, v)
+    if lod.lod == LOD_GEOMETRY and bverts:
+        per = lod.mass / len(bverts)
+        for v in bverts:
+            v[w] = per
+    bm.to_mesh(me)
+    bm.free()
+    for k in mat_keys:
+        me.materials.append(_material(k, materials, cache))
+    for name, vs in lod.groups.items():
+        vg = obj.vertex_groups.new(name=name)
+        vg.add(sorted(vs), 1.0, "REPLACE")
+    p = obj.armaObjProps
+    p.isArmaObject = True
+    p.lod = lod.lod
+    p.lodDistance = lod.distance
+    for k, v in lod.props.items():
+        np_ = p.namedProps.add()
+        np_.name, np_.value = k, v
+    return obj
+
+
+def export_p3d(lods, materials, path):
+    exporter = load_arma_toolbox()
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+    cache = {}
+    objs = [build_object(l, materials, cache) for l in lods]
+    bpy.context.view_layer.objects.active = objs[0]
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "wb") as fh:
+        # (myself, file, selectedOnly, applyModifiers, mergeSameLOD, renumberComponents, applyTransforms)
+        exporter.exportMDL(None, fh, False, True, True, True, True)
+    return {l.name: l.tri_count() for l in lods}

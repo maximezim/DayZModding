@@ -1,0 +1,28 @@
+# SKY_Skyline layout -> cfggameplay objectSpawnersArr (python placement/sky_layout.py)
+#
+# Map: Chernarus (mission dayzOffline.chernarusplus).
+# SITE IS A PLACEHOLDER until a survey passes: run the in-game survey
+# (placement/README.md), copy SKY_survey_result.json next to this file and set
+# site.survey; the generator then derives base height and refuses unsafe sites.
+map: chernarusplus
+mission: dayzOffline.chernarusplus
+
+site:
+  name: placeholder-site
+  placeholder: true             # set false once the survey for this site passes
+  center: [7500.0, 7500.0]      # world X, Z  (PLACEHOLDER - replace with your flat site)
+  yaw: 0.0                      # degrees, DayZ orientation yaw
+  survey: null                  # e.g. surveys/site1.json (SKY_survey_result.json)
+  base_y: null                  # override floor height; null = from survey (max ground + clearance)
+  clearance: 0.05               # lobby floor this far above the highest ground sample
+  max_ground_drop: 2.2          # lobby foundation skirt reaches 2.2 m below the slab bottom
+
+# Blocks / roads come with the street kit (not part of the Tower A slice).
+blocks: []
+roads: []
+
+towers:
+  - id: A1
+    type: TowerA
+    offset: [0.0, 0.0]          # metres from site.center, in the site frame
+    yaw: 0.0                    # extra yaw relative to the site
