@@ -209,6 +209,14 @@ the user's go-ahead: it is the frozen test reference until its in-game test pass
 8. **Damage set**: boarded windows, broken glass decal, collapsed ceiling tiles - visual only
    unless a gameplay feature needs collision.
 
+**Status (realism pass, SKY D53):** step 2 done (spandrels, fins, cornices, corner piers, recessed
+ribbon windows with frames and sills, louvre blades; balconies still open); step 4 partly (canopy,
+plinth, name sign, door portal; shopfront and steps open); step 5 partly (copings, HVAC with fans and
+panels, water tank, masts, pergola; railings, drains, gravel open); step 6 partly (ceiling grid with
+light panels, door frames, skirting, columns; per-room floor materials and wear open). Steps 1, 3, 7
+and 8 are open. Shared code: `mods/SKY_Skyline/assets/blender/detail.py`, numbers in
+`skyspec.DETAIL`; new buildings reuse it instead of one-off detail.
+
 ## 10. Tooling notes
 
 - Export path today: Blender 4.2 LTS + Arma Toolbox (`skygeo.export_p3d`); the test machine has

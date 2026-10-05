@@ -84,3 +84,22 @@ Each step: diag first where noted, then dedicated; fill the TESTING.md rows and 
 - Tests: `TESTING.md`, `FPS_PROTOCOL.md`, `AFTER_TESTING.md`. Gate reviews: `reviews/`.
 - Asset spec (single source of truth): `assets/skyspec.py`; manifest: `assets/manifest.yaml`.
 - Handoffs: `_handoff/batchN/` (git-ignored; bundle + zip + HANDOFF.txt).
+
+## 6. Realism pass (after the batches, D53/D54)
+
+On request ("make all already created buildings much more realistic and complete") every existing
+building was re-generated with one shared detail kit (`assets/blender/detail.py`, numbers in
+`skyspec.DETAIL`). Gameplay shell unchanged and re-tested.
+
+- **Tower A**: curtain wall with spandrels, deep fins, slab-nose cornices and concrete corner piers;
+  lobby with columns, tile-grid ceiling, entrance canopy with an invented `SKYLINE TOWER` sign,
+  door portal, oak/walnut reception desk, benches and planters; office floor with columns, ceiling,
+  door frame and skirting; helipad roof with coping, two HVAC units and a mast; core with
+  handrails and door frames on every stop.
+- **Apartments / Hotel**: brick / precast-panel facades with recessed ribbon windows (frames,
+  mullion, sill stones, soldier course), plaster ceilings, oak door frames and skirting.
+- **Plant floor**: louvre blades on a dark backing, pipes, control panels. **Roofs**: copings,
+  HVAC units with fans and panels, water tank, mast, benches, pergola with deck.
+- New material `ceiling`; atlas cell `signage`. Budgets raised as hypotheses (D54); gates PASS
+  (`reviews/realism_gates.md`); renders in `reviews/img/`; in-game rows `TESTING.md` §19.
+

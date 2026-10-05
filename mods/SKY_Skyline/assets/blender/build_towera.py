@@ -14,9 +14,10 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.dirname(HERE))
 
+import detail as DT  # noqa: E402
 import skyspec as S  # noqa: E402
 from skygeo import (LOD_FIREGEO, LOD_GEOMETRY, LOD_MEMORY, LOD_RES, LOD_ROADWAY,  # noqa: E402
-                    LOD_SHADOW, LOD_VIEWGEO, Lod, UVBand, UVFit, UVWorld, export_p3d,
+                    LOD_SHADOW, LOD_VIEWGEO, Lod, UVBand, UVFit, UVRect, UVWorld, export_p3d,
                     floor_quads_with_hole, slab_with_hole, wall_x, wall_y)
 
 HW, HD = S.TOWER_A["footprint"][0] / 2, S.TOWER_A["footprint"][1] / 2
@@ -156,18 +157,74 @@ def build_floor_office():
     wt = S.FLOOR_H - S.SLAB_T
     floor_slab(L, "carpet", UV_CARPET, "road_int")
     facade(L, 0.0, wt)
+    DT.curtain_details(L, 0.0, wt)                                   # spandrels, fins, cornice, corner piers (D53)
     # One enclosed office in the SW quadrant (partitions, door opening on its north wall).
     t = S.WALL_T / 2
     for k in ("res0", "res1", "geo", "view", "fire"):
         kw = {"mat": "wall", "uv": UV_WALL} if k.startswith("res") else ({"mat": "pen_masonry"} if k == "fire" else {})
         wall_x(L[k], -HW + CT, -6.0 + t, -6.0 - t, -6.0 + t, 0.0, wt, openings=[(-8.5, -7.5, 0.0, 2.1)], **kw)
         wall_y(L[k], -6.0 - t, -6.0 + t, -HD + CT, -6.0 - t, 0.0, wt, **kw)
+    office = [("x", -6.0, -HW + CT, -6.0 + t, [(-8.5, -7.5)]), ("y", -6.0, -HD + CT, -6.0 - t, [])]
+    DT.door_trims(L, office, t, mat="metal", uv=UV_PAINT)            # aluminium office door frame
+    DT.skirting(L, office, t, mat="metal", uv=UV_PAINT)              # metal: keeps the floor at 6 sections
+    DT.columns(L, [(-6.0, -6.0), (6.0, -6.0), (-6.0, 6.0), (6.0, 6.0)], 0.0, wt)   # structural grid
+    DT.ceiling(L, wt - S.DETAIL["ceiling_drop"])                     # suspended tile ceiling
     lights(L, wt - 0.1)
     L["mem"].point("floor_center", (0.0, -8.0, 0.05))
     building_props(L, 40000.0)
     # Res3 caps: slab edge band so the far LOD reads as a stack of floors.
     L["res3"].box(-HW, HW, -HD, HD, -S.SLAB_T, 0.0, mat="concrete", uv=UV_CONC_REVEAL, skip=("+z", "-z"))
     return list(L.values())
+
+
+def _bar(lod, p0, p1, r, mat, uv):
+    """Thin straight bar between two points (tie rods, handrails): square section 2r, along Y or X+Z."""
+    (x0, y0, z0), (x1, y1, z1) = p0, p1
+    if abs(x1 - x0) < 1e-6:             # runs in the Y-Z plane: offset in X and Z
+        ring = [(-r, -r), (r, -r), (r, r), (-r, r)]
+        verts = [(x0 + a, y0, z0 + b) for a, b in ring] + [(x1 + a, y1, z1 + b) for a, b in ring]
+    else:                               # runs in the X-Z plane: offset in Y and Z
+        ring = [(-r, -r), (r, -r), (r, r), (-r, r)]
+        verts = [(x0, y0 + a, z0 + b) for a, b in ring] + [(x1, y1 + a, z1 + b) for a, b in ring]
+    faces = [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)]
+    lod.solid(verts, faces, mat=mat, uv=uv)
+
+
+def lobby_details(L, wt):
+    """Lobby realism layer (D53): columns, ceiling, entrance canopy + name sign, door portal,
+    benches and planters. Clear of loot points, the entrance and the core zones."""
+    DT.columns(L, [(-6.0, -6.0), (6.0, -6.0), (-6.0, 6.0)], 0.0, wt)     # (6, 6) = security room corner
+    DT.ceiling(L, wt - S.DETAIL["ceiling_drop"])
+    y = -HD
+    # entrance canopy (visual + Fire): 7 x 2.2 m steel plate at 3.35 m, hung on two tie rods
+    for k in ("res0", "res1", "res2"):
+        L[k].box(-3.5, 3.5, y - 2.2, y, 3.35, 3.55, mat="metal", uv=UV_PAINT)
+    L["fire"].box(-3.5, 3.5, y - 2.2, y, 3.35, 3.55, mat="pen_metal")
+    for x in (-3.2, 3.2):
+        _bar(L["res0"], (x, y - 2.05, 3.55), (x, y - 0.02, 5.0), 0.025, "metal", UV_STEEL)
+    # building name sign standing on the canopy (atlas cell "signage", top eighth)
+    for k in ("res0", "res1"):
+        L[k].box(-2.6, 2.6, y - 1.2, y - 1.1, 3.55, 4.2, mat="metal", uv=UV_PAINT, skip=("-z",))
+    u0, v0, u1, v1 = S.atlas_uv("signage")
+    for k in ("res0", "res1"):
+        L[k].quad([(-2.6, y - 1.205, 3.55), (2.6, y - 1.205, 3.55), (2.6, y - 1.205, 4.2), (-2.6, y - 1.205, 4.2)],
+                  (0, -1, 0), "atlas", UVRect(0, 2, (-2.6, 3.55), (2.6, 4.2), (u0, v1 - (v1 - v0) / 8, u1, v1)))
+    # door portal around the entrance (visual)
+    for k in ("res0", "res1"):
+        for x0, x1 in ((-1.62, -1.5), (1.5, 1.62)):
+            L[k].box(x0, x1, y - 0.05, y + CT + 0.05, 0.0, 3.0, mat="metal", uv=UV_STEEL, skip=("-z",))
+    # benches along the side walls, planters flanking the entrance
+    for x0, x1 in ((-HW + 0.5, -HW + 1.0), (HW - 1.0, HW - 0.5)):
+        DT.bench(L, x0, x1, -5.0, -3.0)
+    for cx in (-3.2, 3.2):
+        x0, x1, y0, y1 = cx - 0.45, cx + 0.45, -10.95, -10.05
+        for k in ("res0", "res1", "geo", "view", "fire"):
+            kw = {"mat": "concrete", "uv": UV_CONC_REVEAL} if k.startswith("res") else ({"mat": "pen_concrete"} if k == "fire" else {})
+            L[k].box(x0, x1, y0, y1, 0.0, 0.6, skip=("-z",) if k.startswith("res") else (), **kw)
+        L["res0"].quad([(x0 + 0.05, cx, 0.6), (x1 - 0.05, cx, 0.6), (x1 - 0.05, cx, 1.6), (x0 + 0.05, cx, 1.6)], (0, -1, 0),
+                       "foliage", UVRect(0, 2, (x0 + 0.05, 0.6), (x1 - 0.05, 1.6)), double=True)
+        L["res0"].quad([(cx, y0 + 0.05, 0.6), (cx, y1 - 0.05, 0.6), (cx, y1 - 0.05, 1.6), (cx, y0 + 0.05, 1.6)], (1, 0, 0),
+                       "foliage", UVRect(1, 2, (y0 + 0.05, 0.6), (y1 - 0.05, 1.6)), double=True)
 
 
 def build_lobby():
@@ -191,10 +248,14 @@ def build_lobby():
         for (x0, x1, y0, y1) in skirt:
             L[k].box(x0, x1, y0, y1, -2.5, -S.SLAB_T, **kw)
     facade(L, 0.0, wt, entrances=[("S", -1.5, 1.5, 3.0)], transom=3.0)
+    DT.curtain_details(L, 0.0, wt, side_entrances={"S": [(-1.5, 1.5, 3.0)]}, spandrel=0.0, cornice=False, plinth=0.3)
     L["res3"].box(-HW, HW, -HD, HD, -S.SLAB_T, 0.0, mat="concrete", uv=UV_CONC_REVEAL, skip=("+z", "-z"))
-    # Reception desk.
-    for k in ("res0", "res1"):
-        L[k].box(-1.8, 1.8, -8.2, -7.4, 0.0, 1.1, mat="metal", uv=UV_PAINT)
+    lobby_details(L, wt)
+    # Reception desk: walnut front, oak counter, recessed plinth (collision unchanged: one box).
+    L["res0"].box(-1.8, 1.8, -8.2, -7.4, 0.08, 1.0, mat="wood", uv=DT.UV_WALNUT, skip=("+z",))
+    L["res0"].box(-1.75, 1.75, -8.15, -7.45, 0.0, 0.08, mat="metal", uv=UV_PAINT, skip=("-z", "+z"))
+    L["res0"].box(-1.85, 1.85, -8.25, -7.35, 1.0, 1.1, mat="wood", uv=DT.UV_OAK)
+    L["res1"].box(-1.8, 1.8, -8.2, -7.4, 0.0, 1.1, mat="wood", uv=DT.UV_WALNUT, skip=("-z",))
     L["geo"].box(-1.8, 1.8, -8.2, -7.4, 0.0, 1.1)
     L["fire"].box(-1.8, 1.8, -8.2, -7.4, 0.0, 1.1, mat="pen_wood")
     # Security room (NE corner) with the keycard door on its west wall.
@@ -205,6 +266,7 @@ def build_lobby():
     room_h = 3.0
     hy0 = d["hinge"][1]
     hy1 = hy0 + d["width"]
+    DT.door_trims(L, [("y", rx0, ry0, ry1, [(hy0, hy1)])], t, z_top=d["height"], mat="metal", uv=UV_STEEL)
     for k in ("res0", "res1", "geo", "view", "fire"):
         kw = {"mat": "concrete", "uv": UV_CONC_PANEL} if k.startswith("res") else ({"mat": "pen_concrete"} if k == "fire" else {})
         wall_y(L[k], rx0 - t, rx0 + t, ry0 - t, ry1, 0.0, room_h, openings=[(hy0, hy1, 0.0, d["height"])], **kw)
@@ -240,6 +302,11 @@ def build_roof_helipad():
         for (x0, x1, y0, y1) in [(-HW, HW, -HD, -HD + 0.25), (-HW, HW, HD - 0.25, HD),
                                  (-HW, -HW + 0.25, -HD + 0.25, HD - 0.25), (HW - 0.25, HW, -HD + 0.25, HD - 0.25)]:
             L[k].box(x0, x1, y0, y1, 0.0, par, **kw)
+    DT.coping(L, par, 0.25)
+    # Plant on the open east / west strips (clear of the roof drops at (+-8, +-8)) + antenna mast.
+    DT.unit(L, 9.4, 11.2, -1.6, 1.6, 1.6, grille="-x")
+    DT.unit(L, -11.2, -9.4, -1.6, 1.6, 1.6, grille="+x")
+    DT.mast(L, -10.8, 10.8, 6.0)
     # Helipad marking decal (6.5 m square north of the core).
     pad = (-3.25, 3.25, 4.9, 11.4)
     for k in ("res0", "res1"):
@@ -339,6 +406,9 @@ def build_core():
         L["road"].ramp(xa[0], xa[1], yA0, yA1, z0, zm, mat="road_int", uv=UV_TILE)
         L["road"].ramp(xb[0], xb[1], yA1, yA0, zm, zt, mat="road_int", uv=UV_TILE)
         L["mem"].point("light_stair_%d" % sec, (0.0, iy0 + 0.6, zt - 0.4))
+        # handrails along the well wall (Res0, D53)
+        _bar(L["res0"], (xa[1] - 0.06, yA0, z0 + 0.95), (xa[1] - 0.06, yA1, zm + 0.95), 0.025, "metal", UV_STEEL)
+        _bar(L["res0"], (xb[0] + 0.06, yA1, zm + 0.95), (xb[0] + 0.06, yA0, zt + 0.95), 0.025, "metal", UV_STEEL)
     # Well wall between the flights: one continuous wall (fewer components than one per storey).
     for k in ("res0", "res1", "geo", "fire"):
         kw = {"mat": "concrete", "uv": UV_CONC_REVEAL} if k.startswith("res") else ({"mat": "pen_concrete"} if k == "fire" else {})
@@ -376,6 +446,13 @@ def build_core():
         for k in ("res0",):
             L[k].box(cx1 - 0.05, cx1, 3.4, 3.7, s + 1.0, s + 1.5, mat="metal", uv=UV_STEEL)
             L[k].box(0.85, 1.05, y1, y1 + 0.03, s + 1.1, s + 1.4, mat="metal", uv=UV_STEEL)
+        # door frames on the outer faces (Res0, D53): elevator portal (north), stair door (south)
+        fr = 0.12
+        for (a0, a1, b0, b1) in ((-ed - fr, -ed, s, s + C["door_h"] + fr), (ed, ed + fr, s, s + C["door_h"] + fr),
+                                 (-ed, ed, s + C["door_h"], s + C["door_h"] + fr)):
+            L["res0"].box(a0, a1, y1, y1 + 0.04, b0, b1, mat="metal", uv=UV_STEEL, skip=("-y", "-z"))
+        for (a0, a1, b0, b1) in ((sd0 - 0.1, sd0, s, s + 2.3), (sd1, sd1 + 0.1, s, s + 2.3), (sd0, sd1, s + 2.2, s + 2.3)):
+            L["res0"].box(a0, a1, y0 - 0.04, y0, b0, b1, mat="metal", uv=UV_PAINT, skip=("+y", "-z"))
         m = L["mem"]
         m.point("elev_panel_l%d" % i, (cx1 - 0.1, 3.55, s + 1.25))
         m.point("elev_call_l%d" % i, (0.95, y1 + 0.15, s + 1.25))

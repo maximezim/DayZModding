@@ -327,7 +327,7 @@ MATERIALS.update({
     "windows_lit":    {"rvmat": rvmat("sky_windows_lit"), "co": tex("sky_windows_co")},         # emissive (P7)
     "brick":          {"rvmat": rvmat("sky_brick"), "co": tex("sky_brick_co"), "sheet_m": 3.44,   # metres per U tile
                        "bands": {"bond": (0.0, 0.6), "soldier": (0.6, 0.8), "sill": (0.8, 1.0)}},
-    "concpanel":      {"rvmat": rvmat("sky_concpanel"), "co": tex("sky_concpanel_co"),
+    "concpanel":      {"rvmat": rvmat("sky_concpanel"), "co": tex("sky_concpanel_co"), "sheet_m": 3.0,   # 2 x 2 panels of 1.5 m
                        "bands": {"reveal": (0.0, 0.2), "panel": (0.2, 1.0)}},
 })
 # Wall decals: render-only quads (no collision). The layout tool places them flush in
@@ -415,6 +415,49 @@ for _n, _c, _d in [
 ROOF_DROPS_CLEAR = [(-8.0, -2.0), (8.0, -2.0), (-8.0, 2.0), (8.0, 2.0)]
 ROOF_DROP_POINTS = {CLASS_ROOF: ROOF_DROPS, KIT["Roof_Garden"]["cls"]: ROOF_DROPS_CLEAR,
                     KIT["Roof_Mechanical"]["cls"]: ROOF_DROPS_CLEAR}
+
+
+# ===================================================================== realism pass (D53)
+# Detail layer of assets/blender/detail.py for every existing building module (Tower A lobby /
+# office floor / helipad roof / core and the batch-4 floor and roof variants). Gameplay shell
+# unchanged: footprint, slabs, core openings, doors, memory points, loot points, roof drops.
+MATERIALS.update({
+    # 0.6 m acoustic tile grid with a recessed light panel every 2.4 m (sheet = 2.4 m square)
+    "ceiling": {"rvmat": rvmat("sky_ceiling"), "co": tex("sky_ceiling_co"), "sheet_m": 2.4},
+})
+ATLAS.update({"signage": (2, 2)})        # building name strip (top eighth of the cell), original text
+# Facade skin per floor variant: curtain = Tower A glass curtain wall (+ detail), ribbon_* =
+# masonry with recessed ribbon windows, louvre = plant floor.
+FACADE = {CLASS_FLOOR: "curtain", KIT["Floor_Apartments"]["cls"]: "ribbon_brick",
+          KIT["Floor_Hotel"]["cls"]: "ribbon_panel", KIT["Floor_Mechanical"]["cls"]: "louvre"}
+DETAIL = {
+    "spandrel": 0.3,          # opaque band at the top of each curtain-wall storey (ceiling void)
+    "ceiling_drop": 0.04,     # ceiling plane below the next slab (light memory points stay below it)
+    "fin_step": 3.0, "fin_d": 0.18,          # curtain-wall fins: spacing / projection (Res0)
+    "cornice_d": 0.06,        # slab-nose band projection (visual only, outside the footprint)
+    "corner_pier": 0.4,       # concrete corner piers (collide)
+    "column_r": 0.3,          # interior columns (office floor, lobby)
+    "ribbon": {"sill": 0.9, "head": 2.5, "bay": 3.0, "pier": 0.5},   # ribbon-window facade
+    "reveal_back": 0.03,      # glass sits this far in front of the inner wall face (reveal = CT - this)
+    "frame_w": 0.06, "frame_d": 0.05,        # window frame section
+    "sill_stone": (0.06, 0.02, 0.06),        # (below sill, above sill, projection)
+    "soldier_h": 0.22,        # brick soldier course over each window
+    "trim_w": 0.08, "trim_d": 0.02,          # door architraves
+    "louvre_step": 0.25,      # plant-floor louvre blade spacing (Res0)
+}
+# Budget hypotheses for the realism pass (D53; perf gate re-checks; confirm with FPS_PROTOCOL).
+# Res0 grows (frames, fins, trims) but Res1 stays at about half and Res2 / Res3 at outer faces
+# only, so the cost at distance (many towers) barely moves; sections stay <= 8 per module.
+BUDGETS["floor"].update({"res0": 5000, "res1": 2500, "res2": 250, "res3": 24, "sections_res0": 8})
+BUDGETS["roof"].update({"res0": 1500, "res1": 600, "res2": 150, "geo_comps": 20, "geo_tris": 240, "sections_res0": 5})
+TOWER_A_BUDGETS = {
+    CLASS_LOBBY: {"res0": 6000, "res1": 3000, "res2": 300, "res3": 40, "shadow": 120, "geo_comps": 36, "geo_tris": 500,
+                  "sections_res0": 8},
+    CLASS_FLOOR: dict(BUDGETS["floor"]),
+    CLASS_CORE: {"res0": 2500, "res1": 1000, "res2": 150, "res3": 20, "shadow": 24, "geo_comps": 80, "geo_tris": 1000,
+                 "sections_res0": 3},
+    CLASS_ROOF: dict(BUDGETS["roof"]),
+}
 
 
 # ===================================================================== batch 5: economy + placement prep

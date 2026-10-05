@@ -431,6 +431,15 @@ def atlas(size, out):
     d.rectangle([x0, y0, x1, y0 + c // 8], fill=(30, 30, 30))
     d.rectangle([x0 + c // 6, y0 + c // 3, x1 - c // 6, y0 + 2 * c // 3], fill=(240, 240, 235))
     d.text((x0 + c // 5, y0 + c // 3 + c // 12), "FIRE", fill=(170, 25, 25), font=f_big)
+    # (2,2) signage: building name strip in the top eighth of the cell (original text, D53)
+    x0, y0, x1, y1 = cell(2, 2)
+    d.rectangle([x0, y0, x1, y1], fill=(36, 38, 42))
+    d.rectangle([x0, y0, x1, y0 + c // 8], fill=(22, 24, 28))
+    d.rectangle([x0 + 3, y0 + 3, x1 - 3, y0 + c // 8 - 3], outline=(150, 152, 156), width=2)
+    fs = _font(c // 14)
+    tb = d.textbbox((0, 0), "SKYLINE  TOWER", font=fs)
+    d.text((x0 + (c - (tb[2] - tb[0])) // 2 - tb[0], y0 + (c // 8 - (tb[3] - tb[1])) // 2 - tb[1]), "SKYLINE  TOWER",
+           fill=(232, 230, 222), font=fs)
     img.save(os.path.join(out, "sky_atlas_co.png"))   # nohq/smdi/as are procedural in sky_atlas.rvmat
 
 
@@ -652,6 +661,36 @@ def fabric(size, out):
     save(normal_from_height(0.3 * weave + 0.2 * n, 1.0), out, "sky_fabric_nohq")
 
 
+# ------------------------------------------------------------------ realism pass (D53)
+def ceiling(size, out):
+    """Suspended ceiling (1024, sheet = MATERIALS["ceiling"]["sheet_m"] = 2.4 m): 4 x 4 grid of
+    0.6 m mineral tiles on a white T-bar grid, one 0.6 x 1.2 m recessed light panel per sheet."""
+    size = min(size, 1024)
+    n = fbm(size, 241, octaves=4, base=16)
+    col = gray(0.86 + 0.05 * (n - 0.5))
+    h = 0.2 * n
+    rng = np.random.default_rng(251)
+    speck = rng.random((size, size)) < 0.04                     # fissured mineral tile
+    col[speck] *= 0.9
+    h[speck] -= 0.3
+    t = size // 4
+    g = max(3, size // 160)                                      # 15 mm T-bar
+    for k in range(5):
+        p = min(size - g, k * t)
+        col[:, p:p + g] = 0.95
+        col[p:p + g, :] = 0.95
+        h[:, p:p + g] += 0.5
+        h[p:p + g, :] += 0.5
+    x0, y0 = t + g, t + g                                        # light panel over tiles (1,1)-(1,2)
+    x1, y1 = 2 * t - g, 3 * t - g
+    col[y0:y1, x0:x1] = 0.98
+    for yy in range(y0 + t // 8, y1, t // 4):                    # prismatic louvres
+        col[yy:yy + 2, x0:x1] = 0.8
+    h[y0:y1, x0:x1] -= 0.6
+    save(to_rgb(col), out, "sky_ceiling_co")
+    save(normal_from_height(h, 1.5), out, "sky_ceiling_nohq")
+
+
 GENERATORS = {
     "concrete": concrete, "metal": metal, "glass": glass, "glassfar": glassfar,
     "tile": lambda s, o: tiled(s, o, "sky_tile", 5, (0.72, 0.71, 0.68), (0.45, 0.45, 0.43), max(3, s // 400), 41, 0.3, 0.5),
@@ -659,7 +698,7 @@ GENERATORS = {
     "roofmark": roofmark, "keycards": keycards,
     "paver": paver, "roadmark": roadmark, "rust": rust, "foliage": foliage, "atlas": atlas, "billboards": billboards,
     "decals": decals, "windows": windows, "brick": brick, "concpanel": concpanel,
-    "wood": wood, "fabric": fabric,
+    "wood": wood, "fabric": fabric, "ceiling": ceiling,
 }
 
 

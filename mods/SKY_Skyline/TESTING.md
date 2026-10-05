@@ -386,7 +386,7 @@ site filled in) or single pieces via a scratch objectSpawnersArr. RPT gate as in
 | W-03 | Swap lit/unlit per instance via `hiddenSelectionsMaterials` (D23) | The swap works without a script. No extra section is visible in the diag stats. | | |
 | W-04 | View at 1024 at 5 m | Cells are acceptably sharp (~170 px/m). | | |
 
-### 17.3 Facade sheets (no consumer yet)
+### 17.3 Facade sheets (used by the apartment / hotel facades since D53, see §19)
 | ID | Steps | Expected | Diag | Dedicated |
 |---|---|---|---|---|
 | F2-01 | Apply `sky_brick` / `sky_concpanel` to a test plane | Procedural AS/SMDI look right (no black or over-shiny surface). Brick reads 21.5 cm at a 3.44 m U tile (D20). | | |
@@ -394,7 +394,7 @@ site filled in) or single pieces via a scratch objectSpawnersArr. RPT gate as in
 ### 17.4 Regression
 | ID | Steps | Expected | Diag | Dedicated |
 |---|---|---|---|---|
-| R2-01 | Tower A lobby/office/core/roof and keycards at the same spot as before batch 2 | Identical look (no Tower A file changed since 681ecdc). Elevator/keycard actions as in `TESTING.md`. | | |
+| R2-01 | Tower A lobby/office/core/roof and keycards at the same spot as before batch 2 | Identical look up to D53 (no Tower A file changed since 681ecdc until the realism pass; after D53 use §19 for the look, gameplay unchanged). Elevator/keycard actions as in `TESTING.md`. | | |
 | R2-02 | Batch 1 billboard A-D, roadmark and street tiles | Unchanged. Billboard variants still swap. | | |
 | R2-03 | Vanilla wall decals or graffiti nearby (if any) | Unaffected. No vanilla texture overridden. | | |
 
@@ -433,6 +433,25 @@ Static results: `reviews/batch5_qa.md`. Deploy the district template on a survey
 
 ---
 
+## 19. Realism pass (D53)
+
+Static results: `reviews/realism_gates.md`; preview renders in `reviews/img/` (`exterior`, `entrance`,
+`lobby`, `office`, `facade_close`, `roof`, `realism_*`). Use the district template or the Tower A slice
+with `floors:` / `roof:` set to each variant. Gameplay rows §1-§15 must still pass unchanged.
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| RP-01 | Walk around Tower A at 5, 50 and 300 m | Corner piers, fins, cornices and spandrel bands read at 50 m; no flicker (z-fighting) on the cornice / spandrel / corner pier; no glass blending beyond Res1 (glassfar only). | | |
+| RP-02 | Lobby: walk in through the entrance, around the columns, benches and planters | Entrance clear under the canopy; canopy and sign not standable (no Geometry); sign reads `SKYLINE TOWER`, not mirrored; columns / benches / planters collide; loot points still spawn (§8). | | |
+| RP-03 | Office floor: look up, walk the SW office door | Tile ceiling with light panels, not visible from the floor above (single-sided); door frame and skirting do not narrow the 1 m opening; columns collide. | | |
+| RP-04 | Apartment and hotel floors from outside and inside | Brick / precast facade, windows recessed with frames, sill stones and (brick) soldier course; plaster ceiling; oak door frames on every door. Brick courses ~7.5 cm (UVTrim true scale). | | |
+| RP-05 | Shoot at an apartment / hotel facade pier, sill band and a window from inside | Piers and bands stop rifle rounds (masonry / concrete); windows pass as glass (P3 `PENETRATION`). | | |
+| RP-06 | Prone behind an apartment sill band (0.9 m), viewed from outside | Not visible through the band (View Geometry); visible through the window above it. | | |
+| RP-07 | Plant floor | Louvre blades with dark backing, pipes overhead (no collision at head height), control panels on the units. | | |
+| RP-08 | Roofs: helipad, garden, mechanical | Copings; helipad HVAC units and mast; garden benches and pergola (posts collide, beams do not); mechanical units with fans and panels, water tank collides; all roof-drop crates land clear (§10). | | |
+| RP-09 | Core: stairs and every stop | Handrail along the well wall; elevator and stair door frames on every stop; doors open fully past the frames. | | |
+| RP-10 | Diag stats at the tower (FPS_PROTOCOL S2) | Sections / tris within D54; client FPS within the protocol thresholds against the pre-D53 build. | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -456,4 +475,5 @@ Static results: `reviews/batch5_qa.md`. Deploy the district template on a survey
 | Economy / district §18 | | | |
 | Validation script §0b (summary PASS, 0 SKY FAIL lines) | | | |
 | Regression §12 | | | |
+| Realism pass §19 | | | |
 | FPS protocol (`FPS_PROTOCOL.md` §4 thresholds) | | | |
