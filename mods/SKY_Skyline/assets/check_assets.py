@@ -44,7 +44,7 @@ def main():
         errs, over = [], []
         is_item = e["p3d"].startswith("addons/sky_items")
         # kit asset: 3+ Res, Geometry, Fire Geometry; floor/roof variants are enterable modules
-        is_prop = "category" in e and e["category"] not in ("floor", "roof", "city", "city_tall")
+        is_prop = "category" in e and e["category"] not in ("floor", "roof", "city", "city_tall", "city_large", "core_tall")
         if is_prop:
             flat = e["category"] in ("flat", "decal")   # decals: render only, must NOT collide
             need = (["Roadway"] if e["category"] == "flat" else []) if flat else ["Geometry", "Fire Geometry"]

@@ -10,6 +10,38 @@ class Land_SKY_City_AptBlockTall_Intact extends SKY_LitBuilding
 class Land_SKY_City_AptBlock_Intact extends SKY_LitBuilding
 {}
 
+class Land_SKY_City_Bank_Intact extends SKY_LitBuilding
+{
+	override protected typename SkyLightType()
+	{
+		return SKY_OfficeLight;
+	}
+}
+
+class Land_SKY_City_CafeBrick_Intact extends SKY_LitBuilding
+{
+	override protected typename SkyLightType()
+	{
+		return SKY_OfficeLight;
+	}
+}
+
+class Land_SKY_City_Cafe_Intact extends SKY_LitBuilding
+{
+	override protected typename SkyLightType()
+	{
+		return SKY_OfficeLight;
+	}
+}
+
+class Land_SKY_City_Church_Intact extends SKY_LitBuilding
+{
+	override protected typename SkyLightType()
+	{
+		return SKY_OfficeLight;
+	}
+}
+
 class Land_SKY_City_Clinic_Intact extends SKY_LitBuilding
 {
 	override protected typename SkyLightType()
@@ -27,6 +59,28 @@ class Land_SKY_City_CornerPharmacy_Intact extends SKY_LitBuilding
 class Land_SKY_City_CornerShop_Intact extends SKY_LitBuilding
 {}
 
+class Land_SKY_City_CourtyardBlockBrick_Intact extends SKY_LitBuilding
+{}
+
+class Land_SKY_City_CourtyardBlock_Intact extends SKY_LitBuilding
+{}
+
+class Land_SKY_City_DepartmentStore_Intact extends SKY_LitBuilding
+{
+	override protected typename SkyLightType()
+	{
+		return SKY_OfficeLight;
+	}
+}
+
+class Land_SKY_City_FactoryHall_Intact extends SKY_LitBuilding
+{
+	override protected typename SkyLightType()
+	{
+		return SKY_OfficeLight;
+	}
+}
+
 class Land_SKY_City_FireStation_Intact extends SKY_LitBuilding
 {
 	override protected typename SkyLightType()
@@ -36,6 +90,22 @@ class Land_SKY_City_FireStation_Intact extends SKY_LitBuilding
 }
 
 class Land_SKY_City_GarageBlock_Intact extends SKY_LitBuilding
+{
+	override protected typename SkyLightType()
+	{
+		return SKY_OfficeLight;
+	}
+}
+
+class Land_SKY_City_GasStation_Intact extends SKY_LitBuilding
+{
+	override protected typename SkyLightType()
+	{
+		return SKY_OfficeLight;
+	}
+}
+
+class Land_SKY_City_Hospital_Intact extends SKY_LitBuilding
 {
 	override protected typename SkyLightType()
 	{
@@ -65,7 +135,23 @@ class Land_SKY_City_OfficeTall_Intact extends SKY_LitBuilding
 	}
 }
 
+class Land_SKY_City_ParkingGarage_Intact extends SKY_LitBuilding
+{
+	override protected typename SkyLightType()
+	{
+		return SKY_OfficeLight;
+	}
+}
+
 class Land_SKY_City_Police_Intact extends SKY_LitBuilding
+{
+	override protected typename SkyLightType()
+	{
+		return SKY_OfficeLight;
+	}
+}
+
+class Land_SKY_City_PostOffice_Intact extends SKY_LitBuilding
 {
 	override protected typename SkyLightType()
 	{
@@ -81,6 +167,14 @@ class Land_SKY_City_RowhouseRender_Intact extends SKY_LitBuilding
 
 class Land_SKY_City_Rowhouse_Intact extends SKY_LitBuilding
 {}
+
+class Land_SKY_City_School_Intact extends SKY_LitBuilding
+{
+	override protected typename SkyLightType()
+	{
+		return SKY_OfficeLight;
+	}
+}
 
 class Land_SKY_City_ShedBrick_Intact extends SKY_LitBuilding
 {}
@@ -116,6 +210,14 @@ class Land_SKY_City_Supermarket_Intact extends SKY_LitBuilding
 	}
 }
 
+class Land_SKY_City_TownHall_Intact extends SKY_LitBuilding
+{
+	override protected typename SkyLightType()
+	{
+		return SKY_OfficeLight;
+	}
+}
+
 class Land_SKY_City_VillaBrick_Intact extends SKY_LitBuilding
 {}
 
@@ -124,6 +226,14 @@ class Land_SKY_City_VillaStone_Intact extends SKY_LitBuilding
 
 class Land_SKY_City_Villa_Intact extends SKY_LitBuilding
 {}
+
+class Land_SKY_City_WarehouseLarge_Intact extends SKY_LitBuilding
+{
+	override protected typename SkyLightType()
+	{
+		return SKY_OfficeLight;
+	}
+}
 
 class Land_SKY_City_WarehouseSmall_Intact extends SKY_LitBuilding
 {

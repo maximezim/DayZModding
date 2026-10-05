@@ -502,6 +502,21 @@ Static results: `reviews/city_wave2_gates.md`; renders `reviews/img/city2_*.png`
 | CD-05 | Night on the generated district | Only intact buildings lit (P10) | | |
 | CD-06 | `city_template.yaml` (target terrain) | `city_objects.csv` written; importing it into a custom terrain is P11 | | |
 
+## 23. City wave 3, tall towers, landmark blocks (D58)
+
+Static results: `reviews/city_wave3_gates.md`; renders `reviews/img/city3_*.png`, `reviews/img/district3_*.png`.
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| CW-01 | Spawn each wave-3 archetype (3 states) and run CB-01..CB-10 on it | As section 21; double-corridor buildings: every room reachable from the corridor, ruins keep the corridor | | |
+| CW-02 | Courtyard block: street door -> passage -> gallery -> yard gate; stairs to every floor | Walk the ring gallery on every floor; yard is open to the sky, no slab over it | | |
+| CW-03 | Parking garage: walk up the ramps deck by deck, then the stair | Ramps walkable (Roadway), rails stop falls at every opening; U-turns at the strip ends | | |
+| CW-04 | Church, town hall, bank: front door on the axis, tower / cupola / pediment | No climb route onto roofs, tower or cupola; spire and fins have no player collision issues | | |
+| CW-05 | Gas station and cafe forecourts on a surveyed slope | Forecourt sits on the sidewalk, skirt hides the ground drop; canopy / parasols out of reach | | |
+| CW-06 | Substation, water tower, metro entrances A/B | Not enterable (substation fence breached only when ruined), no loot, ladder is visual | | |
+| CW-07 | Tall towers: layout with `core: T15`, `T23`, `T33` + `roof: crown` | Elevator serves every stop (LOBBY / ROOF / UP / DOWN), doors at every stop; crown lights at night | | |
+| CW-08 | `city_template.yaml` (closed street cells, landmark blocks) | `city_objects.csv` written; merged blocks hold the landmarks; no street tile under a building | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |

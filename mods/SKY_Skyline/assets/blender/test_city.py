@@ -60,8 +60,8 @@ def flood(P, lods, l, cell=0.1, radius=0.3):
         cx = x0 + (i + 0.5) * cell
         for j in range(ny):
             cy = y0 + (j + 0.5) * cell
-            if not any(b[0] <= cx <= b[1] and b[2] <= cy <= b[3] for b in floor):
-                continue
+            if not any(b[0] <= cx <= b[1] and b[2] <= cy <= b[3] for b in floor) or P.in_hole(cx, cy, l):
+                continue                                  # no slab (stair / atrium / ramp / yard opening)
             free[i][j] = not any(b[0] < cx < b[1] and b[2] < cy < b[3] for b in block)
     if l == 0:
         seed = ((P.entry[0] + P.entry[1]) / 2, P.iy0 + 0.35)
@@ -122,10 +122,35 @@ def test_lot(name):
     check(not S.KIT[name]["doors"] and S.KIT[name]["cls"] not in C.LOOT_OUT, "%s: lots carry no door / loot" % name)
 
 
+def test_piece(name, hw, hd):
+    """Not-enterable pieces (substation, water tower, metro entrances): LOD set, watertight parts,
+    Geometry inside the footprint and above the skirt, no door / loot."""
+    lods = {l.name: l for l in C.BUILDERS[name]()}
+    for k in NEED:
+        check(k in lods and lods[k].verts, "%s: missing LOD %s" % (name, k))
+    for k in ("geo", "view", "fire"):
+        for g in lods[k].groups:
+            if g.startswith("Component"):
+                check(watertight(lods[k], g), "%s %s %s is not watertight" % (name, k, g))
+    xs = [v[0] for v in lods["geo"].verts]
+    ys = [v[1] for v in lods["geo"].verts]
+    zs = [v[2] for v in lods["geo"].verts]
+    check(min(xs) >= -hw - 1e-6 and max(xs) <= hw + 1e-6 and min(ys) >= -hd - 1e-6 and max(ys) <= hd + 1e-6,
+          "%s: Geometry leaves the %gx%g footprint" % (name, 2 * hw, 2 * hd))
+    check(min(zs) >= -S.CITY_STYLE["skirt"] - 1e-6, "%s: Geometry below the foundation skirt" % name)
+    check(not S.KIT[name]["doors"] and S.KIT[name]["cls"] not in C.LOOT_OUT, "%s: pieces carry no door / loot" % name)
+
+
 def test_class(name, fresh_loot):
     e = S.KIT[name]
     if e["city"].get("lot"):
         return test_lot(name)
+    if e["city"].get("piece"):
+        _k, w, d = S.CITY_PIECES[e["city"]["piece"]]
+        return test_piece(name, w / 2, d / 2)
+    if S.CITY_ARCHETYPES[e["city"]["archetype"]].get("special"):
+        A = S.CITY_ARCHETYPES[e["city"]["archetype"]]
+        return test_piece(name, A["w"] / 2, A["d"] / 2)
     arch, state = e["city"]["archetype"], e["city"]["ruin"]
     P = C.Plan(arch, state)
     lods = {l.name: l for l in C.BUILDERS[name]()}
@@ -141,8 +166,8 @@ def test_class(name, fresh_loot):
     xs = [v[0] for v in geo.verts]
     ys = [v[1] for v in geo.verts]
     zs = [v[2] for v in geo.verts]
-    check(min(xs) >= -P.hw - 1e-6 and max(xs) <= P.hw + 1e-6 and min(ys) >= -P.hd - 1e-6 and max(ys) <= P.hd + 1e-6,
-          "%s: Geometry leaves the %gx%g footprint" % (name, P.W, P.D))
+    check(min(xs) >= P.fx0 - 1e-6 and max(xs) <= P.fx1 + 1e-6 and min(ys) >= P.fy0 - 1e-6 and max(ys) <= P.fy1 + 1e-6,
+          "%s: Geometry leaves the %gx%g footprint" % (name, P.fx1 - P.fx0, P.fy1 - P.fy0))
     check(min(zs) >= -S.CITY_STYLE["skirt"] - 1e-6, "%s: Geometry below the foundation skirt" % name)
     # doors
     for d in e.get("doors", []):

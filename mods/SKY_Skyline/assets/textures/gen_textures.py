@@ -930,20 +930,24 @@ def rubble(size, out):
 
 
 SIGNS = ["POLICE", "PHARMACY", "MARKET", "CAFE  ROSA", "OFFICES", "DEPOT  3", "BAKERY", "HARDWARE",
-         "CLINIC", "FIRE  STATION", "AUTO  REPAIR", "NEWS"]
+         "CLINIC", "FIRE  STATION", "AUTO  REPAIR", "NEWS", "FUEL", "BANK", "GALERIE  NOVA", "HOSPITAL",
+         "SCHOOL  No 4", "TOWN  HALL", "POST", "METRO"]
 
 
 def signs(size, out):
-    """Building sign strips (1024): 12 horizontal bands, invented names, enamel / backlit
+    """Building sign strips (2048): 20 horizontal bands, invented names, enamel / backlit
     styles; mapped one band per sign (skyspec.SIGN_BAND)."""
-    size = min(size, 1024)
+    size = min(size, 2048)
     img = Image.new("RGB", (size, size), (30, 30, 34))
     d = ImageDraw.Draw(img)
     styles = [((20, 40, 110), (240, 240, 240)), ((20, 120, 70), (245, 245, 240)), ((170, 40, 35), (250, 240, 220)),
               ((60, 30, 25), (240, 200, 120)), ((40, 44, 50), (230, 230, 225)), ((200, 160, 30), (30, 30, 30)),
               ((120, 70, 40), (250, 236, 200)), ((30, 60, 90), (250, 200, 60)),
               ((240, 240, 236), (20, 110, 60)), ((170, 25, 25), (250, 250, 245)), ((30, 30, 34), (240, 170, 30)),
-              ((235, 225, 200), (40, 40, 44))]
+              ((235, 225, 200), (40, 40, 44)),
+              ((200, 30, 30), (250, 250, 250)), ((25, 40, 70), (225, 195, 120)), ((20, 20, 22), (235, 235, 235)),
+              ((245, 245, 245), (190, 25, 30)), ((30, 70, 120), (250, 250, 245)), ((210, 200, 175), (50, 45, 40)),
+              ((240, 200, 30), (20, 40, 110)), ((150, 20, 30), (250, 250, 250))]
     for i, txt in enumerate(SIGNS):
         bg, fg = styles[i]
         y0 = int(i * size / len(SIGNS))                       # same band edges as skyspec.SIGN_BAND

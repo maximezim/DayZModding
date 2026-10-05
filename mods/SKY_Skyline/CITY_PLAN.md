@@ -23,14 +23,14 @@ lots concentrate along the 'front line' streets, intact ones in the residential 
 
 ## Progress
 
-`[#############.......]` 65 % of the unique models
+`[####################]` 100 % of the unique models
 
 | | Built | Target | % |
 |---|---|---|---|
-| building types started | 18 | 35 | 51 % |
-| type variants | 38 | 60 | 63 % |
-| unique models | 102 | 156 | 65 % |
-| placed buildings a generator could fill today (one variant per type repeated) | 590 | 651 | 91 % |
+| building types started | 35 | 35 | 100 % |
+| type variants | 60 | 60 | 100 % |
+| unique models | 156 | 156 | 100 % |
+| placed buildings a generator could fill today (one variant per type repeated) | 651 | 651 | 100 % |
 
 Nothing has run in DayZ yet: every built model is `built-unverified` until its TESTING.md rows pass
 and its id is added to `skyspec.CITY_TESTED`.
@@ -38,42 +38,43 @@ and its id is added to `skyspec.CITY_TESTED`.
 ## Catalog
 
 kind: `proc` = procedural archetype (`build_city.py`, 3 ruin states each), `modular` = Tower A
-system, `kit` = small piece. Wave = planned production batch (0 = existing, 1 = this batch).
+system (lobby / floors / roof on a stair + elevator core of the tower's height), `kit` = small piece.
+Wave = production batch (0 = Tower A, 1-2 = D56 / D57, 3-4 = D58).
 
 | Type | Group | Footprint (m) | Floors | Kind | Variants built | Models built | Placed | Wave | Status | Note |
 |---|---|---|---|---|---|---|---|---|---|---|
 | Rowhouse | residential | 7.2x12 | 3 | proc | 3 / 3 | 9 / 9 | 120 | 1 | built-unverified | brick / render / panel skins, 2-4 floors |
 | AptBlock | residential | 18x12 | 5 | proc | 3 / 3 | 9 / 9 | 45 | 1 | built-unverified | 4 / 5 / 8 floors |
 | Villa | residential | 10x10 | 2 | proc | 3 / 3 | 9 / 9 | 50 | 2 | built-unverified | detached house with garden wall |
-| CourtyardBlock | residential | 30x30 | 5 | proc | 0 / 2 | 0 / 6 | 8 | 3 | planned | perimeter block, inner yard |
+| CourtyardBlock | residential | 30x30 | 5 | proc | 2 / 2 | 6 / 6 | 8 | 3 | built-unverified | perimeter block, inner yard |
 | TowerResidential | residential | 24x24 | 7 | modular | 1 / 1 | 1 / 1 | 6 | 0 | built-unverified | Tower A core + apartment / hotel floors |
 | CornerShop | mixed | 12x12 | 3 | proc | 3 / 3 | 9 / 9 | 30 | 1 | built-unverified | bakery / pharmacy / hardware signs |
 | ShopRow | mixed | 9x14 | 4 | proc | 4 / 4 | 12 / 12 | 80 | 2 | built-unverified | shops on the ground floor, flats above |
 | OfficeMid | commercial | 18x18 | 6 | proc | 2 / 2 | 6 / 6 | 20 | 1 | built-unverified | 6 / 9 floors |
-| OfficeTower | commercial | 24x24 | 25 | modular | 0 / 2 | 0 / 2 | 3 | 4 | planned | needs a taller core (D38) |
-| HQLandmark | commercial | 30x30 | 35 | modular | 0 / 1 | 0 / 1 | 1 | 4 | planned | the one 4K-facade asset |
+| OfficeTower | commercial | 24x24 | 25 | modular | 2 / 2 | 2 / 2 | 3 | 4 | built-unverified | Tower A modules on tall cores T15 / T23 (17 / 25 storeys) |
+| HQLandmark | commercial | 24x24 | 35 | modular | 1 / 1 | 1 / 1 | 1 | 4 | built-unverified | core T33 + crown roof (pylons, fins, spire) |
 | TowerOffice | commercial | 24x24 | 7 | modular | 1 / 1 | 1 / 1 | 4 | 0 | built-unverified | Tower A as built |
 | Supermarket | commercial | 24x20 | 1 | proc | 2 / 2 | 6 / 6 | 6 | 2 | built-unverified | shelf aisles, loading bay |
-| GasStation | commercial | 20x14 | 1 | proc | 0 / 1 | 0 / 3 | 4 | 2 | planned | shop + pump canopy |
-| Cafe | commercial | 12x10 | 1 | proc | 0 / 2 | 0 / 6 | 10 | 2 | planned | pavilion with terrace |
-| Bank | commercial | 16x14 | 3 | proc | 0 / 1 | 0 / 3 | 3 | 3 | planned | vault (keycard tier 3) |
-| DepartmentStore | commercial | 40x30 | 3 | proc | 0 / 1 | 0 / 3 | 1 | 3 | planned | atrium, escalators as stairs |
+| GasStation | commercial | 20x14 | 1 | proc | 1 / 1 | 3 / 3 | 4 | 2 | built-unverified | shop + pump canopy |
+| Cafe | commercial | 12x10 | 1 | proc | 2 / 2 | 6 / 6 | 10 | 2 | built-unverified | pavilion with terrace |
+| Bank | commercial | 16x14 | 3 | proc | 1 / 1 | 3 / 3 | 3 | 3 | built-unverified | vault (keycard tier 3) |
+| DepartmentStore | commercial | 40x30 | 3 | proc | 1 / 1 | 3 / 3 | 1 | 3 | built-unverified | atrium, escalators as stairs |
 | Police | civic | 20x14 | 2 | proc | 1 / 1 | 3 / 3 | 3 | 1 | built-unverified | cells, armoury loot |
 | FireStation | civic | 22x16 | 2 | proc | 1 / 1 | 3 / 3 | 2 | 2 | built-unverified | engine bays |
 | Clinic | civic | 16x14 | 2 | proc | 1 / 1 | 3 / 3 | 4 | 2 | built-unverified | Medic loot |
-| Hospital | civic | 40x24 | 5 | proc | 0 / 1 | 0 / 3 | 1 | 3 | planned | wards, Medic loot |
-| School | civic | 30x16 | 3 | proc | 0 / 1 | 0 / 3 | 2 | 3 | planned | School usage |
-| TownHall | civic | 24x18 | 3 | proc | 0 / 1 | 0 / 3 | 1 | 3 | planned | landmark square |
-| Church | civic | 14x24 | 1 | proc | 0 / 1 | 0 / 3 | 1 | 3 | planned | landmark, tower |
-| PostOffice | civic | 14x12 | 2 | proc | 0 / 1 | 0 / 3 | 2 | 3 | planned |  |
-| Warehouse | industrial | 24x18 | 1 | proc | 2 / 3 | 6 / 9 | 30 | 1 | in progress | 18x12 / 24x18 / 36x24 |
+| Hospital | civic | 40x24 | 5 | proc | 1 / 1 | 3 / 3 | 1 | 3 | built-unverified | wards, Medic loot |
+| School | civic | 30x16 | 3 | proc | 1 / 1 | 3 / 3 | 2 | 3 | built-unverified | School usage |
+| TownHall | civic | 24x18 | 3 | proc | 1 / 1 | 3 / 3 | 1 | 3 | built-unverified | landmark square |
+| Church | civic | 14x24 | 1 | proc | 1 / 1 | 3 / 3 | 1 | 3 | built-unverified | landmark, tower |
+| PostOffice | civic | 14x12 | 2 | proc | 1 / 1 | 3 / 3 | 2 | 3 | built-unverified |  |
+| Warehouse | industrial | 24x18 | 1 | proc | 3 / 3 | 9 / 9 | 30 | 1 | built-unverified | 18x12 / 24x18 / 36x24 |
 | Workshop | industrial | 12x10 | 1 | proc | 2 / 2 | 6 / 6 | 30 | 2 | built-unverified | garage / car repair |
-| FactoryHall | industrial | 36x24 | 1 | proc | 0 / 1 | 0 / 3 | 4 | 3 | planned | sawtooth roof |
-| ParkingGarage | industrial | 30x18 | 4 | proc | 0 / 1 | 0 / 3 | 4 | 3 | planned | ramps, cars |
-| Substation | industrial | 10x8 | 1 | proc | 0 / 1 | 0 / 3 | 6 | 2 | planned | fenced, not enterable |
-| WaterTower | industrial | 6x6 | 1 | kit | 0 / 1 | 0 / 1 | 2 | 3 | planned |  |
+| FactoryHall | industrial | 36x24 | 1 | proc | 1 / 1 | 3 / 3 | 4 | 3 | built-unverified | sawtooth roof |
+| ParkingGarage | industrial | 30x24 | 4 | proc | 1 / 1 | 3 / 3 | 4 | 3 | built-unverified | ramps, cars |
+| Substation | industrial | 10x8 | 1 | proc | 1 / 1 | 3 / 3 | 6 | 2 | built-unverified | fenced, not enterable |
+| WaterTower | industrial | 6x6 | 1 | kit | 1 / 1 | 1 / 1 | 2 | 3 | built-unverified |  |
 | Kiosk | small | 3x2.4 | 1 | proc | 2 / 2 | 6 / 6 | 30 | 2 | built-unverified | news / coffee |
-| MetroEntrance | small | 4x6 | 1 | kit | 0 / 2 | 0 / 2 | 8 | 3 | planned | stairs down (no tunnel) |
+| MetroEntrance | small | 4x6 | 1 | kit | 2 / 2 | 2 / 2 | 8 | 3 | built-unverified | sealed at street level (no terrain hole) |
 | RubbleLot | ruin | 12x12 | - | kit | 4 / 4 | 4 / 4 | 50 | 2 | built-unverified | collapsed lot fillers |
 | GarageBlock | industrial | 18x6 | 1 | proc | 1 / 1 | 3 / 3 | 40 | 2 | built-unverified | row of lock-up garages |
 | Shed | small | 4x3 | 1 | proc | 2 / 2 | 6 / 6 | 40 | 2 | built-unverified | yard sheds / annexes |

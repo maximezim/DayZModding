@@ -77,13 +77,20 @@ def main():
     out = argv[argv.index("--out") + 1]
     tex = argv[argv.index("--tex") + 1] if "--tex" in argv else None
     shots = (argv[argv.index("--shots") + 1] if "--shots" in argv else "aerial,street_a,street_b,night").split(",")
+    # --cams "name=x,y,z,tx,ty,tz,lens;..." overrides / adds camera positions (Blender frame, see above);
+    # a shot whose name ends in "_night" renders at night
+    cams = {}
+    for c in (argv[argv.index("--cams") + 1].split(";") if "--cams" in argv else []):
+        n, v = c.split("=")
+        f = [float(x) for x in v.split(",")]
+        cams[n] = ((f[0], f[1], f[2]), (f[3], f[4], f[5]), f[6])
     os.makedirs(out, exist_ok=True)
     B = builders()
     cx = sum(o["pos"][0] for o in objs) / len(objs)
     cz = sum(o["pos"][2] for o in objs) / len(objs)
     y0 = min(o["pos"][1] for o in objs)
     for shot in shots:
-        PT.NIGHT = shot == "night"
+        PT.NIGHT = shot == "night" or shot.endswith("_night")
         bpy.ops.wm.read_factory_settings(use_empty=True)
         load_arma_toolbox()
         cache, protos, mems = {}, {}, {}
@@ -123,7 +130,9 @@ def main():
         PT.scene_setup()
         sc = bpy.context.scene
         sc.render.resolution_x, sc.render.resolution_y = 1600, 900
-        if shot in ("aerial", "night"):
+        if shot in cams:
+            PT.camera(*cams[shot])
+        elif shot in ("aerial", "night"):
             PT.camera((-150.0, -170.0, 125.0), (0.0, 5.0, 0.0), 30)
         elif shot == "street_a":
             PT.camera((-30.0, -50.5, 2.2), (30.0, -43.0, 6.0), 22)

@@ -105,6 +105,10 @@ record plus, if it has a new use, a floor plan; the look stays coherent by const
 variants, unique models, placed buildings) and the live progress; keep it current in every batch.
 Placing the stock: `placement/city_fill.py` packs blocks by zone (`skyspec.CITY_ZONES`, landmarks explicit,
 deterministic per seed); a whole city targets a custom terrain, not objectSpawnersArr (entity caps).
+Shared plans cover most new types: `double_<room>` (corridor with rooms both sides: hospital, school,
+offices), `ring` (perimeter block round a yard), forecourts (canopy / terrace), atrium floors, parking
+decks with ramps. Big landmarks need merged blocks (`streets.closed`); towers taller than Tower A use
+a tall core (`core: T15 | T23 | T33`, D58).
 
 ### 3.3 Placement rules
 - Everything placed through the layout generator (spec + YAML), validated: survey-based ground

@@ -140,4 +140,523 @@ class CfgVehicles
 		skyCabHeight = 2.7;
 		skyPanelReach = 1.6;
 	};
+	class Land_SKY_TowerA_Core15: Land_SKY_TowerA_Base
+	{
+		scope = 1;
+		model = "SKY_Skyline\sky_towera\sky_towera_core15.p3d";
+		class AnimationSources
+		{
+			class elev_door_l0
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l1
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l2
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l3
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l4
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l5
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l6
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l7
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l8
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l9
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l10
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l11
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l12
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l13
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l14
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l15
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l16
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+		};
+		// SKY elevator parameters (read by script class Land_SKY_TowerA_Core).
+		skyStops[] = {0, 7, 10.5, 14, 17.5, 21, 24.5, 28, 31.5, 35, 38.5, 42, 45.5, 49, 52.5, 56, 59.5};
+		skyMaxOccupants = 4;
+		skyCooldownMs = 4000;
+		skyDoorOpenMs = 8000;
+		skyTravelMsBase = 1500;
+		skyTravelMsPerStop = 500;
+		skyCabHalfX = 1.25;
+		skyCabHalfY = 1.375;
+		skyCabHeight = 2.7;
+		skyPanelReach = 1.6;
+	};
+	class Land_SKY_TowerA_Core23: Land_SKY_TowerA_Base
+	{
+		scope = 1;
+		model = "SKY_Skyline\sky_towera\sky_towera_core23.p3d";
+		class AnimationSources
+		{
+			class elev_door_l0
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l1
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l2
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l3
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l4
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l5
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l6
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l7
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l8
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l9
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l10
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l11
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l12
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l13
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l14
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l15
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l16
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l17
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l18
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l19
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l20
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l21
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l22
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l23
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l24
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+		};
+		// SKY elevator parameters (read by script class Land_SKY_TowerA_Core).
+		skyStops[] = {0, 7, 10.5, 14, 17.5, 21, 24.5, 28, 31.5, 35, 38.5, 42, 45.5, 49, 52.5, 56, 59.5, 63, 66.5, 70, 73.5, 77, 80.5, 84, 87.5};
+		skyMaxOccupants = 4;
+		skyCooldownMs = 4000;
+		skyDoorOpenMs = 8000;
+		skyTravelMsBase = 1500;
+		skyTravelMsPerStop = 500;
+		skyCabHalfX = 1.25;
+		skyCabHalfY = 1.375;
+		skyCabHeight = 2.7;
+		skyPanelReach = 1.6;
+	};
+	class Land_SKY_TowerA_Core33: Land_SKY_TowerA_Base
+	{
+		scope = 1;
+		model = "SKY_Skyline\sky_towera\sky_towera_core33.p3d";
+		class AnimationSources
+		{
+			class elev_door_l0
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l1
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l2
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l3
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l4
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l5
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l6
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l7
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l8
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l9
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l10
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l11
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l12
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l13
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l14
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l15
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l16
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l17
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l18
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l19
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l20
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l21
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l22
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l23
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l24
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l25
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l26
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l27
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l28
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l29
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l30
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l31
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l32
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l33
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+			class elev_door_l34
+			{
+				source = "user";
+				animPeriod = 1.2;
+				initPhase = 0;
+			};
+		};
+		// SKY elevator parameters (read by script class Land_SKY_TowerA_Core).
+		skyStops[] = {0, 7, 10.5, 14, 17.5, 21, 24.5, 28, 31.5, 35, 38.5, 42, 45.5, 49, 52.5, 56, 59.5, 63, 66.5, 70, 73.5, 77, 80.5, 84, 87.5, 91, 94.5, 98, 101.5, 105, 108.5, 112, 115.5, 119, 122.5};
+		skyMaxOccupants = 4;
+		skyCooldownMs = 4000;
+		skyDoorOpenMs = 8000;
+		skyTravelMsBase = 1500;
+		skyTravelMsPerStop = 500;
+		skyCabHalfX = 1.25;
+		skyCabHalfY = 1.375;
+		skyCabHeight = 2.7;
+		skyPanelReach = 1.6;
+	};
 };

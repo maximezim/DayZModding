@@ -188,7 +188,7 @@ def city_tests(expect):
     b = json.load(open(os.path.join(od2, "sky_objects.json")))["Objects"]
     expect("city fill is deterministic", a == b)
     nb = sum(1 for o in a if o["name"].startswith("Land_SKY_City_"))
-    expect("city template places > 100 buildings", nb > 100, str(nb))
+    expect("city template places > 80 buildings (landmark blocks hold fewer, bigger ones)", nb > 80, str(nb))
     lay = yaml.safe_load(open(tpl))
     tile = S.STREET["tile"]
     inside_ok, overlap_ok, front_ok = True, True, True
@@ -199,7 +199,7 @@ def city_tests(expect):
         res = CF.fill_block(S, blk, rect, S.BLOCK_SETBACK)
         quads = []
         bc = ((rect[0] + rect[1]) / 2, (rect[2] + rect[3]) / 2)
-        for cls, arch, state, u, v, yaw, hw, hd in res:
+        for cls, arch, state, u, v, yaw, hw, hd, _ou, _ov in res:
             q = CF._corners(u, v, hw, hd, yaw)
             m = S.BLOCK_SETBACK - 1e-6
             if any(not (rect[0] + m <= x <= rect[1] - m and rect[2] + m <= z <= rect[3] - m) for x, z in q):
@@ -208,7 +208,7 @@ def city_tests(expect):
                 overlap_ok = False
             quads.append(q)
             f = CF._rot(0.0, -1.0, yaw)                       # model front (-Y) in the site frame
-            if arch != "RubbleLot" and (u - bc[0]) * f[0] + (v - bc[1]) * f[1] <= 0:
+            if arch not in S.CITY_PIECES and (u - bc[0]) * f[0] + (v - bc[1]) * f[1] <= 0:
                 front_ok = False
             z = blk["fill"]["zone"]
             ruin_by_zone.setdefault(z, []).append(state)
@@ -222,7 +222,7 @@ def city_tests(expect):
         i0, j0, i1, j1 = blk["cells"]
         rect = (i0 * tile - tile / 2, i1 * tile + tile / 2, j0 * tile - tile / 2, j1 * tile + tile / 2)
         n = sum(1 for r in CF.fill_block(S, blk, rect, S.BLOCK_SETBACK)
-                if r[1] != "RubbleLot" and S.CITY_ARCHETYPES[r[1]]["group"] == "small")
+                if CF.is_small(S, r[1]))
         small[blk["id"]] = n <= S.CITY_ZONES[blk["fill"]["zone"]].get("small_cap", 1)
     expect("small buildings within small_cap per block", all(small.values()), str(small))
     # spawner target: the same city exceeds ENTITY_CAP -> fails
@@ -296,6 +296,17 @@ def main():
 
     rc, out, _ = run("nosurvey-strict", {"samples": [], "objects": []})
     expect("survey without samples in footprint fails", rc == 1, out)
+    # tall cores (D58): a T23 tower stacks lobby + 23 floors + roof on Land_SKY_TowerA_Core23
+    rc, out, objs = run("tall", survey(1000, 2000, lambda i, j: 150.0),
+                        towers=[{"id": "T1", "type": "TowerA", "offset": [0, 0], "yaw": 0, "core": "T23", "roof": "crown"}])
+    names = [o["name"] for o in objs]
+    expect("tall core T23: 26 objects (lobby, 23 floors, crown roof, core)", rc == 0 and len(objs) == 26, out)
+    expect("tall core T23 spawns Land_SKY_TowerA_Core23 and the crown roof",
+           "Land_SKY_TowerA_Core23" in names and "Land_SKY_Roof_Crown" in names, str(names))
+    rc, out, _ = run("tall-mismatch", survey(1000, 2000, lambda i, j: 150.0),
+                     towers=[{"id": "T1", "type": "TowerA", "offset": [0, 0], "yaw": 0, "core": "T15",
+                              "floors": ["office"] * 5}])
+    expect("floors list must match the core's stops", rc == 1 and "core T15 has exactly 15" in out, out)
     district_tests(expect)
     city_tests(expect)
     print("%d failed" % fails)

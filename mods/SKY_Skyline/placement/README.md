@@ -47,8 +47,9 @@ until a surveyed site is filled in). It shows every key:
 * `blocks`: cell rectangles between streets (a tower needs 3 x 3 cells); towers inside use `at`
   (block-local) and must keep `BLOCK_SETBACK` from the block edge; footprints may not overlap each
   other or any street tile.
-* towers: `floors` = exactly 5 variants (`office | apartments | hotel | mechanical`; the unchanged core
-  has 5 typical-floor stops), `roof` = `helipad | garden | mechanical`, `furnish` = `{level: set}` from
+* towers: `core` = `A` (default, 5 typical floors) or a tall core `T15 | T23 | T33` (17 / 25 / 35 storeys,
+  D58); `floors` = exactly that many variants (`office | apartments | hotel | mechanical`; one per core
+  stop), `roof` = `helipad | garden | mechanical | crown` (crown = the HQ landmark top), `furnish` = `{level: set}` from
   `skyspec.FURNISH`. Caps `PROP_CAPS` (25 per floor, 70 per tower, 1.2 m aisles) and `ENTITY_CAP`
   (entities + loot items: 800 per district, 2500 per server - pass the other districts' outputs with
   `--others a.json,b.json`) fail the run; the report lists entity counts per kind and per tower.
@@ -76,7 +77,7 @@ Self-test: `python placement/tests/test_sky_layout.py` (synthetic surveys, no ga
 
 The committed `out/` uses the **placeholder** site (7500, 7500, Y = 0). Do not deploy it.
 
-## 5. Cities: block fill (D57)
+## 5. Cities: block fill (D57, D58)
 
 `city_template.yaml` generates a city quarter: `python placement/sky_layout.py --layout placement/city_template.yaml --out placement/out_city`.
 
@@ -85,7 +86,14 @@ The committed `out/` uses the **placeholder** site (7500, 7500, Y = 0). Do not d
   corners, party-wall buildings flush, detached ones with the zone's gap, kiosks / sheds capped per block,
   rubble lots by chance; ruin state per building from the zone's (intact, damaged, ruined) mix. The zones live
   in `skyspec.CITY_ZONES`. The same seed always gives the same city; change the seed to re-roll one block.
-* `buildings: [{type, ruin, at, yaw}]` places landmarks (police, clinic, fire station, supermarket) first.
+* `buildings: [{type, ruin, at, yaw}]` places landmarks (police, clinic, fire station, supermarket, town hall,
+  hospital, church, school, department store, factory hall ...) first; `type` may also be a kit piece
+  (`WaterTower`, `MetroEntrance`, `RubbleLot`). A zone's `once` list keeps big types to one per block.
+* `streets.closed: [[i, j], ...]` builds over street cells: merge two blocks into one 84 x 36 m block for
+  the types that need it (hospital 40 x 24, department store 40 x 30, factory hall / large warehouse
+  36 x 24) - D58.
+* Forecourt buildings (gas station, cafe terrace) have a footprint larger than their body; the fill uses
+  the whole footprint and spawns the model at its body origin.
 * Every building gets its ground height from the survey (1.5 m skirt) or the street plane, and the same
   overlap / foreign-object checks as towers. The report lists every archetype by intact / damaged / ruined.
 * `site.target: spawner` (default) obeys ENTITY_CAP (every spawned building is a replicated entity);

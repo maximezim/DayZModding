@@ -206,6 +206,18 @@
   "res2": 2,
   "road": 2
  },
+ "sky_roof_crown.p3d": {
+  "fire": 192,
+  "geo": 144,
+  "mem": 0,
+  "res0": 884,
+  "res1": 536,
+  "res2": 184,
+  "res3": 22,
+  "road": 8,
+  "shadow": 96,
+  "view": 152
+ },
  "sky_roof_garden.p3d": {
   "fire": 240,
   "geo": 240,

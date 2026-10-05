@@ -89,6 +89,8 @@ def main():
     jobs = []
     if shot == "lots":
         jobs = [("RubbleLot", [("City_RubbleLot_%s" % v, i) for i, v in enumerate("ABCD")])]
+    elif shot == "pieces":
+        jobs = [("Pieces", [("City_WaterTower", 0), ("City_MetroEntrance_A", 1), ("City_MetroEntrance_B", 2)])]
     elif shot == "states":
         jobs = [(a, [("City_%s_%s" % (a, st), i) for i, st in enumerate(S.RUIN_STATES)]) for a in only]
     elif shot == "street":
@@ -107,7 +109,14 @@ def main():
         spans = []
         for name, _i in items:
             arch = S.KIT[name]["city"]["archetype"]
-            A = S.CITY_ARCHETYPES[arch] if arch else {"w": 12.0, "d": 12.0, "levels": [("lot", 4.0)], "blank": ()}
+            pc = S.KIT[name]["city"].get("piece")
+            if pc:
+                _k, pw, pd = S.CITY_PIECES[pc]
+                A = {"w": pw, "d": pd, "levels": [("piece", 20.0 if pc == "WaterTower" else 3.5)], "blank": ()}
+            else:
+                A = S.CITY_ARCHETYPES[arch] if arch else {"w": 12.0, "d": 12.0, "levels": [("lot", 4.0)], "blank": ()}
+            if A.get("tower"):
+                A = dict(A, levels=list(A["levels"]) + [("tower", 20.0)])
             if shot == "street":
                 gap = 0.0 if A["blank"] else 4.0
             else:

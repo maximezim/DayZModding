@@ -344,10 +344,57 @@ def build_roof_mechanical():
     return list(L.values())
 
 
+def build_roof_crown():
+    """HQ landmark crown (D58): the plant roof's parapet and drop strips, plus four corner pylons
+    with light strips, steel crown fins standing on the parapet and a tapered spire carried over
+    the core (base above the core cap). Pylons collide; fins and spire are out of reach (Res only,
+    spire + pylons in Fire)."""
+    L = T.std_lods()
+    roof_base(L, "concrete", T.UV_CONC_PANEL, "road_ext")
+    steel, paint = T.UV_STEEL, T.UV_PAINT
+    for sx in (-1, 1):                                                       # corner pylons (1.2 m, 14 m)
+        for sy in (-1, 1):
+            x0, x1 = sorted((sx * (HW - 0.25), sx * (HW - 1.45)))
+            y0, y1 = sorted((sy * (HD - 0.25), sy * (HD - 1.45)))
+            for k in ("res0", "res1", "res2", "geo", "view", "fire"):              # no shadow volume (budget)
+                kw = {"mat": "metal", "uv": paint} if k.startswith("res") else ({"mat": "pen_metal"} if k == "fire" else {})
+                L[k].box(x0, x1, y0, y1, 0.0, 14.0, **kw)
+            fx = x0 if sx > 0 else x1                                         # light strip on the inner face
+            L["res0"].box(fx - 0.03 * sx, fx, y0 + 0.4, y1 - 0.4, 1.5, 13.5, mat="lamp_cool")
+            DT.obstruction_light(L, (x0 + x1) / 2, (y0 + y1) / 2, 14.0)
+    for side in range(4):                                                    # crown fins on the parapet
+        for i in range(7):
+            a = -HW + 2.6 + i * (2 * HW - 5.2) / 6
+            h = 4.0 + 5.0 * math.sin(math.pi * (i + 0.5) / 7)
+            if side < 2:
+                y = (HD - 0.13) * (1 if side else -1)
+                b = (a - 0.1, a + 0.1, y - 0.12, y + 0.12)
+            else:
+                x = (HW - 0.13) * (1 if side == 3 else -1)
+                b = (x - 0.12, x + 0.12, a - 0.1, a + 0.1)
+            for k in ("res0", "res1"):                                             # fins: close LODs only
+                L[k].box(*b, 1.15, 1.15 + h, mat="metal", uv=steel, skip=("-z",))
+    zc = S.FLOOR_H + S.SLAB_T                                                # spire base: on the core cap
+    for i, (r, z0, z1) in enumerate(((1.6, zc, zc + 3.0), (1.1, zc + 3.0, zc + 9.0), (0.6, zc + 9.0, zc + 17.0),
+                                     (0.25, zc + 17.0, zc + 24.0))):
+        for k in ("res0", "res1", "res2", "fire"):
+            kw = {"mat": "metal", "uv": steel} if k.startswith("res") else ({"mat": "pen_metal"} if k == "fire" else {})
+            L[k].prism(0.0, 0.0, r, z0, z1, n=12 if k == "res0" else (6 if k == "res1" else 4), **kw)
+
+    DT.obstruction_light(L, 0.0, 0.0, zc + 24.0)
+    for z in (zc + 9.0, zc + 17.0):
+        L["res0"].prism(0.0, 0.0, 0.7 if z < zc + 10 else 0.3, z, z + 0.15, n=12, mat="lamp")
+    L["res3"].prism(0.0, 0.0, 0.8, zc, zc + 24.0, n=4, mat="metal", uv=steel)
+    for i, (x, y) in enumerate(S.ROOF_DROPS_CLEAR):                         # D33, shared with sky_layout
+        L["mem"].point("roof_drop_%d" % (i + 1), (x, y, 0.05))
+    T.building_props(L, 40000.0)
+    return list(L.values())
+
+
 BUILDERS = {
     "Floor_Apartments": build_floor_apartments, "Floor_Hotel": build_floor_hotel,
     "Floor_Mechanical": build_floor_mechanical, "Roof_Garden": build_roof_garden,
-    "Roof_Mechanical": build_roof_mechanical,
+    "Roof_Mechanical": build_roof_mechanical, "Roof_Crown": build_roof_crown,
 }
 
 

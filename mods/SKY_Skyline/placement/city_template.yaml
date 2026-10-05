@@ -1,7 +1,8 @@
 # SKY_Skyline CITY TEMPLATE -> python placement/sky_layout.py --layout placement/city_template.yaml --out placement/out_city
 #
 # A Chernogorsk-sized quarter generated from the procedural city buildings (D57): a 192 x 192 m street
-# grid (12 m tiles, a street every 4th cell), 16 blocks of 36 x 36 m, each filled lot by lot by
+# grid (12 m tiles, a street every 4th cell), 12 blocks (36 x 36 m, four merged to 84 x 36 m for the big
+# landmarks by closing street cells), each filled lot by lot by
 # placement/city_fill.py from its zone (skyspec.CITY_ZONES: archetype mix, ruin mix, rubble lots).
 # Change a block's zone or seed to re-roll it; the result is deterministic.
 # target: terrain - a whole city is too many replicated entities for objectSpawnersArr (ENTITY_CAP);
@@ -27,31 +28,30 @@ streets:
   ns: [-8, -4, 0, 4, 8]
   ew: [-8, -4, 0, 4, 8]
   crossings: [[0, -6], [0, 6], [-6, 0], [6, 0], [-4, 2], [4, -2]]
+  # street cells built over: merged blocks for the big landmarks (factory, town hall square,
+  # department store, hospital) - D58
+  closed: [[-4, -7], [-4, -6], [-4, -5], [0, -3], [0, -2], [0, -1], [0, 1], [0, 2], [0, 3], [5, 4], [6, 4], [7, 4]]
   lights_every: 3
   base_y: null
 
-# zone map (north up):   residential residential residential midtown
-#                        residential downtown    downtown    midtown
-#                        midtown     downtown    downtown    frontline
-#                        industrial  industrial  frontline   frontline
+# zone map (north up):   residential residential midtown     midtown  (D3+D4 merged: hospital)
+#                        residential downtown    downtown    midtown  (B3+C3 merged: department store)
+#                        midtown     downtown    downtown    frontline (B2+C2 merged: town hall, police)
+#                        industrial  industrial  frontline   frontline (A1+B1 merged: factory hall)
 # Landmarks are placed explicitly (`buildings`); the fill packs around them.
 blocks:
-  - {id: A1, cells: [-7, -7, -5, -5], fill: {zone: industrial, seed: 7}}
-  - {id: B1, cells: [-3, -7, -1, -5], fill: {zone: industrial, seed: 11}}
+  - {id: AB1, buildings: [{type: FactoryHall, ruin: damaged, at: [-22.0, -5.5], yaw: 0}, {type: ParkingGarage, ruin: ruined, at: [22.0, -5.5], yaw: 0}], cells: [-7, -7, -1, -5], fill: {zone: industrial, seed: 7}}
   - {id: C1, cells: [1, -7, 3, -5], fill: {zone: frontline, seed: 15}}
   - {id: D1, cells: [5, -7, 7, -5], fill: {zone: frontline, seed: 19}}
-  - {id: A2, buildings: [{type: SupermarketSmall, ruin: intact, at: [0.0, -10.5], yaw: 0}], cells: [-7, -3, -5, -1], fill: {zone: midtown, seed: 8}}
-  - {id: B2, buildings: [{type: Police, ruin: damaged, at: [0.0, -10.5], yaw: 0}], cells: [-3, -3, -1, -1], fill: {zone: downtown, seed: 12}}
-  - {id: C2, cells: [1, -3, 3, -1], fill: {zone: downtown, seed: 16}}
+  - {id: A2, buildings: [{type: SupermarketSmall, ruin: intact, at: [0.0, -10.5], yaw: 0}, {type: GasStation, ruin: damaged, at: [0.0, 10.25], yaw: 180}], cells: [-7, -3, -5, -1], fill: {zone: midtown, seed: 8}}
+  - {id: BC2, buildings: [{type: TownHall, ruin: intact, at: [-22.0, -8.5], yaw: 0}, {type: Police, ruin: damaged, at: [22.0, -10.5], yaw: 0}, {type: Bank, ruin: intact, at: [0.0, -10.5], yaw: 0}], cells: [-3, -3, 3, -1], fill: {zone: downtown, seed: 12}}
   - {id: D2, buildings: [{type: FireStation, ruin: damaged, at: [0.0, -9.5], yaw: 0}], cells: [5, -3, 7, -1], fill: {zone: frontline, seed: 20}}
-  - {id: A3, cells: [-7, 1, -5, 3], fill: {zone: residential, seed: 9}}
-  - {id: B3, cells: [-3, 1, -1, 3], fill: {zone: downtown, seed: 13}}
-  - {id: C3, buildings: [{type: Clinic, ruin: intact, at: [0.0, 10.5], yaw: 180}], cells: [1, 1, 3, 3], fill: {zone: downtown, seed: 17}}
-  - {id: D3, cells: [5, 1, 7, 3], fill: {zone: midtown, seed: 21}}
-  - {id: A4, cells: [-7, 5, -5, 7], fill: {zone: residential, seed: 10}}
-  - {id: B4, cells: [-3, 5, -1, 7], fill: {zone: residential, seed: 14}}
-  - {id: C4, cells: [1, 5, 3, 7], fill: {zone: residential, seed: 18}}
-  - {id: D4, cells: [5, 5, 7, 7], fill: {zone: midtown, seed: 22}}
+  - {id: A3, buildings: [{type: CourtyardBlockBrick, ruin: damaged, at: [0.0, -2.0], yaw: 0}], cells: [-7, 1, -5, 3], fill: {zone: residential, seed: 9}}
+  - {id: BC3, buildings: [{type: DepartmentStore, ruin: intact, at: [-20.0, -2.5], yaw: 0}, {type: Clinic, ruin: intact, at: [22.0, 10.5], yaw: 180}], cells: [-3, 1, 3, 3], fill: {zone: downtown, seed: 17}}
+  - {id: D34, buildings: [{type: Hospital, ruin: damaged, at: [-5.5, 0.0], yaw: 90}], cells: [5, 1, 7, 7], fill: {zone: midtown, seed: 21}}
+  - {id: A4, buildings: [{type: School, ruin: intact, at: [0.0, 9.5], yaw: 180}], cells: [-7, 5, -5, 7], fill: {zone: residential, seed: 10}}
+  - {id: B4, buildings: [{type: Church, ruin: intact, at: [0.0, -5.5], yaw: 0}], cells: [-3, 5, -1, 7], fill: {zone: residential, seed: 14}}
+  - {id: C4, buildings: [{type: CourtyardBlock, ruin: intact, at: [0.0, -2.0], yaw: 0}], cells: [1, 5, 3, 7], fill: {zone: midtown, seed: 18}}
 
 towers: []
 decals: []

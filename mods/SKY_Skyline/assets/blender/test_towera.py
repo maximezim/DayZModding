@@ -56,7 +56,40 @@ def get(lods, name):
     return [l for l in lods if l.name == name][0]
 
 
+def check_core(spec, label):
+    """Doors, cab and landings at every stop + memory points the elevator script needs per stop."""
+    C = S.CORE
+    core = T.build_core(spec)
+    geo = get(core, "geo")
+    boxes = solids(geo)
+    y0, y1 = C["y"]
+    mem = get(core, "mem")
+    for i, s in enumerate(S.elevator_stops(spec)):
+        for pt in ("elev_cab_l%d" % i, "elev_panel_l%d" % i, "elev_call_l%d" % i):
+            check(len(mem.groups.get(pt, ())) == 1, "%s stop %d: memory point %s missing" % (label, i, pt))
+        for leaf in ("a", "b"):
+            check(len(mem.groups.get("elev_door_l%d_%s_axis" % (i, leaf), ())) == 2,
+                  "%s stop %d: door %s axis missing" % (label, i, leaf))
+        # Stair door (south face) - sample through the wall thickness.
+        for dy in (0.05, 0.12, 0.2):
+            p = (sum(C["stair_door_x"]) / 2, y0 + dy, s + 1.0)
+            check(not blocked(boxes, p), "%s stop %d (z=%.1f): stair door blocked at %s" % (label, i, s, p))
+            p = (0.0, y1 - dy, s + 1.0)
+            check(not blocked(boxes, p, ignore_tag="elev_door_l%d_" % i), "%s stop %d: elevator opening blocked at %s" % (label, i, p))
+        p = (0.0, (C["elev_y"][0] + y1 - S.WALL_T) / 2, s + 1.2)
+        check(not blocked(boxes, p), "%s stop %d: cab interior blocked at %s" % (label, i, p))
+        if s > 0:
+            p = (-1.2, y0 + S.WALL_T + 0.6, s - 0.1)
+            check(blocked(boxes, p), "%s stop %d: no stair landing under the door at %s" % (label, i, p))
+    for lo, hi, tags, n in boxes:
+        check(n == 8, "%s component %s..%s is not a closed 8-vertex box" % (label, lo, hi))
+    check(geo.mass > 0, "%s Geometry has no mass" % label)
+
+
 def main():
+    for k, (_c, spec) in sorted(S.CORE_VARIANTS.items()):
+        if k != "A":
+            check_core(spec, "core " + k)                       # tall cores (D58)
     C = S.CORE
     core = T.build_core()
     geo = get(core, "geo")

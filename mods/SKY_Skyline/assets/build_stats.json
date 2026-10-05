@@ -18,6 +18,42 @@
   "shadow": 12,
   "view": 628
  },
+ "sky_towera_core15.p3d": {
+  "fire": 2172,
+  "geo": 2172,
+  "mem": 0,
+  "res0": 7198,
+  "res1": 1866,
+  "res2": 252,
+  "res3": 10,
+  "road": 172,
+  "shadow": 12,
+  "view": 1348
+ },
+ "sky_towera_core23.p3d": {
+  "fire": 3132,
+  "geo": 3132,
+  "mem": 0,
+  "res0": 10510,
+  "res1": 2682,
+  "res2": 348,
+  "res3": 10,
+  "road": 252,
+  "shadow": 12,
+  "view": 1924
+ },
+ "sky_towera_core33.p3d": {
+  "fire": 4332,
+  "geo": 4332,
+  "mem": 0,
+  "res0": 14650,
+  "res1": 3702,
+  "res2": 468,
+  "res3": 10,
+  "road": 352,
+  "shadow": 12,
+  "view": 2644
+ },
  "sky_towera_floor_office.p3d": {
   "fire": 352,
   "geo": 288,

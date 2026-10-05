@@ -47,4 +47,10 @@ class CfgVehicles
 		scope = 1;
 		model = "SKY_Skyline\sky_floors\sky_roof_mechanical.p3d";
 	};
+	class Land_SKY_Roof_Crown: Land_SKY_Floors_Base
+	{
+		// HQ crown roof: parapet, setback glass lantern, steel crown fins, 24 m spire with obstruction lights
+		scope = 1;
+		model = "SKY_Skyline\sky_floors\sky_roof_crown.p3d";
+	};
 };

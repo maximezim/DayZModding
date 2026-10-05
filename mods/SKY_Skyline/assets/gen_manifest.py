@@ -33,6 +33,14 @@ def section():
         if e["variants"]:
             lines.append("    variants: [%s]" % ", ".join(sorted(e["variants"])))
         lines.append("    status: built-unverified")
+    for c, pbo, p3d, cat, desc in S.TOWER_CORE_MANIFEST:                       # tall tower cores (D58)
+        lines.append("  - name: %s" % c)
+        lines.append("    type: %s" % json.dumps(desc))
+        lines.append("    p3d: addons/%s/%s" % (pbo, p3d))
+        lines.append("    category: %s" % cat)
+        lines.append("    budget: {%s}" % ", ".join("%s: %s" % kv for kv in S.BUDGETS[cat].items()))
+        lines.append("    uses: [ELEVATOR_SLIDE_SIGN]")
+        lines.append("    status: built-unverified")
     lines.append(END)
     return "\n".join(lines) + "\n"
 

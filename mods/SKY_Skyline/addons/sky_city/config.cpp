@@ -3135,6 +3135,1442 @@ class CfgVehicles
 		scope = 1;
 		model = "SKY_Skyline\sky_city\sky_city_shedbrick_ruined.p3d";
 	};
+	class Land_SKY_City_WarehouseLarge_Intact: Land_SKY_City_Base
+	{
+		// large steel warehouse, 3 roller doors (intact)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_warehouselarge_intact.p3d";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_WarehouseLarge_Damaged: Land_SKY_City_Base
+	{
+		// large steel warehouse, 3 roller doors (damaged)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_warehouselarge_damaged.p3d";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_WarehouseLarge_Ruined: Land_SKY_City_Base
+	{
+		// large steel warehouse, 3 roller doors (ruined)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_warehouselarge_ruined.p3d";
+	};
+	class Land_SKY_City_CourtyardBlock_Intact: Land_SKY_City_Base
+	{
+		// 5-storey perimeter block round an inner yard, gateway from the street (intact)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_courtyardblock_intact.p3d";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_CourtyardBlock_Damaged: Land_SKY_City_Base
+	{
+		// 5-storey perimeter block round an inner yard, gateway from the street (damaged)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_courtyardblock_damaged.p3d";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_CourtyardBlock_Ruined: Land_SKY_City_Base
+	{
+		// 5-storey perimeter block round an inner yard, gateway from the street (ruined)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_courtyardblock_ruined.p3d";
+	};
+	class Land_SKY_City_GasStation_Intact: Land_SKY_City_Base
+	{
+		// filling station: shop and pump canopy on the forecourt (intact)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_gasstation_intact.p3d";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_GasStation_Damaged: Land_SKY_City_Base
+	{
+		// filling station: shop and pump canopy on the forecourt (damaged)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_gasstation_damaged.p3d";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_GasStation_Ruined: Land_SKY_City_Base
+	{
+		// filling station: shop and pump canopy on the forecourt (ruined)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_gasstation_ruined.p3d";
+	};
+	class Land_SKY_City_Cafe_Intact: Land_SKY_City_Base
+	{
+		// cafe pavilion with a street terrace (intact)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_cafe_intact.p3d";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_Cafe_Damaged: Land_SKY_City_Base
+	{
+		// cafe pavilion with a street terrace (damaged)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_cafe_damaged.p3d";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_Cafe_Ruined: Land_SKY_City_Base
+	{
+		// cafe pavilion with a street terrace (ruined)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_cafe_ruined.p3d";
+	};
+	class Land_SKY_City_Bank_Intact: Land_SKY_City_Base
+	{
+		// 3-storey stone bank: banking hall, vault, offices above (intact)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_bank_intact.p3d";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_Bank_Damaged: Land_SKY_City_Base
+	{
+		// 3-storey stone bank: banking hall, vault, offices above (damaged)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_bank_damaged.p3d";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_Bank_Ruined: Land_SKY_City_Base
+	{
+		// 3-storey stone bank: banking hall, vault, offices above (ruined)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_bank_ruined.p3d";
+	};
+	class Land_SKY_City_DepartmentStore_Intact: Land_SKY_City_Base
+	{
+		// 3-storey department store round a central atrium (intact)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_departmentstore_intact.p3d";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_DepartmentStore_Damaged: Land_SKY_City_Base
+	{
+		// 3-storey department store round a central atrium (damaged)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_departmentstore_damaged.p3d";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_DepartmentStore_Ruined: Land_SKY_City_Base
+	{
+		// 3-storey department store round a central atrium (ruined)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_departmentstore_ruined.p3d";
+	};
+	class Land_SKY_City_Hospital_Intact: Land_SKY_City_Base
+	{
+		// 5-storey hospital: reception and exam rooms, four ward floors (intact)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_hospital_intact.p3d";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_Hospital_Damaged: Land_SKY_City_Base
+	{
+		// 5-storey hospital: reception and exam rooms, four ward floors (damaged)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_hospital_damaged.p3d";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_Hospital_Ruined: Land_SKY_City_Base
+	{
+		// 5-storey hospital: reception and exam rooms, four ward floors (ruined)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_hospital_ruined.p3d";
+	};
+	class Land_SKY_City_School_Intact: Land_SKY_City_Base
+	{
+		// 3-storey brick school, classrooms off a corridor (intact)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_school_intact.p3d";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_School_Damaged: Land_SKY_City_Base
+	{
+		// 3-storey brick school, classrooms off a corridor (damaged)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_school_damaged.p3d";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_School_Ruined: Land_SKY_City_Base
+	{
+		// 3-storey brick school, classrooms off a corridor (ruined)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_school_ruined.p3d";
+	};
+	class Land_SKY_City_TownHall_Intact: Land_SKY_City_Base
+	{
+		// 3-storey stone town hall: pilasters, pediment, clock and cupola (intact)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_townhall_intact.p3d";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_TownHall_Damaged: Land_SKY_City_Base
+	{
+		// 3-storey stone town hall: pilasters, pediment, clock and cupola (damaged)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_townhall_damaged.p3d";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_TownHall_Ruined: Land_SKY_City_Base
+	{
+		// 3-storey stone town hall: pilasters, pediment, clock and cupola (ruined)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_townhall_ruined.p3d";
+	};
+	class Land_SKY_City_Church_Intact: Land_SKY_City_Base
+	{
+		// stone church: tall nave, pews, front bell tower with spire (intact)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_church_intact.p3d";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_Church_Damaged: Land_SKY_City_Base
+	{
+		// stone church: tall nave, pews, front bell tower with spire (damaged)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_church_damaged.p3d";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_Church_Ruined: Land_SKY_City_Base
+	{
+		// stone church: tall nave, pews, front bell tower with spire (ruined)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_church_ruined.p3d";
+	};
+	class Land_SKY_City_PostOffice_Intact: Land_SKY_City_Base
+	{
+		// 2-storey post office: counter hall, offices above (intact)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_postoffice_intact.p3d";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_PostOffice_Damaged: Land_SKY_City_Base
+	{
+		// 2-storey post office: counter hall, offices above (damaged)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_postoffice_damaged.p3d";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_PostOffice_Ruined: Land_SKY_City_Base
+	{
+		// 2-storey post office: counter hall, offices above (ruined)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_postoffice_ruined.p3d";
+	};
+	class Land_SKY_City_FactoryHall_Intact: Land_SKY_City_Base
+	{
+		// brick factory hall: sawtooth roof, machines, crane beam (intact)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_factoryhall_intact.p3d";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_FactoryHall_Damaged: Land_SKY_City_Base
+	{
+		// brick factory hall: sawtooth roof, machines, crane beam (damaged)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_factoryhall_damaged.p3d";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_FactoryHall_Ruined: Land_SKY_City_Base
+	{
+		// brick factory hall: sawtooth roof, machines, crane beam (ruined)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_factoryhall_ruined.p3d";
+	};
+	class Land_SKY_City_ParkingGarage_Intact: Land_SKY_City_Base
+	{
+		// 4-deck open parking garage: car ramps, stair, wrecks (intact)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_parkinggarage_intact.p3d";
+	};
+	class Land_SKY_City_ParkingGarage_Damaged: Land_SKY_City_Base
+	{
+		// 4-deck open parking garage: car ramps, stair, wrecks (damaged)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_parkinggarage_damaged.p3d";
+	};
+	class Land_SKY_City_ParkingGarage_Ruined: Land_SKY_City_Base
+	{
+		// 4-deck open parking garage: car ramps, stair, wrecks (ruined)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_parkinggarage_ruined.p3d";
+	};
+	class Land_SKY_City_Substation_Intact: Land_SKY_City_Base
+	{
+		// fenced electrical substation (not enterable) (intact)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_substation_intact.p3d";
+	};
+	class Land_SKY_City_Substation_Damaged: Land_SKY_City_Base
+	{
+		// fenced electrical substation (not enterable) (damaged)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_substation_damaged.p3d";
+	};
+	class Land_SKY_City_Substation_Ruined: Land_SKY_City_Base
+	{
+		// fenced electrical substation (not enterable) (ruined)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_substation_ruined.p3d";
+	};
+	class Land_SKY_City_CourtyardBlockBrick_Intact: Land_SKY_City_Base
+	{
+		// 4-storey brick perimeter block round an inner yard (intact)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_courtyardblockbrick_intact.p3d";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_CourtyardBlockBrick_Damaged: Land_SKY_City_Base
+	{
+		// 4-storey brick perimeter block round an inner yard (damaged)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_courtyardblockbrick_damaged.p3d";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_CourtyardBlockBrick_Ruined: Land_SKY_City_Base
+	{
+		// 4-storey brick perimeter block round an inner yard (ruined)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_courtyardblockbrick_ruined.p3d";
+	};
+	class Land_SKY_City_CafeBrick_Intact: Land_SKY_City_Base
+	{
+		// brick cafe pavilion with a street terrace (intact)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_cafebrick_intact.p3d";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_CafeBrick_Damaged: Land_SKY_City_Base
+	{
+		// brick cafe pavilion with a street terrace (damaged)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_cafebrick_damaged.p3d";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_CafeBrick_Ruined: Land_SKY_City_Base
+	{
+		// brick cafe pavilion with a street terrace (ruined)
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_cafebrick_ruined.p3d";
+	};
 	class Land_SKY_City_RubbleLot_A: Land_SKY_City_Base
 	{
 		// 12 x 12 m collapsed building lot
@@ -3158,5 +4594,23 @@ class CfgVehicles
 		// 12 x 12 m collapsed building lot
 		scope = 1;
 		model = "SKY_Skyline\sky_city\sky_city_rubblelot_d.p3d";
+	};
+	class Land_SKY_City_WaterTower: Land_SKY_City_Base
+	{
+		// 18 m steel water tower on a lattice frame
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_watertower.p3d";
+	};
+	class Land_SKY_City_MetroEntrance_A: Land_SKY_City_Base
+	{
+		// metro stair head sealed with steel plates, railings, sign
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_metroentrance_a.p3d";
+	};
+	class Land_SKY_City_MetroEntrance_B: Land_SKY_City_Base
+	{
+		// glazed metro entrance pavilion, doors chained shut
+		scope = 1;
+		model = "SKY_Skyline\sky_city\sky_city_metroentrance_b.p3d";
 	};
 };

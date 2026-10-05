@@ -673,70 +673,6 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_Street_Straight",
-   "pos": [
-    -48.0,
-    0.0,
-    -84.0
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_StreetLight",
-   "pos": [
-    -52.5,
-    0.15,
-    -84.0
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Street_Straight",
-   "pos": [
-    -48.0,
-    0.0,
-    -72.0
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Street_Straight",
-   "pos": [
-    -48.0,
-    0.0,
-    -60.0
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
    "name": "Land_SKY_Street_Intersection",
    "pos": [
     -48.0,
@@ -1409,139 +1345,11 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_Street_Straight",
-   "pos": [
-    0.0,
-    0.0,
-    -36.0
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Street_Straight",
-   "pos": [
-    0.0,
-    0.0,
-    -24.0
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_StreetLight",
-   "pos": [
-    -4.5,
-    0.15,
-    -24.0
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Street_Straight",
-   "pos": [
-    0.0,
-    0.0,
-    -12.0
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
    "name": "Land_SKY_Street_Intersection",
    "pos": [
     0.0,
     0.0,
     0.0
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Street_Straight",
-   "pos": [
-    0.0,
-    0.0,
-    12.0
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Street_Straight",
-   "pos": [
-    0.0,
-    0.0,
-    24.0
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_StreetLight",
-   "pos": [
-    -4.5,
-    0.15,
-    24.0
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Street_Straight",
-   "pos": [
-    0.0,
-    0.0,
-    36.0
    ],
    "ypr": [
     0.0,
@@ -2389,38 +2197,6 @@
    "pos": [
     60.0,
     0.0,
-    48.0
-   ],
-   "ypr": [
-    90.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_StreetLight",
-   "pos": [
-    60.0,
-    0.15,
-    52.5
-   ],
-   "ypr": [
-    90.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Street_Straight",
-   "pos": [
-    60.0,
-    0.0,
     96.0
    ],
    "ypr": [
@@ -2501,22 +2277,6 @@
    "pos": [
     72.0,
     0.0,
-    48.0
-   ],
-   "ypr": [
-    90.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Street_Straight",
-   "pos": [
-    72.0,
-    0.0,
     96.0
    ],
    "ypr": [
@@ -2582,22 +2342,6 @@
     84.0,
     0.15,
     4.5
-   ],
-   "ypr": [
-    90.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Street_Straight",
-   "pos": [
-    84.0,
-    0.0,
-    48.0
    ],
    "ypr": [
     90.0,
@@ -2961,11 +2705,43 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_Warehouse_Intact",
+   "name": "Land_SKY_City_FactoryHall_Damaged",
    "pos": [
-    -77.5,
+    -70.0,
     0.15,
-    -80.5
+    -77.5
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_City_ParkingGarage_Ruined",
+   "pos": [
+    -26.0,
+    0.15,
+    -77.5
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_City_Substation_Damaged",
+   "pos": [
+    -47.0,
+    0.15,
+    -85.5
    ],
    "ypr": [
     0.0,
@@ -2979,7 +2755,7 @@
   {
    "name": "Land_SKY_City_Shed_Damaged",
    "pos": [
-    -61.0,
+    -8.5,
     0.15,
     -88.0
    ],
@@ -2993,9 +2769,25 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_Workshop_Damaged",
+   "name": "Land_SKY_City_GarageBlock_Intact",
    "pos": [
-    -60.5,
+    -15.5,
+    0.15,
+    -57.5
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_City_WorkshopBrick_Intact",
+   "pos": [
+    -33.0,
     0.15,
     -59.5
    ],
@@ -3009,11 +2801,11 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_WarehouseSmall_Intact",
+   "name": "Land_SKY_City_Workshop_Damaged",
    "pos": [
-    -78.0,
+    -47.5,
     0.15,
-    -60.5
+    -59.5
    ],
    "ypr": [
     180.0,
@@ -3027,87 +2819,7 @@
   {
    "name": "Land_SKY_City_Shed_Damaged",
    "pos": [
-    -88.0,
-    0.15,
-    -69.0
-   ],
-   "ypr": [
-    90.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_GarageBlock_Intact",
-   "pos": [
-    -57.5,
-    0.15,
-    -77.0
-   ],
-   "ypr": [
-    270.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_Workshop_Intact",
-   "pos": [
-    -35.5,
-    0.15,
-    -84.5
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_GarageBlock_Damaged",
-   "pos": [
-    -18.0,
-    0.15,
-    -86.5
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_Warehouse_Damaged",
-   "pos": [
-    -18.5,
-    0.15,
-    -63.5
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_Shed_Intact",
-   "pos": [
-    -35.0,
+    -58.0,
     0.15,
     -56.0
    ],
@@ -3121,14 +2833,14 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_Shed_Intact",
+   "name": "Land_SKY_City_GarageBlock_Intact",
    "pos": [
-    -40.0,
+    -71.5,
     0.15,
-    -56.5
+    -57.5
    ],
    "ypr": [
-    90.0,
+    180.0,
     0.0,
     0.0
    ],
@@ -3137,14 +2849,14 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_Workshop_Intact",
+   "name": "Land_SKY_City_WaterTower",
    "pos": [
-    -36.5,
+    -86.0,
     0.15,
-    -67.0
+    -57.5
    ],
    "ypr": [
-    90.0,
+    180.0,
     0.0,
     0.0
    ],
@@ -3153,11 +2865,11 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_ShopRow_Intact",
+   "name": "Land_SKY_City_CornerShop_Damaged",
    "pos": [
-    11.0,
+    12.5,
     0.15,
-    -82.5
+    -83.5
    ],
    "ypr": [
     0.0,
@@ -3169,9 +2881,25 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_AptBlockBrick_Damaged",
+   "name": "Land_SKY_City_RubbleLot_B",
    "pos": [
     26.0,
+    0.15,
+    -83.5
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_City_RowhouseRender_Damaged",
+   "pos": [
+    35.6,
     0.15,
     -83.5
    ],
@@ -3201,9 +2929,9 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_AptBlockBrick_Damaged",
+   "name": "Land_SKY_City_RubbleLot_A",
    "pos": [
-    19.0,
+    22.0,
     0.15,
     -60.5
    ],
@@ -3217,11 +2945,27 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_RowhouseRender_Ruined",
+   "name": "Land_SKY_City_Rowhouse_Intact",
    "pos": [
-    12.5,
+    12.4,
     0.15,
-    -70.6
+    -60.5
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_City_Substation_Ruined",
+   "pos": [
+    10.5,
+    0.15,
+    -72.0
    ],
    "ypr": [
     90.0,
@@ -3233,11 +2977,11 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_GarageBlock_Ruined",
+   "name": "Land_SKY_City_Rowhouse_Damaged",
    "pos": [
-    38.5,
+    35.5,
     0.15,
-    -80.5
+    -73.4
    ],
    "ypr": [
     270.0,
@@ -3249,7 +2993,7 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_CornerShop_Damaged",
+   "name": "Land_SKY_City_RubbleLot_D",
    "pos": [
     60.5,
     0.15,
@@ -3265,9 +3009,25 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_AptBlockBrick_Ruined",
+   "name": "Land_SKY_City_ShopRow_Damaged",
    "pos": [
-    77.0,
+    71.0,
+    0.15,
+    -82.5
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_City_Rowhouse_Ruined",
+   "pos": [
+    79.1,
     0.15,
     -83.5
    ],
@@ -3281,7 +3041,7 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_CornerHardware_Ruined",
+   "name": "Land_SKY_City_CornerShop_Damaged",
    "pos": [
     83.5,
     0.15,
@@ -3313,11 +3073,11 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_ShopRow_Damaged",
+   "name": "Land_SKY_City_Substation_Ruined",
    "pos": [
-    61.5,
+    58.5,
     0.15,
-    -71.5
+    -72.0
    ],
    "ypr": [
     90.0,
@@ -3329,11 +3089,11 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_Rowhouse_Damaged",
+   "name": "Land_SKY_City_GarageBlock_Ruined",
    "pos": [
-    83.5,
+    86.5,
     0.15,
-    -73.4
+    -80.5
    ],
    "ypr": [
     270.0,
@@ -3361,43 +3121,11 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_Rowhouse_Ruined",
+   "name": "Land_SKY_City_GasStation_Damaged",
    "pos": [
-    -85.9,
+    -72.0,
     0.15,
-    -35.5
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_RowhouseRender_Intact",
-   "pos": [
-    -59.2,
-    0.15,
-    -35.5
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_AptBlock_Intact",
-   "pos": [
-    -63.5,
-    0.15,
-    -12.5
+    -17.0
    ],
    "ypr": [
     180.0,
@@ -3409,9 +3137,41 @@
    "customString": ""
   },
   {
+   "name": "Land_SKY_City_Kiosk_Ruined",
+   "pos": [
+    -88.0,
+    0.15,
+    -40.3
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_City_Rowhouse_Intact",
+   "pos": [
+    -59.4,
+    0.15,
+    -35.5
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
    "name": "Land_SKY_City_RowhouseRender_Intact",
    "pos": [
-    -77.6,
+    -58.1,
     0.15,
     -12.5
    ],
@@ -3427,7 +3187,7 @@
   {
    "name": "Land_SKY_City_Rowhouse_Intact",
    "pos": [
-    -84.8,
+    -85.8,
     0.15,
     -12.5
    ],
@@ -3441,30 +3201,14 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_RowhouseRender_Ruined",
+   "name": "Land_SKY_City_TownHall_Intact",
    "pos": [
-    -83.5,
+    -22.0,
     0.15,
-    -22.6
+    -32.5
    ],
    "ypr": [
-    90.0,
     0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_Kiosk_Intact",
-   "pos": [
-    -55.7,
-    0.15,
-    -27.5
-   ],
-   "ypr": [
-    270.0,
     0.0,
     0.0
    ],
@@ -3475,7 +3219,7 @@
   {
    "name": "Land_SKY_City_Police_Damaged",
    "pos": [
-    -24.0,
+    22.0,
     0.15,
     -34.5
    ],
@@ -3489,7 +3233,23 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_KioskCafe_Damaged",
+   "name": "Land_SKY_City_Bank_Intact",
+   "pos": [
+    0.0,
+    0.15,
+    -34.5
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_City_KioskCafe_Intact",
    "pos": [
     -40.0,
     0.15,
@@ -3505,59 +3265,11 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_CornerShop_Ruined",
+   "name": "Land_SKY_City_MetroEntrance_B",
    "pos": [
-    -12.5,
+    10.0,
     0.15,
-    -12.5
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_ShopRow_Damaged",
-   "pos": [
-    -24.5,
-    0.15,
-    -13.5
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_ShopRow_Intact",
-   "pos": [
-    -33.5,
-    0.15,
-    -13.5
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_CornerHardware_Intact",
-   "pos": [
-    12.5,
-    0.15,
-    -35.5
+    -38.5
    ],
    "ypr": [
     0.0,
@@ -3569,11 +3281,11 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_OfficeTall_Damaged",
+   "name": "Land_SKY_City_ShopRowNews_Ruined",
    "pos": [
-    29.0,
+    37.0,
     0.15,
-    -32.5
+    -34.5
    ],
    "ypr": [
     0.0,
@@ -3585,7 +3297,7 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_CornerPharmacy_Damaged",
+   "name": "Land_SKY_City_CornerShop_Damaged",
    "pos": [
     35.5,
     0.15,
@@ -3601,11 +3313,11 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_AptBlockTall_Intact",
+   "name": "Land_SKY_City_Cafe_Ruined",
    "pos": [
-    19.0,
+    22.0,
     0.15,
-    -12.5
+    -13.5
    ],
    "ypr": [
     180.0,
@@ -3617,14 +3329,62 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_KioskCafe_Damaged",
+   "name": "Land_SKY_City_OfficeMid_Damaged",
    "pos": [
-    7.7,
+    5.5,
     0.15,
-    -8.0
+    -15.5
    ],
    "ypr": [
-    90.0,
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_City_ShopRowMarket_Intact",
+   "pos": [
+    -9.5,
+    0.15,
+    -13.5
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_City_ShopRowNews_Damaged",
+   "pos": [
+    -18.5,
+    0.15,
+    -13.5
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_City_Cafe_Ruined",
+   "pos": [
+    -30.5,
+    0.15,
+    -13.5
+   ],
+   "ypr": [
+    180.0,
     0.0,
     0.0
    ],
@@ -3649,7 +3409,7 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_CornerHardware_Ruined",
+   "name": "Land_SKY_City_CornerHardware_Intact",
    "pos": [
     83.5,
     0.15,
@@ -3665,9 +3425,9 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_RubbleLot_C",
+   "name": "Land_SKY_City_RowhouseRender_Ruined",
    "pos": [
-    70.0,
+    72.4,
     0.15,
     -12.5
    ],
@@ -3681,11 +3441,11 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_ShopRow_Ruined",
+   "name": "Land_SKY_City_RubbleLot_B",
    "pos": [
-    59.5,
+    62.8,
     0.15,
-    -13.5
+    -12.5
    ],
    "ypr": [
     180.0,
@@ -3701,7 +3461,7 @@
    "pos": [
     57.5,
     0.15,
-    -30.0
+    -28.0
    ],
    "ypr": [
     90.0,
@@ -3729,11 +3489,11 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_VillaStone_Damaged",
+   "name": "Land_SKY_City_CourtyardBlockBrick_Damaged",
    "pos": [
-    -84.5,
+    -72.0,
     0.15,
-    11.5
+    22.0
    ],
    "ypr": [
     0.0,
@@ -3745,43 +3505,11 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_Villa_Ruined",
+   "name": "Land_SKY_City_KioskCafe_Ruined",
    "pos": [
-    -72.5,
+    -56.0,
     0.15,
-    11.5
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_VillaStone_Damaged",
-   "pos": [
-    -60.5,
-    0.15,
-    11.5
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_CornerShop_Intact",
-   "pos": [
-    -60.5,
-    0.15,
-    35.5
+    40.3
    ],
    "ypr": [
     180.0,
@@ -3793,25 +3521,9 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_RowhouseRender_Intact",
+   "name": "Land_SKY_City_Shed_Intact",
    "pos": [
-    -72.1,
-    0.15,
-    35.5
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_Shed_Damaged",
-   "pos": [
-    -79.7,
+    -61.5,
     0.15,
     40.0
    ],
@@ -3825,11 +3537,11 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_ShedBrick_Damaged",
+   "name": "Land_SKY_City_KioskCafe_Intact",
    "pos": [
-    -85.7,
+    -67.0,
     0.15,
-    40.0
+    40.3
    ],
    "ypr": [
     180.0,
@@ -3841,158 +3553,14 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_RowhousePanel_Intact",
+   "name": "Land_SKY_City_DepartmentStore_Intact",
    "pos": [
-    -83.5,
-    0.15,
-    34.9
-   ],
-   "ypr": [
-    90.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_VillaBrick_Intact",
-   "pos": [
-    -84.5,
-    0.15,
-    24.3
-   ],
-   "ypr": [
-    90.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_VillaStone_Ruined",
-   "pos": [
-    -59.5,
+    -20.0,
     0.15,
     21.5
    ],
    "ypr": [
-    270.0,
     0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_ShopRow_Ruined",
-   "pos": [
-    -37.0,
-    0.15,
-    13.5
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_ShopRow_Damaged",
-   "pos": [
-    -28.0,
-    0.15,
-    13.5
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_ShopRowHardware_Damaged",
-   "pos": [
-    -19.0,
-    0.15,
-    13.5
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_KioskCafe_Damaged",
-   "pos": [
-    -11.5,
-    0.15,
-    7.7
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_CornerPharmacy_Intact",
-   "pos": [
-    -12.5,
-    0.15,
-    35.5
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_ShopRow_Ruined",
-   "pos": [
-    -24.5,
-    0.15,
-    34.5
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_ShopRow_Intact",
-   "pos": [
-    -33.5,
-    0.15,
-    34.5
-   ],
-   "ypr": [
-    180.0,
     0.0,
     0.0
    ],
@@ -4003,7 +3571,7 @@
   {
    "name": "Land_SKY_City_Clinic_Intact",
    "pos": [
-    24.0,
+    22.0,
     0.15,
     34.5
    ],
@@ -4017,11 +3585,11 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_CornerShop_Ruined",
+   "name": "Land_SKY_City_ShopRowHardware_Damaged",
    "pos": [
-    12.5,
+    4.5,
     0.15,
-    12.5
+    13.5
    ],
    "ypr": [
     0.0,
@@ -4035,9 +3603,25 @@
   {
    "name": "Land_SKY_City_OfficeMid_Intact",
    "pos": [
-    29.0,
+    19.5,
     0.15,
     15.5
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_City_ShopRowHardware_Intact",
+   "pos": [
+    34.5,
+    0.15,
+    13.5
    ],
    "ypr": [
     0.0,
@@ -4065,9 +3649,25 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_Kiosk_Intact",
+   "name": "Land_SKY_City_ShopRow_Ruined",
    "pos": [
-    14.5,
+    9.5,
+    0.15,
+    34.5
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_City_Kiosk_Ruined",
+   "pos": [
+    2.0,
     0.15,
     40.3
    ],
@@ -4081,75 +3681,11 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_CornerPharmacy_Damaged",
+   "name": "Land_SKY_City_MetroEntrance_A",
    "pos": [
-    60.5,
+    -38.5,
     0.15,
-    12.5
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_AptBlock_Damaged",
-   "pos": [
-    77.0,
-    0.15,
-    12.5
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_CornerHardware_Ruined",
-   "pos": [
-    83.5,
-    0.15,
-    35.5
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_AptBlock_Intact",
-   "pos": [
-    67.0,
-    0.15,
-    35.5
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_Kiosk_Damaged",
-   "pos": [
-    55.7,
-    0.15,
-    40.0
+    39.5
    ],
    "ypr": [
     90.0,
@@ -4161,11 +3697,107 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_Rowhouse_Damaged",
+   "name": "Land_SKY_City_Hospital_Damaged",
+   "pos": [
+    66.5,
+    0.15,
+    48.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_City_SupermarketSmall_Intact",
+   "pos": [
+    63.5,
+    0.15,
+    13.5
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_City_Kiosk_Damaged",
+   "pos": [
+    75.5,
+    0.15,
+    7.7
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_City_RowhouseRender_Damaged",
+   "pos": [
+    82.1,
+    0.15,
+    12.5
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_City_AptBlock_Intact",
+   "pos": [
+    80.5,
+    0.15,
+    83.5
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_City_ShopRowMarket_Intact",
+   "pos": [
+    65.5,
+    0.15,
+    82.5
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_City_RowhouseRender_Ruined",
    "pos": [
     60.5,
     0.15,
-    25.4
+    24.4
    ],
    "ypr": [
     90.0,
@@ -4193,6 +3825,86 @@
    "customString": ""
   },
   {
+   "name": "Land_SKY_City_Cafe_Intact",
+   "pos": [
+    82.5,
+    0.15,
+    35.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_City_Cafe_Damaged",
+   "pos": [
+    82.5,
+    0.15,
+    49.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_City_Cafe_Damaged",
+   "pos": [
+    82.5,
+    0.15,
+    62.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_City_Rowhouse_Intact",
+   "pos": [
+    83.5,
+    0.15,
+    73.6
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_City_School_Intact",
+   "pos": [
+    -72.0,
+    0.15,
+    81.5
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
    "name": "Land_SKY_City_CornerShop_Intact",
    "pos": [
     -83.5,
@@ -4209,7 +3921,7 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_RowhousePanel_Ruined",
+   "name": "Land_SKY_City_RowhouseRender_Ruined",
    "pos": [
     -71.9,
     0.15,
@@ -4225,9 +3937,9 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_RowhousePanel_Intact",
+   "name": "Land_SKY_City_RubbleLot_A",
    "pos": [
-    -64.7,
+    -62.3,
     0.15,
     60.5
    ],
@@ -4243,76 +3955,12 @@
   {
    "name": "Land_SKY_City_KioskCafe_Intact",
    "pos": [
-    -57.6,
-    0.15,
-    55.7
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_CornerPharmacy_Intact",
-   "pos": [
-    -60.5,
-    0.15,
-    83.5
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_Rowhouse_Intact",
-   "pos": [
-    -72.1,
-    0.15,
-    83.5
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_RowhouseRender_Damaged",
-   "pos": [
-    -79.3,
-    0.15,
-    83.5
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_Shed_Intact",
-   "pos": [
-    -86.9,
+    -88.3,
     0.15,
     88.0
    ],
    "ypr": [
-    180.0,
+    90.0,
     0.0,
     0.0
    ],
@@ -4321,11 +3969,11 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_Shed_Intact",
+   "name": "Land_SKY_City_KioskCafe_Intact",
    "pos": [
-    -88.0,
+    -88.3,
     0.15,
-    84.5
+    83.0
    ],
    "ypr": [
     90.0,
@@ -4337,11 +3985,11 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_RowhouseRender_Damaged",
+   "name": "Land_SKY_City_KioskCafe_Intact",
    "pos": [
-    -83.5,
+    -88.3,
     0.15,
-    73.9
+    78.0
    ],
    "ypr": [
     90.0,
@@ -4353,142 +4001,14 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_Rowhouse_Damaged",
+   "name": "Land_SKY_City_Church_Intact",
    "pos": [
-    -60.5,
+    -24.0,
     0.15,
-    70.1
-   ],
-   "ypr": [
-    270.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_CornerPharmacy_Intact",
-   "pos": [
-    -35.5,
-    0.15,
-    60.5
+    66.5
    ],
    "ypr": [
     0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_RowhouseRender_Ruined",
-   "pos": [
-    -23.9,
-    0.15,
-    60.5
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_Rowhouse_Ruined",
-   "pos": [
-    -16.7,
-    0.15,
-    60.5
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_Shed_Intact",
-   "pos": [
-    -9.1,
-    0.15,
-    56.0
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_CornerPharmacy_Intact",
-   "pos": [
-    -12.5,
-    0.15,
-    83.5
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_RubbleLot_B",
-   "pos": [
-    -26.5,
-    0.15,
-    83.5
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_Shed_Damaged",
-   "pos": [
-    -36.5,
-    0.15,
-    88.0
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_Shed_Intact",
-   "pos": [
-    -40.0,
-    0.15,
-    87.5
-   ],
-   "ypr": [
-    90.0,
     0.0,
     0.0
    ],
@@ -4500,54 +4020,6 @@
    "name": "Land_SKY_City_VillaBrick_Intact",
    "pos": [
     -36.5,
-    0.15,
-    72.5
-   ],
-   "ypr": [
-    90.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_VillaStone_Intact",
-   "pos": [
-    -11.5,
-    0.15,
-    71.5
-   ],
-   "ypr": [
-    270.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_CornerShop_Intact",
-   "pos": [
-    12.5,
-    0.15,
-    60.5
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_Villa_Intact",
-   "pos": [
-    25.5,
     0.15,
     59.5
    ],
@@ -4561,153 +4033,9 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_RowhouseRender_Intact",
-   "pos": [
-    36.1,
-    0.15,
-    60.5
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_CornerPharmacy_Ruined",
-   "pos": [
-    35.5,
-    0.15,
-    83.5
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_VillaBrick_Intact",
-   "pos": [
-    22.5,
-    0.15,
-    84.5
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_Shed_Intact",
-   "pos": [
-    13.5,
-    0.15,
-    88.0
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
    "name": "Land_SKY_City_KioskCafe_Intact",
    "pos": [
-    8.0,
-    0.15,
-    88.3
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_Shed_Intact",
-   "pos": [
-    8.0,
-    0.15,
-    84.5
-   ],
-   "ypr": [
-    90.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_Villa_Intact",
-   "pos": [
-    11.5,
-    0.15,
-    75.5
-   ],
-   "ypr": [
-    90.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_Villa_Intact",
-   "pos": [
-    36.5,
-    0.15,
-    71.5
-   ],
-   "ypr": [
-    270.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_CornerShop_Intact",
-   "pos": [
-    60.5,
-    0.15,
-    60.5
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_Kiosk_Intact",
-   "pos": [
-    69.5,
+    -15.0,
     0.15,
     55.7
    ],
@@ -4721,11 +4049,11 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_ShopRow_Ruined",
+   "name": "Land_SKY_City_Shed_Damaged",
    "pos": [
-    77.0,
+    -9.5,
     0.15,
-    61.5
+    56.0
    ],
    "ypr": [
     0.0,
@@ -4737,27 +4065,11 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_RowhouseRender_Intact",
+   "name": "Land_SKY_City_VillaStone_Intact",
    "pos": [
-    85.1,
+    -11.5,
     0.15,
-    60.5
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_AptBlock_Ruined",
-   "pos": [
-    80.5,
-    0.15,
-    83.5
+    84.5
    ],
    "ypr": [
     180.0,
@@ -4769,11 +4081,11 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_Rowhouse_Damaged",
+   "name": "Land_SKY_City_ShedBrick_Ruined",
    "pos": [
-    66.4,
+    -20.5,
     0.15,
-    83.5
+    88.0
    ],
    "ypr": [
     180.0,
@@ -4785,11 +4097,11 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_RowhouseRender_Intact",
+   "name": "Land_SKY_City_Villa_Intact",
    "pos": [
-    59.2,
+    -29.5,
     0.15,
-    83.5
+    84.5
    ],
    "ypr": [
     180.0,
@@ -4801,11 +4113,11 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_RowhouseRender_Intact",
+   "name": "Land_SKY_City_Villa_Intact",
    "pos": [
-    60.5,
+    -36.5,
     0.15,
-    73.4
+    74.5
    ],
    "ypr": [
     90.0,
@@ -4817,14 +4129,62 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_RowhouseRender_Ruined",
+   "name": "Land_SKY_City_Villa_Intact",
    "pos": [
-    83.5,
+    -11.5,
     0.15,
-    72.6
+    62.5
    ],
    "ypr": [
     270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_City_Villa_Intact",
+   "pos": [
+    -11.5,
+    0.15,
+    74.5
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_City_CourtyardBlock_Intact",
+   "pos": [
+    24.0,
+    0.15,
+    70.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_City_Kiosk_Intact",
+   "pos": [
+    40.0,
+    0.15,
+    88.3
+   ],
+   "ypr": [
+    180.0,
     0.0,
     0.0
    ],

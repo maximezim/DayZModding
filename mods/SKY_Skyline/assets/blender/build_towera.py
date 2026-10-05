@@ -383,14 +383,16 @@ def _step_skip(i, n, back):
     return tuple(skip)
 
 
-def build_core():
+def build_core(spec=None):
+    """Stair + elevator core for a tower spec (Tower A: 5 typical floors; tall cores D58)."""
+    spec = spec or S.TOWER_A
     L = std_lods()
     C = S.CORE
     x0, x1 = C["x"]
     y0, y1 = C["y"]
     w = S.WALL_T
-    stops = S.elevator_stops()
-    top = S.core_height()
+    stops = S.elevator_stops(spec)
+    top = S.core_height(spec)
     ix0, ix1, iy0, iy1 = x0 + w, x1 - w, y0 + w, y1 - w            # interior
     sd0, sd1 = C["stair_door_x"]
     ed = C["door_w"] / 2
@@ -516,8 +518,10 @@ def build_core():
         for (a0, a1, b0, b1) in ((sd0 - 0.1, sd0, s, s + 2.3), (sd1, sd1 + 0.1, s, s + 2.3), (sd0, sd1, s + 2.2, s + 2.3)):
             L["res0"].box(a0, a1, y0 - 0.04, y0, b0, b1, mat="metal", uv=UV_PAINT, skip=("+y", "-z"))
         # wayfinding plates (atlas): level next to the elevator and the stair door, EXIT at the stair
-        lab = S.WAYFINDING[i] if i < len(S.WAYFINDING) - 1 else "R"
-        for (px0, px1, face_y, nrm) in ((-1.15, -0.85, y1 + 0.005, (0, 1, 0)), (-2.3, -2.0, y0 - 0.005, (0, -1, 0))):
+        # level plates: L, 1-5 from the atlas, R on the top stop; tall cores have no plate on 6+ (no atlas cell)
+        lab = "R" if i == len(stops) - 1 else (S.WAYFINDING[i] if i <= 5 else None)
+        for (px0, px1, face_y, nrm) in (((-1.15, -0.85, y1 + 0.005, (0, 1, 0)), (-2.3, -2.0, y0 - 0.005, (0, -1, 0)))
+                                        if lab else ()):
             pts = [(px0, face_y, s + 1.45), (px1, face_y, s + 1.45), (px1, face_y, s + 2.05), (px0, face_y, s + 2.05)]
             lo, hi = ((px0, s + 1.45), (px1, s + 2.05)) if nrm[1] < 0 else ((px1, s + 1.45), (px0, s + 2.05))
             DT.plate(L, pts, nrm, S.wayfinding_uv(lab), (0, 2), lo, hi)
@@ -559,6 +563,9 @@ MODULES = {
     "floor": (build_floor_office, "sky_towera", S.P3D[S.CLASS_FLOOR]),
     "roof": (build_roof_helipad, "sky_towera", S.P3D[S.CLASS_ROOF]),
     "core": (build_core, "sky_towera", S.P3D[S.CLASS_CORE]),
+    "core15": (lambda: build_core(S.CORE_VARIANTS["T15"][1]), "sky_towera", S.P3D[S.CORE_VARIANTS["T15"][0]]),
+    "core23": (lambda: build_core(S.CORE_VARIANTS["T23"][1]), "sky_towera", S.P3D[S.CORE_VARIANTS["T23"][0]]),
+    "core33": (lambda: build_core(S.CORE_VARIANTS["T33"][1]), "sky_towera", S.P3D[S.CORE_VARIANTS["T33"][0]]),
     "keycard": (build_keycard, "sky_items", "sky_keycard.p3d"),
 }
 
@@ -574,7 +581,12 @@ def main():
         path = os.path.join(out, pbo, fname)
         stats[fname] = export_p3d(lods, MATS, path)
         print("EXPORTED", path, stats[fname])
-    with open(os.path.join(out, "..", "assets", "build_stats.json"), "w") as fh:
+    sp = os.path.join(out, "..", "assets", "build_stats.json")
+    if os.path.exists(sp):                                         # --only: keep the other modules' stats
+        old = json.load(open(sp))
+        old.update(stats)
+        stats = old
+    with open(sp, "w") as fh:
         json.dump(stats, fh, indent=1, sort_keys=True)
 
 

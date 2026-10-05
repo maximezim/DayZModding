@@ -40,24 +40,45 @@ def _sat(a, b, eps=1e-6):
     return True
 
 
+def footprint(S, arch):
+    """(w, d, oy): footprint size and the model origin's offset from the footprint centre along
+    model +Y (forecourt buildings: the body sits at the back of the footprint, D58)."""
+    if arch in S.CITY_PIECES:
+        _k, w, d = S.CITY_PIECES[arch]
+        return w, d, 0.0
+    x0, x1, y0, y1 = S.city_footprint(S.CITY_ARCHETYPES[arch])
+    return x1 - x0, y1 - y0, -(y0 + y1) / 2
+
+
 def dims(S, arch):
-    if arch == "RubbleLot":
-        return 12.0, 12.0
-    A = S.CITY_ARCHETYPES[arch]
-    return A["w"], A["d"]
+    w, d, _oy = footprint(S, arch)
+    return w, d
 
 
 def party(S, arch):
     if arch == "RubbleLot":
         return True
+    if arch in S.CITY_PIECES:
+        return False
     b = S.CITY_ARCHETYPES[arch].get("blank", ())
     return "W" in b and "E" in b
 
 
+def is_small(S, arch):
+    return arch not in S.CITY_PIECES and S.CITY_ARCHETYPES[arch]["group"] == "small"
+
+
 def class_of(S, arch, state, rng):
-    if arch == "RubbleLot":
-        return S.KIT["City_RubbleLot_%s" % rng.choice("ABCD")]["cls"]
+    if arch in S.CITY_PIECES:
+        return S.KIT[rng.choice(S.CITY_PIECES[arch][0])]["cls"]
     return S.KIT["City_%s_%s" % (arch, S.RUIN_STATES[state])]["cls"]
+
+
+def _origin(S, arch, cu, cv, yaw):
+    """Model origin (site frame) of a building whose footprint centre is (cu, cv)."""
+    _w, _d, oy = footprint(S, arch)
+    du, dv = _rot(0.0, oy, yaw)
+    return cu + du, cv + dv
 
 
 def _weighted_order(rng, weights):
@@ -81,13 +102,14 @@ def _weighted_order(rng, weights):
 
 
 def fill_block(S, block, rect, setback):
-    """-> [(cls, arch, state, u, v, yaw_rel, hw, hd)] in the site frame (block rect = site frame)."""
+    """-> [(cls, arch, state, u, v, yaw_rel, hw, hd, ou, ov)] in the site frame (block rect = site
+    frame): footprint centre (u, v) and half sizes for the overlap checks, model origin (ou, ov)."""
     fill = block.get("fill") or {}
     zone = S.CITY_ZONES[fill["zone"]] if fill else None
     rng = random.Random("%s:%s" % (fill.get("seed", 1), block["id"]))
     u0, u1, v0, v1 = rect[0] + setback, rect[1] - setback, rect[2] + setback, rect[3] - setback
     starts = {"S": (u0, v0, u1 - u0), "N": (u1, v1, u1 - u0), "W": (u0, v1, v1 - v0), "E": (u1, v0, v1 - v0)}
-    placed, quads = [], []
+    placed, quads, used = [], [], set()
     for b in block.get("buildings", []) or []:                              # explicit buildings first
         state = {"intact": 0, "damaged": 1, "ruined": 2}[b.get("ruin", "intact")]
         w, d = dims(S, b["type"])
@@ -95,7 +117,9 @@ def fill_block(S, block, rect, setback):
         yaw = float(b.get("yaw", 0.0))
         q = _corners(u, v, w / 2, d / 2, yaw)
         quads.append(q)
-        placed.append((class_of(S, b["type"], state, rng), b["type"], state, u, v, yaw, w / 2, d / 2))
+        placed.append((class_of(S, b["type"], state, rng), b["type"], state, u, v, yaw, w / 2, d / 2)
+                      + _origin(S, b["type"], u, v, yaw))
+        used.add(b["type"])
     if not zone:
         return placed
     small = [0]
@@ -113,8 +137,10 @@ def fill_block(S, block, rect, setback):
                 order = ["RubbleLot"] + order
             done = False
             for arch in order:
-                is_small = arch != "RubbleLot" and S.CITY_ARCHETYPES[arch]["group"] == "small"
-                if is_small and small[0] >= zone.get("small_cap", 1):
+                small_one = is_small(S, arch)
+                if small_one and small[0] >= zone.get("small_cap", 1):
+                    continue
+                if arch in zone.get("once", ()) and arch in used:          # landmarks: one per block
                     continue
                 w, d = dims(S, arch)
                 gap = 0.0 if (a == 0.0 or (prev_party and party(S, arch))) else zone["gap"]
@@ -131,9 +157,13 @@ def fill_block(S, block, rect, setback):
                 r = rng.random()
                 p_i, p_d, _p_r = zone["ruin"]
                 state = 0 if r < p_i else (1 if r < p_i + p_d else 2)
+                if arch in S.CITY_PIECES and arch != "RubbleLot":
+                    state = 0                                               # kit pieces: one state
                 quads.append(q)
-                placed.append((class_of(S, arch, state, rng), arch, state, cu, cv, yaw, w / 2, d / 2))
-                small[0] += 1 if is_small else 0
+                placed.append((class_of(S, arch, state, rng), arch, state, cu, cv, yaw, w / 2, d / 2)
+                              + _origin(S, arch, cu, cv, yaw))
+                used.add(arch)
+                small[0] += 1 if small_one else 0
                 a = aa + w
                 prev_party = party(S, arch)
                 done = True

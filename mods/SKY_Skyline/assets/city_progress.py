@@ -46,6 +46,12 @@ def modular_built(cid):
         if cid == "TowerResidential":
             ok = ok and os.path.exists(os.path.join(MOD, "addons", "sky_floors", S.KIT["Floor_Apartments"]["p3d"]))
         return 1 if ok else 0
+    tow = lambda k: os.path.exists(os.path.join(MOD, "addons", "sky_towera", S.P3D[S.CORE_VARIANTS[k][0]]))
+    if cid == "OfficeTower":                                   # tall cores (D58): 17 / 25 storeys
+        return sum(1 for k in ("T15", "T23") if tow(k))
+    if cid == "HQLandmark":                                    # 35 storeys: core T33 + crown roof
+        e = S.KIT["Roof_Crown"]
+        return 1 if tow("T33") and os.path.exists(os.path.join(MOD, "addons", e["pbo"], e["p3d"])) else 0
     return 0
 
 
@@ -115,7 +121,8 @@ def render():
         "## Catalog",
         "",
         "kind: `proc` = procedural archetype (`build_city.py`, 3 ruin states each), `modular` = Tower A",
-        "system, `kit` = small piece. Wave = planned production batch (0 = existing, 1 = this batch).",
+        "system (lobby / floors / roof on a stair + elevator core of the tower's height), `kit` = small piece.",
+        "Wave = production batch (0 = Tower A, 1-2 = D56 / D57, 3-4 = D58).",
         "",
         "| Type | Group | Footprint (m) | Floors | Kind | Variants built | Models built | Placed | Wave | Status | Note |",
         "|---|---|---|---|---|---|---|---|---|---|---|",

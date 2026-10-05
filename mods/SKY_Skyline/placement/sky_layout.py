@@ -168,9 +168,12 @@ def street_tiles(lay):
     i0, i1, j0, j1 = st["extent"]
     ns, ew = set(st.get("ns", [])), set(st.get("ew", []))
     cross = {tuple(c) for c in st.get("crossings", [])}
+    closed = {tuple(c) for c in st.get("closed", [])}         # street cells built over (merged blocks, D58)
     tiles = []
     for i in range(i0, i1 + 1):
         for j in range(j0, j1 + 1):
+            if (i, j) in closed:
+                continue
             if i in ns and j in ew:
                 tiles.append(("Street_Intersection", i, j, 0.0))
             elif i in ns:
@@ -186,14 +189,25 @@ def cell_center(lay, i, j):
 
 
 # ------------------------------------------------------------------ towers
+def tower_spec(ctx, t):
+    """Tower spec of the chosen core (D58): A = Tower A (5 floors), T15 / T23 / T33 = tall cores."""
+    core = t.get("core", "A")
+    if core not in S.CORE_VARIANTS:
+        ctx.errors.append("tower %s: unknown core '%s' (%s)" % (t["id"], core, ", ".join(S.CORE_VARIANTS)))
+        core = "A"
+    spec = dict(TOWER_TYPES[t["type"]])
+    spec["typical_floors"] = S.CORE_VARIANTS[core][1]["typical_floors"]
+    return spec
+
+
 def tower_modules(ctx, t):
     """[(class, z)] for a tower: lobby, typical floors (variants), roof, plus the roof class."""
-    spec = TOWER_TYPES[t["type"]]
+    spec = tower_spec(ctx, t)
     n = spec["typical_floors"]
     floors = t.get("floors") or [spec["floor_variant"]] * n
     if len(floors) != n:
-        ctx.errors.append("tower %s: %d floors given, the unchanged core has exactly %d typical-floor stops"
-                          % (t["id"], len(floors), n))
+        ctx.errors.append("tower %s: %d floors given, core %s has exactly %d typical-floor stops"
+                          % (t["id"], len(floors), t.get("core", "A"), n))
         floors = (list(floors) + [spec["floor_variant"]] * n)[:n]
     roof = t.get("roof", "helipad")
     mods = []
@@ -255,7 +269,7 @@ def furnish(ctx, t, mods, cx, cz, base_y, yaw):
 
 
 def place_tower(ctx, lay, t, cx, cz, yaw, survey, site):
-    spec = TOWER_TYPES[t["type"]]
+    spec = tower_spec(ctx, t)
     hw, hd = spec["footprint"][0] / 2, spec["footprint"][1] / 2
     base_y = site.get("base_y")
     if survey is not None:
@@ -287,7 +301,7 @@ def place_tower(ctx, lay, t, cx, cz, yaw, survey, site):
             ctx.errors.append("tower %s: stacking gap at z=%.2f" % (t["id"], z))
         prev = z
         ctx.add("modules", cls, (cx, base_y + z, cz), yaw)
-    ctx.add("modules", S.CLASS_CORE, (cx, base_y, cz), yaw)
+    ctx.add("modules", S.CORE_VARIANTS.get(t.get("core", "A"), S.CORE_VARIANTS["A"])[0], (cx, base_y, cz), yaw)
     roof_cls, roof_z = mods[-1]
     for (u, v) in S.ROOF_DROP_POINTS[roof_cls]:
         dx, dz = rot(u, v, yaw)
@@ -308,8 +322,9 @@ def place_city(ctx, lay, block_rects, world, site_yaw, survey, site, tile_quads,
     for b, rect in block_rects:
         if not (b.get("fill") or b.get("buildings")):
             continue
-        for cls, arch, state, u, v, yaw_rel, hw, hd in city_fill.fill_block(S, b, rect, S.BLOCK_SETBACK):
-            cx, cz = world(u, v)
+        for cls, arch, state, u, v, yaw_rel, hw, hd, ou, ov in city_fill.fill_block(S, b, rect, S.BLOCK_SETBACK):
+            cx, cz = world(u, v)                                        # footprint centre (checks)
+            mx, mz = world(ou, ov)                                      # model origin (spawn position)
             yaw = (site_yaw + yaw_rel) % 360.0
             quad = footprint_corners(cx, cz, hw, hd, yaw)
             what = "%s in block %s" % (cls.replace("Land_SKY_City_", ""), b["id"])
@@ -339,9 +354,8 @@ def place_city(ctx, lay, block_rects, world, site_yaw, survey, site, tile_quads,
             if ctx.street_y is not None and abs(base_y - (ctx.street_y + S.STREET["curb_h"])) > 0.5:
                 ctx.soft("%s: ground floor %.2f m off the sidewalk - entrance step too high" % (
                     what, base_y - ctx.street_y - S.STREET["curb_h"]))
-            ctx.add("buildings", cls, (cx, base_y, cz), yaw)
-            key = arch if arch != "RubbleLot" else "RubbleLot"
-            st = ctx.city_stats.setdefault(key, [0, 0, 0])
+            ctx.add("buildings", cls, (mx, base_y, mz), yaw)
+            st = ctx.city_stats.setdefault(arch, [0, 0, 0])
             st[state if arch != "RubbleLot" else 2] += 1
             centres.append((cx, cz))
     return centres

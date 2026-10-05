@@ -138,3 +138,16 @@ frontline, rubble lots, deterministic seed). The template quarter (`placement/ci
 places 117 buildings. Spawner target stays capped (ENTITY_CAP); the terrain target writes
 `city_objects.csv` for Terrain Builder (P11, unverified). Gates PASS (`reviews/city_wave2_gates.md`),
 renders `reviews/img/city2_*.png`, `district_*.png`, in-game rows TESTING §22.
+
+## 10. City catalog complete: wave 3, tall towers, landmark blocks (D58)
+
+Every type in `CITY_PLAN.md` is built: **156 / 156 unique models** (35 types, 60 variants). Wave 3 adds
+the civic and large types on new shared plans - hospital, school and town hall (double-loaded corridor),
+courtyard blocks (perimeter block round a yard with a gallery ring), department store (atrium), bank
+(banking hall + vault), church (bell tower, spire), post office, factory hall (sawtooth roof), large
+warehouse, parking garage (decks + car ramps), gas station and cafes (forecourts), substation, water
+tower and two sealed metro entrances - 51 city P3Ds, all passing `test_city.py`. Office towers and the
+HQ landmark reuse the Tower A modules on taller cores (17 / 25 / 35 storeys, same elevator script) with a
+new crown roof. The city template now merges blocks by closing street cells and holds the landmarks:
+93 buildings, 43 / 27 / 23 intact / damaged / ruined. Gates PASS (`reviews/city_wave3_gates.md`), renders
+`reviews/img/city3_*.png`, `district3_*.png`, `towers_tall*.png`, in-game rows TESTING §23.

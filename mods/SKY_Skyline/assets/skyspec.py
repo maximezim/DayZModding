@@ -528,7 +528,7 @@ MATERIALS.update({
     "signs":  {"rvmat": rvmat("sky_signs"), "co": tex("sky_signs_co")},
 })
 SIGN_NAMES = ["police", "pharmacy", "market", "cafe", "offices", "depot", "bakery", "hardware", "clinic", "fire",
-              "garage", "news"]
+              "garage", "news", "fuel", "bank", "store", "hospital", "school", "townhall", "post", "metro"]
 SIGN_BAND = {k: (i / float(len(SIGN_NAMES)), (i + 1) / float(len(SIGN_NAMES))) for i, k in enumerate(SIGN_NAMES)}
 RUIN_STATES = ("Intact", "Damaged", "Ruined")
 CITY_STYLE = {
@@ -659,9 +659,104 @@ CITY_ARCHETYPES.update({
     "KioskCafe": _variant("Kiosk", skin=("render", "ochre"), sign="cafe", cats=["food"], desc="coffee kiosk"),
     "ShedBrick": _variant("Shed", skin=("brick", None), desc="brick yard shed"),
 })
+
+# ---- wave 3 (D58): civic landmarks and large types. New plan grammar: "double_<kind>" (rooms both
+# sides of a central corridor, hall to the stair, wide entry room on the ground), "ring" (perimeter
+# block round an open yard, ring gallery), "dept" (sales floors round an atrium), "parking" (open
+# decks + car ramps), forecourts (canopy / terrace inside the footprint, in front of the body),
+# per-archetype window sizes ("win"), Y-ridge pitched roof + bell tower, sawtooth roof.
+# Odd bay counts on the front put the door on the axis (landmarks).
+_OFF = ["tools", "containers", "books", "clothes"]
+CITY_SKINS["open"] = {"mat": "concrete", "ww": None, "sill": None, "head": None, "recess": 0.0}
+CITY_ARCHETYPES.update({
+    "WarehouseLarge": _variant("Warehouse", w=36.0, d=24.0, roller_bays=(2, 4, 6),
+                               desc="large steel warehouse, 3 roller doors"),
+    "CourtyardBlock": {"group": "residential", "w": 30.0, "d": 30.0, "levels": [("ring", 3.0)] * 5,
+                       "skin": ("render", "ochre"), "yard": 14.0, "blank": (), "stair": "back_center", "bay": 3.33,
+                       "door_bay": "center", "room_w": 4.4, "usage": ["Town"], "cats": _RES,
+                       "desc": "5-storey perimeter block round an inner yard, gateway from the street"},
+    "GasStation": {"group": "commercial", "w": 12.0, "d": 8.0, "forecourt": (20.0, 6.5), "levels": [("gas", 3.8)],
+                   "skin": ("render", "white"), "ground": "shopfront", "shop_sides": ("S",), "blank": (), "stair": None,
+                   "bay": 2.4, "door_bay": "center", "sign": "fuel", "parapet": 0.6, "roof_gear": False,
+                   "usage": ["Town", "Industrial"], "cats": ["food", "tools", "containers"],
+                   "desc": "filling station: shop and pump canopy on the forecourt"},
+    "Cafe": {"group": "commercial", "w": 12.0, "d": 6.0, "forecourt": (12.0, 4.0), "levels": [("cafe", 3.6)],
+             "skin": ("render", "cream"), "ground": "shopfront", "shop_sides": ("S", "W", "E"), "blank": (),
+             "stair": None, "bay": 2.4, "door_bay": "center", "sign": "cafe", "parapet": 0.5, "roof_gear": False,
+             "usage": ["Town"], "cats": ["food", "containers"], "desc": "cafe pavilion with a street terrace"},
+    "Bank": {"group": "commercial", "w": 16.0, "d": 14.0,
+             "levels": [("bank_ground", 4.0), ("double_office", 3.5), ("double_office", 3.5)],
+             "skin": ("stone", None), "blank": (), "stair": "back_right", "bay": 3.2, "door_bay": "center",
+             "room_w": 3.6, "sign": "bank", "landmark": "portico", "usage": ["Office", "Town"], "cats": _OFF,
+             "desc": "3-storey stone bank: banking hall, vault, offices above"},
+    "DepartmentStore": {"group": "commercial", "w": 40.0, "d": 30.0,
+                        "levels": [("dept", 4.5), ("dept", 4.0), ("dept", 4.0)], "skin": ("render", "white"),
+                        "ground": "shopfront", "shop_sides": ("S", "W", "E"), "blank": (), "stair": "back_center",
+                        "bay": 4.44, "door_bay": "center", "atrium": (12.0, 8.0), "sign": "store",
+                        "usage": ["Town"], "cats": ["clothes", "containers", "tools", "food", "books"],
+                        "desc": "3-storey department store round a central atrium"},
+    "Hospital": {"group": "civic", "w": 40.0, "d": 24.0, "levels": [("double_exam", 4.0)] + [("double_ward", 3.5)] * 4,
+                 "skin": ("render", "white"), "blank": (), "stair": "back_center", "bay": 3.08, "door_bay": "center",
+                 "entry_w": 8.0, "entry_kind": "reception", "room_w": 4.8, "sign": "hospital",
+                 "usage": ["Medic"], "cats": ["tools", "containers", "clothes"],
+                 "desc": "5-storey hospital: reception and exam rooms, four ward floors"},
+    "School": {"group": "civic", "w": 30.0, "d": 16.0, "levels": [("double_class", 3.6)] * 3, "skin": ("brick", None),
+               "blank": (), "stair": "back_center", "bay": 3.33, "door_bay": "center", "entry_w": 6.0,
+               "entry_kind": "reception", "room_w": 7.2, "sign": "school", "usage": ["School"],
+               "cats": ["books", "clothes", "containers", "tools"], "desc": "3-storey brick school, classrooms off a corridor"},
+    "TownHall": {"group": "civic", "w": 24.0, "d": 18.0,
+                 "levels": [("double_office", 4.0), ("double_office", 3.6), ("double_office", 3.6)],
+                 "skin": ("stone", None), "blank": (), "stair": "back_center", "bay": 3.43, "door_bay": "center",
+                 "entry_w": 6.0, "entry_kind": "reception", "room_w": 4.8, "sign": "townhall", "landmark": "townhall",
+                 "usage": ["Office", "Town"], "cats": _OFF,
+                 "desc": "3-storey stone town hall: pilasters, pediment, clock and cupola"},
+    "Church": {"group": "civic", "w": 14.0, "d": 24.0, "levels": [("nave", 9.0)], "skin": ("stone", None),
+               "roof": "pitched", "ridge": "y", "tower": True, "win": (1.2, 3.0, 7.0), "blank": (), "stair": None,
+               "bay": 2.8, "door_bay": "center", "usage": ["Town", "Village"], "cats": ["clothes", "containers", "books"],
+               "desc": "stone church: tall nave, pews, front bell tower with spire"},
+    "PostOffice": {"group": "civic", "w": 14.0, "d": 12.0, "levels": [("shop", 3.6), ("corridor", 3.4)],
+                   "skin": ("render", "cream"), "ground": "shopfront", "shop_sides": ("S",), "blank": (),
+                   "stair": "back_right", "bay": 2.8, "door_bay": "center", "sign": "post", "usage": ["Town", "Office"],
+                   "cats": ["books", "containers", "clothes"], "desc": "2-storey post office: counter hall, offices above"},
+    "FactoryHall": {"group": "industrial", "w": 36.0, "d": 24.0, "levels": [("factory", 8.0)], "skin": ("brick", None),
+                    "win": (2.4, 3.6, 6.6), "roof": "sawtooth", "blank": (), "stair": None, "bay": 4.0, "door_bay": 0,
+                    "roller_bays": (3, 6), "parapet": 0.6, "roof_gear": False, "usage": ["Industrial"],
+                    "cats": ["tools", "containers"], "desc": "brick factory hall: sawtooth roof, machines, crane beam"},
+    "ParkingGarage": {"group": "industrial", "w": 30.0, "d": 24.0, "levels": [("parking", 3.0)] * 4,
+                      "skin": ("open", None), "blank": (), "stair": "back_left", "bay": 5.0, "door_bay": None,
+                      "open_bays": (3,), "roller_h": 2.6, "ramps": True, "parapet": 1.1, "roof_gear": False,
+                      "usage": ["Town", "Industrial"], "cats": ["tools", "containers"],
+                      "desc": "4-deck open parking garage: car ramps, stair, wrecks"},
+    "Substation": {"group": "industrial", "w": 10.0, "d": 8.0, "levels": [("yard", 3.0)], "skin": ("brick", None),
+                   "special": "substation", "blank": (), "stair": None, "bay": 2.5, "door_bay": None,
+                   "usage": [], "cats": [], "desc": "fenced electrical substation (not enterable)"},
+})
+CITY_ARCHETYPES.update({
+    "CourtyardBlockBrick": _variant("CourtyardBlock", skin=("brick", None), levels=[("ring", 3.0)] * 4,
+                                    desc="4-storey brick perimeter block round an inner yard"),
+    "CafeBrick": _variant("Cafe", skin=("brick", None), desc="brick cafe pavilion with a street terrace"),
+})
+
+
+def city_footprint(A):
+    """Model-space footprint (x0, x1, y0, y1) of an archetype: body + forecourt in front (-Y)."""
+    hw, hd = A["w"] / 2, A["d"] / 2
+    fc = A.get("forecourt")
+    if not fc:
+        return (-hw, hw, -hd, hd)
+    fw = max(hw, fc[0] / 2)
+    return (-fw, fw, -hd - fc[1], hd)
+
+
+def _city_category(e):
+    if len(e["levels"]) >= 7:
+        return "city_tall"
+    return "city_large" if e["w"] * e["d"] >= 600 else "city"
+
+
 for _a, _e in CITY_ARCHETYPES.items():
     for _i, _st in enumerate(RUIN_STATES):
-        kit("City_%s_%s" % (_a, _st), "sky_city", "city_tall" if len(_e["levels"]) >= 7 else "city", uses=["PENETRATION"] + (["DOOR_SWING_SIGN"] if _i < 2 else []),
+        kit("City_%s_%s" % (_a, _st), "sky_city", _city_category(_e), uses=["PENETRATION"] + (["DOOR_SWING_SIGN"] if _i < 2 else []),
             desc="%s (%s)" % (_e["desc"], _st.lower()))
         # orient -1: city front doors open inward (action point inside), see test_city swing test
         KIT["City_%s_%s" % (_a, _st)]["doors"] = [door("door_front", "Door", -1)] if (_i < 2 and _e["door_bay"] is not None) else []
@@ -671,6 +766,20 @@ for _v in "ABCD":                                     # standalone collapsed lot
     KIT["City_RubbleLot_%s" % _v]["doors"] = []
     KIT["City_RubbleLot_%s" % _v]["city"] = {"archetype": None, "ruin": 2, "lot": _v}
     KIT["City_RubbleLot_%s" % _v]["catalog"] = "RubbleLot"
+# Wave 3 kit pieces (one model each, not enterable, no loot). Metro entrances are sealed at street
+# level: a stair down needs a terrain hole (custom terrain only), so both variants stay on the
+# surface (D58).
+for _n, _cid, _d in [("City_WaterTower", "WaterTower", "18 m steel water tower on a lattice frame"),
+                     ("City_MetroEntrance_A", "MetroEntrance", "metro stair head sealed with steel plates, railings, sign"),
+                     ("City_MetroEntrance_B", "MetroEntrance", "glazed metro entrance pavilion, doors chained shut")]:
+    kit(_n, "sky_city", "city", uses=["PENETRATION"], desc=_d)
+    KIT[_n]["doors"] = []
+    KIT[_n]["city"] = {"archetype": None, "ruin": 0, "piece": _cid}
+    KIT[_n]["catalog"] = _cid
+# Placeable non-archetype pieces for placement/city_fill.py: class keys, footprint (w, d).
+CITY_PIECES = {"RubbleLot": (["City_RubbleLot_%s" % v for v in "ABCD"], 12.0, 12.0),
+               "WaterTower": (["City_WaterTower"], 6.0, 6.0),
+               "MetroEntrance": (["City_MetroEntrance_A", "City_MetroEntrance_B"], 4.0, 6.0)}
 # Loot points of the city buildings are computed by build_city.py (on a slab, clear of every solid,
 # outside stair and collapse) and committed in assets/city_loot.json -> CE groups here.
 _CITY_LOOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "city_loot.json")
@@ -697,8 +806,8 @@ CITY_CATALOG = [
     ("CornerShop", "mixed", "12x12", 3, "proc", 3, 30, 1, "bakery / pharmacy / hardware signs"),
     ("ShopRow", "mixed", "9x14", 4, "proc", 4, 80, 2, "shops on the ground floor, flats above"),
     ("OfficeMid", "commercial", "18x18", 6, "proc", 2, 20, 1, "6 / 9 floors"),
-    ("OfficeTower", "commercial", "24x24", 25, "modular", 2, 3, 4, "needs a taller core (D38)"),
-    ("HQLandmark", "commercial", "30x30", 35, "modular", 1, 1, 4, "the one 4K-facade asset"),
+    ("OfficeTower", "commercial", "24x24", 25, "modular", 2, 3, 4, "Tower A modules on tall cores T15 / T23 (17 / 25 storeys)"),
+    ("HQLandmark", "commercial", "24x24", 35, "modular", 1, 1, 4, "core T33 + crown roof (pylons, fins, spire)"),
     ("TowerOffice", "commercial", "24x24", 7, "modular", 1, 4, 0, "Tower A as built"),
     ("Supermarket", "commercial", "24x20", 1, "proc", 2, 6, 2, "shelf aisles, loading bay"),
     ("GasStation", "commercial", "20x14", 1, "proc", 1, 4, 2, "shop + pump canopy"),
@@ -716,11 +825,11 @@ CITY_CATALOG = [
     ("Warehouse", "industrial", "24x18", 1, "proc", 3, 30, 1, "18x12 / 24x18 / 36x24"),
     ("Workshop", "industrial", "12x10", 1, "proc", 2, 30, 2, "garage / car repair"),
     ("FactoryHall", "industrial", "36x24", 1, "proc", 1, 4, 3, "sawtooth roof"),
-    ("ParkingGarage", "industrial", "30x18", 4, "proc", 1, 4, 3, "ramps, cars"),
+    ("ParkingGarage", "industrial", "30x24", 4, "proc", 1, 4, 3, "ramps, cars"),
     ("Substation", "industrial", "10x8", 1, "proc", 1, 6, 2, "fenced, not enterable"),
     ("WaterTower", "industrial", "6x6", 1, "kit", 1, 2, 3, ""),
     ("Kiosk", "small", "3x2.4", 1, "proc", 2, 30, 2, "news / coffee"),
-    ("MetroEntrance", "small", "4x6", 1, "kit", 2, 8, 3, "stairs down (no tunnel)"),
+    ("MetroEntrance", "small", "4x6", 1, "kit", 2, 8, 3, "sealed at street level (no terrain hole)"),
     ("RubbleLot", "ruin", "12x12", 0, "kit", 4, 50, 2, "collapsed lot fillers"),
     ("GarageBlock", "industrial", "18x6", 1, "proc", 1, 40, 2, "row of lock-up garages"),
     ("Shed", "small", "4x3", 1, "proc", 2, 40, 2, "yard sheds / annexes"),
@@ -731,34 +840,46 @@ BUDGETS["city"] = {"res0": 30000, "res1": 9000, "res2": 1500, "res3": 200, "shad
                    "geo_tris": 3000, "sections_res0": 24}
 BUDGETS["city_tall"] = {"res0": 50000, "res1": 15000, "res2": 2000, "res3": 200, "shadow": 800, "geo_comps": 340,
                         "geo_tris": 4200, "sections_res0": 24}            # 7+ storeys (scales per storey)
+# Footprints >= 600 m2 (hospital, department store, courtyard block, factory, large warehouse): one
+# object like the large vanilla buildings (hospital / school), more rooms and parts (D58 hypothesis).
+BUDGETS["city_large"] = {"res0": 80000, "res1": 24000, "res2": 2500, "res3": 300, "shadow": 1000, "geo_comps": 640,
+                         "geo_tris": 8000, "sections_res0": 24}    # largest: courtyard block, 4500 m2 floor area
 
 
 # ---- city layout zones (D57): placement/city_fill.py fills blocks lot by lot along their street
 # edges. weights = archetype mix, ruin = (intact, damaged, ruined) probabilities, lots = chance of
 # a rubble lot per slot, gap = metres between detached buildings (party-wall types sit flush),
 # corner = archetypes preferred on a block corner (shopfront on two streets), small_cap = kiosks / sheds
-# per block (small pieces would otherwise fill every leftover gap; real blocks keep yards and alleys).
+# per block (small pieces would otherwise fill every leftover gap; real blocks keep yards and alleys),
+# once = landmarks / big types placed at most once per block (D58).
 CITY_ZONES = {
     "downtown": {"weights": {"OfficeMid": 3, "OfficeTall": 2, "AptBlockTall": 2, "ShopRow": 3, "ShopRowMarket": 2,
                              "ShopRowNews": 1, "ShopRowHardware": 1, "Supermarket": 1, "Clinic": 1, "Police": 1,
-                             "Kiosk": 1, "KioskCafe": 1},
+                             "Kiosk": 1, "KioskCafe": 1, "Bank": 1, "Cafe": 1, "CafeBrick": 1, "PostOffice": 1,
+                             "MetroEntrance": 1},
                  "corner": ["CornerShop", "CornerPharmacy", "CornerHardware"], "ruin": (0.40, 0.40, 0.20),
-                 "lots": 0.04, "gap": 1.5, "small_cap": 1},
+                 "lots": 0.04, "gap": 1.5, "small_cap": 1,
+                 "once": ["Bank", "Police", "Clinic", "PostOffice", "MetroEntrance", "Supermarket"]},
     "midtown": {"weights": {"AptBlock": 3, "AptBlockBrick": 2, "ShopRow": 2, "ShopRowMarket": 1, "Rowhouse": 2,
-                            "RowhouseRender": 2, "SupermarketSmall": 1, "Clinic": 1, "FireStation": 1, "Kiosk": 1},
+                            "RowhouseRender": 2, "SupermarketSmall": 1, "Clinic": 1, "FireStation": 1, "Kiosk": 1,
+                            "CourtyardBlock": 2, "CourtyardBlockBrick": 1, "Cafe": 1, "GasStation": 1, "PostOffice": 1},
                 "corner": ["CornerShop", "CornerPharmacy", "CornerHardware"], "ruin": (0.45, 0.35, 0.20),
-                "lots": 0.05, "gap": 1.5, "small_cap": 1},
+                "lots": 0.05, "gap": 1.5, "small_cap": 1,
+                "once": ["CourtyardBlock", "CourtyardBlockBrick", "GasStation", "PostOffice", "Clinic", "FireStation"]},
     "residential": {"weights": {"Rowhouse": 4, "RowhouseRender": 3, "RowhousePanel": 2, "Villa": 3, "VillaBrick": 2,
-                                "VillaStone": 1, "Shed": 2, "ShedBrick": 1, "KioskCafe": 1},
+                                "VillaStone": 1, "Shed": 2, "ShedBrick": 1, "KioskCafe": 1, "CourtyardBlockBrick": 1,
+                                "CafeBrick": 1},
                     "corner": ["CornerShop", "CornerPharmacy"], "ruin": (0.55, 0.30, 0.15), "lots": 0.03, "gap": 2.0,
-                    "small_cap": 3},
+                    "small_cap": 3, "once": ["CourtyardBlockBrick", "CafeBrick"]},
     "industrial": {"weights": {"Warehouse": 3, "WarehouseSmall": 3, "Workshop": 3, "WorkshopBrick": 2, "GarageBlock": 3,
-                               "Shed": 1},
-                   "corner": [], "ruin": (0.35, 0.40, 0.25), "lots": 0.08, "gap": 2.5, "small_cap": 2},
+                               "Shed": 1, "WarehouseLarge": 2, "FactoryHall": 1, "ParkingGarage": 1, "Substation": 2,
+                               "WaterTower": 1, "GasStation": 1},
+                   "corner": [], "ruin": (0.35, 0.40, 0.25), "lots": 0.08, "gap": 2.5, "small_cap": 2,
+                   "once": ["FactoryHall", "ParkingGarage", "WaterTower", "GasStation", "Substation"]},
     "frontline": {"weights": {"AptBlock": 2, "AptBlockBrick": 2, "ShopRow": 2, "Rowhouse": 2, "RowhouseRender": 1,
-                              "Police": 1, "WarehouseSmall": 1, "GarageBlock": 1},
+                              "Police": 1, "WarehouseSmall": 1, "GarageBlock": 1, "CourtyardBlock": 1, "Substation": 1},
                   "corner": ["CornerShop", "CornerHardware"], "ruin": (0.10, 0.40, 0.50), "lots": 0.20, "gap": 1.5,
-                  "small_cap": 1},
+                  "small_cap": 1, "once": ["CourtyardBlock", "Police", "Substation"]},
 }
 # Spawned city buildings are replicated entities (objectSpawnersArr): a layout with target
 # "spawner" obeys ENTITY_CAP; target "terrain" (a whole city baked into a custom map, Level 2 in
@@ -862,3 +983,36 @@ LOOT.update({
         {"name": "lootshelves", "lootmax": 1, "categories": ["food"], "tags": ["shelves"],
          "points": [(0.2, 0.0, 0.92, 0.2, 0.3), (-1.1, 0.0, 0.92, 0.1, 0.3)]}]},
 })
+
+
+# ===================================================================== tall towers (D58)
+# The Tower A system scaled up: same lobby, floor and roof modules, a taller core per height.
+# The elevator script reads its stops from config (skyStops[]), so a core with more stops is only a
+# new model + config class (script class generated as a subclass of Land_SKY_TowerA_Core).
+# OfficeTower = cores with 15 / 23 typical floors (17 / 25 storeys incl. the double-height lobby);
+# HQLandmark = 33 typical floors (35 storeys) + the crown roof (Roof_Crown).
+def tower_spec(n):
+    spec = dict(TOWER_A)
+    spec["typical_floors"] = n
+    return spec
+
+
+CORE_VARIANTS = {"A": (CLASS_CORE, TOWER_A)}
+for _n in (15, 23, 33):
+    _c = cls("Core%d" % _n)
+    CORE_VARIANTS["T%d" % _n] = (_c, tower_spec(_n))
+    P3D[_c] = "sky_towera_core%d.p3d" % _n
+    # budgets scale with the stops (one cab, two door leaves, landings per stop); hypotheses
+    _k = (_n + 2) / 7.0
+    TOWER_A_BUDGETS[_c] = {"res0": int(6000 * _k), "res1": int(1500 * _k), "res2": 400, "res3": 20, "shadow": 24,
+                           "geo_comps": int(96 * _k), "geo_tris": int(1200 * _k), "sections_res0": 6}
+BUDGETS["core_tall"] = {"res0": 52000, "res1": 13000, "res2": 520, "res3": 20, "shadow": 24, "geo_comps": 840,
+                        "geo_tris": 10500, "sections_res0": 6}
+TOWER_CORE_MANIFEST = [(c, "sky_towera", P3D[c], "core_tall",
+                        "stair + elevator core, %d stops (lobby, %d floors, roof), script Land_SKY_TowerA_Core subclass"
+                        % (len(elevator_stops(spec)), spec["typical_floors"], ))
+                       for k, (c, spec) in CORE_VARIANTS.items() if k != "A"]
+kit("Roof_Crown", "sky_floors", "roof", uses=["PENETRATION"],
+    desc="HQ crown roof: parapet, setback glass lantern, steel crown fins, 24 m spire with obstruction lights")
+ROOF_DROP_POINTS[KIT["Roof_Crown"]["cls"]] = ROOF_DROPS_CLEAR
+ROOF_VARIANTS["crown"] = KIT["Roof_Crown"]["cls"]
