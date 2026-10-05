@@ -40,6 +40,7 @@ param(
     [switch]$Baseline,
     [string[]]$MapGroupPos = @(),
     [string[]]$ServerArgs = @(),
+    [string]$MissionOverlay,     # folder copied over the mission copy last (e.g. frozen cfgweather.xml for the FPS protocol)
     [switch]$NoWipe,
     [string]$Mission,
     [int]$Minutes = 3,
@@ -72,6 +73,9 @@ $script:FailPatterns = [ordered]@{
     'config entry'       = 'No entry'
     'signature'          = 'Signature check|is not signed|wrong signature'
     'crash'              = '\bCrash\b|Access violation|EXCEPTION_'
+    # vanilla 3_game/objectspawner.c:68 / :89 (verified) and the mod's own warnings (SKY_Constants.c:47)
+    'object spawner'     = 'Object spawner failed to spawn|Object spawner: invalid path'
+    'SKY warning'        = '\[SKY\]\s*(WARNING|ERROR)'
 }
 # These four only FAIL when the line names the mod (ModFilter); the same lines from vanilla or
 # other mods are listed under "Notable" so vanilla noise cannot fail a run.
@@ -96,7 +100,8 @@ function Save-DzXml($Doc, [string]$Path) {
 }
 
 function Get-DzLogSummary {
-    param([Parameter(Mandatory)][string]$LogDir, [string]$ModFilter = 'SKY_|Land_SKY|\[SKY\]')
+    # mod scoping is case-INsensitive: the engine prints paths lower-case (sky_skyline\...) (QA batch-6 M1)
+    param([Parameter(Mandatory)][string]$LogDir, [string]$ModFilter = 'sky_skyline|land_sky_|\[sky\]')
     $files = @(Get-ChildItem -LiteralPath $LogDir -File -ErrorAction SilentlyContinue |
         Where-Object { $_.Name -match '\.(RPT|log|ADM|mdmp)$' -or $_.Name -like 'crash*' })
     $fails = [ordered]@{}
@@ -111,7 +116,7 @@ function Get-DzLogSummary {
             foreach ($k in $script:FailPatterns.Keys) {
                 # case-sensitive: vanilla "StaticHeliCrash" / lower-case "sky_" paths must not match (QA R-L4)
                 if ($line -cmatch $script:FailPatterns[$k]) {
-                    if (($script:ModScoped -contains $k) -and ($line -cnotmatch $ModFilter)) {
+                    if (($script:ModScoped -contains $k) -and ($line -notmatch $ModFilter)) {
                         $notes['other-mod / vanilla load errors']++
                     } else {
                         [void]$fails[$k].Add(('{0}:{1}: {2}' -f $f.Name, $n, $line.Trim()))
@@ -126,13 +131,16 @@ function Get-DzLogSummary {
     }
     $total = 0
     foreach ($k in $fails.Keys) { $total += $fails[$k].Count }
-    return [pscustomobject]@{ Files = $files; Fails = $fails; Notes = $notes; FailCount = $total }
+    $noLogs = (@($files | Where-Object { $_.Name -match '\.(RPT|log)$' }).Count -eq 0)
+    return [pscustomobject]@{ Files = $files; Fails = $fails; Notes = $notes; FailCount = $total; NoLogs = $noLogs }
 }
 
 function Write-DzSummary {
     param($Summary, $Steps, [string]$OutDir, [string]$Title)
     $status = 'PASS'
     if ($Summary.FailCount -gt 0) { $status = 'FAIL' }
+    $dry = @($Steps | Where-Object { $_.Result -eq 'DRYRUN' }).Count -gt 0
+    if ($Summary.NoLogs -and -not $dry) { $status = 'FAIL' }     # no RPT/script log = nothing was validated (QA M4)
     foreach ($s in $Steps) { if ($s.Result -eq 'DRYRUN' -and $status -eq 'PASS') { $status = 'DRYRUN' } }
     foreach ($s in $Steps) { if ($s.Result -eq 'FAIL') { $status = 'FAIL' } }
     $md = New-Object System.Text.StringBuilder
@@ -145,6 +153,8 @@ function Write-DzSummary {
     [void]$md.AppendLine('|---|---|---|')
     foreach ($s in $Steps) { [void]$md.AppendLine("| $($s.Name) | $($s.Result) | $($s.Detail) |") }
     [void]$md.AppendLine('')
+    if ($Summary.NoLogs) { [void]$md.AppendLine('**No RPT / script log found** - nothing was validated (FAIL unless dry run).'); [void]$md.AppendLine('') }
+    if ($script:Placeholder) { [void]$md.AppendLine('**Placeholder layout (-AllowPlaceholder): not a release-like placement.**'); [void]$md.AppendLine('') }
     [void]$md.AppendLine('## Log findings (FAIL patterns)')
     foreach ($k in $Summary.Fails.Keys) {
         $list = $Summary.Fails[$k]
@@ -194,6 +204,8 @@ function Add-Step([string]$Name, [string]$Result, [string]$Detail) {
 function Invoke-DzCheck([string]$Name, [string]$Exe, [string[]]$CheckArgs) {
     Write-DzInfo "> $Exe $($CheckArgs -join ' ')"
     if ($DryRun) { Add-Step $Name 'DRYRUN' ''; return }
+    if (-not (Get-Command $Exe -ErrorAction SilentlyContinue)) { Add-Step $Name 'FAIL' "tool not found: $Exe"; return }   # QA M3
+    $global:LASTEXITCODE = 0
     # PowerShell 5.1 turns native stderr into terminating errors under 'Stop' (QA R-L3)
     $old = $ErrorActionPreference
     $ErrorActionPreference = 'Continue'
@@ -204,6 +216,7 @@ function Invoke-DzCheck([string]$Name, [string]$Exe, [string[]]$CheckArgs) {
     if ($code -eq 0) { Add-Step $Name 'PASS' $last } else { Add-Step $Name 'FAIL' "exit $code - $last" }
 }
 
+$script:Placeholder = [bool]$AllowPlaceholder
 Write-DzStep "Validation of $ModName ($stamp)"
 if (-not (Test-Path -LiteralPath $modDir)) { throw "Mod not found: $modDir" }
 
@@ -211,6 +224,7 @@ if (-not (Test-Path -LiteralPath $modDir)) { throw "Mod not found: $modDir" }
 if ($SkipStatic) { Add-Step 'static checks' 'SKIP' '-SkipStatic' }
 elseif (Test-Path -LiteralPath (Join-DzPath $modDir 'assets' 'check_assets.py')) {
     Write-DzStep 'Static checks (Python)'
+    Invoke-DzCheck 'python modules (yaml, PIL, numpy)' $Python @('-c', 'import yaml, PIL, numpy')
     Invoke-DzCheck 'gen_configs --check'  $Python @((Join-DzPath $modDir 'assets' 'gen_configs.py'), '--check')
     Invoke-DzCheck 'gen_manifest --check' $Python @((Join-DzPath $modDir 'assets' 'gen_manifest.py'), '--check')
     Invoke-DzCheck 'gen_economy --check'  $Python @((Join-DzPath $modDir 'economy' 'gen_economy.py'), '--check')
@@ -218,8 +232,9 @@ elseif (Test-Path -LiteralPath (Join-DzPath $modDir 'assets' 'check_assets.py'))
     Invoke-DzCheck 'placement self-test'  $Python @((Join-DzPath $modDir 'placement' 'tests' 'test_sky_layout.py'))
     if ($Blender) {
         Write-DzStep 'Static checks (Blender geometry tests)'
-        Invoke-DzCheck 'test_kit'    $Blender @('-b', '--factory-startup', '-P', (Join-DzPath $modDir 'assets' 'blender' 'test_kit.py'))
-        Invoke-DzCheck 'test_towera' $Blender @('-b', '--factory-startup', '-P', (Join-DzPath $modDir 'assets' 'blender' 'test_towera.py'))
+        # --python-exit-code: a crashing test script must not exit 0 (QA batch-6 M2)
+        Invoke-DzCheck 'test_kit'    $Blender @('-b', '--factory-startup', '--python-exit-code', '1', '-P', (Join-DzPath $modDir 'assets' 'blender' 'test_kit.py'))
+        Invoke-DzCheck 'test_towera' $Blender @('-b', '--factory-startup', '--python-exit-code', '1', '-P', (Join-DzPath $modDir 'assets' 'blender' 'test_towera.py'))
     } else { Add-Step 'Blender geometry tests' 'SKIP' 'pass -Blender <blender.exe> to run test_kit / test_towera' }
 } else { Add-Step 'static checks' 'SKIP' 'mod has no assets\check_assets.py' }
 
@@ -229,18 +244,18 @@ else {
     $current = 'build (pack)'
     try {
         foreach ($m in @($ModName) + $ServerMods) { & (Join-DzPath $repo 'tools' 'build' 'Build-Mod.ps1') -ModName $m -DryRun:$DryRun }
-        Add-Step $current 'PASS' ("build\@" + ((@($ModName) + $ServerMods) -join ', @'))
+        Add-Step $current $(if ($DryRun) { 'DRYRUN' } else { 'PASS' }) ("build\@" + ((@($ModName) + $ServerMods) -join ', @'))
         $current = 'sign'
         try {
             foreach ($m in @($ModName) + $ServerMods) { & (Join-DzPath $repo 'tools' 'build' 'Sign-Mod.ps1') -ModName $m -DryRun:$DryRun }
-            Add-Step $current 'PASS' 'bisign + bikey'
+            Add-Step $current $(if ($DryRun) { 'DRYRUN' } else { 'PASS' }) 'bisign + bikey'
         } catch {
             if (-not $DryRun) { throw }
             Add-Step $current 'DRYRUN' $_.Exception.Message      # dry run on a machine without a key
         }
         $current = 'deploy'
         & (Join-DzPath $repo 'tools' 'build' 'Deploy-Mod.ps1') -ModName (@($ModName) + $ServerMods) -DryRun:$DryRun
-        Add-Step $current 'PASS' $paths.ServerDir
+        Add-Step $current $(if ($DryRun) { 'DRYRUN' } else { 'PASS' }) $paths.ServerDir
     } catch {
         Add-Step $current 'FAIL' $_.Exception.Message
         $st = Write-DzSummary -Summary (Get-DzLogSummary -LogDir $outDir) -Steps $steps -OutDir $outDir -Title "Validation $ModName $stamp"
@@ -358,7 +373,10 @@ if ($Layout.Count -or $Baseline) {
             $evPath = Join-DzPath $valMission 'cfgeventspawns.xml'
             [xml]$ev = Get-Content -Raw -LiteralPath $evPath
             [xml]$drops = Get-Content -Raw -LiteralPath (Join-DzPath $lo 'cfgeventspawns_snippet.xml')
-            [void]$ev.eventposdef.AppendChild($ev.ImportNode($drops.event, $true))
+            $existing = $ev.SelectSingleNode("//event[@name='StaticSKYRoofDrop']")
+            if ($existing) {       # several layouts: one event, positions appended (QA batch-6 M7)
+                foreach ($p in $drops.event.SelectNodes('pos')) { [void]$existing.AppendChild($ev.ImportNode($p, $true)) }
+            } else { [void]$ev.eventposdef.AppendChild($ev.ImportNode($drops.event, $true)) }
             Save-DzXml $ev $evPath
             $zoneSnip = Join-DzPath $lo 'zombie_territories_snippet.xml'
             $ztPath = Join-DzPath $valMission 'env' 'zombie_territories.xml'
@@ -372,6 +390,10 @@ if ($Layout.Count -or $Baseline) {
             }
         }
     }
+    if ($MissionOverlay -and -not $DryRun -and -not $reuse) {
+        Get-ChildItem -LiteralPath $MissionOverlay -Force | ForEach-Object { Copy-Item -LiteralPath $_.FullName -Destination $valMission -Recurse -Force }
+        Add-Step 'mission overlay' 'PASS' $MissionOverlay
+    }
     if (-not $DryRun -and -not $reuse) { [System.IO.File]::WriteAllText($markerPath, $marker) }
     if (-not $DryRun) {
         $text = Get-Content -Raw -LiteralPath $config
@@ -381,7 +403,9 @@ if ($Layout.Count -or $Baseline) {
     $config = $valConfig
     $mode = 'fresh copy, storage wiped'
     if ($reuse) { $mode = 'reused (-NoWipe, warm start)' }
-    Add-Step 'mission copy' 'PASS' "$Mission.validation: $what, $mode"
+    $mcRes = 'PASS'
+    if ($DryRun) { $mcRes = 'DRYRUN' }
+    Add-Step 'mission copy' $mcRes "$Mission.validation: $what, $mode"
 }
 
 # Release-like settings are mandatory for a validation run (security batch-6 L2): never inherit a relaxed cfg.
@@ -403,7 +427,14 @@ if (-not $DryRun) {
 # 4. start server, wait, stop
 $profileDir = Join-DzPath $repo 'server' 'profiles' 'dedicated'
 $t0 = Get-Date
-& (Join-DzPath $repo 'tools' 'launch' 'Start-DedicatedServer.ps1') -Mods $ModName -ServerMods $ServerMods -ExtraArgs $ServerArgs -Config $config -DryRun:$DryRun
+try {
+    & (Join-DzPath $repo 'tools' 'launch' 'Start-DedicatedServer.ps1') -Mods $ModName -ServerMods $ServerMods -ExtraArgs $ServerArgs -Config $config -DryRun:$DryRun
+} catch {
+    Add-Step 'server start' 'FAIL' $_.Exception.Message
+    $st = Write-DzSummary -Summary (Get-DzLogSummary -LogDir $outDir) -Steps $steps -OutDir $outDir -Title "Validation $ModName $stamp"
+    Write-DzFail "Validation $st -> $(Join-DzPath $outDir 'summary.md')"
+    exit 1
+}
 if ($DryRun) {
     Write-DzInfo "> wait $Minutes min, stop DayZServer_x64, copy logs newer than start from $profileDir to $outDir\logs"
     Add-Step 'server run' 'DRYRUN' "$Minutes min"

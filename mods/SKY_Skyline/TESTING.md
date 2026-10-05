@@ -8,6 +8,14 @@ How to use this checklist:
 - Run each gate on **DayZDiag** first (fast loop, file patching).
 - Then run the rows marked **[DED]** again on the **dedicated** server (signed, `verifySignatures=2`, `BattlEye=1`, `allowFilePatching=0`).
 - Fill in PASS/FAIL with the log line(s) and their timestamp, or a screenshot name under `reviews/img/`.
+- **Evidence rule for every row** (where the Evidence/Logs cell is empty or "none"): quote the newest relevant
+  `script_*.log` / RPT / ADM lines with timestamps (or "no SKY lines" + the validation `summary.md` path), and a
+  screenshot `reviews/img/<ID>.png` for any visual expectation. A row without evidence is not a PASS.
+- ID namespaces: `P1`..`P9` are parameters in PENDING_VERIFICATION.md, test rows use `P3-xx`, `P5-xx` etc.;
+  `S1`..`S8` in FPS_PROTOCOL.md are FPS scenarios, `S-0x` here are setup steps, `S1`..`S6` in reviews/perf_review.md
+  are the Tower A perf scenarios.
+- `district_template*.yaml` ship with an unfilled site: `-Layout` runs need the site filled in (survey) or
+  `-AllowPlaceholder` (offline / smoke only; the summary is marked "placeholder").
 
 ---
 
@@ -19,7 +27,7 @@ How to use this checklist:
 | S-02 | Run `mods\SKY_Skyline\assets\Build-SkyAssets.ps1` | 41 `.paa` files are written into `addons\sky_textures\data` (36) and `addons\sky_items\data` (5). They include all 40 referenced names (QA-03). Every `dz\` path resolves on P:: `concrete.rvmat`, `glass.rvmat` and `env_land_co.paa` are the unverified ones (QA-08). Ends with `SKY assets ready` | |
 | S-03 | Run `tools\build\Build-Mod.ps1 -ModName SKY_Skyline`, then `tools\build\Sign-Mod.ps1 -ModName SKY_Skyline` | 4 PBOs in `build\@SKY_Skyline\addons`. `sky_items` and `sky_towera` are binarized; `sky_scripts` and `sky_textures` are pack-only. Newest `DayZ Tools\Bin\Logs\AddonBuilder*.rpt` has no `non-convex`, `missing`, `Cannot open` or `error` lines for SKY files | |
 | S-04 | Create the test mission. Do **not** edit the vanilla copy (`CLAUDE.md`, QA-10). Copy `server\mpmissions\dayzOffline.chernarusplus` to `server\mpmissions\dayzOffline.chernarusplus_sky`. Run `tools\setup\Initialize-TestServer.ps1 -Mission dayzOffline.chernarusplus_sky -Force`; it skips the copy because the folder exists. For dedicated, put the same folder in `<ServerDir>\mpmissions\` | Both rendered configs show `template = "dayzOffline.chernarusplus_sky"` | |
-| S-05 | **Enable cfggameplay (QA-01).** Add `enableCfgGameplayFile = 1;` to the rendered `server\serverDZ.diag.cfg` and `server\serverDZ.dedicated.cfg` (generated, git-ignored files) | Without this line nothing spawns. Vanilla reads the flag in `3_game/cfggameplayhandler.c:53` | |
+| S-05 | **Check cfggameplay is enabled (QA-01).** The templates already contain `enableCfgGameplayFile = 1;`; confirm it is in the rendered `server\serverDZ.diag.cfg` / `server\serverDZ.dedicated.cfg` (re-render with `Initialize-TestServer.ps1 -Force` if not) | Without this line nothing spawns. Vanilla reads the flag in `3_game/cfggameplayhandler.c:53` | |
 | S-06 | Install placement into the test mission (`placement\README.md` §2). Copy `placement\out\sky_objects.json` to `<mission>\sky\sky_objects.json` and merge `cfggameplay_snippet.json` into `<mission>\cfggameplay.json`. For tests on the placeholder site, use the output of §9 (survey) instead, once it exists | `cfggameplay.json` still parses (no `JsonFileLoader`/`ErrorEx` line in the server script log) | |
 | S-07 | Install the economy files into the test mission (`economy\README.md`): `sky_ce\` + `cfgeconomycore` snippet, `mapgroupproto` groups, `cfgeventspawns` snippet. Delete `<mission>\storage_1` for a fresh CE | Server RPT: no `[CE]` errors naming `SKY_` or `Land_SKY_` | |
 | S-08 | Launch diag: `tools\build\Build-And-Run.ps1 -ModName SKY_Skyline -FilePatching`, which wraps `tools\launch\Start-DiagLocal.ps1 -Mods SKY_Skyline -FilePatching`. Server flags: `-dologs -adminlog -netlog -freezecheck` | Server and client start, the client connects to 127.0.0.1 | |
@@ -156,14 +164,14 @@ Timing reference:
 | E-04 | 2 riders | Ride, then press a command within 4 s of the previous departure | Notification "Please wait..." and no departure | | |
 | E-05 | 4 players in the cab | Press "roof" | All 4 arrive. 4 ADM teleport lines | 4 lines | |
 | E-06 | 5 players in the cab (needs 5 clients) | Press a floor | "Overloaded (max 4)". The doors stay open | | |
-| E-07 | 4 in the cab, a 5th runs in while the doors close | | At departure the doors reopen and everyone sees "Overloaded (max 4)" | | |
+| E-07 | 4 in the cab, a 5th runs in while the doors close | Rider 1 presses a floor; the 5th player sprints into the cab before the doors finish closing | At departure the doors reopen and everyone sees "Overloaded (max 4)" | ADM: no teleport lines; screenshot of the message | |
 | E-08 | A is in the cab at L0 with the doors closed, B at L3 | B presses "Call elevator" | "Elevator in use". The car does not move with A inside | | |
 | E-09 | A at L3 inside a cab where the car is not (for example after E-12) | A uses "Elevator: open doors" | The car (empty) travels to L3 and opens: the rescue path. If the car is occupied elsewhere, A sees "Elevator in use" | | |
 | E-10 | cab at a stop | Stand on the landing outside the cab and try the panel actions; stand inside the cab and try "Call" | Panel actions work only inside the cab within 1.6 m of the panel. "Call" works only outside, within 1.6 m of the call button | | |
-| E-11 | rider in a vehicle or attached (if reproducible) | | That rider is not teleported (vanilla exclusion) | | |
+| E-11 | rider in a vehicle or attached (if reproducible) | Get a rider into an attached/vehicle state inside the cab (e.g. carried/restrained, if the build allows), then press a floor | That rider is not teleported (vanilla exclusion) | ADM: teleport lines only for the free riders | |
 | E-12 **[DED]** | A rides L0 to L6 | A presses Exit (logout) during TRAVEL. Then a second test: Alt-F4 during TRAVEL. Reconnect | No script error at arrival. Record whether A ends up at L6 (teleported during the logout timer) or in the closed L0 cab. If in a closed cab, E-09 frees A | script log has no `NULL pointer`. ADM teleport line (may show cached name or `(DEAD)` rules) | |
 | E-13 **[DED]** | car at L4, players inside, server restart | Restart and reconnect | The car resets to L0 with the doors closed. Players in the L4 cab use E-09 to get out. No stuck players | RPT: no `[SKY] WARNING: ... missing memory point` or `invalid elevator config` | |
-| E-14 | 1 client spams every elevator action as fast as the UI allows for 60 s | | Requests within 1.5 s are ignored. No error spam. At most 3 SKY CallLaters pending (perf S2) | | |
+| E-14 | 1 client spams every elevator action as fast as the UI allows for 60 s | Hold the action key on each panel action in turn (floor buttons, open doors, call) for 60 s; watch the script log | Requests within 1.5 s are ignored. No error spam. At most 3 SKY CallLaters pending (perf S2) | script log: no SKY errors; ADM: <= 1 trip per 1.5 s | |
 | E-15 | dead or unconscious player in the cab | Kill or knock out one rider, then press a floor | Only living players are moved. An unconscious player cannot press buttons | | |
 | E-16 | during E-02 | Watch for rubber-banding or falling after arrival (`SetPosition`) on the rider and on an observer | No teleport-back, no fall damage, no falling through the floor of the destination cab | RPT: no position-correction lines | |
 
@@ -253,6 +261,9 @@ Record the results there, or link them from here.
 |---|---|---|
 | PERF-01 | All `perf_review.md` §4 thresholds are in "Pass" | |
 | PERF-02 | All `FPS_PROTOCOL.md` §4 thresholds are in "Pass" (district: configs A/B/D/D0/D-dec/E; prerequisites §0 done) | |
+| B3-MC | Search `P:\DZ\structures\**\data\*.rvmat` for a Stage3 texture ending in `_mc` (PENDING B3) | found / not found, with one example path | |
+| B9-VAL | First real `Invoke-ModValidation.ps1` run: clean start -> summary 0 SKY FAIL lines; then rename one SKY texture in a scratch build -> summary FAIL naming it (PENDING B9) | both behave as stated | |
+| B10-EXP | On the test machine: `Build-SkyAssets.ps1 -Models -Blender <exe>` into a scratch `--out`, then `python tools/assets/p3d_inspect.py` on old vs new P3Ds (PENDING B10) | identical LOD/selection/triangle counts (or byte-identical) | |
 
 ## 14. Interior props (batch 3, `sky_props`)
 

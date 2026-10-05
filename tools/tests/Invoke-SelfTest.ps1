@@ -103,6 +103,26 @@ try {
     $ded = Get-Content -Raw (Join-DzPath $repo 'server' 'templates' 'serverDZ.dedicated.cfg')
     Check 'dedicated enforces signatures + BattlEye' ($ded -match 'verifySignatures = 2;' -and $ded -match 'BattlEye = 1;' -and $ded -match 'allowFilePatching = 0;')
 
+    Write-DzStep 'Validation log analysis (Invoke-ModValidation.ps1 -AnalyzeOnly)'
+    $val = Join-DzPath $repo 'tools' 'tests' 'Invoke-ModValidation.ps1'
+    $lg = Join-DzPath $tmp 'vlogs'
+    foreach ($case in @(
+            @{ n = 'clean'; rpt = "10:00 Spawning StaticHeliCrash`n10:01 Cannot open file dz\x\y.paa"; scr = '10:00 [SKY] init'; ok = $true },
+            @{ n = 'spawnfail'; rpt = '10:00 Object spawner failed to spawn Land_SKY_Locker'; scr = '10:00 [SKY] init'; ok = $false },
+            @{ n = 'lowerpath'; rpt = '10:00 Cannot open object sky_skyline\sky_props\sky_locker.p3d'; scr = ''; ok = $false },
+            @{ n = 'scripterr'; rpt = ''; scr = '10:00 SCRIPT (E): x'; ok = $false })) {
+        $d = Join-DzPath $lg $case.n
+        New-Item -ItemType Directory -Force -Path $d | Out-Null
+        Set-Content -LiteralPath (Join-DzPath $d 'DayZServer_x64.RPT') -Value $case.rpt
+        Set-Content -LiteralPath (Join-DzPath $d 'script_1.log') -Value $case.scr
+        & $val -AnalyzeOnly $d *> $null
+        Check "validation analysis '$($case.n)' -> $(if ($case.ok) { 'PASS' } else { 'FAIL' })" (($LASTEXITCODE -eq 0) -eq $case.ok)
+    }
+    $e = Join-DzPath $lg 'empty'
+    New-Item -ItemType Directory -Force -Path $e | Out-Null
+    & $val -AnalyzeOnly $e *> $null
+    Check 'validation analysis: no logs -> FAIL' ($LASTEXITCODE -ne 0)
+
     Write-DzStep 'Repository hygiene'
     $gi = Get-Content -Raw (Join-DzPath $repo '.gitignore')
     Check '.gitignore blocks private keys' ($gi -match '\*\.biprivatekey')

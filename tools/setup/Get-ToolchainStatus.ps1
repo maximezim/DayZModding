@@ -111,6 +111,13 @@ Add-Row 'Python 3' ($py -like 'Python 3*') $py ''
 $pil = ''
 if ($py -like 'Python 3*') { $pil = Get-CmdOutput 'python' @('-c', 'import PIL;print(PIL.__version__)') }
 Add-Row '  Pillow' ($pil -match '^\d') $pil ''
+$yml = ''; $npy = ''
+if ($py -like 'Python 3*') {
+    $yml = Get-CmdOutput 'python' @('-c', 'import yaml;print(yaml.__version__)')
+    $npy = Get-CmdOutput 'python' @('-c', 'import numpy;print(numpy.__version__)')
+}
+Add-Row '  PyYAML' ($yml -match '^\d') $yml ''
+Add-Row '  numpy' ($npy -match '^\d') $npy ''
 
 Add-Row "Mikero pboProject" ([bool](Get-FileVer $paths.PboProject)) (Get-FileVer $paths.PboProject) $paths.PboProject $false
 Add-Row "Mikero DePbo" ([bool](Get-FileVer $paths.DePbo)) (Get-FileVer $paths.DePbo) $paths.DePbo $false

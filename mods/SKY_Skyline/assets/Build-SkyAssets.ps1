@@ -45,18 +45,18 @@ $conv = Join-Path $repo 'tools\assets\Convert-Textures.ps1'
 if ($Models) {
     Write-DzStep 'Export P3D models (Blender + Arma Toolbox)'
     if (-not $env:ARMATOOLBOX_PATH) { throw 'Set ARMATOOLBOX_PATH to the folder containing the ArmaToolbox package.' }
-    & $Blender -b --factory-startup -P (Join-Path $mod 'assets\blender\build_towera.py') -- --out (Join-Path $mod 'addons')
+    & $Blender -b --factory-startup --python-exit-code 1 -P (Join-Path $mod 'assets\blender\build_towera.py') -- --out (Join-Path $mod 'addons')
     if ($LASTEXITCODE -ne 0) { throw 'Blender export failed' }
-    & $Blender -b --factory-startup -P (Join-Path $mod 'assets\blender\test_towera.py')
+    & $Blender -b --factory-startup --python-exit-code 1 -P (Join-Path $mod 'assets\blender\test_towera.py')
     if ($LASTEXITCODE -ne 0) { throw 'Tower A geometry tests failed' }
     foreach ($gen in 'build_kit.py', 'build_props.py', 'build_floors.py') {
         $g = Join-Path $mod "assets\blender\$gen"
         if (Test-Path $g) {
-            & $Blender -b --factory-startup -P $g -- --out (Join-Path $mod 'addons')
+            & $Blender -b --factory-startup --python-exit-code 1 -P $g -- --out (Join-Path $mod 'addons')
             if ($LASTEXITCODE -ne 0) { throw "$gen export failed" }
         }
     }
-    & $Blender -b --factory-startup -P (Join-Path $mod 'assets\blender\test_kit.py')
+    & $Blender -b --factory-startup --python-exit-code 1 -P (Join-Path $mod 'assets\blender\test_kit.py')
     if ($LASTEXITCODE -ne 0) { throw 'Kit geometry tests failed' }
 }
 
