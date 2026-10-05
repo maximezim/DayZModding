@@ -26,7 +26,8 @@ Behaviour checks without a parameter (see TESTING.md):
 - B5 Prop doors: confirm a child config class (e.g. `Land_SKY_Locker`) resolves to script class `Land_SKY_Props_Base` (check with a lockpick: no lock action on a locker door). If not, generate one empty `class Land_SKY_<Prop> extends Land_SKY_Props_Base {}` per door prop.
 - B4 Lit window cells: check that dark (unlit) cells of `sky_windows_co` do not glow under `sky_windows_lit` (emissive not modulated by texture). If they glow, split the lit set into its own atlas.
 
-Behaviour (not parameters) still to observe in-game: see `TESTING.md` and `AFTER_TESTING.md` (written in batch 6).
+Behaviour (not parameters) still to observe in-game: see `TESTING.md` and `AFTER_TESTING.md`.
 - B6 Infected and towers: do `Infected*` territory spawns ever appear on upper floors (navmesh on stacked slabs) or only at street level? Measure per floor type against the table in `economy/README.md` and tune zone `dmin/dmax` (no code change).
-- B7 Loot on spawned props: confirm `GetCEApi().ExportProxyData` exports `mapgrouppos` entries for objectSpawnersArr props (Locker, Desk, Cubicle, ReceptionDesk, Kitchenette, Bed) and loot appears on their surfaces. If not, drop the prop groups from `skyspec.LOOT` (one edit) and keep floor loot only.
+- B7 Loot on spawned props: confirm `GetCEApi().ExportProxyData` exports `mapgrouppos` entries for objectSpawnersArr props (Locker, Desk, ReceptionDesk, Kitchenette) and loot appears on their surfaces. If not, drop the prop groups from `skyspec.LOOT` (one edit) and keep floor loot only.
 - B8 District layout: street lights on the sidewalk (0.5 m inside the curb) do not block the 2 m sidewalk for vehicles/players; decals at their per-type offsets show no z-fighting on facades (D19).
+- B9 Validation log patterns (`tools\tests\Invoke-ModValidation.ps1` `$FailPatterns`): on the first real run, check that a clean vanilla+SKY start gives 0 FAIL lines and that a deliberately broken build (e.g. a renamed texture) gives a FAIL; adjust the regexes, not the thresholds.

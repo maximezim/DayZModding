@@ -48,6 +48,24 @@ Stop all game processes with `Get-Process DayZDiag_x64,DayZServer_x64 -ErrorActi
 
 ---
 
+## 0b. One-command validation (static checks, build, sign, deploy, server, logs)
+
+```
+tools\tests\Invoke-ModValidation.ps1 -ModName SKY_Skyline -DryRun                       # prints every command
+tools\tests\Invoke-ModValidation.ps1 -ModName SKY_Skyline -Blender "<blender.exe>"       # + Blender geometry tests
+tools\tests\Invoke-ModValidation.ps1 -ModName SKY_Skyline -Layout mods\SKY_Skyline\placement\district_template.yaml -Minutes 5
+```
+It runs the Python generators in `--check` mode, `check_assets`, the placement self-test (and
+`test_kit` / `test_towera` with `-Blender`), then `Build-Mod`, `Sign-Mod`, `Deploy-Mod`. With `-Layout` it
+generates the objectSpawnersArr JSON and merges it plus the SKY economy into a **copy** of the
+vanilla mission (`<ServerDir>\mpmissions\<mission>.validation`, rendered `server\serverDZ.validation.cfg`).
+It starts the dedicated server (`verifySignatures = 2`, `BattlEye = 1`), waits `-Minutes`, stops it,
+copies the new RPT / script / ADM / crash logs to `build\validation\<timestamp>\logs` and writes
+`summary.md` + `summary.json` (PASS/FAIL; exit code 1 on FAIL). Re-analyse a log folder with
+`-AnalyzeOnly <folder>`. FAIL patterns: script errors, compile errors, crashes, signature problems,
+and missing objects/files/config entries **that name the mod** (vanilla noise is listed as notable).
+The patterns are a first guess: tune them on the first real run (B9).
+
 ## 1. Collisions (Geometry LOD)
 
 | ID | Preconditions | Steps | Expected | Evidence | PASS/FAIL |
@@ -222,7 +240,7 @@ Get-ChildItem $p -Filter 'crash_*.log'; Get-ChildItem $p -Filter '*.mdmp'
 
 ## 13. Performance
 
-Run the DayZDiag FPS protocol exactly as written in `reviews/perf_review.md` §4:
+For the kit, props, floor variants and the district (batches 1-5) use `FPS_PROTOCOL.md` (configs A/B/D/D0/D-dec/E, positions Q1-Q6, scenarios S1-S8, results template). For Tower A alone, run the DayZDiag FPS protocol exactly as written in `reviews/perf_review.md` §4:
 - configs A, B and C (baseline / tower / 3x3 grid)
 - VD1 and VD2
 - positions P1-P6
@@ -310,6 +328,64 @@ Expected clean logs: no `Cannot open object SKY_Skyline\sky_floors\...`, no `mis
 | F4-21 | all | Death on the floor/roof (fall from the parapet, shot) | The body stays on the slab and does not fall through | | |
 | F4-R | Tower A (regression) | Repeat S-10, C-04, C-05 and E-02 on the unchanged office stack | Same results as before batch 4 (Tower A P3Ds are byte-identical) | | |
 
+## 16. Street kit (batch 1, `sky_street`)
+
+Spawn the district template (`Invoke-ModValidation.ps1 -Layout mods\SKY_Skyline\placement\district_template.yaml`,
+site filled in) or single pieces via a scratch objectSpawnersArr. RPT gate as in §11.
+
+| ID | Assets | Steps | Expected | Evidence | Diag | Ded |
+|---|---|---|---|---|---|---|
+| K1-01 | all 24 kit classes | spawn each once | no `Cannot open object` / texture / rvmat lines, no `Updating base class` | RPT | | |
+| K1-02 | Road_*, Intersection_*, Street_* | walk and drive (car, 30 and 60 km/h) across every tile joint of a 3 x 3 grid | no bump, snag or fall-through at seams (P8 `ROAD_GEO_THICKNESS`), no gap at the skirt | video | | |
+| K1-03 | road tiles | look at markings at 2 / 30 / 150 m | alpha-tested paint, no z-fighting on the slab, dashes tile along the road | screenshots | | |
+| K1-04 | road tiles | footsteps and tyres on asphalt | surface sound = concrete_ext placeholder (P6); note if an asphalt surface exists on P: | | | |
+| K1-05 | road + infected | aggro infected across a tile seam and an intersection | they path across (ECE_UPDATEPATHGRAPH navmesh) | | | |
+| K1-06 | Sidewalk, Sidewalk_Corner, Curb | step up/down the 0.15 m curb, vehicle against the curb | walkable without jitter; vehicles climb or stop as expected | | | |
+| K1-07 | Manhole | walk / drive over it | flush, no flicker, no collision bump (Roadway only, B2) | | | |
+| K1-08 | StreetLight, TrafficLight | night | lamp head reads lit without bloom (P7); traffic light face static, not emissive (D8); no dynamic light | screenshots | | |
+| K1-09 | BusStop | shoot the glass and the frame; walk into the bench | glass transparent, bullets pass glass (P3) and stop on metal; bench solid | | | |
+| K1-10 | Dumpster, Planter, Barrier_* | walk, drive, shoot through gaps | collision as modelled, steel barrier gaps shootable, foliage alpha without black fringes | | | |
+| K1-11 | Wreck_Sedan, Wreck_Van | cover, line of sight, interact | solid cover, AI sight blocked by the van; no vehicle/inventory actions (static) | | | |
+| K1-12 | Billboard A-D | view each at 5 / 100 / 400 m, front and back | each variant shows its poster on all Res LODs; back is metal | screenshots | | |
+| K1-13 | all | shadows at noon and 17:00 | tall props cast shadows (shadow LOD), no leaks | | | |
+| K1-14 [DED] | all | restart the server, relog, 2 clients | same objects and variants, no duplicates, no `Modified data` kicks for `sky_street.pbo` | RPT | | |
+| K1-15 | regression | Tower A modules, vanilla roads/lights nearby | unchanged | | | |
+
+## 17. Textures, decals, window sets (batch 2)
+
+### 17.1 Decals
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| DC-01 | Spawn `Land_SKY_Decal_Dirt`, `_Cracks` and `_Graffiti` flush on a facade via the layout `decals:` key (offsets 1.5 / 2.0 / 2.5 cm, D19) | All 3 render. No RPT error about missing Geometry (PENDING B1). | | |
+| DC-02 | Spawn `Land_SKY_Decal_Graffiti_A..D` | 4 different designs. Lettering is fully readable, including "NO CURFEW" (D17). No pink/white missing-texture quad. | | |
+| DC-03 | View dirt at 2, 10 and 60 m, day and night | No visible rectangular outline at the quad edges (M1). Streaks read as run-off. | | |
+| DC-04 | View cracks at 2, 10 and 60 m | Lines stay visible at distance and do not vanish through mips (perf L5). Hard alpha edges are acceptable. | | |
+| DC-05 | Place dirt in front of Tower A glass and in front of a graffiti decal; orbit the camera | No z-fighting between overlapping decals (per-type offsets). No blended-sorting pop against glass (L1). | | |
+| DC-06 | Walk through, shoot and drive into each decal; vehicle at 30 km/h | No collision, no bullet impact on the decal (render-only). Behind-wall cover is unchanged. Single-sided: invisible from behind. | | |
+| DC-07 | Relog and restart the server | Decals are still present (static spawner), same variant. | | |
+| DC-08 | 2 clients | Both see the same graffiti variant at the same spot. | | |
+| DC-09 | Perf P7 (`batch2_perf.md:97`): one facade with 0 / 15 / 40 dirt decals at 10 m and 60 m | FPS delta recorded. Feeds the D19 caps. | | |
+
+### 17.2 Window sets (need a test quad or a future facade module; no shipped P3D uses them yet)
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| W-01 | Apply `sky_windows.rvmat` + `sky_windows_co.paa` to a test plane (Object Builder) and view day and night | 16 cells with interiors, blinds and frame. No emissive glow. | | |
+| W-02 | Same with `sky_windows_lit.rvmat` at night | Lit cells read warm, with no bloom blow-out (PENDING P7). Dark cells do NOT glow (PENDING B4, L2). | | |
+| W-03 | Swap lit/unlit per instance via `hiddenSelectionsMaterials` (D23) | The swap works without a script. No extra section is visible in the diag stats. | | |
+| W-04 | View at 1024 at 5 m | Cells are acceptably sharp (~170 px/m). | | |
+
+### 17.3 Facade sheets (no consumer yet)
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| F2-01 | Apply `sky_brick` / `sky_concpanel` to a test plane | Procedural AS/SMDI look right (no black or over-shiny surface). Brick reads 21.5 cm at a 3.44 m U tile (D20). | | |
+
+### 17.4 Regression
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| R2-01 | Tower A lobby/office/core/roof and keycards at the same spot as before batch 2 | Identical look (no Tower A file changed since 681ecdc). Elevator/keycard actions as in `TESTING.md`. | | |
+| R2-02 | Batch 1 billboard A-D, roadmark and street tiles | Unchanged. Billboard variants still swap. | | |
+| R2-03 | Vanilla wall decals or graffiti nearby (if any) | Unaffected. No vanilla texture overridden. | | |
+
 ---
 
 ### Sign-off
@@ -330,3 +406,5 @@ Expected clean logs: no `Cannot open object SKY_Skyline\sky_floors\...`, no `mis
 | Perf §13 | | | |
 | Interior props §14 | | | |
 | Floor / roof variants §15 | | | |
+| Street kit §16 | | | |
+| Decals / windows §17 | | | |
