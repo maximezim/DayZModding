@@ -48,7 +48,7 @@ kit:
     budget: {res0: 2000, res1: 1000, res2: 150, res3: 20, shadow: 24, geo_comps: 80, geo_tris: 1000, sections_res0: 3}
     textures: [concrete, metal, tile]
     status: configured
-    open_items: [Res0 2322 > 2000 (stair steps), Res2 252 > 150, Geometry 99 comps > 80 (merge plan in perf_review M2)]
+    open_items: [Geometry 81 comps > 80 (merge plan in perf_review M2). Stacked-opening bug (perf H1) fixed; doors exist at all 7 stops]
   - {name: Land_SKY_Floor_Mechanical, type: mechanical floor, status: planned}
   - name: Land_SKY_TowerA_Roof_Helipad
     type: roof (helipad)

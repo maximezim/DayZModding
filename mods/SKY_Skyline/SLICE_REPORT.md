@@ -66,11 +66,11 @@ Config/model.cfg syntax copies the Test_Building and Test_ClothingRetexture samp
 
 | Module (count in tower) | Res0 → Res1 → Res2 → Res3 tris | Res0 sections | Geometry comps / tris | Shadow tris | Far LODs alpha |
 |---|---|---|---|---|---|
-| Lobby (1) | 1064 → 668 → 92 → 16 | 4 | 17 / 204 | 60 | none |
+| Lobby (1) | 1064 → 668 → 92 → 24 | 4 | 21 / 252 (incl. solid foundation skirt) | 60 | none |
 | Office floor (5) | 928 → 536 → 56 → 16 | 5 | 12 / 144 | 48 | none |
 | Core (1) | 1602 → 846 → 132 → 10 | 3 | 81 / 972 | 12 | none |
 | Roof (1) | 98 → 98 → 96 → 48 | 2 | 8 / 96 | 96 | none |
-| **Tower A total** | **7404 → 4292 → 600 → 154** | **34** | 166 | — | — |
+| **Tower A total** | **7404 → 4292 → 600 → 162** | **34** | 170 | — | — |
 
 Against the budget hypotheses (`reviews/perf_review.md`): tower Res0 7.4k of 12k, sections 34 of 36, and 0 alpha
 sections in far LODs. Every module is within budget **except the core: 81 Geometry components against a budget of 80**.
@@ -94,7 +94,7 @@ The budgets stay hypotheses until those numbers exist.
 |---|---|---|
 | perf-engineer (static) | **FAIL → fixed** | See below. One open item: core components 81 against 80. |
 | security-auditor | **PASS** (no Critical/High) | All Medium and Low findings fixed (table below). M3 needs an in-game lock check after a restart. |
-| qa-tester | _see §4.3_ | |
+| qa-tester (static) | **PASS with findings → fixed** | Every static check passes. The in-game checklist `TESTING.md` is ⏳. |
 
 ### 4.1 Perf findings → actions
 | Finding | Action |
@@ -121,7 +121,30 @@ The budgets stay hypotheses until those numbers exist.
 | Keycard `model=` path pointed into `data\` | Fixed. |
 
 ### 4.3 QA (static run + checklist)
-_QA_PLACEHOLDER_
+Static run (`reviews/qa_static_run.md`):
+- all 5 P3Ds are structurally complete
+- configs and CE files are up to date
+- the script lint resolves all 10 files
+- layout tests pass 8/8
+- the geometry tests pass, and the workspace self-test passes
+- the dry-run build binarizes `sky_towera` and `sky_items` and packs `sky_scripts` and `sky_textures`
+- 54 SKY paths are cross-checked: all bones, memory points, Doors entries, animation sources and loot groups line up.
+
+| QA finding | Action |
+|---|---|
+| QA-01 (High) the server ignores `cfggameplay.json` without `enableCfgGameplayFile = 1` (`3_game/cfggameplayhandler.c:53`), so the tower never spawns | Added to both server templates. Re-run `Initialize-TestServer.ps1 -Force`. |
+| QA-02 keycard `camo` section not declared, so all tiers might show the T1 texture | `sky_items/model.cfg` now declares `sections[] = {"camo"}`. |
+| QA-03 PAA files not generated yet | By design (build artifacts). `Build-SkyAssets.ps1` must run before `Build-Mod`. |
+| QA-04 foundation skirt was visual only | The skirt is now solid in Geometry, Fire and View, and is in Res3 (outer faces only). |
+| QA-09 2 cm lip on open elevator leaves | Leaves now travel their full width plus 1 cm. |
+| QA-13 `shelves` tag without shelves; a T2 card could spawn behind the T2 door | The security room uses `floor` only and `weapons` only. |
+| QA-05 core 81 components; QA-08 three unverified vanilla paths | Open (see §5). |
+| QA-10 no test mission to install into | `TESTING.md` setup uses the local mission copy under `server/mpmissions`. Editing that git-ignored copy for tests is allowed; the vanilla install is still never touched. |
+| QA-11 roof Res1 equals Res0; QA-12 helipad has no rotor clearance (decorative pad); QA-14 placeholder site; QA-15 unused memory points (reserved for lights and events) | Accepted for the slice and noted for scale-up. |
+
+`TESTING.md` covers every gate you listed: collisions, bullet hits, view blocking, door animations,
+elevator, keycard door, AI pathing, loot, placement, the roof event and clean RPT/script.log. Each item has steps,
+expected results, log evidence and a PASS/FAIL column. The security M3 lock-after-restart check is a release gate.
 
 ## 5. Problems found / open risks
 

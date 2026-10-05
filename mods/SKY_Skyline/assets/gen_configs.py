@@ -332,6 +332,29 @@ def outputs():
         "sky_towera/model.cfg": tower_model_cfg(),
         "sky_items/config.cpp": items_config(),
         "sky_items/data/sky_keycard.rvmat": keycard_rvmat(),
+        "sky_items/model.cfg": HEADER + """class CfgSkeletons
+{
+\tclass Default
+\t{
+\t\tisDiscrete = 1;
+\t\tskeletonInherit = "";
+\t\tskeletonBones[] = {};
+\t};
+};
+class CfgModels
+{
+\tclass Default
+\t{
+\t\tsectionsInherit = "";
+\t\tsections[] = {};
+\t\tskeletonName = "";
+\t};
+\tclass sky_keycard: Default
+\t{
+\t\tsections[] = {"camo"};
+\t};
+};
+""",
     }
     for name, (base, power) in RVMATS.items():
         files["sky_textures/data/%s.rvmat" % name] = rvmat_super(base, power)

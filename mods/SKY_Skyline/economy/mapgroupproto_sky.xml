@@ -18,10 +18,8 @@
             <point pos="-10.000000 0.000000 0.000000" range="0.600000" height="1.500000" />
         </container>
         <container name="lootSecurity" lootmax="3">
-            <category name="tools" />
             <category name="weapons" />
             <tag name="floor" />
-            <tag name="shelves" />
             <point pos="8.000000 0.000000 8.000000" range="0.600000" height="1.500000" />
             <point pos="10.500000 0.000000 10.500000" range="0.600000" height="1.500000" />
             <point pos="8.000000 0.000000 10.800000" range="0.600000" height="1.500000" />

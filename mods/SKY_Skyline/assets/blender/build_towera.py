@@ -176,9 +176,20 @@ def build_lobby():
     wt = h - S.SLAB_T
     floor_slab(L, "tile", UV_TILE, "road_int")
     # Foundation skirt so sloped terrain never shows a gap under the podium.
+    skirt = [(-HW, HW, -HD, -HD + 0.3), (-HW, HW, HD - 0.3, HD), (-HW, -HW + 0.3, -HD + 0.3, HD - 0.3),
+             (HW - 0.3, HW, -HD + 0.3, HD - 0.3)]
     for k in ("res0", "res1", "res2"):
-        for (x0, x1, y0, y1) in [(-HW, HW, -HD, -HD + 0.3), (-HW, HW, HD - 0.3, HD), (-HW, -HW + 0.3, -HD, HD), (HW - 0.3, HW, -HD, HD)]:
+        for (x0, x1, y0, y1) in skirt:
             L[k].box(x0, x1, y0, y1, -2.5, -S.SLAB_T, mat="concrete", uv=UV_CONC_PANEL, skip=("+z", "-z"))
+    # Res3: outer face of each skirt side only.
+    for (x0, x1, y0, y1), keep in zip(skirt, ("-y", "+y", "-x", "+x")):
+        L["res3"].box(x0, x1, y0, y1, -2.5, -S.SLAB_T, mat="concrete", uv=UV_CONC_PANEL,
+                      skip=tuple(f for f in ("-x", "+x", "-y", "+y", "-z", "+z") if f != keep))
+    # Skirt is solid too: on sloped sites nobody walks/shoots/looks under the slab.
+    for k in ("geo", "view", "fire"):
+        kw = {"mat": "pen_concrete"} if k == "fire" else {}
+        for (x0, x1, y0, y1) in skirt:
+            L[k].box(x0, x1, y0, y1, -2.5, -S.SLAB_T, **kw)
     facade(L, 0.0, wt, entrances=[("S", -1.5, 1.5, 3.0)], transom=3.0)
     L["res3"].box(-HW, HW, -HD, HD, -S.SLAB_T, 0.0, mat="concrete", uv=UV_CONC_REVEAL, skip=("+z", "-z"))
     # Reception desk.
@@ -359,7 +370,7 @@ def build_core():
                 kw = {"mat": "metal", "uv": UV_STEEL} if k.startswith("res") else ({"mat": "pen_metal"} if k == "fire" else {})
                 L[k].box(a0, a1, iy1 + 0.03, iy1 + 0.09, s, s + C["door_h"] - 0.005, sel=[name], **kw)
             L["mem"].point(name + "_axis", (0.0, iy1 + 0.06, s + 1.0))
-            L["mem"].point(name + "_axis", (sign * (ed - 0.02), iy1 + 0.06, s + 1.0))
+            L["mem"].point(name + "_axis", (sign * (ed + 0.01), iy1 + 0.06, s + 1.0))
         # Panel (inside, east cab wall) and call button (outside, north face).
         for k in ("res0",):
             L[k].box(cx1 - 0.05, cx1, 3.4, 3.7, s + 1.0, s + 1.5, mat="metal", uv=UV_STEEL)

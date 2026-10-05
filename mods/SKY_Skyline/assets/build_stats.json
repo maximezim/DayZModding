@@ -31,16 +31,16 @@
   "view": 104
  },
  "sky_towera_lobby.p3d": {
-  "fire": 204,
-  "geo": 204,
+  "fire": 252,
+  "geo": 252,
   "mem": 0,
   "res0": 1064,
   "res1": 668,
   "res2": 92,
-  "res3": 16,
+  "res3": 24,
   "road": 8,
   "shadow": 60,
-  "view": 128
+  "view": 176
  },
  "sky_towera_roof_helipad.p3d": {
   "fire": 96,

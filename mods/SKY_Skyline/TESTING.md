@@ -1,0 +1,255 @@
+# SKY_Skyline Tower A: in-game test checklist (DayZDiag + dedicated)
+
+**Status: NOT RUN.** None of these checks can run on the Linux environment where this checklist was written: it has no DayZ, DayZDiag, DayZ Server, DayZ Tools or `P:`. Every PASS/FAIL cell below is empty and has to be filled in on the Windows workstation.
+
+The static run (asset, config, economy, script cross-reference, layout, Blender geometry, tooling self-test and dry-run build) is in `reviews/qa_static_run.md`. Read its findings QA-01 to QA-04 first: they change the preconditions below.
+
+How to use this checklist:
+- Run each gate on **DayZDiag** first (fast loop, file patching).
+- Then run the rows marked **[DED]** again on the **dedicated** server (signed, `verifySignatures=2`, `BattlEye=1`, `allowFilePatching=0`).
+- Fill in PASS/FAIL with the log line(s) and their timestamp, or a screenshot name under `reviews/img/`.
+
+---
+
+## 0. Setup (do once, in order)
+
+| ID | Step | Expected | PASS/FAIL |
+|---|---|---|---|
+| S-01 | Run `tools\setup\Get-ToolchainStatus.ps1`. If anything is missing, run `tools\setup\Initialize-WorkDrive.ps1` (P: + game data) and `tools\setup\Initialize-TestServer.ps1` | DayZ, DayZ Tools, DayZ Server and P: all found. `server\serverDZ.diag.cfg` and `server\serverDZ.dedicated.cfg` rendered | |
+| S-02 | Run `mods\SKY_Skyline\assets\Build-SkyAssets.ps1` | 41 `.paa` files are written into `addons\sky_textures\data` (36) and `addons\sky_items\data` (5). They include all 40 referenced names (QA-03). Every `dz\` path resolves on P:: `concrete.rvmat`, `glass.rvmat` and `env_land_co.paa` are the unverified ones (QA-08). Ends with `SKY assets ready` | |
+| S-03 | Run `tools\build\Build-Mod.ps1 -ModName SKY_Skyline`, then `tools\build\Sign-Mod.ps1 -ModName SKY_Skyline` | 4 PBOs in `build\@SKY_Skyline\addons`. `sky_items` and `sky_towera` are binarized; `sky_scripts` and `sky_textures` are pack-only. Newest `DayZ Tools\Bin\Logs\AddonBuilder*.rpt` has no `non-convex`, `missing`, `Cannot open` or `error` lines for SKY files | |
+| S-04 | Create the test mission. Do **not** edit the vanilla copy (`CLAUDE.md`, QA-10). Copy `server\mpmissions\dayzOffline.chernarusplus` to `server\mpmissions\dayzOffline.chernarusplus_sky`. Run `tools\setup\Initialize-TestServer.ps1 -Mission dayzOffline.chernarusplus_sky -Force`; it skips the copy because the folder exists. For dedicated, put the same folder in `<ServerDir>\mpmissions\` | Both rendered configs show `template = "dayzOffline.chernarusplus_sky"` | |
+| S-05 | **Enable cfggameplay (QA-01).** Add `enableCfgGameplayFile = 1;` to the rendered `server\serverDZ.diag.cfg` and `server\serverDZ.dedicated.cfg` (generated, git-ignored files) | Without this line nothing spawns. Vanilla reads the flag in `3_game/cfggameplayhandler.c:53` | |
+| S-06 | Install placement into the test mission (`placement\README.md` §2). Copy `placement\out\sky_objects.json` to `<mission>\sky\sky_objects.json` and merge `cfggameplay_snippet.json` into `<mission>\cfggameplay.json`. For tests on the placeholder site, use the output of §9 (survey) instead, once it exists | `cfggameplay.json` still parses (no `JsonFileLoader`/`ErrorEx` line in the server script log) | |
+| S-07 | Install the economy files into the test mission (`economy\README.md`): `sky_ce\` + `cfgeconomycore` snippet, `mapgroupproto` groups, `cfgeventspawns` snippet. Delete `<mission>\storage_1` for a fresh CE | Server RPT: no `[CE]` errors naming `SKY_` or `Land_SKY_` | |
+| S-08 | Launch diag: `tools\build\Build-And-Run.ps1 -ModName SKY_Skyline -FilePatching`, which wraps `tools\launch\Start-DiagLocal.ps1 -Mods SKY_Skyline -FilePatching`. Server flags: `-dologs -adminlog -netlog -freezecheck` | Server and client start, the client connects to 127.0.0.1 | |
+| S-09 | Launch dedicated **[DED]**: `tools\build\Build-And-Run.ps1 -ModName SKY_Skyline -Mode Dedicated`, which builds, signs and calls `tools\launch\Start-DedicatedServer.ps1 -Mods SKY_Skyline`; it needs `Deploy-Mod.ps1` first. Join with a normal client and `-mod=@SKY_Skyline` | No signature kick. RPT has no `Modified data`, `Signature check` or `kicked` lines | |
+| S-10 | Find the tower. In the diag script console, teleport to the tower origin T, which is the `Land_SKY_TowerA_Lobby` position in `sky_objects.json` | Eight modules are visible and stacked with no gaps: lobby, 5 office floors, roof, core | |
+
+Stop all game processes with `Get-Process DayZDiag_x64,DayZServer_x64 -ErrorAction SilentlyContinue | Stop-Process`.
+
+**Logs.** Always read the newest file in each folder and quote exact lines with their timestamps.
+- Diag: `server\profiles\diag-server\` and `server\profiles\diag-client\`
+- Dedicated: `server\profiles\dedicated\`
+- File types:
+  - `script_*.log`: script compile and runtime errors, `[SKY]` info lines
+  - `*.RPT`: engine, config, addon and asset loading; `[SKY] WARNING:` lines go here because `SKY_Log.Warn` uses `PrintToRPT`
+  - `*.ADM`: admin log
+  - `crash_*.log` and `*.mdmp`
+
+**Diag tools used below.** Menu labels differ between builds, so verify them in yours.
+- DayZDiag diag menu: hold Win+Alt.
+  - Geometry and LOD visualisation, if your build has it; otherwise use Object Builder on the MLOD.
+  - AI navmesh visualisation.
+  - Statistics.
+- Diag script console: spawn items and infected, teleport, set time.
+
+**Coordinates.** "Model" coordinates are tower-local: x = east, y = up, z = north, origin = top of the lobby slab at the footprint centre. Stop heights are 0 / 7 / 10.5 / 14 / 17.5 / 21 / 24.5.
+
+---
+
+## 1. Collisions (Geometry LOD)
+
+| ID | Preconditions | Steps | Expected | Evidence | PASS/FAIL |
+|---|---|---|---|---|---|
+| C-01 | S-10 | Walk the whole lobby perimeter along the glass facade, then through the 3 m south entrance (model x -1.5..1.5) | You cannot pass through the glass. The entrance is free and 3 m high. The reception desk blocks you | screenshot | |
+| C-02 | lobby | Walk into the security room walls from outside (model x 5.875..6.125 and z 5.875..6.125) and try to jump onto the room roof (y 3.2) | Walls are solid. You cannot get onto the roof without a ladder | | |
+| C-03 | stair core at the lobby | Take the stairs from the lobby (y 0) up to the roof (y 24.5): every flight and landing (landings every 1.75 m), and every stair door on the south face (x -1.8..-0.6) | No snagging, no falling through flights or landings, no stuck spots. A stair door opening exists at every stop | `script` and RPT have no position-correction spam | |
+| C-04 | each office floor 1-5 | Walk the facade perimeter, the core walls and the SW partition room (door at x -8.5..-7.5) | Solid everywhere. The door gap is 1.0 m wide and 2.1 m high | | |
+| C-05 | each floor | Stand on a slab next to the core and above the module seam. Crouch, go prone, roll, and drop items in 4 places per floor | **Nothing falls through the slab seam between stacked modules** (slab y -0.3..0 meets the module below at its top, 3.2). Items stay on the floor | | |
+| C-06 | roof | Walk along the parapet (1.1 m) on all 4 sides, try to vault it, and walk around the core penthouse (up to about 28 m) | Parapet is solid; vaulting over it is a fall, which is the vanilla rule. The penthouse walls are solid | | |
+| C-07 | elevator cab, every stop | Stand inside the closed cab (model x -1.25..1.25, z 1.5..4.25) and push against the 4 walls and the closed doors. Jump | You cannot leave a closed cab. You cannot clip into the shaft. Doors are solid when closed | | |
+| C-08 | cab doors open | At each stop, walk out of the cab through the open doors | The 2 cm leaf lip at each side (QA-09) does not snag you | | |
+| C-09 | security room (§5 opens it) | Walk the room interior and push into the 3 cm gap between the room and the facade | Nothing to clip into | | |
+| C-10 | site with a ground drop under the lobby > 0.3 m (only on a sloped survey site) | Walk into the visual foundation skirt below the lobby slab from outside | **QA-04 is expected to FAIL here.** The skirt has no Geometry, so you walk through it. Record whether you can get under the slab | screenshot | |
+| C-11 | vehicle | Drive a car into the lobby glass and the core | The vehicle collides, the building is not damaged, and there is no physics explosion | | |
+
+## 2. Bullet hits (Fire Geometry)
+
+Use an M4A1 and a Mosin (`M4A1`, `Mosin9130`), aiming at an `Inventory_Base` dummy or a second player behind each surface.
+
+| ID | Steps | Expected | Evidence | PASS/FAIL |
+|---|---|---|---|---|
+| F-01 | Shoot through the facade glass (lobby, floor 3) at a target 2 m behind it | **Glass does not stop bullets the way concrete does.** The round goes through and hits the target. Glass impact effect and sound | screenshot of the hit, target damage in the client | |
+| F-02 | Shoot the slab from below (lobby ceiling = floor 1 slab), the core walls and the roof parapet | Concrete impact. Rifle rounds do not pass through 0.25-0.30 m concrete | | |
+| F-03 | Shoot the elevator doors and the lobby security door (metalplate) | Metal impact. No pass-through for pistol rounds. Record what rifle rounds do | | |
+| F-04 | Shoot the SW partition walls on floors (bricks) | Masonry impact. Behaviour is like vanilla brick walls | | |
+| F-05 | Shoot the reception desk (wood_desk) | Wood impact. Rounds pass through | | |
+| F-06 | Check RPT and `script_*.log` during F-01 to F-05 | No `penetration`, `material` or `Cannot open` errors. If one appears, the vanilla path from QA-08 is wrong | | |
+| F-07 | Use a weapon from inside a closed cab and from the stairwell | Bullets do not leak through core walls between floors | | |
+
+## 3. View blocking (View Geometry / occluders)
+
+| ID | Steps | Expected | Evidence | PASS/FAIL |
+|---|---|---|---|---|
+| V-01 | Player A stands on floor 2 and player B on floor 3 directly above. Each looks down or up. Also toggle 3rd person | Neither sees the other through the slab. 3rd-person camera does not clip through the slab | screenshot from both clients | |
+| V-02 | A is in the stairwell and B is on the landing outside a closed core wall | No visibility through core walls. Players are only visible through the open stair door | | |
+| V-03 | A is outside at street level and B is inside floor 2 next to the facade | **Glass is see-through both ways.** Players, infected and loot are visible through it | | |
+| V-04 | Look from 50-300 m at the tower, rotating around it | No occluder culls objects that are visible through the glass. No popping of players or vehicles behind the tower edges (occluders sit only on slabs and core sides) | | |
+| V-05 | A is in the lobby security room with the door closed, B is outside the room | Not visible through the concrete room walls. **Visible through the facade glass** (the room's N and E walls are the facade; note it as a design question) | | |
+| V-06 | Diag menu: show View Geometry / occluders, if available | It matches the Object Builder layout: slab occluders with the core hole, and 2 core side occluders | | |
+
+## 4. Door animations
+
+| ID | Steps | Expected | Evidence | PASS/FAIL |
+|---|---|---|---|---|
+| D-01 | Open `door_sec` (via §5) and watch it from the corridor | It rotates about the vertical hinge at model (6.0, *, 7.0), **swings into the room (+x)**, about 80° (`angle1 = 1.4`), takes 1.0 s, and does not pass through the wall. If it opens outward or into the wall, it FAILS: flip `angle1` (`assets/MANUAL_STEPS.md` C) | video or screenshot at the open position | |
+| D-02 | Use the exit button to close and open again, from inside | Same direction. Collision follows the leaf: you cannot walk through the open leaf | | |
+| D-03 | Call the elevator at every stop | Leaves slide **apart, outward**: `_a` toward -x and `_b` toward +x, 0.58 m in 1.2 s. They close the same way after 8 s | | |
+| D-04 | Second client watching from the landing while another rides the elevator | Animation is in sync on both clients. Only the car's stop opens; the other 6 landings stay closed | | |
+| D-05 **[DED]** | While the doors are open, relog the observer (and reconnect a second client) | After reconnect the door phase matches server state (open or closed): net sync of `m_SkyDoorsOpen` / `m_SkyCarLevel` | | |
+| D-06 **[DED]** | Relog while `door_sec` is open, then relog after it relocks | The client shows the true state each time. No "open but locked" mismatch: you cannot walk through a visually closed door | | |
+
+## 5. Keycard door (lobby `door_sec`, tier 2, relock 60 s)
+
+Spawn the cards in the script console: `SKY_Keycard_T1`, `SKY_Keycard_T2`, `SKY_Keycard_T3`, plus `Lockpick`, `M67Grenade`.
+
+| ID | Preconditions | Steps | Expected | Log evidence | PASS/FAIL |
+|---|---|---|---|---|---|
+| K-01 **[DED]** | fresh server start | Try to open `door_sec` with the vanilla "Open door" action | It is locked: rattle sound (`doorMetalSmallRattle`), no opening | none | |
+| K-02 **[DED]** | T1 in hands | "Swipe keycard" on the door | Notification "Access denied / insufficient clearance". The door stays locked | ADM: `Player "<name>" (id=<id> pos=<...>) SKY keycard denied (insufficient clearance) tier 1/2 at Land_SKY_TowerA_Lobby <pos>`. Script log: `[SKY] SKY keycard denied ... by <id>` | |
+| K-03 | T1, swipe 5 times within 5 s | Repeated swipes | Swipes inside 1.5 s are ignored silently. At most **one ADM denial line per 5 s** per player | count the ADM lines | |
+| K-04 **[DED]** | T2 in hands | Swipe | The door unlocks and opens. The card loses 10 health | Script log: `[SKY] keycard T2 opened door 0 at Land_SKY_TowerA_Lobby by <id>` | |
+| K-05 | T3 in hands | Swipe while locked | Opens, same as K-04 with `T3` | same line with `T3` | |
+| K-06 **[DED]** | after K-04 | Wait 60 s without touching the door. Repeat with someone standing in the doorway | At about 60 s the door closes and locks again; the vanilla open action rattles again. Record what happens to the player in the doorway | timestamps of the open and relock | |
+| K-07 | after K-04 | Open and close the door with vanilla actions during the 60 s window, then swipe again | Only one pending relock: the door locks 60 s after the **last** swipe or exit | | |
+| K-08 | inside the room, door locked | Aim at the door from inside and use "Press exit button". Then try the same from outside the room | Inside: the door opens without a card and relocks after 60 s. Outside: the action is **not** offered, and a forged request is ignored | none expected | |
+| K-09 | inventory | Look at T1, T2 and T3 in hands and on the ground | Three different colours: green T1, amber T2, red T3. **If all look the same, QA-02 is confirmed** (missing `model.cfg` `sections[]`) | screenshot | |
+| K-10 | ruined T2 (set its health to 0 in the console) | Swipe | The "Swipe" prompt is hidden (`CCINonRuined`). If you force it, the server answers "card damaged" | ADM `SKY keycard denied (card damaged)` if it was reached | |
+| K-11 **[DED]** | Lockpick in hands | Target `door_sec` | No "Unlock" or "Lock" action is offered (lock type NONE). Vanilla doors elsewhere still accept lockpicks (regression) | | |
+| K-12 | door locked | Shoot 2 magazines into the door, hit it with melee, and throw an M67 at it | The door survives (damage zone takes 0) and stays locked and closed | RPT/script: no damage-zone errors | |
+| K-13 **[DED] (security M3, release gate)** | door locked | Restart the dedicated server (stop it, start `Start-DedicatedServer.ps1 -Mods SKY_Skyline`). Within 30 s of the first player joining, try the vanilla open | **Locked after restart.** Repeat 3 restarts. A fail here makes M3 High and blocks release | RPT: no `[SKY] WARNING: ... keycard door 'door_sec' not found` or `length mismatch` | |
+| K-14 | 2 players | A swipes T2 while B holds a T1 at the door | Only A's card opens the door. B gets a denial while the door is locked, and no prompt while it is open | | |
+| K-15 | swipe from 3 m (beyond reach), or from the other side of the room wall | Swipe | The prompt is not offered beyond reach. The server ignores requests made through the wall from more than 2.5 m from `door_sec_action` | | |
+
+## 6. Elevator (`Land_SKY_TowerA_Core`, 7 stops, max 4, cooldown 4 s, doors 8 s)
+
+Timing reference:
+- Close: 1.3 s.
+- Travel: 1.5 s + 0.5 s per stop (for example, lobby to roof = 1.3 + 4.5 s).
+- Doors open for 8 s.
+- A new departure is possible 4 s after the last one.
+
+| ID | Preconditions | Steps | Expected | Log evidence | PASS/FAIL |
+|---|---|---|---|---|---|
+| E-01 | car idle at L0 | At each stop L0..L6, stand at the call button (right of the doors, 1.25 m high) and use "Call elevator" | The car comes empty and the doors open at your stop. If it is already here with the doors closed, they just open | ADM: no teleport line (empty car) | |
+| E-02 | inside the cab, at each stop | Use the panel (east cab wall): "up one floor", "down one floor", "lobby", "roof" | You arrive at the expected stop at the same spot in the cab. Doors open there and auto-close after 8 s | ADM per occupant: `Player "<n>" (id=..) was teleported from: <..> to: <..>. Reason: SKY elevator <from>-><to>` | |
+| E-03 | at the limits | At L6 look for "up" and "roof"; at L0 look for "down" and "lobby". Also look while the doors are already open at your stop (Open) | These actions are not offered | | |
+| E-04 | 2 riders | Ride, then press a command within 4 s of the previous departure | Notification "Please wait..." and no departure | | |
+| E-05 | 4 players in the cab | Press "roof" | All 4 arrive. 4 ADM teleport lines | 4 lines | |
+| E-06 | 5 players in the cab (needs 5 clients) | Press a floor | "Overloaded (max 4)". The doors stay open | | |
+| E-07 | 4 in the cab, a 5th runs in while the doors close | | At departure the doors reopen and everyone sees "Overloaded (max 4)" | | |
+| E-08 | A is in the cab at L0 with the doors closed, B at L3 | B presses "Call elevator" | "Elevator in use". The car does not move with A inside | | |
+| E-09 | A at L3 inside a cab where the car is not (for example after E-12) | A uses "Elevator: open doors" | The car (empty) travels to L3 and opens: the rescue path. If the car is occupied elsewhere, A sees "Elevator in use" | | |
+| E-10 | cab at a stop | Stand on the landing outside the cab and try the panel actions; stand inside the cab and try "Call" | Panel actions work only inside the cab within 1.6 m of the panel. "Call" works only outside, within 1.6 m of the call button | | |
+| E-11 | rider in a vehicle or attached (if reproducible) | | That rider is not teleported (vanilla exclusion) | | |
+| E-12 **[DED]** | A rides L0 to L6 | A presses Exit (logout) during TRAVEL. Then a second test: Alt-F4 during TRAVEL. Reconnect | No script error at arrival. Record whether A ends up at L6 (teleported during the logout timer) or in the closed L0 cab. If in a closed cab, E-09 frees A | script log has no `NULL pointer`. ADM teleport line (may show cached name or `(DEAD)` rules) | |
+| E-13 **[DED]** | car at L4, players inside, server restart | Restart and reconnect | The car resets to L0 with the doors closed. Players in the L4 cab use E-09 to get out. No stuck players | RPT: no `[SKY] WARNING: ... missing memory point` or `invalid elevator config` | |
+| E-14 | 1 client spams every elevator action as fast as the UI allows for 60 s | | Requests within 1.5 s are ignored. No error spam. At most 3 SKY CallLaters pending (perf S2) | | |
+| E-15 | dead or unconscious player in the cab | Kill or knock out one rider, then press a floor | Only living players are moved. An unconscious player cannot press buttons | | |
+| E-16 | during E-02 | Watch for rubber-banding or falling after arrival (`SetPosition`) on the rider and on an observer | No teleport-back, no fall damage, no falling through the floor of the destination cab | RPT: no position-correction lines | |
+
+## 7. AI pathing (infected)
+
+| ID | Steps | Expected | Evidence | PASS/FAIL |
+|---|---|---|---|---|
+| A-01 | Diag menu: enable navmesh visualisation near T after server start. The spawner calls `ProcessMarkedObjectsForPathgraphUpdate()` | Navmesh covers the lobby floor, every stair flight and landing, every floor and the roof. **No navmesh crosses the glass facade.** Door openings (lobby entrance, stair doors, partition door, open `door_sec`) are connected | screenshots per level | |
+| A-02 | Spawn 3 infected (`ZmbM_CitizenASkinny`) at the plaza, aggro them, run into the lobby and up the stairs to floor 3, then to the roof | They follow through the entrance and up the stairs, landing by landing, and reach you | | |
+| A-03 | Stand behind the facade glass on the lobby side, infected outside | They path around to the entrance. They do not walk or attack through the glass | | |
+| A-04 | Close yourself in the security room (door locked) | Infected cannot path through the locked door. They do not glitch through the room walls | | |
+| A-05 | Ride the elevator with infected chasing | Infected are not teleported. They take the stairs or lose the target | | |
+| A-06 | Watch server RPT/script during A-02 to A-05 (perf S4) | No path-failure spam and no frame spikes | RPT grep | |
+
+## 8. Loot (Central Economy)
+
+| ID | Preconditions | Steps | Expected | Evidence | PASS/FAIL |
+|---|---|---|---|---|---|
+| L-01 | S-07 | Server start with a fresh `storage_1` | RPT has no `[CE][TypeCheck]` or unknown category/usage/tag lines for `SKY_Keycard_T1..T3` or `Land_SKY_*`. The `sky_ce` folder is loaded | RPT lines | |
+| L-02 | tower spawned | Run the survey with `"exportRadius": 40` (§9), then merge the `Land_SKY_*` `<group>` lines from `<mission>\storage_1\export\mapgrouppos.xml` into `<mission>\mapgrouppos.xml`. Wipe storage and restart | `mapgrouppos.xml` has 7 SKY groups (lobby, 5 floors, roof). There is no core entry, which is intended | file diff | |
+| L-03 | after L-02 | Walk the lobby, floors 1-5 and the roof after the CE has settled (about 5 min) | Loot appears **on** the floors at the `skyspec.LOOT` points: lobby 6 + 4 (room), floor 10, roof 3. Nothing is inside walls, under slabs or floating. At most 8 / 6 / 2 items per module | screenshots. A diag CE loot-point overlay, if available | |
+| L-04 | after L-02 | Spawn the cards with the console, then wait for natural spawns (or temporarily raise their nominal in a scratch types copy) | `SKY_Keycard_T1/T2` spawn in Office/Town (T2 also in Police). T3 spawns in Military. Spawned cards are worn (damage 0-0.3) | | |
+| L-05 | security room | Check loot behind `door_sec` | Tools and weapons only. Note whether a T2 card can spawn inside the room (QA-13) | | |
+
+## 9. Placement (survey to strict layout)
+
+| ID | Steps | Expected | Evidence | PASS/FAIL |
+|---|---|---|---|---|
+| P-01 | Pick a candidate centre. Write `server\profiles\dedicated\SKY_survey_request.json`, or the `diag-server` one: `{ "label": "site1", "center": [X, Z], "yaw": 0, "halfW": 13, "halfD": 13, "step": 2.0, "exportRadius": 0 }`. Start the server (`Build-And-Run.ps1 -ModName SKY_Skyline -Mode Dedicated -NoClient` or diag) | About 15 s after mission start, `SKY_survey_result.json` appears next to the request | script log: `[SKY] site survey 'site1' written: $profile:SKY_survey_result.json (<n> objects, ground <min>..<max>)` | |
+| P-02 | Copy the result to `placement\surveys\site1.json`. In `layout.yaml` set `site.center`, `site.survey`, and `placeholder: false`. Run `python placement\sky_layout.py --strict` | `status: PASS` with no errors. Reject sites with "drop > skirt", an existing `Land_*` in the footprint, or overlap | console output | |
+| P-03 | Deploy `placement\out\*` (S-06), restart, and teleport to the site | The lobby slab sits 0.05 m above the highest ground sample. No terrain pokes through the floor. No module gaps. The yaw is correct | screenshot | |
+| P-04 | A malformed request file (bad JSON) | | RPT: `[SKY] WARNING: survey request invalid: ...`. The server keeps running | | |
+
+## 10. Roof drop event (`StaticSKYRoofDrop`)
+
+| ID | Steps | Expected | Evidence | PASS/FAIL |
+|---|---|---|---|---|
+| R-01 | Merge the `cfgeventspawns` snippet with the **real** site Y (from P-02), then wipe storage and start | One supply box (`StaticObj_Misc_SupplyBox1_DE` or `2_DE`) appears on the roof at one of the 4 `roof_drop_N` points (±8 m, ±8 m), resting on the slab, not floating or buried | RPT: no event errors for `StaticSKYRoofDrop`. Screenshot | |
+| R-02 | Open the box | 3-6 loot items | | |
+| R-03 | Wait for the lifetime (2700 s), or use the console to clean it up, and restart | The event respawns. There is never more than 1 box | | |
+| R-04 | Check the box against the parapet, the helipad decal and the core penthouse | No overlap or clipping | | |
+
+## 11. Clean logs (gate for every run above)
+
+At the end of every session, grep the **newest** files in each profile folder (diag-server, diag-client, dedicated):
+
+```powershell
+$p = 'server\profiles\diag-server'   # repeat for diag-client, dedicated
+$log = Get-ChildItem $p -Filter 'script_*.log' | Sort-Object LastWriteTime | Select-Object -Last 1
+$rpt = Get-ChildItem $p -Filter '*.RPT'        | Sort-Object LastWriteTime | Select-Object -Last 1
+$adm = Get-ChildItem $p -Filter '*.ADM'        | Sort-Object LastWriteTime | Select-Object -Last 1
+Select-String -Path $log.FullName -Pattern 'SCRIPT \(E\)', "Can't compile", 'NULL pointer', 'SKY'
+Select-String -Path $rpt.FullName -Pattern '\[SKY\] WARNING', 'Object spawner failed', 'Cannot open object', 'Cannot load', 'missing in CfgPatches', 'Updating base class', 'No entry .*SKY', '\[CE\]\[TypeCheck\]', 'sky_', 'SKY_', 'Signature', 'Modified data', 'kicked'
+Select-String -Path $adm.FullName -Pattern 'SKY keycard denied', 'Reason: SKY elevator'
+Get-ChildItem $p -Filter 'crash_*.log'; Get-ChildItem $p -Filter '*.mdmp'
+```
+
+| ID | Expected | PASS/FAIL |
+|---|---|---|
+| G-01 | `script_*.log` (server and client) has **0** `SCRIPT (E)`, `Can't compile` or `NULL pointer` lines that mention SKY files or classes | |
+| G-02 | RPT has **0** `[SKY] WARNING:` lines. The possible ones are: `missing memory point`, `invalid elevator config`, `keycard door ... not found`, `length mismatch`, `invalid target level`, `survey ... failed`. RPT also has 0 of `Object spawner failed to spawn Land_SKY_*`, `Cannot open object SKY_Skyline\...` and missing `.paa`/`.rvmat` | |
+| G-03 | RPT has no `Updating base class` or `missing in CfgPatches` lines for `SKY_Skyline_*` | |
+| G-04 | ADM contains only the expected SKY lines: denials (rate limited) and one teleport line per rider per trip | |
+| G-05 | No `crash_*.log` or `.mdmp` | |
+| G-06 **[DED]** | Same as G-01 to G-05 with `verifySignatures=2`, `BattlEye=1`, `allowFilePatching=0`, plus no signature or BattlEye kicks | |
+
+## 12. Regression (vanilla nearby)
+
+| ID | Steps | Expected | PASS/FAIL |
+|---|---|---|---|
+| X-01 | Use a vanilla house door near the site (open, close, lockpick) | Unchanged vanilla behaviour | |
+| X-02 | Use vanilla actions near the tower: eat, drink, open other doors, ladders elsewhere | The 8 SKY actions do not appear on non-SKY targets | |
+| X-03 | Vanilla loot in towns near the site | Unchanged (the merged `mapgroupproto` did not break other groups) | |
+
+## 13. Performance
+
+Run the DayZDiag FPS protocol exactly as written in `reviews/perf_review.md` §4:
+- configs A, B and C (baseline / tower / 3x3 grid)
+- VD1 and VD2
+- positions P1-P6
+- server scenarios S1-S6
+- pass/fail thresholds from that table
+
+Record the results there, or link them from here.
+
+| ID | Expected | PASS/FAIL |
+|---|---|---|
+| PERF-01 | All `perf_review.md` §4 thresholds are in "Pass" | |
+
+---
+
+### Sign-off
+
+| Gate | Diag | Dedicated | Tester / date |
+|---|---|---|---|
+| Collisions §1 | | | |
+| Fire Geometry §2 | | | |
+| View Geometry §3 | | | |
+| Doors §4 | | | |
+| Keycard §5 (incl. K-13 / M3) | | | |
+| Elevator §6 | | | |
+| AI §7 | | | |
+| Loot §8 | | | |
+| Placement §9 | | | |
+| Roof drop §10 | | | |
+| Clean logs §11 | | | |
+| Perf §13 | | | |

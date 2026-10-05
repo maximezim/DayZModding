@@ -160,8 +160,9 @@ LOOT = {
             {"name": "lootFloor", "lootmax": 5, "categories": ["tools", "containers", "clothes"],
              "tags": ["floor"],
              "points": [(-8.0, -8.0), (-9.5, 6.0), (8.0, -8.0), (-4.5, -9.0), (4.5, -9.5), (-10.0, 0.0)]},
-            {"name": "lootSecurity", "lootmax": 3, "categories": ["tools", "weapons"],
-             "tags": ["floor", "shelves"],
+            # weapons only: keeps T2 keycards (category tools) from spawning behind the T2 door
+            {"name": "lootSecurity", "lootmax": 3, "categories": ["weapons"],
+             "tags": ["floor"],
              "points": [(8.0, 8.0), (10.5, 10.5), (8.0, 10.8), (10.8, 7.5)]},
         ],
     },
