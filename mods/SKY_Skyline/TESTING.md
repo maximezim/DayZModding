@@ -241,7 +241,7 @@ Get-ChildItem $p -Filter 'crash_*.log'; Get-ChildItem $p -Filter '*.mdmp'
 ## 13. Performance
 
 For the kit, props, floor variants and the district (batches 1-5) use `FPS_PROTOCOL.md` (configs A/B/D/D0/D-dec/E, positions Q1-Q6, scenarios S1-S8, results template). For Tower A alone, run the DayZDiag FPS protocol exactly as written in `reviews/perf_review.md` §4:
-- configs A, B and C (baseline / tower / 3x3 grid)
+- configs A and B (baseline / tower); config C (3 x 3 Tower A) is replaced by FPS_PROTOCOL config E
 - VD1 and VD2
 - positions P1-P6
 - server scenarios S1-S6
@@ -252,6 +252,7 @@ Record the results there, or link them from here.
 | ID | Expected | PASS/FAIL |
 |---|---|---|
 | PERF-01 | All `perf_review.md` §4 thresholds are in "Pass" | |
+| PERF-02 | All `FPS_PROTOCOL.md` §4 thresholds are in "Pass" (district: configs A/B/D/D0/D-dec/E; prerequisites §0 done) | |
 
 ## 14. Interior props (batch 3, `sky_props`)
 
@@ -364,7 +365,7 @@ site filled in) or single pieces via a scratch objectSpawnersArr. RPT gate as in
 | DC-06 | Walk through, shoot and drive into each decal; vehicle at 30 km/h | No collision, no bullet impact on the decal (render-only). Behind-wall cover is unchanged. Single-sided: invisible from behind. | | |
 | DC-07 | Relog and restart the server | Decals are still present (static spawner), same variant. | | |
 | DC-08 | 2 clients | Both see the same graffiti variant at the same spot. | | |
-| DC-09 | Perf P7 (`batch2_perf.md:97`): one facade with 0 / 15 / 40 dirt decals at 10 m and 60 m | FPS delta recorded. Feeds the D19 caps. | | |
+| DC-09 | Perf: FPS_PROTOCOL config D-dec at Q7 (0 vs 12 dirt decals on T4 face E, 10 m and 60 m) | FPS delta recorded. Feeds the D19 caps. | | |
 
 ### 17.2 Window sets (need a test quad or a future facade module; no shipped P3D uses them yet)
 | ID | Steps | Expected | Diag | Dedicated |
@@ -402,7 +403,7 @@ Static results: `reviews/batch5_qa.md`. Deploy the district template on a survey
 | P5-06 | Furniture per floor: visit each furnished level of each tower | none | Props at FURNISH positions on the slab (not floating/sunk), aisles >= 1.2 m, every room reachable, core doors clear, extinguisher cabinet mounted on the core wall at 1.0 m | |
 | P5-07 | Rotated site (yaw != 0): repeat P5-01/06 on one tower | none | Props and decals rotate with the tower (yaw composition) | |
 | P5-08 | Restart the server twice | no duplicate-spawn warnings | Same objects, no duplicates (spawner objects are not persistent) | |
-| P5-09 | Count entities and FPS at the district centre (perf protocol) | server FPS in RPT/admin tool | Entity count = report total (323 for the template). FPS within the perf budget | |
+| P5-09 | Count entities and FPS at the district centre (perf protocol) | probe lines in script_*.log | Entity count = report total (323 for the template; probe count, FPS_PROTOCOL §0.1). Server frame ms from the probe, not the RPT (RPT has no FPS) | |
 | L5-01 | Rerun the survey with `exportRadius` covering the district | script log `[SKY] site survey`; `storage_1/export/mapgrouppos.xml` written | `Land_SKY_*` entries for floors, roofs **and the 4 loot props** (B7). Record their `pos`/`a` and check that y is the model origin (slab top / prop base) | |
 | L5-02 | Merge the exported entries, wipe storage, restart | RPT: no `[CE]` errors for SKY groups | Loot on floors at the listed points: apartments 3 per unit, hotel 1 per room + suites, mechanical 4-5 points | |
 | L5-03 | Inspect each loot prop: Locker (open doors), Desk, ReceptionDesk, Kitchenette (Cubicle/Bed carry no loot, D43) | none | Items **on** the surfaces: locker floor + upper shelf (L1: not floating/falling), desk top, counter, worktop. None inside a mesh | |

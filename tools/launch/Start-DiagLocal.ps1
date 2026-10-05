@@ -15,6 +15,7 @@
     .\tools\launch\Start-DiagLocal.ps1                       # vanilla, no mods
     .\tools\launch\Start-DiagLocal.ps1 -Mods MyMod -FilePatching
     .\tools\launch\Start-DiagLocal.ps1 -Mods MyMod -ServerMods MyModServer -NoClient
+    .\tools\launch\Start-DiagLocal.ps1 -Mods SKY_Skyline -Mission "D:\...\DayZServer\mpmissions\dayzOffline.chernarusplus.validation"
 #>
 [CmdletBinding()]
 param(
@@ -25,6 +26,7 @@ param(
     [switch]$NoServer,
     [int]$Port = 0,
     [string]$PlayerName = 'Survivor',
+    [string]$Mission,           # mission folder name under server\mpmissions, or a full path (e.g. a .validation copy)
     [int]$ClientDelaySeconds = 25,
     [switch]$DryRun
 )
@@ -38,7 +40,9 @@ if (-not $Port) { $Port = [int]$cfg.server.port }
 Assert-DzTool 'DayZDiag_x64.exe' $paths.DayZDiag -DryRun:$DryRun
 
 $serverCfg = Join-DzPath $repo 'server' 'serverDZ.diag.cfg'
-$mission   = Join-DzPath $repo 'server' 'mpmissions' $cfg.server.mission
+if (-not $Mission) { $Mission = $cfg.server.mission }
+if ([System.IO.Path]::IsPathRooted($Mission)) { $mission = $Mission }
+else { $mission = Join-DzPath $repo 'server' 'mpmissions' $Mission }
 if (-not $DryRun -and -not $NoServer) {
     if (-not (Test-Path -LiteralPath $serverCfg)) { throw "Missing $serverCfg. Run tools\setup\Initialize-TestServer.ps1." }
     if (-not (Test-Path -LiteralPath $mission))   { throw "Missing mission $mission. Run tools\setup\Initialize-TestServer.ps1." }

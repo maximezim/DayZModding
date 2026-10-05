@@ -69,6 +69,7 @@ Self-test: `python placement/tests/test_sky_layout.py` (synthetic surveys, no ga
 |---|---|
 | `layout.yaml` | The Tower A slice site (one tower) |
 | `district_template.yaml` | District template: streets, blocks, 4 tower variants, furniture, decals (unfilled site) |
+| `district_template_noprops.yaml`, `district_template_decals.yaml` | FPS protocol configs D0 (no furniture) and D-dec (12 decals on one facade) |
 | `sky_layout.py` | Generator + validation (`--strict` for live servers) |
 | `tests/test_sky_layout.py` | Synthetic-survey tests (flat, slope, building, vegetation, overlap) |
 | `out/` | Generated: `sky_objects.json`, `cfggameplay_snippet.json`, `cfgeventspawns_snippet.xml`, `placement_report.md` |

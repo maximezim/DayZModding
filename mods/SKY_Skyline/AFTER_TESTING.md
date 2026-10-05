@@ -40,16 +40,24 @@ tools\tests\Invoke-ModValidation.ps1 -ModName SKY_Skyline -Layout <layout.yaml> 
 | B8 | street lights block the sidewalk, or decals z-fight | move the light offset in `sky_layout.py` (0.5 m inside the curb) / raise `DECAL_OFFSET` per type |
 | B9 | a clean run shows FAIL lines, or a broken build shows none | adjust `$FailPatterns` / `$ModScoped` in `tools\tests\Invoke-ModValidation.ps1` (regexes only) |
 | B10 | you need to re-export P3Ds (P2/P3/P6/P8, B1/B2) | install Blender 4.2 LTS + Arma Toolbox next to Blender 5.2 and pass `-Blender`, or port `skygeo.export_p3d` to the DayZ Object Builder exporter and prove the output identical |
+| B11 | you want the server-side FPS numbers | ask for the `SKY_PerfProbe` diag server mod (FPS_PROTOCOL §0.1), then run the protocol with `-ServerMods SKY_PerfProbe` |
+| B12 | first run shows the real ready/connect/spawn log texts and `-limitFPS` | write them into FPS_PROTOCOL.md §0.2/§0.4 (and the validation script's patterns if useful) |
 
 ## 3. Budgets and caps (from FPS_PROTOCOL.md results)
 
 | Result | Change |
 |---|---|
-| D vs D0 > +2 ms or S7/S6 over threshold | build furnished floor variants with merged furniture (D43); keep only door props spawned |
-| D-dec vs D > +1 ms | lower `DECAL_CAPS["per_tower"]` |
-| S1/S6/S7 fine with headroom | raise `ENTITY_CAP` / `PROP_CAPS` in steps of 25 % and re-measure |
-| any OVER asset (check_assets) measured fine | write the measured number into `BUDGETS` / the manifest budget and note the run in DECISIONS.md |
-| measured cost over threshold for an OVER asset (Apartments/Hotel Geometry, roof Res1, Tower A core comps) | apply the cut named in its review (reviews/batch4_perf.md L1, perf_review.md M2) |
+Only valid with FPS_PROTOCOL.md §0 done (probe, frame cap, mapgrouppos export, noise floor).
+
+| Result (FPS_PROTOCOL.md §4 row) | Change |
+|---|---|
+| **server** D vs D0 (S1/S1b avg, S6, S7) over threshold | build furnished floor variants with merged furniture (D43 / D27); keep only door props spawned |
+| **client** D vs D0 (Q2/Q3/Q6) over threshold, server D vs D0 fine | cut prop LODs (Res1/Res2 triangles, sections) - not D43 |
+| D-dec vs D at Q7 > +1 ms | `DECAL_CAPS["per_tower"]` = budget / ((D-dec - D) / 12) |
+| S1/S1b/S6/S7 pass with headroom (0.2) at E | raise `ENTITY_CAP` / `PROP_CAPS` by 25 %, then re-run E **sized to the new cap** before keeping it |
+| S8 loot < 10 % of max **with** `-MapGroupPos` | B7 rollback (prop loot groups) |
+| OVER assets (Apartments/Hotel Geometry, roof Res1, Tower A core comps) | accepted unless a district threshold fails **and** the diag profiler attributes it to that asset; then apply the cut named in its review (reviews/batch4_perf.md L1, perf_review.md M2). Tower A core 81 > 80 comps: accepted statically (rule 1 freezes Tower A) |
+| any threshold in the in-between band | 5 re-runs, then diag profiler (Start-DiagLocal with the `.validation` mission) |
 
 ## 4. Status rules (manifest.yaml)
 

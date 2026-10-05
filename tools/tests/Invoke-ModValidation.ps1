@@ -19,6 +19,12 @@
       5. Copies the new logs from server\profiles\dedicated to build\validation\<timestamp>\
          and writes summary.md / summary.json there. Exit code 1 on FAIL.
     -AnalyzeOnly <folder> re-runs only the log summary on a folder of logs.
+    FPS protocol options (FPS_PROTOCOL.md):
+      -Layout a.yaml,b.yaml   several districts merged into one mission (one spawner file each)
+      -Baseline               config A: same mission copy / wipe / SKY economy, but no objects
+      -MapGroupPos <xml>      merge exported Land_SKY_* <group> lines (ExportProxyData) so loot spawns
+      -NoWipe                 reuse the existing .validation copy and its storage (warm start)
+      -ServerMods <names>     extra server-only mods (e.g. a diag-only perf probe), built and deployed too
 
 .EXAMPLE
     .\tools\tests\Invoke-ModValidation.ps1 -ModName SKY_Skyline -DryRun
@@ -28,7 +34,11 @@
 [CmdletBinding()]
 param(
     [string]$ModName = 'SKY_Skyline',
-    [string]$Layout,
+    [string[]]$ServerMods = @(),
+    [string[]]$Layout = @(),
+    [switch]$Baseline,
+    [string]$MapGroupPos,
+    [switch]$NoWipe,
     [string]$Mission,
     [int]$Minutes = 3,
     [string]$Python = 'python',
@@ -42,6 +52,9 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 Import-Module (Join-Path $PSScriptRoot '..\lib\DzCommon.psm1') -Force
+# "-Layout a.yaml,b.yaml" arrives as one string under "powershell -File": split comma lists.
+$Layout     = @($Layout | ForEach-Object { $_ -split ',' } | Where-Object { $_ })
+$ServerMods = @($ServerMods | ForEach-Object { $_ -split ',' } | Where-Object { $_ })
 
 # ---------------------------------------------------------------- log analysis
 # Lines that make the run FAIL (first match per line wins). Patterns are engine/script log
@@ -211,18 +224,18 @@ if ($SkipBuild) { Add-Step 'build/sign/deploy' 'SKIP' '-SkipBuild' }
 else {
     $current = 'build (pack)'
     try {
-        & (Join-DzPath $repo 'tools' 'build' 'Build-Mod.ps1') -ModName $ModName -DryRun:$DryRun
-        Add-Step $current 'PASS' "build\@$ModName"
+        foreach ($m in @($ModName) + $ServerMods) { & (Join-DzPath $repo 'tools' 'build' 'Build-Mod.ps1') -ModName $m -DryRun:$DryRun }
+        Add-Step $current 'PASS' ("build\@" + ((@($ModName) + $ServerMods) -join ', @'))
         $current = 'sign'
         try {
-            & (Join-DzPath $repo 'tools' 'build' 'Sign-Mod.ps1') -ModName $ModName -DryRun:$DryRun
+            foreach ($m in @($ModName) + $ServerMods) { & (Join-DzPath $repo 'tools' 'build' 'Sign-Mod.ps1') -ModName $m -DryRun:$DryRun }
             Add-Step $current 'PASS' 'bisign + bikey'
         } catch {
             if (-not $DryRun) { throw }
             Add-Step $current 'DRYRUN' $_.Exception.Message      # dry run on a machine without a key
         }
         $current = 'deploy'
-        & (Join-DzPath $repo 'tools' 'build' 'Deploy-Mod.ps1') -ModName $ModName -DryRun:$DryRun
+        & (Join-DzPath $repo 'tools' 'build' 'Deploy-Mod.ps1') -ModName (@($ModName) + $ServerMods) -DryRun:$DryRun
         Add-Step $current 'PASS' $paths.ServerDir
     } catch {
         Add-Step $current 'FAIL' $_.Exception.Message
@@ -234,23 +247,36 @@ else {
 
 # 3. optional layout -> mission copy
 $config = Join-DzPath $repo 'server' 'serverDZ.dedicated.cfg'
-if ($Layout) {
-    Write-DzStep "Layout $Layout -> mission copy '$Mission.validation'"
-    $layoutOut = Join-DzPath $outDir 'layout'
-    $layoutArgs = @((Join-DzPath $modDir 'placement' 'sky_layout.py'), '--layout', $Layout, '--out', $layoutOut)
-    if (-not $AllowPlaceholder) { $layoutArgs += '--strict' }     # a placeholder/unsurveyed site must not spawn at (0, 0, 0)
-    Invoke-DzCheck 'sky_layout' $Python $layoutArgs
-    if ($steps[$steps.Count - 1].Result -eq 'FAIL') {
-        $st = Write-DzSummary -Summary (Get-DzLogSummary -LogDir $outDir) -Steps $steps -OutDir $outDir -Title "Validation $ModName $stamp"
-        Write-DzFail "Layout failed (see $layoutOut\placement_report.md). Validation $st -> $(Join-DzPath $outDir 'summary.md')"
-        exit 1
+if ($Layout.Count -or $Baseline) {
+    if ($Layout.Count -and $Baseline) { throw '-Baseline and -Layout are exclusive (config A has no objects).' }
+    $layoutOuts = @()
+    $i = 0
+    foreach ($l in $Layout) {
+        $i++
+        $lo = Join-DzPath $outDir "layout$i"
+        Write-DzStep "Layout $l"
+        $layoutArgs = @((Join-DzPath $modDir 'placement' 'sky_layout.py'), '--layout', $l, '--out', $lo)
+        if (-not $AllowPlaceholder) { $layoutArgs += '--strict' }     # a placeholder/unsurveyed site must not spawn at (0, 0, 0)
+        if ($layoutOuts.Count) { $layoutArgs += @('--others', (($layoutOuts | ForEach-Object { Join-DzPath $_ 'sky_objects.json' }) -join ',')) }
+        Invoke-DzCheck "sky_layout $i" $Python $layoutArgs
+        if ($steps[$steps.Count - 1].Result -eq 'FAIL') {
+            $st = Write-DzSummary -Summary (Get-DzLogSummary -LogDir $outDir) -Steps $steps -OutDir $outDir -Title "Validation $ModName $stamp"
+            Write-DzFail "Layout failed (see $lo\placement_report.md). Validation $st -> $(Join-DzPath $outDir 'summary.md')"
+            exit 1
+        }
+        $layoutOuts += $lo
     }
     $srcMission = Join-DzPath $paths.ServerDir 'mpmissions' $Mission
     $valMission = Join-DzPath $paths.ServerDir 'mpmissions' "$Mission.validation"
     $valConfig  = Join-DzPath $repo 'server' 'serverDZ.validation.cfg'
-    Write-DzInfo "> copy $srcMission -> $valMission (storage wiped); merge sky_objects.json, cfggameplay, sky_ce, mapgroupproto, roof drops, infected zone"
+    $what = 'baseline (no objects)'
+    if ($layoutOuts.Count) { $what = "$($layoutOuts.Count) layout(s)" }
+    Write-DzStep "Mission copy '$Mission.validation': $what"
+    $reuse = $NoWipe -and (Test-Path -LiteralPath $valMission)
+    if ($reuse) { Write-DzInfo "> -NoWipe: reuse $valMission and its storage (warm start); nothing merged again" }
+    else { Write-DzInfo "> copy $srcMission -> $valMission (storage wiped); merge spawner files, cfggameplay, sky_ce, mapgroupproto, mapgrouppos, roof drops, infected zone" }
     Write-DzInfo "> render $valConfig (template = $Mission.validation)"
-    if (-not $DryRun) {
+    if (-not $DryRun -and -not $reuse) {
         if (-not (Test-Path -LiteralPath $srcMission)) { throw "Vanilla mission not found: $srcMission" }
         $mpm = [System.IO.Path]::GetFullPath((Join-DzPath $paths.ServerDir 'mpmissions')).TrimEnd('\', '/')
         if ([System.IO.Path]::GetDirectoryName([System.IO.Path]::GetFullPath($valMission)) -ne $mpm) { throw "Mission copy $valMission is outside $mpm" }
@@ -263,15 +289,21 @@ if ($Layout) {
         Copy-Item -LiteralPath $srcMission -Destination $valMission -Recurse
         $storage = Join-DzPath $valMission 'storage_1'
         if (Test-Path -LiteralPath $storage) { Remove-Item -LiteralPath $storage -Recurse -Force }
-        # objectSpawnersArr
+        # objectSpawnersArr: one file per layout (empty list for the baseline)
         New-Item -ItemType Directory -Force -Path (Join-DzPath $valMission 'sky') | Out-Null
-        Copy-Item -LiteralPath (Join-DzPath $layoutOut 'sky_objects.json') -Destination (Join-DzPath $valMission 'sky' 'sky_objects.json')
+        $spawnFiles = @()
+        $i = 0
+        foreach ($lo in $layoutOuts) {
+            $i++
+            Copy-Item -LiteralPath (Join-DzPath $lo 'sky_objects.json') -Destination (Join-DzPath $valMission 'sky' "sky_objects_$i.json")
+            $spawnFiles += "sky/sky_objects_$i.json"
+        }
         $gpPath = Join-DzPath $valMission 'cfggameplay.json'
         $gp = Get-Content -Raw -LiteralPath $gpPath | ConvertFrom-Json
         if (-not $gp.WorldsData) { $gp | Add-Member -NotePropertyName WorldsData -NotePropertyValue ([pscustomobject]@{}) }
-        $gp.WorldsData | Add-Member -NotePropertyName objectSpawnersArr -NotePropertyValue @('sky/sky_objects.json') -Force
+        $gp.WorldsData | Add-Member -NotePropertyName objectSpawnersArr -NotePropertyValue @($spawnFiles) -Force
         Save-DzText $gpPath ($gp | ConvertTo-Json -Depth 20)
-        # economy: <ce folder="sky_ce"> + mapgroupproto groups + roof-drop positions
+        # economy (also for the baseline, so A and D share the same CE): sky_ce + mapgroupproto
         $eco = Join-DzPath $modDir 'economy'
         if (Test-Path -LiteralPath (Join-DzPath $eco 'sky_ce')) {
             Copy-Item -LiteralPath (Join-DzPath $eco 'sky_ce') -Destination (Join-DzPath $valMission 'sky_ce') -Recurse
@@ -285,12 +317,28 @@ if ($Layout) {
             [xml]$ours = Get-Content -Raw -LiteralPath (Join-DzPath $eco 'mapgroupproto_sky.xml')
             foreach ($g in $ours.prototype.SelectNodes('group')) { [void]$proto.prototype.AppendChild($proto.ImportNode($g, $true)) }
             Save-DzXml $proto $protoPath
+        }
+        # loot positions of spawned buildings (exported once per site with ExportProxyData)
+        if ($MapGroupPos) {
+            $mgpPath = Join-DzPath $valMission 'mapgrouppos.xml'
+            [xml]$mgp = Get-Content -Raw -LiteralPath $mgpPath
+            [xml]$exp = Get-Content -Raw -LiteralPath $MapGroupPos
+            $n = 0
+            foreach ($g in $exp.SelectNodes('//group')) {
+                if ($g.GetAttribute('name') -like 'Land_SKY_*') { [void]$mgp.map.AppendChild($mgp.ImportNode($g, $true)); $n++ }
+            }
+            Save-DzXml $mgp $mgpPath
+            Add-Step 'mapgrouppos' 'PASS' "$n Land_SKY_* groups merged (loot can spawn)"
+        } elseif ($layoutOuts.Count) {
+            Add-Step 'mapgrouppos' 'SKIP' 'no -MapGroupPos: spawned towers/props get NO loot (placement\README.md section 3)'
+        }
+        foreach ($lo in $layoutOuts) {
             $evPath = Join-DzPath $valMission 'cfgeventspawns.xml'
             [xml]$ev = Get-Content -Raw -LiteralPath $evPath
-            [xml]$drops = Get-Content -Raw -LiteralPath (Join-DzPath $layoutOut 'cfgeventspawns_snippet.xml')
+            [xml]$drops = Get-Content -Raw -LiteralPath (Join-DzPath $lo 'cfgeventspawns_snippet.xml')
             [void]$ev.eventposdef.AppendChild($ev.ImportNode($drops.event, $true))
             Save-DzXml $ev $evPath
-            $zoneSnip = Join-DzPath $layoutOut 'zombie_territories_snippet.xml'
+            $zoneSnip = Join-DzPath $lo 'zombie_territories_snippet.xml'
             $ztPath = Join-DzPath $valMission 'env' 'zombie_territories.xml'
             if ((Test-Path -LiteralPath $zoneSnip) -and (Test-Path -LiteralPath $ztPath)) {
                 [xml]$zt = Get-Content -Raw -LiteralPath $ztPath
@@ -301,12 +349,16 @@ if ($Layout) {
                 Save-DzXml $zt $ztPath
             }
         }
+    }
+    if (-not $DryRun) {
         $text = Get-Content -Raw -LiteralPath $config
         $text = [regex]::Replace($text, 'template\s*=\s*"[^"]*"', ('template = "' + $Mission + '.validation"').Replace('$', '$$'))
         Set-Content -LiteralPath $valConfig -Value $text -Encoding ASCII
     }
     $config = $valConfig
-    Add-Step 'mission copy' 'PASS' "$Mission.validation (loot positions need ExportProxyData, placement\README.md section 3)"
+    $mode = 'fresh copy, storage wiped'
+    if ($reuse) { $mode = 'reused (-NoWipe, warm start)' }
+    Add-Step 'mission copy' 'PASS' "$Mission.validation: $what, $mode"
 }
 
 # Release-like settings are mandatory for a validation run (security batch-6 L2): never inherit a relaxed cfg.
@@ -328,7 +380,7 @@ if (-not $DryRun) {
 # 4. start server, wait, stop
 $profileDir = Join-DzPath $repo 'server' 'profiles' 'dedicated'
 $t0 = Get-Date
-& (Join-DzPath $repo 'tools' 'launch' 'Start-DedicatedServer.ps1') -Mods $ModName -Config $config -DryRun:$DryRun
+& (Join-DzPath $repo 'tools' 'launch' 'Start-DedicatedServer.ps1') -Mods $ModName -ServerMods $ServerMods -Config $config -DryRun:$DryRun
 if ($DryRun) {
     Write-DzInfo "> wait $Minutes min, stop DayZServer_x64, copy logs newer than start from $profileDir to $outDir\logs"
     Add-Step 'server run' 'DRYRUN' "$Minutes min"
