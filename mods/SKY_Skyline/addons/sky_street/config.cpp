@@ -61,9 +61,27 @@ class CfgVehicles
 	};
 	class Land_SKY_Manhole: Land_SKY_Street_Base
 	{
-		// 0.8 m cast-iron cover
+		// 0.8 m cast-iron cover (Roadway only, no collision)
 		scope = 1;
 		model = "SKY_Skyline\sky_street\sky_manhole.p3d";
+	};
+	class Land_SKY_Street_Straight: Land_SKY_Street_Base
+	{
+		// 12 x 12 m street: road + both sidewalks
+		scope = 1;
+		model = "SKY_Skyline\sky_street\sky_street_straight.p3d";
+	};
+	class Land_SKY_Street_Crossing: Land_SKY_Street_Base
+	{
+		// 12 x 12 m street with crosswalk
+		scope = 1;
+		model = "SKY_Skyline\sky_street\sky_street_crossing.p3d";
+	};
+	class Land_SKY_Street_Intersection: Land_SKY_Street_Base
+	{
+		// 12 x 12 m 4-way junction with corner sidewalks built in
+		scope = 1;
+		model = "SKY_Skyline\sky_street\sky_street_intersection.p3d";
 	};
 	class Land_SKY_StreetLight: Land_SKY_Street_Base
 	{

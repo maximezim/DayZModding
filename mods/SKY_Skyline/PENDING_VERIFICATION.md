@@ -4,7 +4,7 @@ Every untested assumption is a **named parameter in `assets/skyspec.py`**. Nothi
 After testing, change the value there, regenerate, and rebuild:
 ```
 python assets/gen_configs.py ; python economy/gen_economy.py
-blender -b -P assets/blender/build_towera.py -- --out addons     (and build_kit.py / build_floors.py)
+blender -b -P assets/blender/build_towera.py -- --out addons     (and build_kit.py; build_props.py / build_floors.py from batches 3-4)
 ```
 Asset lists below are kept current per batch.
 
@@ -16,6 +16,7 @@ Asset lists below are kept current per batch.
 | P4 | `ENV_MAP` | `dz\data\data\env_land_co.paa` exists (Super shader Stage7) | every SKY rvmat | set the real path → `gen_configs.py` |
 | P5 | `ARMOR_EXPLOSION_CLASS` | explosion damage armor class is called `FragGrenade` | Lobby security door DamageSystem | rename → `gen_configs.py` |
 | P6 | `ROADWAY_ASPHALT` | no verified asphalt surface; roads use the verified `concrete_ext` surface sound | street kit Roadway LODs | set a vanilla asphalt roadway texture → re-export street kit |
-| P7 | `EMISSIVE_LAMP`, `EMISSIVE_WINDOW` | rvmat `emmisive[]` strength reads as "lit" at night without blooming | street lights, traffic lights, lit window sets | tune the numbers → `gen_configs.py` |
+| P8 | `ROAD_GEO_THICKNESS` | 0.3 m Geometry slabs under road tiles do not snag vehicle wheels at tile seams | all road/street/intersection tiles | `ROAD_GEO_THICKNESS = 0.05` → re-export street kit |
+| P7 | `EMISSIVE_LAMP`, `EMISSIVE_WINDOW` | rvmat `emmisive[]` strength reads as "lit" at night without blooming | street lights (`sky_lamp`), lit window sets (batch 2). Traffic lights are NOT emissive (D8). | tune the numbers → `gen_configs.py` |
 
-Behaviour (not parameters) still to observe in-game: see `TESTING.md` and `AFTER_TESTING.md`.
+Behaviour (not parameters) still to observe in-game: see `TESTING.md` and `AFTER_TESTING.md` (written in batch 6).

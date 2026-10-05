@@ -40,9 +40,15 @@ def main():
         is_item = e["p3d"].startswith("addons/sky_items")
         is_prop = "category" in e          # kit asset: 3+ Res, Geometry, Fire Geometry
         if is_prop:
-            for req in ("Geometry", "Fire Geometry"):
+            flat = e["category"] == "flat"   # walk-on decal: Roadway only, must NOT collide
+            need = ["Roadway"] if flat else ["Geometry", "Fire Geometry"]
+            if e["category"] in ("small", "medium"):
+                need.append("Shadow Volume")    # perf batch-1 M3
+            for req in need:
                 if req not in by:
                     errs.append("missing LOD " + req)
+            if flat and ("Geometry" in by or "Fire Geometry" in by):
+                errs.append("flat decal must not have Geometry/Fire Geometry")
             if len(res) < 3:
                 errs.append("only %d resolution LODs" % len(res))
             g = by.get("Geometry")
@@ -58,7 +64,7 @@ def main():
             if g and g["properties"].get("autocenter") != "0":
                 errs.append("Geometry lacks autocenter=0")
         g = by.get("Geometry")
-        if not g or not g["mass"]:
+        if (not g or not g["mass"]) and e.get("category") != "flat":
             errs.append("Geometry missing or massless")
         for i, key in enumerate(("res0", "res1", "res2", "res3")):
             if key in b and i < len(res) and res[i]["triangles"] > b[key]:

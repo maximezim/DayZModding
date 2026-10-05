@@ -8,6 +8,7 @@ rewritten: one entry per KIT asset with class, p3d, category budget (hypothesis)
 the unverified assumptions it depends on, and status. Status vocabulary is
 'built-unverified' until DayZ testing (nothing may be 'done' before that).
 """
+import json
 import os
 import sys
 
@@ -23,7 +24,7 @@ def section():
     for name, e in S.KIT.items():
         b = S.BUDGETS[e["category"]]
         lines.append("  - name: %s" % e["cls"])
-        lines.append("    type: %s" % (e["desc"] or name))
+        lines.append("    type: %s" % json.dumps(e["desc"] or name))
         lines.append("    p3d: addons/%s/%s" % (e["pbo"], e["p3d"]))
         lines.append("    category: %s" % e["category"])
         lines.append("    budget: {%s}" % ", ".join("%s: %s" % kv for kv in b.items()))

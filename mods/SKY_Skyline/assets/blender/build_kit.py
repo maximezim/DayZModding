@@ -16,7 +16,7 @@ sys.path.insert(0, os.path.dirname(HERE))
 
 import skyspec as S  # noqa: E402
 from build_towera import MATS, UV_ALU, UV_CONC_PANEL, UV_CONC_REVEAL, UV_GLASS, UV_STEEL  # noqa: E402
-from skygeo import (LOD_FIREGEO, LOD_GEOMETRY, LOD_MEMORY, LOD_RES, LOD_ROADWAY, LOD_VIEWGEO,  # noqa: E402
+from skygeo import (LOD_FIREGEO, LOD_GEOMETRY, LOD_MEMORY, LOD_RES, LOD_ROADWAY, LOD_SHADOW, LOD_VIEWGEO,  # noqa: E402
                     Lod, UVBand, UVRect, UVWorld, run_cli)
 
 UV_ASPHALT = UVWorld(4.0)
@@ -39,11 +39,17 @@ def props_lods(view=False, road=False, mem=False):
     return L
 
 
-def finish(L, mass):
+def finish(L, mass, shadow=True):
     # Same Geometry convention as Tower A (Test_Building sample) minus map=building:
     # props are not drawn as buildings on the in-game map (decision D5).
     L["geo"].props.update({"class": "house", "autocenter": "0"})
     L["geo"].mass = mass
+    if shadow and "shadow" not in L:
+        # Shadow Volume = the closed convex collision solids (watertight by construction).
+        sh = Lod("shadow", LOD_SHADOW)
+        sh.verts = list(L["geo"].verts)
+        sh.faces = [(idx, None, None) for idx, _m, _uv in L["geo"].faces]
+        L["shadow"] = sh
     return list(L.values())
 
 
@@ -58,9 +64,15 @@ def solid_all(L, keys, fn, pen=None, vis=None):
             fn(L[k])
 
 
-def line_quad(L, keys, x0, x1, y0, y1, band, along="y", repeat=1.0, z=0.006):
+MARK_Z = 0.015          # paint lift above asphalt (perf batch-1 M2: 6 mm z-fought at Res1)
+MARK_PERIOD = {"solid": 2.0, "dashed": 3.0, "crosswalk": 1.0}   # metres per texture repeat
+
+
+def line_quad(L, keys, x0, x1, y0, y1, band, along="y", repeat=None, z=MARK_Z):
     """Road paint strip: tiles `repeat` times along its length, V = paint band."""
     v0, v1 = 1.0 - B_MARK[band][1], 1.0 - B_MARK[band][0]
+    if repeat is None:
+        repeat = ((y1 - y0) if along == "y" else (x1 - x0)) / MARK_PERIOD[band]
     if along == "y":
         uv = UVRect(1, 0, (y0, x0), (y1, x1), (0.0, v0, repeat, v1))
     else:
@@ -70,12 +82,22 @@ def line_quad(L, keys, x0, x1, y0, y1, band, along="y", repeat=1.0, z=0.006):
 
 
 # ------------------------------------------------------------------ roads (12 m grid)
+def skirt(L, x0, x1, y0, y1):
+    """Solid apron below the WHOLE tile down to -(slab + skirt): closes the void on sloped
+    ground (security M1). Exactly one extra convex box per tile in Geometry/Fire."""
+    zb = -ST["slab_t"] - ST["skirt"]
+    for k in ("res0", "res1"):
+        L[k].box(x0, x1, y0, y1, zb, -ST["slab_t"], mat="concrete", uv=UV_CONC_REVEAL, skip=("-z", "+z"))
+    L["geo"].box(x0, x1, y0, y1, zb, -ST["slab_t"])
+    L["fire"].box(x0, x1, y0, y1, zb, -ST["slab_t"], mat="pen_concrete")
+
+
 def asphalt_boxes(L, rects, z0=-ST["slab_t"]):
     for (x0, x1, y0, y1) in rects:
         for k in ("res0", "res1"):
             L[k].box(x0, x1, y0, y1, z0, 0.0, mat="asphalt", uv=UV_ASPHALT, skip=("-z",))
         L["res2"].hquad(x0, x1, y0, y1, 0.0, mat="asphalt", uv=UV_ASPHALT)
-        L["geo"].box(x0, x1, y0, y1, z0, 0.0)
+        L["geo"].box(x0, x1, y0, y1, -S.ROAD_GEO_THICKNESS, 0.0)      # P8 (unverified)
         L["fire"].box(x0, x1, y0, y1, z0, 0.0, mat="pen_concrete")
         L["road"].hquad(x0, x1, y0, y1, 0.0, mat="road_asphalt", uv=UV_ASPHALT)
 
@@ -85,12 +107,50 @@ def build_road(crossing=False):
     h = ST["tile"] / 2
     w = ST["carriageway"] / 2
     asphalt_boxes(L, [(-w, w, -h, h)])
-    line_quad(L, ("res0", "res1"), -0.075, 0.075, -h, h, "dashed", repeat=1.0)
-    for x in (-w + 0.2, w - 0.35):
-        line_quad(L, ("res0",), x, x + 0.15, -h, h, "solid", repeat=1.0)
+    skirt(L, -w, w, -h, h)
+    road_marks(L, w, h, crossing)
+    return finish(L, 20000.0, shadow=False)
+
+
+def road_marks(L, w, h, crossing):
+    spans = [(-h, -1.5), (1.5, h)] if crossing else [(-h, h)]
+    for (a, b) in spans:
+        line_quad(L, ("res0", "res1"), -0.075, 0.075, a, b, "dashed")
+        for x in (-w + 0.2, w - 0.35):
+            line_quad(L, ("res0",), x, x + 0.15, a, b, "solid")
     if crossing:
-        line_quad(L, ("res0", "res1"), -w, w, -1.5, 1.5, "crosswalk", along="x", repeat=1.0, z=0.007)
-    return finish(L, 20000.0)
+        line_quad(L, ("res0", "res1"), -w, w, -1.5, 1.5, "crosswalk", along="x")
+
+
+def build_street(crossing=False):
+    """Combined 12 x 12 m tile: road + both sidewalks in one entity (perf batch-1 M1)."""
+    L = props_lods(road=True)
+    h = ST["tile"] / 2
+    w = ST["carriageway"] / 2
+    asphalt_boxes(L, [(-w, w, -h, h)])
+    skirt(L, -h, h, -h, h)
+    road_marks(L, w, h, crossing)
+    sidewalk_slab(L, -h, -w, -h, h, curb_side="+x")
+    sidewalk_slab(L, w, h, -h, h, curb_side="-x")
+    return finish(L, 36000.0, shadow=False)
+
+
+def build_street_intersection():
+    L = props_lods(road=True)
+    h = ST["tile"] / 2
+    w = ST["carriageway"] / 2
+    asphalt_boxes(L, [(-w, w, -h, h), (w, h, -w, w), (-h, -w, -w, w)])
+    skirt(L, -h, h, -h, h)
+    for (x0, x1, y0, y1) in ((-w, w, w, h), (-w, w, -h, -w)):
+        line_quad(L, ("res0", "res1"), x0, x1, y0, y1, "crosswalk", along="x")
+    for (x0, x1, y0, y1) in ((w, h, -w, w), (-h, -w, -w, w)):
+        line_quad(L, ("res0", "res1"), x0, x1, y0, y1, "crosswalk", along="y")
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            x0, x1 = sorted((sx * w, sx * h))
+            y0, y1 = sorted((sy * w, sy * h))
+            sidewalk_slab(L, x0, x1, y0, y1, curb_side="-x" if sx > 0 else "+x", curb2="-y" if sy > 0 else "+y")
+    return finish(L, 40000.0, shadow=False)
 
 
 def build_intersection(t_junction=False):
@@ -101,15 +161,16 @@ def build_intersection(t_junction=False):
     if not t_junction:
         rects.append((-h, -w, -w, w))
     asphalt_boxes(L, rects)
+    skirt(L, -h, h, -h, h)
     # crosswalks on every road entry, inside the 2 m arm
     line_quad(L, ("res0", "res1"), -w, w, w, h, "crosswalk", along="x")
     line_quad(L, ("res0", "res1"), -w, w, -h, -w, "crosswalk", along="x")
-    line_quad(L, ("res0", "res1"), w, h, -w, w, "crosswalk", along="y")
+    line_quad(L, ("res0",), w, h, -w, w, "crosswalk", along="y")       # Res1 reduction (perf L2)
     if not t_junction:
-        line_quad(L, ("res0", "res1"), -h, -w, -w, w, "crosswalk", along="y")
+        line_quad(L, ("res0",), -h, -w, -w, w, "crosswalk", along="y")
     else:
         sidewalk_slab(L, -h, -w, -h, h, curb_side="+x")
-    return finish(L, 30000.0)
+    return finish(L, 30000.0, shadow=False)
 
 
 def sidewalk_slab(L, x0, x1, y0, y1, curb_side="+x", curb2=None):
@@ -138,15 +199,17 @@ def build_sidewalk():
     L = props_lods(road=True)
     h = ST["tile"] / 2
     s = ST["sidewalk"] / 2
+    skirt(L, -s, s, -h, h)
     sidewalk_slab(L, -s, s, -h, h, curb_side="+x")
-    return finish(L, 8000.0)
+    return finish(L, 8000.0, shadow=False)
 
 
 def build_sidewalk_corner():
     L = props_lods(road=True)
     s = ST["sidewalk"] / 2
+    skirt(L, -s, s, -s, s)
     sidewalk_slab(L, -s, s, -s, s, curb_side="+x", curb2="+y")
-    return finish(L, 1500.0)
+    return finish(L, 1500.0, shadow=False)
 
 
 def build_curb():
@@ -161,13 +224,18 @@ def build_curb():
 
 
 def build_manhole():
-    L = props_lods()
+    """Flat decal on the road: Res LODs + Roadway, NO Geometry/Fire (no wheel snag, perf L5)."""
+    import math
     uv = UVRect(0, 1, (-0.4, -0.4), (0.4, 0.4), S.atlas_uv("manhole"))
-    for k, n in (("res0", 12), ("res1", 8), ("res2", 6)):
-        L[k].prism(0.0, 0.0, 0.4, 0.0, 0.02, n=n, mat="atlas", uv=uv)
-    L["geo"].prism(0.0, 0.0, 0.4, 0.0, 0.02, n=8)
-    L["fire"].prism(0.0, 0.0, 0.4, 0.0, 0.02, n=8, mat="pen_metal")
-    return finish(L, 90.0)
+    lods = [Lod("res0", LOD_RES, 0.0), Lod("res1", LOD_RES, 1.0), Lod("res2", LOD_RES, 2.0), Lod("road", LOD_ROADWAY)]
+    for L, n in zip(lods[:2], (12, 8)):
+        ring = [(0.4 * math.cos(2 * math.pi * k / n), 0.4 * math.sin(2 * math.pi * k / n)) for k in range(n)]
+        for k in range(n):        # fan of triangles at z = MARK_Z
+            a, b = ring[k], ring[(k + 1) % n]
+            L.quad([(0.0, 0.0, MARK_Z), (a[0], a[1], MARK_Z), (b[0], b[1], MARK_Z)], (0, 0, 1), "atlas", uv)
+    lods[2].hquad(-0.4, 0.4, -0.4, 0.4, MARK_Z, mat="atlas", uv=uv)
+    lods[3].hquad(-0.4, 0.4, -0.4, 0.4, MARK_Z, mat="road_asphalt", uv=UV_ASPHALT)
+    return lods
 
 
 # ------------------------------------------------------------------ street furniture
@@ -252,7 +320,10 @@ def build_busstop():
         for (x, y) in posts:
             L[k].box(x, x + 0.08, y, y + 0.08, 0.0, 2.5, **kw)
         L[k].box(-2.1, 2.1, -0.9, 0.9, 2.5, 2.6, **kw)
-    L["res2"].box(-2.1, 2.1, -0.9, 0.9, 0.0, 2.6, mat="glassfar", uv=UV_GLASS, skip=("-z",))
+    L["res2"].box(-2.1, 2.1, -0.9, 0.9, 2.5, 2.6, mat="metal", uv=UV_ALU, skip=("-z",))
+    for x in (-1.95, 1.87):
+        L["res2"].box(x, x + 0.08, -0.75, -0.67, 0.0, 2.5, mat="metal", uv=UV_ALU, skip=("-z", "+z", "+y"))
+    L["res2"].quad([(-1.9, 0.72, 0.3), (1.85, 0.72, 0.3), (1.85, 0.72, 2.4), (-1.9, 0.72, 2.4)], (0, -1, 0), "glassfar", UV_GLASS)
     L["view"].box(-2.1, 2.1, -0.9, 0.9, 2.5, 2.6)
     # Glass: back + one side (double-sided in res0, single in res1); collision + fire as thin boxes.
     panes = [("y", 0.72, (-1.9, 1.85), (0.3, 2.4)), ("x", -1.9, (-0.6, 0.7), (0.3, 2.4))]
@@ -267,7 +338,12 @@ def build_busstop():
             facing = (-1, 0, 0)
         L["res0"].quad(q, facing, "glass", UV_GLASS, double=True)
         L["res1"].quad(q, facing, "glass", UV_GLASS)
-        L["geo"].box(*box)
+        g = list(box)
+        if axis == "y":
+            g[2], g[3] = c - 0.04, c + 0.04          # Geometry >= 8 cm (security L3); Fire stays 2 cm
+        else:
+            g[0], g[1] = c - 0.04, c + 0.04
+        L["geo"].box(*g)
         L["fire"].box(*box, mat="pen_glass")
     for k in ("res0", "res1", "geo", "fire"):
         kw = met if k.startswith("res") else ({"mat": "pen_metal"} if k == "fire" else {})
@@ -293,9 +369,12 @@ def build_dumpster():
 
 def build_planter():
     L = props_lods()
+    uv_soil = UVBand(S.MATERIALS["concrete"]["bands"]["board"], 1.4)
     for k in ("res0", "res1", "res2"):
         L[k].box(-0.75, 0.75, -0.75, 0.75, 0.0, 0.6, mat="concrete", uv=UV_CONC_REVEAL, skip=("-z", "+z"))
-        L[k].hquad(-0.7, 0.7, -0.7, 0.7, 0.55, mat="asphalt", uv=UV_ASPHALT)
+        L[k].hquad(-0.7, 0.7, -0.7, 0.7, 0.55, mat="concrete", uv=uv_soil)
+    L["res2"].quad([(-0.7, 0.0, 0.5), (0.7, 0.0, 0.5), (0.7, 0.0, 1.7), (-0.7, 0.0, 1.7)], (0, -1, 0), "foliage",
+                   UVRect(0, 2, (-0.7, 0.5), (0.7, 1.7)))
     for k in ("res0", "res1"):
         for axis in ("x", "y"):
             if axis == "x":
@@ -321,14 +400,14 @@ def wheels(L, keys, xs, ys, r=0.3, zc=0.28, n=8, width=0.2, uv=None):
 
 
 def build_wreck_sedan():
-    L = props_lods()
+    L = props_lods(view=True)
     cab = [(-1.1, 0.85), (1.0, 0.85), (0.6, 1.4), (-0.7, 1.4)]          # (y, z) trapezoid
     for k in ("res0", "res1", "res2"):
-        L[k].box(-0.9, 0.9, -2.1, 2.1, 0.25, 0.85, mat="rust", uv=UV_RUST)
+        L[k].box(-0.9, 0.9, -2.1, 2.1, 0.0 if k == "res2" else 0.25, 0.85, mat="rust", uv=UV_RUST)
         L[k].extrude_x(cab, -0.8, 0.8, mat="rust", uv=UV_RUST)
     wheels(L, ("res0",), (0.75, -0.75), (-1.3, 1.35))
     wheels(L, ("res1",), (0.75, -0.75), (-1.3, 1.35), n=6)
-    for k in ("geo", "fire"):
+    for k in ("geo", "fire", "view"):
         kw = {"mat": "pen_metal"} if k == "fire" else {}
         L[k].box(-0.9, 0.9, -2.1, 2.1, 0.0, 0.85, **kw)
         L[k].extrude_x(cab, -0.8, 0.8, **kw)
@@ -339,7 +418,7 @@ def build_wreck_van():
     L = props_lods(view=True)
     cab = [(1.0, 0.9), (2.6, 0.9), (2.6, 1.5), (2.0, 2.1), (1.0, 2.1)]
     for k in ("res0", "res1", "res2"):
-        L[k].box(-1.0, 1.0, -2.6, 2.6, 0.3, 0.9, mat="rust", uv=UV_BURNT)
+        L[k].box(-1.0, 1.0, -2.6, 2.6, 0.0 if k == "res2" else 0.3, 0.9, mat="rust", uv=UV_BURNT)
         L[k].box(-1.05, 1.05, -2.6, 1.0, 0.9, 2.6, mat="rust", uv=UV_BURNT)
         L[k].extrude_x(cab, -1.0, 1.0, mat="rust", uv=UV_RUST)
     wheels(L, ("res0",), (0.85, -0.85), (-1.8, 1.7), r=0.35, zc=0.33)
@@ -373,6 +452,8 @@ def build_billboard():
 
 BUILDERS = {
     "Road_Straight": build_road, "Road_Crossing": lambda: build_road(crossing=True),
+    "Street_Straight": build_street, "Street_Crossing": lambda: build_street(crossing=True),
+    "Street_Intersection": build_street_intersection,
     "Intersection_4Way": build_intersection, "Intersection_T": lambda: build_intersection(t_junction=True),
     "Sidewalk": build_sidewalk, "Sidewalk_Corner": build_sidewalk_corner, "Curb": build_curb, "Manhole": build_manhole,
     "StreetLight": build_streetlight, "TrafficLight": build_trafficlight,

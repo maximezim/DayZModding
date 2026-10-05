@@ -12,3 +12,8 @@
 | D8 | Traffic lights use a static painted atlas face (no lit lenses). | Lighting all three lenses at once would look wrong; animating them needs script. | — |
 | D9 | `Intersection_T` uses 4 sections against the road budget of 3 (it includes a sidewalk). **Flagged, not hidden.** The budget stays a hypothesis. | It needs asphalt + paint + paver + curb concrete. | if the FPS test shows road draw calls matter |
 | D10 | Preview renders found a tooling bug: `os.path.basename` did not split `\` game paths on Linux, so previews were untextured (including Tower A's earlier renders). Fixed in the preview scripts only; no asset changed. | — | — |
+| D11 | Combined `Street_*` tiles are the default for districts; the separate road, sidewalk and corner pieces stay for odd layouts. | perf batch-1 M1 (entities and draw calls). | — |
+| D12 | Kit materials use procedural stages for information-free maps; **Tower A's rvmats are not changed.** | Rule 1 vs perf M5. Tower A is the test reference. | after Tower A is validated |
+| D13 | Manhole is Roadway-only (no Geometry/Fire), category `flat`. | A 2 cm collision bump snags wheels; a decal needs no collision. | — |
+| D14 | Road-tile collision skirt = one convex box under the whole tile (not per part). | Security M1 fix without blowing the component budget. | — |
+| D15 | Road paint uses `AlphaTest32`, the verified flag from Bohemia's Test_Clutter rvmat; `AlphaTest64` (suggested by perf) is not used because it is unverified. | Never guess names. | if in-game edges look too hard |

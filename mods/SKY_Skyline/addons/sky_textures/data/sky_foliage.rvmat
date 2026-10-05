@@ -10,7 +10,7 @@ PixelShaderID = "Super";
 VertexShaderID = "Super";
 class Stage1
 {
-	texture = "SKY_Skyline\sky_textures\data\sky_foliage_nohq.paa";
+	texture = "#(argb,8,8,3)color(0.5,0.5,1,1,NOHQ)";
 	uvSource = "tex";
 	class uvTransform
 	{
@@ -46,7 +46,7 @@ class Stage3
 };
 class Stage4
 {
-	texture = "SKY_Skyline\sky_textures\data\sky_foliage_as.paa";
+	texture = "#(argb,8,8,3)color(1,1,1,1,AS)";
 	uvSource = "tex";
 	class uvTransform
 	{
@@ -58,7 +58,7 @@ class Stage4
 };
 class Stage5
 {
-	texture = "SKY_Skyline\sky_textures\data\sky_foliage_smdi.paa";
+	texture = "#(argb,8,8,3)color(1,0.3,0.4,1,SMDI)";
 	uvSource = "tex";
 	class uvTransform
 	{

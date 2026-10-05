@@ -80,8 +80,7 @@ buildings:
   - {name: Gas station, status: planned}
 
 # ---------------------------------------------------------------- C. street kit
-street: {status: planned, items: [road/sidewalk/curb modules, intersections, street lights, traffic lights, barriers,
-         bus stop, dumpsters, generic billboards, planters, wreck props, manholes]}
+street: {status: built-unverified, note: "all street-kit assets are listed under generated_kit (batch 1); prefer the combined Street_* tiles for districts"}
 
 # ---------------------------------------------------------------- D. interior props
 props:
@@ -110,6 +109,12 @@ textures:
   - {name: sky_wallpaper, maps: [co, nohq, smdi, as], size: 2048, status: built-unverified, note: mapped at 4 m (512 px/m)}
   - {name: sky_asphalt, maps: [co, nohq, smdi, as], size: 2048, status: built-unverified, use: street kit}
   - {name: sky_roofmark, maps: [ca, nohq, smdi, as], size: 1024, use: generic helipad decal, status: built-unverified}
+  - {name: sky_paver, maps: [co, nohq, smdi, as(1024)], size: 2048, use: sidewalks / garden roof, status: built-unverified}
+  - {name: sky_roadmark, maps: [ca], size: 512, use: road paint (alpha-tested, tiles along U), status: built-unverified}
+  - {name: sky_rust, maps: [co, nohq, smdi], size: 1024, use: weathered paint bands (green/grey/rust/burnt), status: built-unverified}
+  - {name: sky_foliage, maps: [ca], size: 512, use: shrub cards (alpha-tested), status: built-unverified}
+  - {name: sky_atlas, maps: [co], size: 2048, use: shared props atlas 4x4 (manhole, timetable, traffic, sign, batch-3 cells), status: built-unverified}
+  - {name: sky_billboard_a..d, maps: [co], size: 1024x512, use: original posters via hiddenSelections, status: built-unverified}
   - {name: decals (dirt, cracks, graffiti), status: planned}
   - {name: emissive window sets, status: planned}
   - {name: HQ 4K facade atlas, status: planned}
@@ -120,114 +125,135 @@ sounds: {status: planned, items: [elevator hum, elevator ding]}
 # >>> GENERATED KIT (assets/gen_manifest.py)
 generated_kit:
   - name: Land_SKY_Road_Straight
-    type: 8 x 12 m carriageway, centre dashed line
+    type: "8 x 12 m carriageway, centre dashed line"
     p3d: addons/sky_street/sky_road_straight.p3d
     category: road
     budget: {res0: 300, res1: 150, res2: 40, geo_comps: 4, geo_tris: 60, sections_res0: 3}
-    uses: [ROADWAY_ASPHALT]
+    uses: [ROADWAY_ASPHALT, ROAD_GEO_THICKNESS]
     status: built-unverified
   - name: Land_SKY_Road_Crossing
-    type: 8 x 12 m carriageway with crosswalk
+    type: "8 x 12 m carriageway with crosswalk"
     p3d: addons/sky_street/sky_road_crossing.p3d
     category: road
     budget: {res0: 300, res1: 150, res2: 40, geo_comps: 4, geo_tris: 60, sections_res0: 3}
-    uses: [ROADWAY_ASPHALT]
+    uses: [ROADWAY_ASPHALT, ROAD_GEO_THICKNESS]
     status: built-unverified
   - name: Land_SKY_Intersection_4Way
-    type: 12 x 12 m junction with stop lines
+    type: "12 x 12 m junction with stop lines"
     p3d: addons/sky_street/sky_intersection_4way.p3d
     category: road
     budget: {res0: 300, res1: 150, res2: 40, geo_comps: 4, geo_tris: 60, sections_res0: 3}
-    uses: [ROADWAY_ASPHALT]
+    uses: [ROADWAY_ASPHALT, ROAD_GEO_THICKNESS]
     status: built-unverified
   - name: Land_SKY_Intersection_T
-    type: 12 x 12 m T junction (closed side = sidewalk)
+    type: "12 x 12 m T junction (closed side = sidewalk)"
     p3d: addons/sky_street/sky_intersection_t.p3d
-    category: road
-    budget: {res0: 300, res1: 150, res2: 40, geo_comps: 4, geo_tris: 60, sections_res0: 3}
-    uses: [ROADWAY_ASPHALT]
+    category: road_combined
+    budget: {res0: 400, res1: 200, res2: 40, geo_comps: 10, geo_tris: 140, sections_res0: 4}
+    uses: [ROADWAY_ASPHALT, ROAD_GEO_THICKNESS]
     status: built-unverified
   - name: Land_SKY_Sidewalk
-    type: 2 x 12 m paver sidewalk with curb
+    type: "2 x 12 m paver sidewalk with curb"
     p3d: addons/sky_street/sky_sidewalk.p3d
     category: road
     budget: {res0: 300, res1: 150, res2: 40, geo_comps: 4, geo_tris: 60, sections_res0: 3}
     status: built-unverified
   - name: Land_SKY_Sidewalk_Corner
-    type: 2 x 2 m sidewalk corner piece
+    type: "2 x 2 m sidewalk corner piece"
     p3d: addons/sky_street/sky_sidewalk_corner.p3d
     category: road
     budget: {res0: 300, res1: 150, res2: 40, geo_comps: 4, geo_tris: 60, sections_res0: 3}
     status: built-unverified
   - name: Land_SKY_Curb
-    type: 3 m curb stone (free placement)
+    type: "3 m curb stone (free placement)"
     p3d: addons/sky_street/sky_curb.p3d
     category: road
     budget: {res0: 300, res1: 150, res2: 40, geo_comps: 4, geo_tris: 60, sections_res0: 3}
     status: built-unverified
   - name: Land_SKY_Manhole
-    type: 0.8 m cast-iron cover
+    type: "0.8 m cast-iron cover (Roadway only, no collision)"
     p3d: addons/sky_street/sky_manhole.p3d
-    category: road
-    budget: {res0: 300, res1: 150, res2: 40, geo_comps: 4, geo_tris: 60, sections_res0: 3}
+    category: flat
+    budget: {res0: 60, res1: 30, res2: 4, sections_res0: 1}
+    status: built-unverified
+  - name: Land_SKY_Street_Straight
+    type: "12 x 12 m street: road + both sidewalks"
+    p3d: addons/sky_street/sky_street_straight.p3d
+    category: road_combined
+    budget: {res0: 400, res1: 200, res2: 40, geo_comps: 10, geo_tris: 140, sections_res0: 4}
+    uses: [ROADWAY_ASPHALT, ROAD_GEO_THICKNESS]
+    status: built-unverified
+  - name: Land_SKY_Street_Crossing
+    type: "12 x 12 m street with crosswalk"
+    p3d: addons/sky_street/sky_street_crossing.p3d
+    category: road_combined
+    budget: {res0: 400, res1: 200, res2: 40, geo_comps: 10, geo_tris: 140, sections_res0: 4}
+    uses: [ROADWAY_ASPHALT, ROAD_GEO_THICKNESS]
+    status: built-unverified
+  - name: Land_SKY_Street_Intersection
+    type: "12 x 12 m 4-way junction with corner sidewalks built in"
+    p3d: addons/sky_street/sky_street_intersection.p3d
+    category: road_combined
+    budget: {res0: 400, res1: 200, res2: 40, geo_comps: 10, geo_tris: 140, sections_res0: 4}
+    uses: [ROADWAY_ASPHALT, ROAD_GEO_THICKNESS]
     status: built-unverified
   - name: Land_SKY_StreetLight
-    type: 8 m pole street light (emissive head)
+    type: "8 m pole street light (emissive head)"
     p3d: addons/sky_street/sky_streetlight.p3d
     category: small
     budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 3}
     uses: [EMISSIVE_LAMP]
     status: built-unverified
   - name: Land_SKY_TrafficLight
-    type: traffic light with 5 m arm (static atlas face, no emissive)
+    type: "traffic light with 5 m arm (static atlas face, no emissive)"
     p3d: addons/sky_street/sky_trafficlight.p3d
     category: small
     budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 3}
     status: built-unverified
   - name: Land_SKY_Barrier_Concrete
-    type: 3 m jersey barrier
+    type: "3 m jersey barrier"
     p3d: addons/sky_street/sky_barrier_concrete.p3d
     category: small
     budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 3}
     status: built-unverified
   - name: Land_SKY_Barrier_Steel
-    type: 2.4 m crowd barrier
+    type: "2.4 m crowd barrier"
     p3d: addons/sky_street/sky_barrier_steel.p3d
     category: small
     budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 3}
     status: built-unverified
   - name: Land_SKY_BusStop
-    type: 4 m shelter with bench and timetable
+    type: "4 m shelter with bench and timetable"
     p3d: addons/sky_street/sky_busstop.p3d
     category: medium
     budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 4}
     status: built-unverified
   - name: Land_SKY_Dumpster
-    type: 1.8 m waste container
+    type: "1.8 m waste container"
     p3d: addons/sky_street/sky_dumpster.p3d
     category: small
     budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 3}
     status: built-unverified
   - name: Land_SKY_Planter
-    type: 1.5 m concrete planter with shrub
+    type: "1.5 m concrete planter with shrub"
     p3d: addons/sky_street/sky_planter.p3d
     category: small
     budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 3}
     status: built-unverified
   - name: Land_SKY_Wreck_Sedan
-    type: generic rusted sedan hulk (original shape)
+    type: "generic rusted sedan hulk (original shape)"
     p3d: addons/sky_street/sky_wreck_sedan.p3d
     category: medium
     budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 4}
     status: built-unverified
   - name: Land_SKY_Wreck_Van
-    type: generic burnt box van hulk (original shape)
+    type: "generic burnt box van hulk (original shape)"
     p3d: addons/sky_street/sky_wreck_van.p3d
     category: medium
     budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 4}
     status: built-unverified
   - name: Land_SKY_Billboard
-    type: 6 x 3 m billboard, poster via hiddenSelections
+    type: "6 x 3 m billboard, poster via hiddenSelections"
     p3d: addons/sky_street/sky_billboard.p3d
     category: medium
     budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 4}

@@ -50,6 +50,8 @@ SNAP = {  # name: (x0, x1, y0, y1, top_z)
     "Road_Straight": (-4, 4, -6, 6, 0.0), "Road_Crossing": (-4, 4, -6, 6, 0.0),
     "Intersection_4Way": (-6, 6, -6, 6, 0.0), "Intersection_T": (-6, 6, -6, 6, S.STREET["curb_h"]),
     "Sidewalk": (-1, 1, -6, 6, S.STREET["curb_h"]), "Sidewalk_Corner": (-1, 1, -1, 1, S.STREET["curb_h"]),
+    "Street_Straight": (-6, 6, -6, 6, S.STREET["curb_h"]), "Street_Crossing": (-6, 6, -6, 6, S.STREET["curb_h"]),
+    "Street_Intersection": (-6, 6, -6, 6, S.STREET["curb_h"]),
 }
 
 
@@ -81,9 +83,15 @@ def main():
         lods = {l.name: l for l in builders[n]()}
         res = [k for k in lods if k.startswith("res")]
         check(len(res) >= 3, "%s: only %d resolution LODs" % (n, len(res)))
+        if not S.KIT[n]["collide"]:
+            check("geo" not in lods and "fire" not in lods and "road" in lods,
+                  "%s: flat decal must have Roadway and no Geometry/Fire" % n)
+            continue
         for k in ("geo", "fire"):
             check(k in lods and lods[k].verts, "%s: missing %s" % (n, k))
         check(lods["geo"].mass > 0, "%s: Geometry has no mass" % n)
+        if S.KIT[n]["category"] in ("small", "medium"):
+            check("shadow" in lods and lods["shadow"].verts, "%s: no Shadow Volume" % n)
         for k in ("geo", "fire", "view"):
             if k not in lods:
                 continue
@@ -97,6 +105,8 @@ def main():
             check(abs(b[0] - x0) < 1e-6 and abs(b[1] - x1) < 1e-6 and abs(b[2] - y0) < 1e-6 and abs(b[3] - y1) < 1e-6,
                   "%s footprint %s != %s" % (n, b[:4], (x0, x1, y0, y1)))
             check(abs(b[5] - top) < 1e-6, "%s top z %.3f != %.3f" % (n, b[5], top))
+            deep = -S.STREET["slab_t"] - S.STREET["skirt"]
+            check(b[4] <= deep + 1e-6, "%s collision stops at z %.2f, skirt needs %.2f (security M1)" % (n, b[4], deep))
     if FAIL:
         print("KIT GEOMETRY TESTS: %d FAILED" % len(FAIL))
         for f in FAIL:

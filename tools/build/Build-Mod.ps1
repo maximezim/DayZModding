@@ -107,9 +107,9 @@ foreach ($pbo in $pbos) {
     $results += [pscustomobject]@{ Pbo = [System.IO.Path]::GetFileName($lower); Prefix = $prefix; Binarized = [bool]$binarize }
 }
 
-# mod.cpp (+ optional logo/meta files kept next to it) goes to the @mod root.
+# mod.cpp + launcher images only (never dev docs such as *.md reports) go to the @mod root.
 foreach ($f in Get-ChildItem -LiteralPath $modDir -File) {
-    if ($f.Name -notmatch '^(README.*|\.gitkeep)$') { Copy-Item -LiteralPath $f.FullName -Destination $outMod -Force }
+    if ($f.Name -eq 'mod.cpp' -or $f.Extension -in '.paa', '.edds', '.png', '.jpg') { Copy-Item -LiteralPath $f.FullName -Destination $outMod -Force }
 }
 if (-not (Test-Path -LiteralPath (Join-DzPath $modDir 'mod.cpp'))) { Write-DzWarn 'No mod.cpp - launcher will show the folder name only.' }
 

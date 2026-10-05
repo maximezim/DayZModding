@@ -92,6 +92,9 @@ ROADWAY_INT = "dz\\surfaces\\data\\roadway\\concrete_int.tga"
 ROADWAY_EXT = "dz\\surfaces\\data\\roadway\\concrete_ext.paa"
 # UNVERIFIED (P6): no asphalt roadway surface confirmed yet - roads use the verified exterior concrete.
 ROADWAY_ASPHALT = ROADWAY_EXT
+# UNVERIFIED (P8): road-tile Geometry slab thickness. 0.3 m solid slabs may snag
+# vehicle wheels at tile seams (perf batch-1 M4); if so set ~0.05 (top stays at z = 0).
+ROAD_GEO_THICKNESS = 0.3
 
 # --------------------------------------------------------------------- Tower A
 TOWER_A = {
@@ -255,6 +258,10 @@ BUDGETS = {
     "road":   {"res0": 300, "res1": 150, "res2": 40, "geo_comps": 4, "geo_tris": 60, "sections_res0": 3},
     "small":  {"res0": 600, "res1": 300, "res2": 100, "geo_comps": 8, "geo_tris": 120, "sections_res0": 3},
     "medium": {"res0": 1200, "res1": 600, "res2": 150, "geo_comps": 12, "geo_tris": 200, "sections_res0": 4},
+    # one object = road + sidewalks (+ corners): asphalt, paint, paver, curb concrete (perf batch-1 M1/L1)
+    "road_combined": {"res0": 400, "res1": 200, "res2": 40, "geo_comps": 10, "geo_tris": 140, "sections_res0": 4},
+    # walk-on decals: no Geometry/Fire (no wheel snag), Roadway only
+    "flat":   {"res0": 60, "res1": 30, "res2": 4, "sections_res0": 1},
 }
 
 # name -> dict(cls, p3d, pbo, category, kind, uses=[assumption params], variants={cls: texture})
@@ -263,7 +270,8 @@ KIT = {}
 
 def kit(name, pbo, category, uses=(), variants=None, desc=""):
     KIT[name] = {"cls": "Land_SKY_" + name, "p3d": "sky_" + name.lower() + ".p3d", "pbo": pbo,
-                 "category": category, "uses": list(uses), "variants": variants or {}, "desc": desc}
+                 "category": category, "uses": list(uses), "variants": variants or {}, "desc": desc,
+                 "collide": category != "flat"}
 
 
 # ---- batch 1: street kit + non-enterable props (no door/elevator assumptions)
@@ -275,9 +283,15 @@ for _n, _c, _d in [
     ("Sidewalk", "road", "2 x 12 m paver sidewalk with curb"),
     ("Sidewalk_Corner", "road", "2 x 2 m sidewalk corner piece"),
     ("Curb", "road", "3 m curb stone (free placement)"),
-    ("Manhole", "road", "0.8 m cast-iron cover"),
+    ("Manhole", "flat", "0.8 m cast-iron cover (Roadway only, no collision)"),
+    # combined tiles: preferred for districts - 1 entity per 12 m tile (perf batch-1 M1)
+    ("Street_Straight", "road_combined", "12 x 12 m street: road + both sidewalks"),
+    ("Street_Crossing", "road_combined", "12 x 12 m street with crosswalk"),
+    ("Street_Intersection", "road_combined", "12 x 12 m 4-way junction with corner sidewalks built in"),
 ]:
-    kit(_n, "sky_street", _c, uses=["ROADWAY_ASPHALT"] if _n.startswith(("Road", "Inter")) else [], desc=_d)
+    _u = ["ROADWAY_ASPHALT", "ROAD_GEO_THICKNESS"] if _n.startswith(("Road", "Inter", "Street")) else []
+    kit(_n, "sky_street", _c, uses=_u, desc=_d)
+KIT["Intersection_T"]["category"] = "road_combined"     # it already contains a sidewalk (perf L1)
 for _n, _c, _d, _u in [
     ("StreetLight", "small", "8 m pole street light (emissive head)", ["EMISSIVE_LAMP"]),
     ("TrafficLight", "small", "traffic light with 5 m arm (static atlas face, no emissive)", []),

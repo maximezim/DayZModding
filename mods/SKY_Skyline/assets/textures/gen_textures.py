@@ -274,34 +274,31 @@ def keycards(size, out):
 def paver(size, out):
     """Sidewalk pavers: 30 x 30 cm stone blocks (mapped at 3 m -> 10 x 10 per tile)."""
     tiled(size, out, "sky_paver", 10, (0.62, 0.60, 0.57), (0.36, 0.35, 0.33), max(3, size // 512), 101, 0.15, 0.25, tile_var=0.08)
+    p = os.path.join(out, "sky_paver_as.png")                 # AO at 1024 is plenty (perf M5)
+    Image.open(p).resize((min(size, 1024),) * 2, Image.BILINEAR).save(p)
 
 
 def roadmark(size, out):
-    """Road paint atlas (alpha): V 0-0.25 solid line, 0.25-0.5 dashed line,
-    0.5-1.0 crosswalk stripes. Lines run along U."""
-    size = min(size, 1024)
-    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    d = ImageDraw.Draw(img)
-    rng = np.random.default_rng(107)
-    paint = (232, 230, 220, 230)
+    """Road paint sheet (512, alpha-TESTED): V 0-0.25 solid line, 0.25-0.5 dashed
+    line (1 dash per U), 0.5-1.0 crosswalk (1 stripe per U). Lines tile along U;
+    wear lives in RGB (binary alpha, perf batch-1 M2)."""
+    size = min(size, 512)
     q = size // 4
-    d.rectangle([0, q // 2 - q // 6, size, q // 2 + q // 6], fill=paint)                    # solid
-    for x in range(0, size, size // 4):                                                     # dashed
-        d.rectangle([x, q + q // 2 - q // 6, x + size // 8, q + q // 2 + q // 6], fill=paint)
-    for x in range(0, size, size // 8):                                                     # crosswalk
-        d.rectangle([x + size // 32, 2 * q, x + size // 16 + size // 32, size - 1], fill=paint)
-    a = np.asarray(img).astype(np.float32)
-    wear = fbm(size, 109, octaves=4, base=16)
-    a[..., 3] *= np.clip(0.55 + 0.6 * wear + 0.1 * rng.random((size, size)), 0, 1)
-    Image.fromarray(a.astype(np.uint8), "RGBA").save(os.path.join(out, "sky_roadmark_ca.png"))
-    save(normal_from_height(np.zeros((CONST_SIZE, CONST_SIZE), np.float32), 1.0), out, "sky_roadmark_nohq")
-    save(smdi(size, 0.25, 0.35), out, "sky_roadmark_smdi")
-    save(to_rgb(gray(np.ones((CONST_SIZE, CONST_SIZE), np.float32))), out, "sky_roadmark_as")
+    a = np.zeros((size, size), np.float32)
+    a[q // 2 - q // 6:q // 2 + q // 6, :] = 1                                  # solid
+    a[q + q // 2 - q // 6:q + q // 2 + q // 6, : size // 2] = 1                # dashed: 50 % duty
+    a[2 * q:, size // 4: 3 * size // 4] = 1                                     # crosswalk stripe
+    wear = fbm(size, 109, octaves=4, base=8)
+    rgb = np.stack([0.91 - 0.25 * wear, 0.90 - 0.25 * wear, 0.86 - 0.25 * wear], -1)
+    a *= (wear > 0.28).astype(np.float32)                                     # chipped paint = holes
+    Image.fromarray((np.concatenate([rgb, a[..., None]], -1) * 255).astype(np.uint8), "RGBA").save(
+        os.path.join(out, "sky_roadmark_ca.png"))
 
 
 def rust(size, out):
     """Weathered painted metal: V bands = green paint (dumpsters), grey paint
-    (barriers/poles), rust (wrecks), burnt (wreck variant)."""
+    (barriers/poles), rust (wrecks), burnt (wreck variant). 1024 (perf M5)."""
+    size = min(size, 1024)
     n = fbm(size, 113, octaves=6, base=8)
     spots = (fbm(size, 127, octaves=4, base=16) > 0.58).astype(np.float32)
     col = np.zeros((size, size, 3), np.float32)
@@ -317,12 +314,11 @@ def rust(size, out):
     save(to_rgb(col), out, "sky_rust_co")
     save(normal_from_height(h, 2.0), out, "sky_rust_nohq")
     save(smdi(size, 0.25 - 0.15 * spots, 0.3 - 0.2 * spots), out, "sky_rust_smdi")
-    save(to_rgb(gray(np.full((CONST_SIZE, CONST_SIZE), 0.95, np.float32))), out, "sky_rust_as")
 
 
 def foliage(size, out):
-    """Generic shrub leaves card (alpha-tested), for planters and garden roofs."""
-    size = min(size, 1024)
+    """Generic shrub leaves card (alpha-tested), for planters and garden roofs. 512 (perf M5)."""
+    size = min(size, 512)
     rng = np.random.default_rng(131)
     img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
@@ -334,9 +330,6 @@ def foliage(size, out):
         g = int(rng.integers(70, 130))
         d.ellipse([x - r, y - r // 2, x + r, y + r // 2], fill=(int(g * 0.45), g, int(g * 0.35), 255))
     img.save(os.path.join(out, "sky_foliage_ca.png"))
-    save(normal_from_height(np.zeros((CONST_SIZE, CONST_SIZE), np.float32), 1.0), out, "sky_foliage_nohq")
-    save(smdi(size, 0.05, 0.1), out, "sky_foliage_smdi")
-    save(to_rgb(gray(np.ones((CONST_SIZE, CONST_SIZE), np.float32))), out, "sky_foliage_as")
 
 
 # Props atlas: 4 x 4 cells of size/4. Cell names must match skyspec.ATLAS.
@@ -388,10 +381,7 @@ def atlas(size, out):
     for col in range(4):
         x0, y0, x1, y1 = cell(col, 1)
         d.rectangle([x0, y0, x1, y1], fill=(110 + 10 * col, 110 + 10 * col, 115 + 10 * col))
-    img.save(os.path.join(out, "sky_atlas_co.png"))
-    save(normal_from_height(h, 1.0), out, "sky_atlas_nohq")
-    save(smdi(size, 0.3, 0.4), out, "sky_atlas_smdi")
-    save(to_rgb(gray(np.ones((CONST_SIZE, CONST_SIZE), np.float32))), out, "sky_atlas_as")
+    img.save(os.path.join(out, "sky_atlas_co.png"))   # nohq/smdi/as are procedural in sky_atlas.rvmat
 
 
 BILLBOARDS = {
@@ -419,9 +409,7 @@ def billboards(size, out):
         a = np.asarray(img).astype(np.float32) / 255.0
         a *= (0.88 + 0.12 * fbm(512, 137, octaves=3, base=8)[:h, :, None].repeat(2, 1)[:, :w])   # weathering
         Image.fromarray((a * 255).astype(np.uint8), "RGB").save(os.path.join(out, "sky_billboard_%s_co.png" % key))
-    save(normal_from_height(np.zeros((CONST_SIZE, CONST_SIZE), np.float32), 1.0), out, "sky_billboard_nohq")
-    save(smdi(CONST_SIZE, 0.15, 0.2), out, "sky_billboard_smdi")
-    save(to_rgb(gray(np.ones((CONST_SIZE, CONST_SIZE), np.float32))), out, "sky_billboard_as")
+    # nohq/smdi/as are procedural in sky_billboard.rvmat (perf M5)
 
 
 GENERATORS = {

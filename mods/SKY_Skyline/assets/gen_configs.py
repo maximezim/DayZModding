@@ -38,6 +38,16 @@ def stage(n, texture, uv_source="tex", extra=""):
     return "class Stage%d\n{\n%s%s};\n" % (n, body, extra)
 
 
+PROC = {"nohq": "#(argb,8,8,3)color(0.5,0.5,1,1,NOHQ)", "as": "#(argb,8,8,3)color(1,1,1,1,AS)",
+        "smdi": "#(argb,8,8,3)color(1,0.3,0.4,1,SMDI)"}
+# Kit materials whose maps carry no information use procedural stages instead of
+# files (perf batch-1 M5). Tower A's rvmats are left exactly as validated.
+PROCEDURAL_MAPS = {
+    "sky_roadmark": ("nohq", "as", "smdi"), "sky_foliage": ("nohq", "as", "smdi"),
+    "sky_atlas": ("nohq", "as", "smdi"), "sky_billboard": ("nohq", "as", "smdi"), "sky_rust": ("as",),
+}
+
+
 def rvmat_super(base, spec_power=40, emissive=(0, 0, 0)):
     """Standard 'Super' shader layout (Stage1 nohq, 2 detail, 3 macro, 4 as,
     5 smdi, 6 fresnel, 7 env). Detail/macro are neutral procedurals."""
@@ -47,11 +57,13 @@ def rvmat_super(base, spec_power=40, emissive=(0, 0, 0)):
     out += "emmisive[] = {%g, %g, %g, 1};\nspecular[] = {0.7, 0.7, 0.7, 1};\nspecularPower = %d;\n" % (
         emissive + (spec_power,))
     out += 'PixelShaderID = "Super";\nVertexShaderID = "Super";\n'
-    out += stage(1, d + "_nohq.paa")
+    proc = PROCEDURAL_MAPS.get(base, ())
+    pick = lambda m: PROC[m] if m in proc else d + "_%s.paa" % m
+    out += stage(1, pick("nohq"))
     out += stage(2, "#(argb,8,8,3)color(0.5,0.5,0.5,1,DT)")
     out += stage(3, "#(argb,8,8,3)color(0,0,0,0,MC)")
-    out += stage(4, d + "_as.paa")
-    out += stage(5, d + "_smdi.paa")
+    out += stage(4, pick("as"))
+    out += stage(5, pick("smdi"))
     out += stage(6, "#(ai,64,64,1)fresnel(1.5,0.8)", "none")
     # Env map path follows the vanilla convention; confirmed by Check-SkyAssets.ps1 on P:.
     out += stage(7, S.ENV_MAP, "none", '\tuseWorldEnvMap = "true";\n')
@@ -75,7 +87,7 @@ def rvmat_flat(emissive=(0, 0, 0), color_stage=None):
 
 
 # Alpha-tested (not blended) materials - renderFlags as in Bohemia's Test_Clutter grass rvmat.
-ALPHA_TEST = {"sky_foliage"}
+ALPHA_TEST = {"sky_foliage", "sky_roadmark"}
 
 RVMATS = {
     "sky_concrete": ("sky_concrete", 20), "sky_metal": ("sky_metal", 60), "sky_glass": ("sky_glass", 120), "sky_glassfar": ("sky_glassfar", 80),
