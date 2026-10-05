@@ -19,7 +19,7 @@ tools/lib/DzCommon.psm1     shared helpers: config, Steam/tool detection, dry-ru
 tools/setup/                install / detect / work drive / keys / test server / smoke test
 tools/build/                New-Mod, Build-Mod, Sign-Mod, Deploy-Mod, Build-And-Run
 tools/launch/               Start-DiagLocal (DayZDiag server+client), Start-DedicatedServer
-tools/tests/                Invoke-SelfTest.ps1 (offline, no game needed)
+tools/tests/                Invoke-SelfTest.ps1 (offline, no game needed), Invoke-ModValidation.ps1 (one-command run)
 tools/assets/               p3d_inspect.py (MLOD LOD/selection gate), enscript_xref.py (script API lint
                             against P:\scripts), Convert-Textures.ps1 (ImageToPAA)
 server/templates/           serverDZ.diag.cfg / serverDZ.dedicated.cfg templates (placeholders only)
@@ -43,6 +43,7 @@ Machine-specific paths go in `workspace.config.json` (git-ignored, copy of
 | Prepare local server | `tools\setup\Initialize-TestServer.ps1` |
 | Smoke test (no mod) | `tools\setup\Test-Toolchain.ps1` |
 | Offline self-test of scripts | `tools\tests\Invoke-SelfTest.ps1` |
+| Full validation (static, build, sign, deploy, server, logs, summary) | `tools\tests\Invoke-ModValidation.ps1 -ModName <Mod> [-Layout <yaml>] [-Blender <exe>] [-DryRun]` |
 | New empty mod | `tools\build\New-Mod.ps1 -ModName <Mod>` |
 | Pack | `tools\build\Build-Mod.ps1 -ModName <Mod> [-Packer pboproject] [-DryRun]` |
 | Sign | `tools\build\Sign-Mod.ps1 -ModName <Mod>` |
