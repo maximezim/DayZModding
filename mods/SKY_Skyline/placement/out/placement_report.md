@@ -1,16 +1,16 @@
 # Placement report
 
-map: chernarusplus  site: placeholder-site  status: **PASS (with warnings)**
+map: chernarusplus  site: site2-flat-field  status: **PASS**
 
 ## Errors
 - none
 
 ## Warnings
-- site 'placeholder-site' is a PLACEHOLDER - do not deploy
-- no survey: ground height / overlaps NOT validated
-- tower A1: no base height (survey or base_y) - Y set to 0.0
+- none
 
 ## Notes
+- survey: surveys/site2.json (label site2, 196 samples, 0 objects)
+- tower A1 ground 161.91..161.95 (relief 0.03 m), base_y 162.00, drop under slab -0.22 m
 - tower A1: 8 entities (7 modules + core, 0 props): TowerA_Lobby / TowerA_Floor_Office / TowerA_Floor_Office / TowerA_Floor_Office / TowerA_Floor_Office / TowerA_Floor_Office / TowerA_Roof_Helipad
 - loot export: survey request "exportRadius" >= 5 m around site.center
 
@@ -23,11 +23,11 @@ map: chernarusplus  site: placeholder-site  status: **PASS (with warnings)**
 - **total: 8** entities, 40 loot items (max), server total 48
 
 ## Objects (8)
-- Land_SKY_TowerA_Lobby at [7500.0, 0.0, 7500.0] yaw 0.0
-- Land_SKY_TowerA_Floor_Office at [7500.0, 7.0, 7500.0] yaw 0.0
-- Land_SKY_TowerA_Floor_Office at [7500.0, 10.5, 7500.0] yaw 0.0
-- Land_SKY_TowerA_Floor_Office at [7500.0, 14.0, 7500.0] yaw 0.0
-- Land_SKY_TowerA_Floor_Office at [7500.0, 17.5, 7500.0] yaw 0.0
-- Land_SKY_TowerA_Floor_Office at [7500.0, 21.0, 7500.0] yaw 0.0
-- Land_SKY_TowerA_Roof_Helipad at [7500.0, 24.5, 7500.0] yaw 0.0
-- Land_SKY_TowerA_Core at [7500.0, 0.0, 7500.0] yaw 0.0
+- Land_SKY_TowerA_Lobby at [1610.0, 161.998, 4350.0] yaw 0.0
+- Land_SKY_TowerA_Floor_Office at [1610.0, 168.998, 4350.0] yaw 0.0
+- Land_SKY_TowerA_Floor_Office at [1610.0, 172.498, 4350.0] yaw 0.0
+- Land_SKY_TowerA_Floor_Office at [1610.0, 175.998, 4350.0] yaw 0.0
+- Land_SKY_TowerA_Floor_Office at [1610.0, 179.498, 4350.0] yaw 0.0
+- Land_SKY_TowerA_Floor_Office at [1610.0, 182.998, 4350.0] yaw 0.0
+- Land_SKY_TowerA_Roof_Helipad at [1610.0, 186.498, 4350.0] yaw 0.0
+- Land_SKY_TowerA_Core at [1610.0, 161.998, 4350.0] yaw 0.0
