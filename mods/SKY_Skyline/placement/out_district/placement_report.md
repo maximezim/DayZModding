@@ -15,18 +15,19 @@ map: chernarusplus  site: district-template  status: **PASS (with warnings)**
 - tower T4: no base height (survey or base_y) - Y set to 0.0
 
 ## Notes
-- tower T1: TowerA_Lobby / TowerA_Floor_Office / TowerA_Floor_Office / TowerA_Floor_Office / TowerA_Floor_Office / TowerA_Floor_Office / TowerA_Roof_Helipad, 55 props
-- tower T2: TowerA_Lobby / Floor_Apartments / Floor_Apartments / Floor_Apartments / Floor_Apartments / Floor_Apartments / Roof_Garden, 60 props
-- tower T3: TowerA_Lobby / Floor_Hotel / Floor_Hotel / Floor_Hotel / Floor_Hotel / Floor_Hotel / Roof_Garden, 60 props
-- tower T4: TowerA_Lobby / TowerA_Floor_Office / TowerA_Floor_Office / Floor_Mechanical / TowerA_Floor_Office / TowerA_Floor_Office / Roof_Mechanical, 52 props
+- tower T1: 63 entities (7 modules + core, 55 props): TowerA_Lobby / TowerA_Floor_Office / TowerA_Floor_Office / TowerA_Floor_Office / TowerA_Floor_Office / TowerA_Floor_Office / TowerA_Roof_Helipad
+- tower T2: 68 entities (7 modules + core, 60 props): TowerA_Lobby / Floor_Apartments / Floor_Apartments / Floor_Apartments / Floor_Apartments / Floor_Apartments / Roof_Garden
+- tower T3: 68 entities (7 modules + core, 60 props): TowerA_Lobby / Floor_Hotel / Floor_Hotel / Floor_Hotel / Floor_Hotel / Floor_Hotel / Roof_Garden
+- tower T4: 60 entities (7 modules + core, 52 props): TowerA_Lobby / TowerA_Floor_Office / TowerA_Floor_Office / Floor_Mechanical / TowerA_Floor_Office / TowerA_Floor_Office / Roof_Mechanical
+- loot export: survey request "exportRadius" >= 73 m around site.center
 
-## Entity counts (caps: 3000 per district, 25 props per floor / 600 per tower)
+## Entity counts (caps: entities + loot 800 per district / 2500 per server, 25 props per floor / 70 per tower)
 - modules: 32
 - tiles: 45
 - lights: 16
 - props: 227
 - decals: 3
-- **total: 323**
+- **total: 323** entities, 226 loot items (max), server total 549
 
 ## Objects (323)
 - Land_SKY_Street_Intersection at [-48.0, 0.0, -48.0] yaw 0.0

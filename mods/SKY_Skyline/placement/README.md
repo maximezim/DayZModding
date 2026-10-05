@@ -27,7 +27,9 @@ objects with `ECE_UPDATEPATHGRAPH` and then calls
 
 CE only spawns loot in buildings listed in `mapgrouppos.xml`. Spawned towers are not in it, so let the engine export their entries:
 
-1. Rerun the survey with `"exportRadius": 40` once the tower is spawned (step 2 done).
+1. Rerun the survey with `"exportRadius": 40` once the tower is spawned (step 2 done). For a district use the
+   radius `sky_layout.py` prints in the report notes ("loot export: exportRadius >= N m", e.g. 73 m for the
+   template) - a smaller radius silently leaves outer floors and props without loot.
 2. The survey calls `GetCEApi().ExportProxyData(centre, 40)`, which writes `<mission>\storage_1\export\mapgrouppos.xml`.
 3. Copy its `Land_SKY_*` `<group>` lines into the mission's `mapgrouppos.xml`.
 
@@ -47,10 +49,11 @@ until a surveyed site is filled in). It shows every key:
   other or any street tile.
 * towers: `floors` = exactly 5 variants (`office | apartments | hotel | mechanical`; the unchanged core
   has 5 typical-floor stops), `roof` = `helipad | garden | mechanical`, `furnish` = `{level: set}` from
-  `skyspec.FURNISH`. Caps `PROP_CAPS` (25 per floor, 600 per tower, 1.2 m aisles) and `ENTITY_CAP`
-  (3000 per district) fail the run; the report lists entity counts per kind.
+  `skyspec.FURNISH`. Caps `PROP_CAPS` (25 per floor, 70 per tower, 1.2 m aisles) and `ENTITY_CAP`
+  (entities + loot items: 800 per district, 2500 per server - pass the other districts' outputs with
+  `--others a.json,b.json`) fail the run; the report lists entity counts per kind and per tower.
 * `decals`: placed flush on a tower facade (face N/E/S/W, `u` along it, `z` bottom height) at the
-  per-type `DECAL_OFFSET` (D16, D19); per-tower cap `DECAL_CAPS`.
+  per-type `DECAL_OFFSET` (D16, D19); cap `DECAL_CAPS` (12 per tower).
 * Roof drops: each roof class writes its own `ROOF_DROP_POINTS` into `cfgeventspawns_snippet.xml`.
 
 Self-test: `python placement/tests/test_sky_layout.py` (synthetic surveys, no game).

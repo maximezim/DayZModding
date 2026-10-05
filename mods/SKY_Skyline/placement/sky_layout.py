@@ -26,7 +26,9 @@ Validation
     <= slab + max_ground_drop (foundation skirt hides the gap), no foreign
     objects inside any footprint; street tiles: ground within the tile skirt
   * overlaps: tower/tower, tower/street tile, tower/block edge (BLOCK_SETBACK), tile/tile
-  * caps: PROP_CAPS (per floor, per tower, aisles), DECAL_CAPS, LIGHT_CAP, ENTITY_CAP
+  * caps: PROP_CAPS (per floor, per tower, aisles), DECAL_CAPS (per tower), LIGHT_CAP, ENTITY_CAP
+    (spawned entities + loot items = sum of the spawned classes' mapgroupproto lootmax, per
+    district and - with --others - per server across several districts)
   * --strict (use for live servers) fails on placeholder sites, unset coordinates or missing survey
 """
 import argparse
@@ -266,7 +268,8 @@ def place_tower(ctx, lay, t, cx, cz, yaw, survey, site):
         dx, dz = rot(u, v, yaw)
         ctx.drops.append((cx + dx, base_y + roof_z + 0.05, cz + dz))
     nprops = furnish(ctx, t, mods, cx, cz, base_y, yaw)
-    ctx.notes.append("tower %s: %s, %d props" % (t["id"], " / ".join(c.replace("Land_SKY_", "") for c, _ in mods), nprops))
+    ctx.notes.append("tower %s: %d entities (%d modules + core, %d props): %s" % (
+        t["id"], len(mods) + 1 + nprops, len(mods), nprops, " / ".join(c.replace("Land_SKY_", "") for c, _ in mods)))
     return {"id": t["id"], "c": (cx, cz), "yaw": yaw, "hw": hw, "hd": hd, "base_y": base_y,
             "top": base_y + mods[-1][1], "quad": footprint_corners(cx, cz, hw, hd, yaw)}
 
@@ -302,8 +305,8 @@ def place_decals(ctx, lay, towers, site_yaw):
         ctx.add("decals", cls, (t["c"][0] + dx, t["base_y"] + d["z"], t["c"][1] + dz), t["yaw"] + FACE_YAW[d["face"]])
         per_tower[t["id"]] = per_tower.get(t["id"], 0) + 1
     for tid, n in per_tower.items():
-        if n > S.DECAL_CAPS["per_block"]:
-            ctx.errors.append("tower %s: %d decals > DECAL_CAPS per_block %d" % (tid, n, S.DECAL_CAPS["per_block"]))
+        if n > S.DECAL_CAPS["per_tower"]:
+            ctx.errors.append("tower %s: %d decals > DECAL_CAPS per_tower %d" % (tid, n, S.DECAL_CAPS["per_tower"]))
 
 
 def main():
@@ -311,6 +314,7 @@ def main():
     ap.add_argument("--layout", default=os.path.join(HERE, "layout.yaml"))
     ap.add_argument("--out", default=os.path.join(HERE, "out"))
     ap.add_argument("--strict", action="store_true", help="fail on placeholder site / missing survey")
+    ap.add_argument("--others", default="", help="comma-separated sky_objects.json of the server's other districts (ENTITY_CAP per_server)")
     a = ap.parse_args()
     lay = yaml.safe_load(open(a.layout))
     site = lay["site"]
@@ -354,6 +358,8 @@ def main():
         base_y = st.get("base_y")
         if survey is not None:
             ys = survey_ground(survey, lambda x, z: inside(x, z, wx, wz, TILE / 2, TILE / 2, yaw))
+            if 0 < len(ys) < 9:
+                ctx.warnings.append("street tile (%d, %d): only %d survey samples - survey the district in smaller pieces" % (i, j, len(ys)))
             if ys:
                 auto = max(ys) + float(site.get("clearance", 0.05))
                 if base_y is None:
@@ -417,9 +423,23 @@ def main():
         placed.append(place_tower(ctx, lay, t, cx, cz, yaw, survey, site))
 
     place_decals(ctx, lay, placed, site_yaw)
+
+    def loot_of(objs):
+        return sum(S.LOOT[o["name"]]["lootmax"] for o in objs if o["name"] in S.LOOT)
+    loot = loot_of(ctx.objects)
     total = len(ctx.objects)
-    if total > S.ENTITY_CAP["per_district"]:
-        ctx.errors.append("%d entities > ENTITY_CAP per_district %d" % (total, S.ENTITY_CAP["per_district"]))
+    if total + loot > S.ENTITY_CAP["per_district"]:
+        ctx.errors.append("%d entities + %d loot items > ENTITY_CAP per_district %d" % (total, loot, S.ENTITY_CAP["per_district"]))
+    server = total + loot
+    for other in [x for x in a.others.split(",") if x]:
+        objs = json.load(open(other))["Objects"]
+        server += len(objs) + loot_of(objs)
+        ctx.notes.append("other district %s: %d entities + %d loot" % (other, len(objs), loot_of(objs)))
+    if server > S.ENTITY_CAP["per_server"]:
+        ctx.errors.append("server total %d (entities + loot) > ENTITY_CAP per_server %d" % (server, S.ENTITY_CAP["per_server"]))
+    # loot export (placement/README.md section 3): ExportProxyData must reach every module/prop
+    radius = max([math.hypot(o["pos"][0] - cx0, o["pos"][2] - cz0) for o in ctx.objects] or [0.0]) + 5.0
+    ctx.notes.append("loot export: survey request \"exportRadius\" >= %.0f m around site.center" % math.ceil(radius))
 
     os.makedirs(a.out, exist_ok=True)
     with open(os.path.join(a.out, "sky_objects.json"), "w") as fh:
@@ -437,11 +457,11 @@ def main():
         fh.write("# Placement report\n\nmap: %s  site: %s  status: **%s**\n\n" % (lay["map"], site["name"], status))
         for title, items in (("Errors", ctx.errors), ("Warnings", ctx.warnings), ("Notes", ctx.notes)):
             fh.write("## %s\n" % title + ("".join("- %s\n" % i for i in items) or "- none\n") + "\n")
-        fh.write("## Entity counts (caps: %d per district, %d props per floor / %d per tower)\n"
-                 % (S.ENTITY_CAP["per_district"], S.PROP_CAPS["per_floor"], S.PROP_CAPS["per_tower"]))
+        fh.write("## Entity counts (caps: entities + loot %d per district / %d per server, %d props per floor / %d per tower)\n"
+                 % (S.ENTITY_CAP["per_district"], S.ENTITY_CAP["per_server"], S.PROP_CAPS["per_floor"], S.PROP_CAPS["per_tower"]))
         for k in ("modules", "tiles", "lights", "props", "decals"):
             fh.write("- %s: %d\n" % (k, ctx.counts.get(k, 0)))
-        fh.write("- **total: %d**\n\n" % total)
+        fh.write("- **total: %d** entities, %d loot items (max), server total %d\n\n" % (total, loot, server))
         fh.write("## Objects (%d)\n" % total)
         for o in ctx.objects:
             fh.write("- %s at %s yaw %s\n" % (o["name"], o["pos"], o["ypr"][0]))

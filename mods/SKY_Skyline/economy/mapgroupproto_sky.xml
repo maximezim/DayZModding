@@ -136,11 +136,11 @@
             <point pos="-8.000000 0.000000 -5.000000" range="0.600000" height="1.500000" />
         </container>
     </group>
-    <group name="Land_SKY_Locker" lootmax="2">
+    <group name="Land_SKY_Locker" lootmax="1">
         <usage name="Town" />
         <usage name="Office" />
         <usage name="Industrial" />
-        <container name="lootshelves" lootmax="2">
+        <container name="lootshelves" lootmax="1">
             <category name="clothes" />
             <category name="tools" />
             <category name="containers" />
@@ -164,16 +164,6 @@
             <point pos="0.500000 0.750000 -0.150000" range="0.200000" height="0.300000" />
         </container>
     </group>
-    <group name="Land_SKY_Cubicle" lootmax="1">
-        <usage name="Office" />
-        <container name="lootshelves" lootmax="1">
-            <category name="tools" />
-            <category name="books" />
-            <tag name="shelves" />
-            <point pos="0.500000 0.750000 0.600000" range="0.200000" height="0.300000" />
-            <point pos="-0.650000 0.750000 -0.500000" range="0.200000" height="0.300000" />
-        </container>
-    </group>
     <group name="Land_SKY_ReceptionDesk" lootmax="2">
         <usage name="Office" />
         <usage name="Town" />
@@ -195,14 +185,6 @@
             <tag name="shelves" />
             <point pos="0.200000 0.920000 0.000000" range="0.200000" height="0.300000" />
             <point pos="-1.100000 0.920000 0.000000" range="0.100000" height="0.300000" />
-        </container>
-    </group>
-    <group name="Land_SKY_Bed" lootmax="1">
-        <usage name="Town" />
-        <container name="lootshelves" lootmax="1">
-            <category name="clothes" />
-            <tag name="shelves" />
-            <point pos="0.000000 0.500000 -0.300000" range="0.300000" height="0.300000" />
         </container>
     </group>
 </prototype>

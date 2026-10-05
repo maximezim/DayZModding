@@ -33,11 +33,10 @@ so each card gives roughly 7-10 uses before it is ruined.
 | Land_SKY_Floor_Mechanical | Industrial | lootFloor (4 of 5): tools/containers |
 | Land_SKY_Roof_Garden | Town | lootFloor (2 of 3, tag ground): tools/containers |
 | Land_SKY_Roof_Mechanical | Industrial | lootFloor (2 of 3, tag ground): tools |
-| Land_SKY_Locker | Town, Office, Industrial | lootshelves (2 of 6, 2 per compartment): clothes/tools/containers |
-| Land_SKY_Desk / Land_SKY_Cubicle | Office (+Town for Desk) | lootshelves (1 of 2, desk top): tools/books |
+| Land_SKY_Locker | Town, Office, Industrial | lootshelves (1 of 6, 2 per compartment): clothes/tools/containers |
+| Land_SKY_Desk | Office, Town | lootshelves (1 of 2, desk top): tools/books |
 | Land_SKY_ReceptionDesk | Office, Town | lootshelves (2 of 3, counter): tools/books/containers |
 | Land_SKY_Kitchenette | Town, Office | lootshelves (1 of 2, worktop): food |
-| Land_SKY_Bed | Town | lootshelves (1 of 1, mattress): clothes |
 
 Batch 5: prop groups use the vanilla `lootshelves` pattern (tag `shelves`, small per-point range/height:
 `skyspec.LOOT` points `(x, y, z, range, height)`). Props are spawned per floor by the layout generator
@@ -45,7 +44,10 @@ Batch 5: prop groups use the vanilla `lootshelves` pattern (tag `shelves`, small
 (placement/README.md section 3) - **unverified for spawned props, PENDING B7**. Usages/categories/tags
 are checked against vanilla `cfglimitsdefinition.xml`; `test_kit.py` checks every point is on open
 floor (not in Geometry, the core or a furnish prop) and every prop point sits on its prop.
-Sofa, ServerRack, VendingMachine and ExtinguisherCabinet carry no loot (decorative / solid).
+Sofa, ServerRack, VendingMachine, ExtinguisherCabinet, Cubicle and Bed carry no loot (decorative / solid, or
+the floor already has points there): a furnished office floor stays at about 9 loot items, not 16 (perf batch-5 M3).
+`sky_layout.py` adds the loot items (sum of lootmax of every spawned class) to the entity count it checks
+against `ENTITY_CAP`.
 
 Each stacked floor is its own object, so it gets its own `mapgrouppos` entry and loot roll ("per floor").
 All five office floors share one group. Different loot per floor (for example executive top floors)
@@ -86,9 +88,12 @@ size it from the table; never place zones on upper floors by hand-editing height
 | Mechanical | 0-1 | `InfectedIndustrial` | plant floor, industrial loot, quiet |
 | Garden / mechanical roof | 0-1 | - | only followers from the stairs; roof drops attract players |
 
-* A tower of 5 hotel floors therefore wants roughly twice the street-level zone density of a 5-floor
-  office tower; mixed towers sum their rows. Keep `dmax` per zone <= 10 and one zone per tower
-  (radius 60 m): perf cost is per infected alive, not per floor.
+* The table is a **ceiling per floor, never summed** (perf batch-5 M4). Use **one** `InfectedCity` zone
+  per district, centred on the central intersection, `dmax` 10-15 in total; towers 48 m apart would
+  otherwise get overlapping zones that stack respawns where players already are. A hotel- or
+  apartment-heavy district sits at the top of the range, an office/mechanical one at the bottom.
+  Server cost is per infected alive (multi-storey stair paths are the expensive case), so raise it
+  only after the B6 measurement.
 * Verify (B6): whether territory spawns ever land on upper slabs (navmesh above ground) or only at
   street level; if only street level, upper-floor targets are reached solely by followers and the
   table above is a ceiling, not a target.

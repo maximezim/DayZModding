@@ -330,7 +330,7 @@ MATERIALS.update({
 # front of a surface with Geometry (D16), at a per-type offset so overlapping decals
 # never share a plane (perf batch-2 M2), and caps their count (DECAL_CAPS, hypothesis).
 DECAL_OFFSET = {"Decal_Dirt": 0.015, "Decal_Cracks": 0.020, "Decal_Graffiti": 0.025}
-DECAL_CAPS = {"per_tile": 6, "per_block": 40}
+DECAL_CAPS = {"per_tower": 12}                 # perf batch-5 L1
 DECAL_SIZE = {"Decal_Dirt": (2.0, 3.0), "Decal_Cracks": (2.0, 2.0), "Decal_Graffiti": (2.0, 2.0)}   # w, h (m)
 BUDGETS["decal"] = {"res0": 4, "res1": 4, "res2": 2, "sections_res0": 1}
 kit("Decal_Dirt", "sky_street", "decal", desc="2 x 3 m run-off grime (alpha-blended)")
@@ -355,7 +355,7 @@ BUDGETS["medium"]["shadow"] = 100
 BUDGETS["interior_small"] = {k: v for k, v in BUDGETS["small"].items() if k != "shadow"}
 # Spawned-prop caps for the batch-5 layout generator (perf batch-3 M1, hypotheses):
 # every prop is a replicated entity + a pathgraph update at server start.
-PROP_CAPS = {"per_floor": 25, "per_tower": 600, "aisle_min": 1.2}
+PROP_CAPS = {"per_floor": 25, "per_tower": 70, "aisle_min": 1.2}   # per_tower binds (perf batch-5 M1)
 
 
 def door(name, display, orient, scale=1.0):
@@ -461,7 +461,9 @@ FURNISH = {
 # Street furniture density caps (perf batch-1 M1/L7, hypotheses): lights per straight street tile,
 # total entities per district (towers + core + tiles + props + decals + lights).
 LIGHT_CAP = {"per_tile": 0.5}
-ENTITY_CAP = {"per_district": 3000}
+# per_district / per_server count spawned entities + loot items (sum of group lootmax); hypotheses
+# until the S1/S6 measurements (perf batch-5 M1/M3).
+ENTITY_CAP = {"per_district": 800, "per_server": 2500}
 BLOCK_SETBACK = 0.5          # m between a tower footprint and the block edge (street sidewalk)
 
 
@@ -490,22 +492,16 @@ LOOT.update({
         {"name": "lootFloor", "lootmax": 2, "categories": ["tools"],
          "tags": ["ground"], "points": [(0.0, -8.0), (0.0, 8.0), (-8.0, -5.0)]}]},
     # props (spawned per floor by FURNISH): small shelf-style points on their surfaces
-    KIT["Locker"]["cls"]: {"usages": ["Town", "Office", "Industrial"], "lootmax": 2, "containers": [
-        {"name": "lootshelves", "lootmax": 2, "categories": ["clothes", "tools", "containers"], "tags": ["shelves"],
+    KIT["Locker"]["cls"]: {"usages": ["Town", "Office", "Industrial"], "lootmax": 1, "containers": [
+        {"name": "lootshelves", "lootmax": 1, "categories": ["clothes", "tools", "containers"], "tags": ["shelves"],
          "points": [(x, 0.0, z, 0.12, 0.3) for x in (-0.3, 0.0, 0.3) for z in (0.06, 1.48)]}]},
     KIT["Desk"]["cls"]: {"usages": ["Office", "Town"], "lootmax": 1, "containers": [
         {"name": "lootshelves", "lootmax": 1, "categories": ["tools", "books"], "tags": ["shelves"],
          "points": [(-0.5, -0.15, 0.75, 0.2, 0.3), (0.5, -0.15, 0.75, 0.2, 0.3)]}]},
-    KIT["Cubicle"]["cls"]: {"usages": ["Office"], "lootmax": 1, "containers": [
-        {"name": "lootshelves", "lootmax": 1, "categories": ["tools", "books"], "tags": ["shelves"],
-         "points": [(0.5, 0.6, 0.75, 0.2, 0.3), (-0.65, -0.5, 0.75, 0.2, 0.3)]}]},
     KIT["ReceptionDesk"]["cls"]: {"usages": ["Office", "Town"], "lootmax": 2, "containers": [
         {"name": "lootshelves", "lootmax": 2, "categories": ["tools", "books", "containers"], "tags": ["shelves"],
          "points": [(-1.0, 0.0, 1.1, 0.25, 0.3), (1.0, 0.0, 1.1, 0.25, 0.3), (1.9, 0.8, 0.75, 0.25, 0.3)]}]},
     KIT["Kitchenette"]["cls"]: {"usages": ["Town", "Office"], "lootmax": 1, "containers": [
         {"name": "lootshelves", "lootmax": 1, "categories": ["food"], "tags": ["shelves"],
          "points": [(0.2, 0.0, 0.92, 0.2, 0.3), (-1.1, 0.0, 0.92, 0.1, 0.3)]}]},
-    KIT["Bed"]["cls"]: {"usages": ["Town"], "lootmax": 1, "containers": [
-        {"name": "lootshelves", "lootmax": 1, "categories": ["clothes"], "tags": ["shelves"],
-         "points": [(0.0, -0.3, 0.5, 0.3, 0.3)]}]},
 })

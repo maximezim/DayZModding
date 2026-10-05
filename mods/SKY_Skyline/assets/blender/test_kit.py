@@ -107,7 +107,8 @@ CORE_CLEAR = {
 
 
 def reachability(n, lods, cell=0.1, radius=0.3):
-    """Flood fill over the walkable slab (security batch-4 H1): 0.25 m grid, blocked by every
+    """Flood fill over the walkable slab (security batch-4 H1): 0.1 m grid, blockers grown by a
+    0.3 m player radius (QA L-R1), blocked by every
     Geometry component spanning body height (z 0.1..1.9) and by the core footprint; seeds are
     the core's stair / elevator door clear zones. Any unreached free region > 1 m2 fails."""
     hw, hd = S.TOWER_A["footprint"][0] / 2, S.TOWER_A["footprint"][1] / 2
