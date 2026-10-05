@@ -418,8 +418,9 @@ def _decal_save(out, name, rgba):
 
 
 def decals(size, out):
-    """Alpha decals (1024): dirt streaks, cracks, graffiti atlas (2 x 2 original
-    designs: abstract shapes + invented words; no real tags, logos or brands)."""
+    """Alpha decals: dirt streaks (512 x 1024, matches the 2 x 3 m quad), cracks (1024),
+    4 graffiti designs (512 each, swapped via hiddenSelections; abstract shapes +
+    invented words; no real tags, logos or brands)."""
     size = min(size, 1024)
     # dirt: vertical run-off streaks + base grime band
     n = fbm(size, 151, octaves=5, base=6)
@@ -429,7 +430,9 @@ def decals(size, out):
     a = np.clip((streak - 0.45) * 2.0, 0, 1) * (1 - y) ** 1.5 * 0.7 + np.clip((y - 0.75) * 3, 0, 1) * 0.6
     a = np.clip(a * (0.6 + 0.6 * n), 0, 0.9)
     rgb = np.stack([0.20 + 0.05 * n, 0.18 + 0.05 * n, 0.15 + 0.04 * n], -1)
-    _decal_save(out, "sky_decal_dirt", np.concatenate([rgb, a[..., None]], -1))
+    dirt = np.clip(np.concatenate([rgb, a[..., None]], -1) * 255, 0, 255).astype(np.uint8)
+    Image.fromarray(dirt, "RGBA").resize((size // 2, size), Image.BICUBIC).save(   # perf batch-2 M2.3
+        os.path.join(out, "sky_decal_dirt_ca.png"))
     # cracks: random-walk polylines
     img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
@@ -440,7 +443,7 @@ def decals(size, out):
         for _s in range(rng.integers(20, 60)):
             ang += rng.normal(0, 0.5)
             nx, ny = px + np.cos(ang) * size / 60, py + np.sin(ang) * size / 60
-            d.line([px, py, nx, ny], fill=(25, 24, 22, 230), width=int(rng.integers(1, 4)))
+            d.line([px, py, nx, ny], fill=(25, 24, 22, 230), width=int(rng.integers(2, 5)))   # >= 2 px: survives mips (perf L5)
             px, py = nx, ny
     img.save(os.path.join(out, "sky_decal_cracks_ca.png"))
     # graffiti: 4 original designs (abstract spray shapes + invented words), 512 each,
@@ -454,18 +457,31 @@ def decals(size, out):
             r = int(rng.integers(g // 10, g // 4))
             x0, y0 = int(rng.integers(r, g - r)), int(rng.integers(r, g - r))
             dd.ellipse([x0 - r, y0 - r // 2, x0 + r, y0 + r // 2], fill=rgb + (255,))
-        fs = int(g * 0.8 / max(4, len(w)) * 1.6)              # fit the word inside the 512 tile
-        dd.text((g // 12 + 4, g // 3 + 4), w, fill=(20, 20, 20, 255), font=_font(fs))
-        dd.text((g // 12, g // 3), w, fill=(255, 255, 255, 255), font=_font(fs))
+        fs = g // 2                                           # shrink until the word fits the tile
+        while fs > 12:
+            x0b, y0b, x1b, y1b = dd.textbbox((0, 0), w, font=_font(fs))
+            if x1b - x0b <= g * 0.84 and y1b - y0b <= g * 0.5:
+                break
+            fs -= 4
+        tx, ty = (g - (x1b - x0b)) // 2 - x0b, (g - (y1b - y0b)) // 2 - y0b
+        txt = Image.new("L", (g, g), 0)
+        td = ImageDraw.Draw(txt)
+        td.text((tx + 4, ty + 4), w, fill=255, font=_font(fs))
+        td.text((tx, ty), w, fill=255, font=_font(fs))
+        dd.text((tx + 4, ty + 4), w, fill=(20, 20, 20, 255), font=_font(fs))
+        dd.text((tx, ty), w, fill=(255, 255, 255, 255), font=_font(fs))
         a = np.asarray(img).astype(np.float32) / 255.0
-        a[..., 3] *= (fbm(g, 167 + ord(key), octaves=3, base=16) > 0.3)    # binary alpha (alpha-tested)
+        keep = np.asarray(txt) > 0                            # lettering stays solid, noise only erodes the spray
+        a[..., 3] *= np.maximum(fbm(g, 167 + ord(key), octaves=3, base=8) > 0.3, keep)  # binary alpha
         _decal_save(out, "sky_decal_graffiti_%s" % key, a)
     # nohq/smdi/as of all decals are procedural in their rvmats (no files).
 
 
 def windows(size, out):
-    """Window sets atlas (2048, 4 x 4 cells): interiors seen through glass at night.
-    Same _co for the unlit (sky_windows) and lit (sky_windows_lit, emissive rvmat) materials."""
+    """Window sets atlas (1024, 4 x 4 cells of 256 px): interiors seen through glass at night.
+    Same _co for the unlit (sky_windows) and lit (sky_windows_lit, emissive rvmat) materials.
+    1024 keeps ~170 px/m on a 1.5 m window (perf batch-2 L1)."""
+    size = min(size, 1024)
     c = size // 4
     rng = np.random.default_rng(173)
     img = Image.new("RGB", (size, size), (20, 22, 26))
@@ -477,13 +493,13 @@ def windows(size, out):
             warm = (rng.integers(180, 255), rng.integers(150, 210), rng.integers(90, 150)) if lit else (25, 28, 34)
             d.rectangle([x0 + 4, y0 + 4, x0 + c - 4, y0 + c - 4], fill=tuple(int(v) for v in warm))
             for _ in range(int(rng.integers(1, 4))):                # furniture / blinds silhouettes
-                bx = x0 + int(rng.integers(8, c - 60))
-                bw, bh = int(rng.integers(30, c // 2)), int(rng.integers(20, c // 3))
-                d.rectangle([bx, y0 + c - 8 - bh, bx + bw, y0 + c - 8], fill=(15, 15, 18))
+                bx = x0 + int(rng.integers(4, c - 30))
+                bw, bh = int(rng.integers(15, c // 2)), int(rng.integers(10, c // 3))
+                d.rectangle([bx, y0 + c - 4 - bh, bx + bw, y0 + c - 4], fill=(15, 15, 18))
             if rng.random() < 0.5:                                   # blinds
-                for k in range(0, c // 2, 10):
-                    d.line([x0 + 4, y0 + 4 + k, x0 + c - 4, y0 + 4 + k], fill=(60, 55, 50), width=3)
-            d.rectangle([x0, y0, x0 + c - 1, y0 + c - 1], outline=(70, 72, 76), width=6)   # mullion frame
+                for k in range(0, c // 2, 6):
+                    d.line([x0 + 4, y0 + 4 + k, x0 + c - 4, y0 + 4 + k], fill=(60, 55, 50), width=2)
+            d.rectangle([x0, y0, x0 + c - 1, y0 + c - 1], outline=(70, 72, 76), width=3)   # mullion frame
     img.save(os.path.join(out, "sky_windows_co.png"))   # nohq/smdi/as procedural in the window rvmats
 
 
@@ -496,7 +512,9 @@ def brick(size, out):
     rng = np.random.default_rng(191)
     mortar = np.array([0.55, 0.53, 0.50], np.float32)
     r0, r1 = band_rows(size, 0.0, 0.6)
-    bh, bw = size // 32, size // 8                       # brick ~ 6.5 x 21.5 cm at 3 m mapping
+    # 16 bricks across U; with MATERIALS["brick"]["sheet_m"] = 3.44 m per U tile a brick is
+    # 21.5 x 6.6 cm at ~595 px/m (perf batch-2 L3).
+    bw, bh = size // 16, size // 52
     for row, y in enumerate(range(r0, r1, bh)):
         off = (bw // 2) * (row % 2)
         for x in range(-bw, size, bw):
@@ -510,17 +528,16 @@ def brick(size, out):
     m = col[r0:r1].sum(-1) == 0
     col[r0:r1][m] = mortar
     r0, r1 = band_rows(size, 0.6, 0.8)                   # soldier course
-    for x in range(0, size, size // 32):
+    for x in range(0, size, bh):
         tint = np.array([0.40, 0.20, 0.14]) * (0.85 + 0.3 * rng.random())
-        col[r0 + 2:r1 - 2, x + 2:x + size // 32 - 2] = tint
+        col[r0 + 2:r1 - 2, x + 2:x + bh - 2] = tint
     col[r0:r1][col[r0:r1].sum(-1) == 0] = mortar
     r0, r1 = band_rows(size, 0.8, 1.0)                   # stone sill
     col[r0:r1] = np.array([0.66, 0.64, 0.60]) + 0.04 * gray(n[r0:r1] - 0.5)
     col += 0.04 * gray(n - 0.5)
+    col *= gray(0.8 + 0.2 * ao)          # AO folded into _co; _as/_smdi are procedural (perf batch-2 M1)
     save(to_rgb(col), out, "sky_brick_co")
     save(normal_from_height(h, 2.0), out, "sky_brick_nohq")
-    save(smdi(size, 0.08, 0.15), out, "sky_brick_smdi")
-    save(to_rgb(gray(0.8 + 0.2 * ao)), out, "sky_brick_as")
 
 
 def concpanel(size, out):
@@ -541,10 +558,11 @@ def concpanel(size, out):
     r0, r1 = band_rows(size, 0.0, 0.2)
     col[r0:r1] *= 0.85
     h[r1 - j:r1, :] -= 1.5
+    col *= gray(0.75 + 0.25 * ao)        # AO folded into _co; _as/_smdi are procedural (perf batch-2 M1)
     save(to_rgb(col), out, "sky_concpanel_co")
-    save(normal_from_height(h, 2.5), out, "sky_concpanel_nohq")
-    save(smdi(size, 0.1, 0.2), out, "sky_concpanel_smdi")
-    save(to_rgb(gray(0.75 + 0.25 * ao)), out, "sky_concpanel_as")
+    # mostly low-frequency relief: half-size normal map keeps >= 4 px joints (perf batch-2 L4)
+    nh = normal_from_height(h, 2.5)
+    save(nh.resize((max(1, size // 2),) * 2, Image.BILINEAR) if size > 1024 else nh, out, "sky_concpanel_nohq")
 
 GENERATORS = {
     "concrete": concrete, "metal": metal, "glass": glass, "glassfar": glassfar,

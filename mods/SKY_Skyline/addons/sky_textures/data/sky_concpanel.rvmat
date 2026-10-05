@@ -45,7 +45,7 @@ class Stage3
 };
 class Stage4
 {
-	texture = "SKY_Skyline\sky_textures\data\sky_concpanel_as.paa";
+	texture = "#(argb,8,8,3)color(1,1,1,1,AS)";
 	uvSource = "tex";
 	class uvTransform
 	{
@@ -57,7 +57,7 @@ class Stage4
 };
 class Stage5
 {
-	texture = "SKY_Skyline\sky_textures\data\sky_concpanel_smdi.paa";
+	texture = "#(argb,8,8,3)color(1,0.1,0.2,1,SMDI)";
 	uvSource = "tex";
 	class uvTransform
 	{

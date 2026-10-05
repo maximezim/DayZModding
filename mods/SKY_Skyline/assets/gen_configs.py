@@ -47,7 +47,10 @@ PROCEDURAL_MAPS = {
     "sky_atlas": ("nohq", "as", "smdi"), "sky_billboard": ("nohq", "as", "smdi"), "sky_rust": ("as",),
     "sky_decal_dirt": ("nohq", "as", "smdi"), "sky_decal_cracks": ("nohq", "as", "smdi"),
     "sky_decal_graffiti": ("nohq", "as", "smdi"), "sky_windows": ("nohq", "as", "smdi"),
+    "sky_brick": ("as", "smdi"), "sky_concpanel": ("as", "smdi"),          # perf batch-2 M1
 }
+# Constant specular/gloss for procedural _smdi stages (default PROC["smdi"] otherwise).
+PROC_SMDI = {"sky_brick": (0.08, 0.15), "sky_concpanel": (0.1, 0.2)}
 
 
 def rvmat_super(base, spec_power=40, emissive=(0, 0, 0)):
@@ -60,7 +63,13 @@ def rvmat_super(base, spec_power=40, emissive=(0, 0, 0)):
         emissive + (spec_power,))
     out += 'PixelShaderID = "Super";\nVertexShaderID = "Super";\n'
     proc = PROCEDURAL_MAPS.get(base, ())
-    pick = lambda m: PROC[m] if m in proc else d + "_%s.paa" % m
+
+    def pick(m):
+        if m not in proc:
+            return d + "_%s.paa" % m
+        if m == "smdi" and base in PROC_SMDI:
+            return "#(argb,8,8,3)color(1,%g,%g,1,SMDI)" % PROC_SMDI[base]
+        return PROC[m]
     out += stage(1, pick("nohq"))
     out += stage(2, "#(argb,8,8,3)color(0.5,0.5,0.5,1,DT)")
     out += stage(3, "#(argb,8,8,3)color(0,0,0,0,MC)")

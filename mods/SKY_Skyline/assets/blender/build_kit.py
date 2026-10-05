@@ -452,7 +452,7 @@ def build_billboard():
 
 # ------------------------------------------------------------------ wall decals (batch 2)
 def build_decal(mat, w, h, camo=False):
-    """Render-only quad facing -Y (stick it 1 cm in front of a wall); no collision LODs."""
+    """Render-only quad facing -Y (offset from the wall: skyspec.DECAL_OFFSET); no collision LODs."""
     uv = UVRect(0, 2, (-w / 2, 0.0), (w / 2, h))
     lods = [Lod("res0", LOD_RES, 0.0), Lod("res1", LOD_RES, 1.0), Lod("res2", LOD_RES, 2.0)]
     for L in lods:
