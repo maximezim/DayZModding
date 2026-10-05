@@ -42,7 +42,7 @@ def main():
         if is_prop:
             flat = e["category"] in ("flat", "decal")   # decals: render only, must NOT collide
             need = (["Roadway"] if e["category"] == "flat" else []) if flat else ["Geometry", "Fire Geometry"]
-            if e["category"] in ("small", "medium"):
+            if e["category"] in ("small", "medium"):    # interior_small: no shadow volume (perf batch-3 M3)
                 need.append("Shadow Volume")    # perf batch-1 M3
             for req in need:
                 if req not in by:

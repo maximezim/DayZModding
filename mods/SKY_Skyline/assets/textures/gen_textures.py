@@ -620,28 +620,28 @@ def concpanel(size, out):
 
 # ------------------------------------------------------------------ batch 3: interior props
 def wood(size, out):
-    """Furniture wood trim (1024): V 0-0.4 oak, 0.4-0.7 walnut, 0.7-1 grey laminate."""
+    """Furniture wood trim (1024): V 0-0.4 oak, 0.4-0.7 walnut, 0.7-0.95 grey laminate,
+    0.95-1 monitor screen (keeps desk monitors in the wood section, perf batch-3 L1)."""
     size = min(size, 1024)
     y = np.linspace(0, 1, size, dtype=np.float32)[:, None]
     x = np.linspace(0, 1, size, dtype=np.float32)[None, :]
     n = fbm(size, 211, octaves=4, base=4)
     grain = 0.5 + 0.5 * np.sin((x * 60 + 6 * n) * np.pi)          # long grain along U
     col = np.zeros((size, size, 3), np.float32)
-    h = 0.05 * grain
     for (v0, v1), base, amp in [((0.0, 0.4), (0.62, 0.45, 0.28), 0.10),
                                 ((0.4, 0.7), (0.36, 0.23, 0.15), 0.08),
-                                ((0.7, 1.0), (0.58, 0.58, 0.56), 0.02)]:
+                                ((0.7, 0.95), (0.58, 0.58, 0.56), 0.02),
+                                ((0.95, 1.0), (0.10, 0.16, 0.24), 0.0)]:
         r0, r1 = band_rows(size, v0, v1)
         col[r0:r1] = np.array(base, np.float32) + amp * gray(grain[r0:r1] - 0.5) + 0.03 * gray(n[r0:r1] - 0.5)
-    save(to_rgb(col), out, "sky_wood_co")
-    save(normal_from_height(h, 1.0), out, "sky_wood_nohq")      # _smdi/_as procedural (rvmat)
+    save(to_rgb(col), out, "sky_wood_co")              # nohq/smdi/as procedural (perf batch-3 L4)
 
 
 def fabric(size, out):
     """Upholstery trim (512): V 0-0.33 grey, 0.33-0.66 blue, 0.66-1 beige weave."""
     size = min(size, 512)
     yy, xx = np.mgrid[0:size, 0:size]
-    weave = (((xx // 2) + (yy // 2)) % 2).astype(np.float32)
+    weave = (((xx // 4) + (yy // 4)) % 2).astype(np.float32)        # 8 px period survives mip 1 (perf L4)
     n = fbm(size, 223, octaves=3, base=8)
     col = np.zeros((size, size, 3), np.float32)
     for (v0, v1), base in [((0.0, 0.33), (0.42, 0.42, 0.44)), ((0.33, 0.66), (0.20, 0.28, 0.45)),

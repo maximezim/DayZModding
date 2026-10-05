@@ -39,6 +39,23 @@ def watertight(lod, comp):
     return edges and all(n == 2 for n in edges.values())
 
 
+def rotate(p, a, b, ang):
+    """Rotate point p about axis a->b by ang (right-hand rule, Rodrigues)."""
+    import math
+    k = [b[i] - a[i] for i in range(3)]
+    n = math.sqrt(sum(x * x for x in k))
+    k = [x / n for x in k]
+    v = [p[i] - a[i] for i in range(3)]
+    c, s_ = math.cos(ang), math.sin(ang)
+    kv = sum(k[i] * v[i] for i in range(3))
+    kxv = [k[1] * v[2] - k[2] * v[1], k[2] * v[0] - k[0] * v[2], k[0] * v[1] - k[1] * v[0]]
+    return [a[i] + v[i] * c + kxv[i] * s_ + k[i] * kv * (1 - c) for i in range(3)]
+
+
+def dist(p, q):
+    return sum((p[i] - q[i]) ** 2 for i in range(3)) ** 0.5
+
+
 def bounds(lod):
     xs = [v[0] for v in lod.verts]
     ys = [v[1] for v in lod.verts]
@@ -112,6 +129,17 @@ def main():
                 check(len(mem.groups.get(dn + "_axis", ())) == 2, "%s: %s_axis must have 2 points" % (n, dn))
                 for pt in (dn + "_action", dn):
                     check(len(mem.groups.get(pt, ())) == 1, "%s: memory point %s missing" % (n, pt))
+            # swing test (security batch-3 L1): rotate the Geometry leaf by its configured angle
+            # (right-hand rule about axis p0 -> p1, the P1 convention); its centre must move
+            # toward the action point (outward), never back into the carcass / wall.
+            if mem is not None and dn in lods["geo"].groups and len(mem.groups.get(dn + "_axis", ())) == 2:
+                p0, p1 = (mem.verts[i] for i in sorted(mem.groups[dn + "_axis"]))
+                act = mem.verts[next(iter(mem.groups[dn + "_action"]))]
+                ang = S.DOOR_SWING_SIGN * d["orient"] * S.DOOR_OPEN_ANGLE * d["scale"]
+                leaf = [lods["geo"].verts[i] for i in lods["geo"].groups[dn]]
+                c0 = [sum(v[j] for v in leaf) / len(leaf) for j in range(3)]
+                c1 = rotate(c0, p0, p1, ang)
+                check(dist(c1, act) < dist(c0, act) - 0.02, "%s: door %s swings away from its action point (inward)" % (n, dn))
             # the door leaf must be its own Geometry component (Doors component = selection)
             if dn in lods["geo"].groups:
                 gv = lods["geo"].groups[dn]

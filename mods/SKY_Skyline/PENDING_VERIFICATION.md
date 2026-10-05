@@ -23,6 +23,7 @@ Behaviour checks without a parameter (see TESTING.md):
 - B1 Render-only decal objects (`Decal_*`, category `decal`) have **no Geometry LOD**. Confirm a `HouseNoDestruct` P3D without Geometry spawns and renders via objectSpawnersArr. If not, give them a tiny Geometry far below the decal (fix in `build_kit.build_decal`).
 - B2 The manhole (`flat`) has only Roadway (no Geometry). Same check.
 - B3 Find a vanilla building rvmat whose Stage3 uses an `_mc` macro map (`P:\DZ\structures\...\data\*.rvmat`). If one exists, add a low-frequency grime `_mc` to `sky_brick` / `sky_concpanel` / kit concrete in `gen_configs.rvmat_super` (one line per material) and reduce `DECAL_CAPS`.
+- B5 Prop doors: confirm a child config class (e.g. `Land_SKY_Locker`) resolves to script class `Land_SKY_Props_Base` (check with a lockpick: no lock action on a locker door). If not, generate one empty `class Land_SKY_<Prop> extends Land_SKY_Props_Base {}` per door prop.
 - B4 Lit window cells: check that dark (unlit) cells of `sky_windows_co` do not glow under `sky_windows_lit` (emissive not modulated by texture). If they glow, split the lit set into its own atlas.
 
 Behaviour (not parameters) still to observe in-game: see `TESTING.md` and `AFTER_TESTING.md` (written in batch 6).

@@ -48,7 +48,7 @@ PROCEDURAL_MAPS = {
     "sky_decal_dirt": ("nohq", "as", "smdi"), "sky_decal_cracks": ("nohq", "as", "smdi"),
     "sky_decal_graffiti": ("nohq", "as", "smdi"), "sky_windows": ("nohq", "as", "smdi"),
     "sky_brick": ("as", "smdi"), "sky_concpanel": ("as", "smdi"),          # perf batch-2 M1
-    "sky_wood": ("as", "smdi"), "sky_fabric": ("as", "smdi"),
+    "sky_wood": ("nohq", "as", "smdi"), "sky_fabric": ("as", "smdi"),          # wood nohq: perf batch-3 L4
 }
 # Constant specular/gloss for procedural _smdi stages (default PROC["smdi"] otherwise).
 PROC_SMDI = {"sky_brick": (0.08, 0.15), "sky_concpanel": (0.1, 0.2), "sky_wood": (0.25, 0.35), "sky_fabric": (0.03, 0.1)}
@@ -170,7 +170,7 @@ def kit_doors_config(doors):
 
 
 def kit_door_anims(name, doors):
-    """model.cfg skeleton + rotation per door; swing = DOOR_SWING_SIGN (P1)."""
+    """model.cfg skeleton + rotation per door; swing = DOOR_SWING_SIGN * orient (P1)."""
     skel = "\tclass SKY_Skeleton_%s: Default\n\t{\n\t\tskeletonInherit = \"Default\";\n" % name
     skel += "\t\tskeletonBones[] = {%s};\n\t};\n" % ", ".join('"%s",""' % d["name"] for d in doors)
     anims = ""
@@ -187,7 +187,7 @@ def kit_door_anims(name, doors):
 \t\t\t\tangle0 = 0;
 \t\t\t\tangle1 = %g;
 \t\t\t};
-""" % (d["name"], d["name"], d["name"], d["name"], S.DOOR_SWING_SIGN * S.DOOR_OPEN_ANGLE * d["scale"])
+""" % (d["name"], d["name"], d["name"], d["name"], S.DOOR_SWING_SIGN * d["orient"] * S.DOOR_OPEN_ANGLE * d["scale"])
     return {"skeleton": skel, "skeleton_name": "SKY_Skeleton_%s" % name, "animations": anims}
 
 

@@ -21,8 +21,7 @@
   "geo": 36,
   "res0": 48,
   "res1": 36,
-  "res2": 24,
-  "shadow": 36
+  "res2": 24
  },
  "sky_billboard.p3d": {
   "fire": 36,
@@ -47,7 +46,7 @@
   "geo": 60,
   "res0": 62,
   "res1": 60,
-  "res2": 60,
+  "res2": 36,
   "shadow": 60,
   "view": 36
  },
@@ -79,8 +78,7 @@
   "geo": 36,
   "res0": 62,
   "res1": 36,
-  "res2": 12,
-  "shadow": 36
+  "res2": 12
  },
  "sky_dumpster.p3d": {
   "fire": 12,
@@ -94,10 +92,9 @@
   "fire": 72,
   "geo": 72,
   "mem": 0,
-  "res0": 100,
-  "res1": 92,
-  "res2": 12,
-  "shadow": 72
+  "res0": 90,
+  "res1": 82,
+  "res2": 12
  },
  "sky_intersection_4way.p3d": {
   "fire": 48,
@@ -121,7 +118,7 @@
   "res0": 62,
   "res1": 50,
   "res2": 24,
-  "shadow": 36,
+  "shadow": 12,
   "view": 24
  },
  "sky_locker.p3d": {
@@ -131,7 +128,7 @@
   "res0": 132,
   "res1": 120,
   "res2": 12,
-  "shadow": 120,
+  "shadow": 48,
   "view": 96
  },
  "sky_manhole.p3d": {
@@ -203,8 +200,7 @@
   "geo": 48,
   "res0": 72,
   "res1": 48,
-  "res2": 24,
-  "shadow": 48
+  "res2": 24
  },
  "sky_street_crossing.p3d": {
   "fire": 48,

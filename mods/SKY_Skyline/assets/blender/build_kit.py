@@ -39,12 +39,27 @@ def props_lods(view=False, road=False, mem=False):
     return L
 
 
-def finish(L, mass, shadow=True):
+def finish(L, mass, shadow=True, hull=False):
     # Same Geometry convention as Tower A (Test_Building sample) minus map=building:
     # props are not drawn as buildings on the in-game map (decision D5).
     L["geo"].props.update({"class": "house", "autocenter": "0"})
     L["geo"].mass = mass
-    if shadow and "shadow" not in L:
+    if shadow and hull and "shadow" not in L:
+        # Hull shadow (perf batch-3 M3): one box around the static parts + one box per
+        # door leaf (named selection) so the door shadow still swings with its bone.
+        sh = Lod("shadow", LOD_SHADOW)
+        geo = L["geo"]
+        doors = {g: v for g, v in geo.groups.items() if not g.startswith("Component")}
+        moving = set().union(*doors.values()) if doors else set()
+
+        def bbox(idx):
+            pts = [geo.verts[i] for i in idx]
+            return [f(p[j] for p in pts) for j in range(3) for f in (min, max)]
+        sh.box(*bbox([i for i in range(len(geo.verts)) if i not in moving]))
+        for g, v in sorted(doors.items()):
+            sh.box(*bbox(v), sel=[g])
+        L["shadow"] = sh
+    elif shadow and "shadow" not in L:
         # Shadow Volume = the closed convex collision solids (watertight by construction).
         sh = Lod("shadow", LOD_SHADOW)
         sh.verts = list(L["geo"].verts)
