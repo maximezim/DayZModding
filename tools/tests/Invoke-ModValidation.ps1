@@ -11,7 +11,7 @@
       2. tools\build\Build-Mod.ps1, Sign-Mod.ps1, Deploy-Mod.ps1 (dedicated server).
       3. Optional -Layout <yaml>: placement\sky_layout.py -> objectSpawnersArr JSON, plus the
          mod's economy (sky_ce folder, mapgroupproto groups, roof-drop event positions),
-         merged into a COPY of the vanilla mission: <ServerDir>\mpmissions\<Mission>.validation
+         merged into a COPY of the vanilla mission: <ServerDir>\mpmissions\<name>_validation.<map>
          (the vanilla mission folder is never edited). A rendered
          server\serverDZ.validation.cfg (git-ignored) points the server at that copy.
       4. tools\launch\Start-DedicatedServer.ps1 with verifySignatures = 2 / BattlEye = 1
@@ -303,11 +303,15 @@ if ($Layout.Count -or $Baseline) {
         $layoutOuts += $lo
     }
     $srcMission = Join-DzPath $paths.ServerDir 'mpmissions' $Mission
-    $valMission = Join-DzPath $paths.ServerDir 'mpmissions' "$Mission.validation"
+    # The engine takes the map from the LAST dot-segment of the mission folder (dayzOffline.chernarusplus),
+    # so the marker goes into the first segment: dayzOffline_validation.chernarusplus. A trailing
+    # ".validation" makes the server abort at startup (ErrorMessage dump, world "validation" not found).
+    $valName = if ($Mission -match '^(.*)\.([^.]+)$') { "$($Matches[1])_validation.$($Matches[2])" } else { throw "Mission '$Mission' must look like <name>.<map>, e.g. dayzOffline.chernarusplus" }
+    $valMission = Join-DzPath $paths.ServerDir 'mpmissions' $valName
     $valConfig  = Join-DzPath $repo 'server' 'serverDZ.validation.cfg'
     $what = 'baseline (no objects)'
     if ($layoutOuts.Count) { $what = "$($layoutOuts.Count) layout(s)" }
-    Write-DzStep "Mission copy '$Mission.validation': $what"
+    Write-DzStep "Mission copy '$valName': $what"
     # what this copy was built from: -NoWipe must not silently reuse another config's copy (perf re-gate M-5)
     $ovl = @()
     if ($MissionOverlay -and (Test-Path -LiteralPath $MissionOverlay)) {
@@ -325,7 +329,7 @@ if ($Layout.Count -or $Baseline) {
     }
     if ($reuse) { Write-DzInfo "> -NoWipe: reuse $valMission and its storage (warm start); nothing merged again" }
     else { Write-DzInfo "> copy $srcMission -> $valMission (storage wiped); merge spawner files, cfggameplay, sky_ce, mapgroupproto, mapgrouppos, roof drops, infected zone" }
-    Write-DzInfo "> render $valConfig (template = $Mission.validation)"
+    Write-DzInfo "> render $valConfig (template = $valName)"
     if (-not $DryRun -and -not $reuse) {
         if (-not (Test-Path -LiteralPath $srcMission)) { throw "Vanilla mission not found: $srcMission" }
         $mpm = [System.IO.Path]::GetFullPath((Join-DzPath $paths.ServerDir 'mpmissions')).TrimEnd('\', '/')
@@ -417,7 +421,7 @@ if ($Layout.Count -or $Baseline) {
     if (-not $DryRun -and -not $reuse) { [System.IO.File]::WriteAllText($markerPath, $marker) }
     if (-not $DryRun) {
         $text = Get-Content -Raw -LiteralPath $config
-        $text = [regex]::Replace($text, 'template\s*=\s*"[^"]*"', ('template = "' + $Mission + '.validation"').Replace('$', '$$'))
+        $text = [regex]::Replace($text, 'template\s*=\s*"[^"]*"', ('template = "' + $valName + '"').Replace('$', '$$'))
         if ($ServerTime) {      # server-cfg keys (template lines serverTime / serverTimeAcceleration); value format: PENDING B12
             $text = [regex]::Replace($text, 'serverTime\s*=\s*"[^"]*"\s*;', 'serverTime = "' + $ServerTime + '";')
             $text = [regex]::Replace($text, 'serverTimeAcceleration\s*=\s*[0-9.]+\s*;', 'serverTimeAcceleration = 0;')
@@ -432,7 +436,7 @@ if ($Layout.Count -or $Baseline) {
     if ($DryRun) { $mcRes = 'DRYRUN' }
     $tinfo = ''
     if ($ServerTime) { $tinfo = ", clock frozen at $ServerTime" }
-    Add-Step 'mission copy' $mcRes "$Mission.validation: $what, $mode$tinfo"
+    Add-Step 'mission copy' $mcRes "${valName}: $what, $mode$tinfo"
 }
 
 # Release-like settings are mandatory for a validation run (security batch-6 L2): never inherit a relaxed cfg.
