@@ -21,6 +21,7 @@ param(
     [string]$Config,
     [string]$ServerDir,
     [switch]$Wait,
+    [string[]]$ExtraArgs = @(),     # e.g. '-limitFPS=1000' for the FPS protocol (verify the parameter, B12)
     [switch]$DryRun
 )
 $ErrorActionPreference = 'Stop'
@@ -53,6 +54,7 @@ New-Item -ItemType Directory -Force -Path $profileDir | Out-Null
 $srvArgs = @("-config=$Config", "-port=$Port", "-profiles=$profileDir", '-dologs', '-adminlog', '-netlog', '-freezecheck')
 if ($Mods.Count)       { $srvArgs += '-mod=' + (ConvertTo-ServerModList $Mods) }
 if ($ServerMods.Count) { $srvArgs += '-servermod=' + (ConvertTo-ServerModList $ServerMods) }
+$srvArgs += @($ExtraArgs | Where-Object { $_ })
 
 Write-DzStep "Starting dedicated server ($ServerDir) on port $Port"
 if ($Wait) {

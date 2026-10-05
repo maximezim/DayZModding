@@ -140,3 +140,135 @@ All paths below are under `/home/user/DayZModding/`. The CSV is at `mods/SKY_Sky
 - Do a first sanity run of A twice to get the noise floor, and confirm the server frame cap from the probe's idle value.
 
 GATE: FAIL
+
+
+## Re-gate (8908bb7)
+
+## Perf re-gate: SKY_Skyline Batch 6 at commit 8908bb7 (read-only, nothing edited)
+
+The gate passes. All four previous High findings (H1–H4) are fixed or reasonably deferred, and nothing in the protocol can still produce a false PASS that would lead to raising a cap. Eight new or remaining Medium issues and ten Low ones should be fixed before the first real run. None of them is High.
+
+All paths below are under `/home/user/DayZModding/`. "Protocol" means `mods/SKY_Skyline/FPS_PROTOCOL.md` and "validation script" means `tools/tests/Invoke-ModValidation.ps1`.
+
+### Previous findings
+- **H1 (no server frame metric): reasonably deferred, the deferral is acceptable.** `CLAUDE.md` says "Do not create mods ... unless the user asks", so a new probe mod needs your go-ahead. Leaving it as a blocked prerequisite is the right call. It is recorded in four places:
+  - Protocol `:13` marks it as prerequisite 0.1, and `:9` says nothing below is valid without §0.
+  - `PENDING_VERIFICATION.md:36` (B11) and `AFTER_TESTING.md:43` give the decision to you.
+  - `AFTER_TESTING.md:50` says §3 is only valid with §0 done.
+  - `TESTING.md:255` (PERF-02) and `:406` (P5-09) point at the probe, not the RPT.
+  
+  The tooling fails closed: the §1 commands pass `-ServerMods SKY_PerfProbe`, and `Build-Mod` of a mod that doesn't exist stops the run (validation script `:227`, `:240-244`). The rest of H1 is done: `-ServerMods` is passed through (`:383`), and `Start-DiagLocal.ps1:29,44` accepts `-Mission`. The frame-cap half is only partly done (see M-2).
+- **H2 (layout runs spawn no loot): fixed.** `-MapGroupPos` merges the `Land_SKY_*` groups from the survey export (validation script `:322-331`). A layout run without it shows a visible SKIP step (`:332-333`). Protocol step 0.3 adds the survey. Two smaller gaps remain (M-4).
+- **H3 (baseline A on a different mission and storage state): fixed.**
+  - `-Baseline` uses the same copy, wipe and SKY economy as the layout runs (`:250-320`).
+  - `-NoWipe` gives a warm start (`:275`).
+  - S1 measures only after a 15-minute CE settle.
+  - S7 is split into cold and warm runs.
+- **H4 (cap never measured): fixed.**
+  - Several `-Layout` values are supported, each with `--others` (`:254-268`), and there is one spawner file per layout (`:296-300`).
+  - E has 4 districts, 2196 entities plus loot. That is the largest legal set (batch5_qa: 5 districts give 2745, over the 2500 cap).
+  - S1b adds N clients.
+  - AFTER_TESTING `:57` requires E to be re-run at any new cap.
+- **M1, M2, M3, M4, M7, M9, M10, L1, L2, L3, L5: fixed.**
+- **Partly fixed:**
+  - M5: D-dec divides by the wrong number (M-1).
+  - M6: run length still counts from launch (L-1).
+  - M8: the `summary.json` cross-check doesn't exist (L-2).
+  - M11: some CSV rows are missing (L-3).
+- **L4: not addressed.** Trivial, see L-4.
+
+### High
+None.
+
+### Medium
+**M-1. D-dec divides by 12, but only 9 to 11 decals differ from D, so the decal cap comes out too high.**
+- Where: protocol `:30` and `:79`, `AFTER_TESTING.md:56`, `TESTING.md:368` ("0 vs 12").
+- Why: D already has 3 decals (`placement/district_template.yaml:67-69`), one of them on T4 face E.
+  - D-dec replaces those 3 with 12 (`district_template_decals.yaml:67-78`), so 332 − 323 = 9 net new entities.
+  - On screen at Q7, the difference is 12 − 1 = 11 decals.
+  - Dividing by 12 understates the cost per decal by 8–25 %, so `DECAL_CAPS` comes out higher than it should.
+- Fix: divide client Q7 results by 11 and server results by 9. Alternatively, drop D's face-E decal from the D-dec comparison, or compare against D0, which also has the 3 decals. Correct the wording of DC-09.
+
+**M-2. The frame cap cannot be lifted through the specified tooling, and the probe as specified measures time between frames, not work time.**
+- Where: protocol `:13-14`. `Start-DedicatedServer.ps1:53` has a fixed argument list, and the validation script has no pass-through for extra arguments.
+- Why: step 0.2 says "restart with `-limitFPS` raised", but none of the scripts can do that, so the operator has to leave the common launch path.
+  - The probe adds up `OnUpdate(timeslice)`, which is wall time between frames and includes the limiter's sleep. While the server sits at the cap, avg is about 1/cap for every config.
+  - The headroom check then reads 100 %. That fails closed, so caps are not raised by mistake.
+  - But "S1 avg D vs D0 ≤ +2 %" passes trivially, which is a false PASS for D43. D43 then stays deferred.
+- Fix:
+  - Add `-ServerArgs <string[]>` to both scripts, or `-LimitFPS <int>`.
+  - State in §4 that S1 avg rows are invalid unless A's idle avg is below the cap. At the cap, use only p99 and max.
+  - Note in the B11 spec that headroom should use the probe's own `TickCount` work time or an uncapped run.
+  - Define "frame budget" as the production server's FPS target, not the raised limit.
+
+**M-3. The noise floor is defined as cold A vs warm A.**
+- Where: protocol `:17`.
+- Why: the cold/warm difference is a systematic effect (the first map-wide CE fill), not noise.
+  - For S7 it can easily reach tens of seconds. With the rule "ignore deltas < 2 × noise", that swallows the +20 s / +60 s S7 thresholds completely.
+  - S1 headroom is an absolute check, so it still guards cap raises. But S7 and S6 become uninformative.
+- Fix: take the noise band from two runs in the same state (two cold runs, and separately two warm runs), and record it per metric.
+
+**M-4. Loot positions (`-MapGroupPos`) for D0 and E are under-specified.**
+- Where: protocol `:15`, `:29`, `:31`; validation script `:40` (a single `[string]`).
+- D0: step 0.3 says "every D/D0/E run passes it". D's export contains the furniture loot groups.
+  - CE most likely places loot at `mapgrouppos` positions whether or not the object exists (verify this on the first D0 run).
+  - In that case D0 gets up to 226 items, some of them floating, not the 178 in its table row. The D − D0 difference then becomes entity cost only, with no loot cost.
+  - Fix: decide which is intended and say so. Either use a separate D0 survey export, or keep D's export on purpose and change the 178.
+- E: needs 4 surveys (one request per server start), but `-MapGroupPos` takes one file.
+  - Fix: make it `[string[]]` like `-Layout`, and drop duplicate groups by `name` + `pos`. Otherwise E silently gets about a quarter of its loot. The step line does print `$n groups merged`; the protocol should state the expected count.
+
+**M-5. `-NoWipe` warm starts are not checked and may start from stale storage.**
+- Where: validation script `:275-276` and `:402`.
+- Why:
+  - The script reuses whatever `.validation` copy exists. A warm D after a cold D0 would silently measure D0.
+  - The cold run ends with `Stop-Process -Force`, which skips the shutdown save. The warm state is then whatever the last autosave left (verify).
+  - Diag runs with `Start-DiagLocal -Mission <copy>` also write `storage_1` into the same copy.
+- Fix:
+  - On a fresh copy, write a marker file into the copy (layout file hashes, `-Baseline`, MapGroupPos hash). With `-NoWipe`, refuse to run if the marker doesn't match.
+  - Shut the server down cleanly before a warm run (RCon `#shutdown`), or require the cold run to last past one autosave.
+
+**M-6. E has no thresholds for S6 or S7.**
+- Where: `AFTER_TESTING.md:57` raises the caps when "S1/S1b/S6/S7 pass with headroom at E".
+- Why: §4 defines S6 and S7 only as D vs A and D vs D0 (protocol `:84-86`). "Pass at E" is left to the tester's judgement.
+- Fix: add "S7 cold/warm, E vs A" and "S6 join, E vs A" rows, or limit the `:57` row to S1/S1b.
+
+**M-7. D, D0 and D-dec are three hand-filled copies of the site.**
+- Where: `placement/district_template_noprops.yaml:13-21`, `district_template_decals.yaml:13-21`.
+- Why: if `center`, `yaw` or `survey` differ by mistake, every D − D0 and D-dec − D difference is meaningless, and nothing checks for it.
+- Fix: before the D0/D-dec runs, check that `site:` matches across the three files. A simple text compare of the blocks is enough; a script check is better.
+
+**M-8. The survey request is not removed after step 0.3.**
+- Where: `SKY_SiteSurvey.c:4-13`, `:127-129`.
+- Why: if `$profile:SKY_survey_request.json` stays in `server\profiles\dedicated`, every later start runs the 64 × 64 ground sampling, an object query and `ExportProxyData` about 15 s after start. That inflates S7, and every run overwrites the export.
+- Fix: add "delete the request file" to step 0.3.
+
+### Low
+- **L-1.** Protocol `:56` says run lengths count from the "mission ready" line, but the deadline is `$t0` at launch (validation script `:392`). The `-Minutes` values have about 5 minutes of slack. State that "last 15 min" is cut from the probe log, not taken from the run end.
+- **L-2.** Protocol `:65` relies on a `summary.json` cross-check against process start, but `summary.json` stores neither `StartTime` nor `start_s` (`:159`, `:401`). Add `$proc.StartTime` to the "server run" step detail.
+- **L-3.** Rows missing from `reviews/fps_results_template.csv`:
+  - server A has no repeat-2 rows (needed for the noise floor);
+  - S8 has no minute-15 rows (only `loot_items_min40`, `:454-457`);
+  - S1b has no p99 rows (`:421-424`).
+- **L-4.** Old L4 is still open: there is still no line saying LIGHT_CAP is not isolated because street lights are emissive only, so they count only as entities.
+- **L-5.** `-Baseline` together with `-MapGroupPos` is not rejected (validation script `:251` only rejects `-Layout`). That would spawn SKY loot in A with no buildings. Make the two exclusive.
+- **L-6.** Q7 heading "W" (protocol `:48`) assumes T4's own face E is world east, but T4 has yaw 270 plus the site yaw. Take the heading from the decal positions in the placement report.
+- **L-7.** `check_assets.py:26-27` keeps its own list of alpha-tested textures, a hand-written copy of `gen_configs.py:102` `ALPHA_TEST`. The two can drift and give a false PASS. Import the set, or read `renderFlags` from the rvmat.
+- **L-8.** `AFTER_TESTING.md:46-50` has a stray empty table header before the "Only valid with" sentence. It renders as an empty table.
+- **L-9.** The header comments in `district_template_noprops.yaml:1,8` and `district_template_decals.yaml:1,8` still name `district_template.yaml`.
+- **L-10.** For B11, when the probe is approved:
+  - store frame times in a preallocated ring buffer or a fixed histogram;
+  - allocate, format strings and print only every 10 s;
+  - run the minute-15 object, item and infected counts once, with a radius of 80 m or less.
+  
+  This keeps the probe's own cost out of the numbers. Verify `MissionServer.OnUpdate` in `P:\scripts\5_Mission` first.
+
+### Measure it
+- **Probe:** `server\profiles\dedicated\script_*.log` (avg/p99/max every 10 s, counts at minute 15). Before trusting any S1 avg, confirm A's idle avg is below the cap.
+- **Logs:** `*.RPT` for the ready-line timing and S4 path failures; `*.ADM` for the S6 connect-to-spawn times (line texts per B12).
+- **Each run's summary:** `build\validation\<stamp>\summary.md`, under:
+  - **mapgrouppos**: expected group count per site, times 4 for E;
+  - **mission copy**: fresh copy vs reused.
+- **Before D/D0/E:** check that `storage_1\export\mapgrouppos.xml` is saved under `placement\surveys\`, and that `SKY_survey_request.json` is gone from the profile.
+- **Noise band:** two cold A runs and two warm A runs, recorded per metric.
+
+GATE: PASS

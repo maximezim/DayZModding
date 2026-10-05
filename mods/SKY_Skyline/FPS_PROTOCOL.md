@@ -11,10 +11,10 @@ median). It **replaces** that protocol's config C (3 x 3 Tower A) with config E 
 | # | Step | Why |
 |---|---|---|
 | 0.1 | **Server frame probe** `SKY_PerfProbe`: a separate, diag-only, never-shipped server mod (`modded class MissionServer`, accumulate `OnUpdate(float timeslice)`, every 10 s print avg / p99 / max frame ms to `script_*.log`; once at minute 15 print the count of `Land_SKY_*` objects and of items within 80 m of T, and infected per 3.5 m height band in T3's footprint). Verify `MissionServer.OnUpdate` in `P:\scripts\5_Mission` first (enforce-coder). **Not written yet: new mod code needs your go-ahead (CLAUDE.md "no mods unless asked"), PENDING B11.** Load it with `-ServerMods SKY_PerfProbe`. | S1/S4/S6 have no other server-side metric source: RPT has no frame data |
-| 0.2 | Frame cap: start config A once, read the probe's idle avg. If it sits at a cap, restart with `-limitFPS` raised well above it (verify the parameter and its default on this build, PENDING B12) and record it in the run info. **Headroom** = probe avg frame ms < 50 % of the frame budget at that cap. | an idle A and D both at the cap would "pass" with no headroom |
-| 0.3 | Survey the district site with `exportRadius` >= the value in the layout report (73 m for the template), after one run with the layout spawned; save `storage_1\export\mapgrouppos.xml` as `placement\surveys\<site>_mapgrouppos.xml`. Every D/D0/E run passes it with `-MapGroupPos`. | without it no loot spawns on spawned buildings (ENTITY_CAP counts loot) |
+| 0.2 | Frame cap: start config A once, read the probe's idle avg. If it sits at a cap, add `-ServerArgs '-limitFPS=<high>'` to every run (verify the parameter and its default on this build, PENDING B12) and record it. **Frame budget** = the production server's target frame time (e.g. 1000 / production limitFPS), not the raised limit. **Headroom** = probe **work** time (the probe's own tick count per frame, not `timeslice`, which includes the limiter's sleep) < 50 % of that budget. S1 avg rows are only valid when A's idle avg is below the cap; at the cap use p99 / max only. | an idle A and D both at the cap would "pass" with no headroom |
+| 0.3 | Survey each config's site with `exportRadius` >= the value in its layout report (73 m for the template), after one run with that layout spawned; save `storage_1\export\mapgrouppos.xml` as `placement\surveys\<site>_<config>_mapgrouppos.xml` (**D0 gets its own export** - D's export contains furniture loot groups CE would fill without the furniture; E needs one export per district, passed as `-MapGroupPos a.xml,b.xml,c.xml,d.xml`). The run summary prints "N Land_SKY_* groups merged": expect the report's module + loot-prop count per district (x 4 for E). Then **delete `SKY_survey_request.json`** from the profile, or every later start re-runs the survey and inflates S7. | without it no loot spawns on spawned buildings (ENTITY_CAP counts loot) |
 | 0.4 | Verify the RPT "mission ready" line text and the ADM connect/spawn line texts on the first A run; note them here: ready = `________`, connect = `________`, spawn = `________` (PENDING B12). | S6/S7 timing source |
-| 0.5 | Noise floor: run A **twice** (cold, then warm). The delta between the two is the noise band; no delta smaller than 2 x noise counts as a result. | |
+| 0.5 | Noise floor, per state: two **cold** A runs, and separately two **warm** A runs (`-NoWipe`). The run-to-run delta within the same state is the noise band of each metric; no delta smaller than 2 x that band counts. (Cold vs warm is a systematic CE-fill effect, not noise.) | |
 
 ## 1. Configurations (same site T, same mission copy path for all)
 
@@ -27,7 +27,7 @@ All configs go through `tools\tests\Invoke-ModValidation.ps1` so they share the 
 | B | `-Layout mods\SKY_Skyline\placement\layout.yaml -MapGroupPos <site>_mapgrouppos.xml` | 8 | see its report |
 | D | `-Layout <district.yaml> -MapGroupPos ...` (the template with site filled in) | 323 | 226 |
 | D0 | `-Layout placement\district_template_noprops.yaml -MapGroupPos ...` (D without furniture; same site filled in) | 96 | 178 |
-| D-dec | `-Layout placement\district_template_decals.yaml ...`: D with its 3 decals replaced by 12 `Decal_Dirt` on **T4 face E**, mechanical storey (z 14.1), u = -11..+11 m (12 = `DECAL_CAPS` per tower; one facade) | 332 | 226 |
+| D-dec | `-Layout placement\district_template_decals.yaml ...`: D with its 3 decals replaced by 12 `Decal_Dirt` on **T4 face E**, mechanical storey (z 14.1), u = -11..+11 m (12 = `DECAL_CAPS` per tower; one facade). Net difference to D: **+11 decals in view at Q7** (D has 1 on that face), **+9 entities** server-side | 332 | 226 |
 | E | `-Layout d1.yaml,d2.yaml,d3.yaml,d4.yaml -MapGroupPos ...` (4 districts at different centres; the 4th is checked with `--others` automatically) | 4 x 323 | 4 x 226 (= 2196 with entities, the largest legal set under `ENTITY_CAP` per_server 2500) |
 
 Warm-start variants: add `-NoWipe` to reuse the previous copy and its storage (S7 warm).
@@ -45,7 +45,7 @@ Record for each: world X / Y / Z, heading (deg), date/time freeze, weather (run 
 | Q4 | 150 m south, ground | N | prop/LOD switches through glass, lights at range | all |
 | Q5 | 500 m south, elevated | N | Res2/Res3 floors and roofs, tile far LOD | all |
 | Q6 | T2 garden roof | S over the edge | foliage alpha-test, planters | D, D0 |
-| Q7 | facing T4 face E at 10 m and at 60 m (two captures) | W | the 12 decals of D-dec | D, D-dec |
+| Q7 | facing T4 face E at 10 m and at 60 m (two captures) | towards the decals: take position and heading from the decal rows of the D-dec placement report (T4 yaw 270 + site yaw) | the 12 decals of D-dec | D, D-dec |
 
 Interior/roof positions have no shell in A: their thresholds are **D vs D0** (same shell).
 Use the DayZDiag free camera at the recorded coordinates for client-side numbers where possible:
@@ -53,7 +53,13 @@ Use the DayZDiag free camera at the recorded coordinates for client-side numbers
 (the copy made by the validation script; diag runs are the only ones with the diag Statistics
 overlay and profiler). Dedicated runs (retail client, BattlEye) use PresentMon / CapFrameX.
 
-## 3. Server scenarios (dedicated; run lengths count from the "mission ready" line)
+## 3. Server scenarios (dedicated)
+
+`-Minutes` counts from launch (boot included, ~5 min slack in the values below); the "last 15 min"
+windows are cut from the probe log by timestamp, not taken from the run end. A cold run that feeds a
+warm (`-NoWipe`) run must last past one storage autosave (the stop is a hard kill; verify the autosave
+interval, B12). D, D0 and D-dec must share the **same `site:` block** (checked by
+`placement/tests/test_sky_layout.py` for the shipped files; re-check after filling in the site).
 
 | ID | Scenario | `-Minutes` | Metric (source) |
 |---|---|---|---|
@@ -76,7 +82,7 @@ entities on screen; the server thresholds keep Tower A's strictness.
 | Client avg frame ms, D vs A, Q1/Q4/Q5 | <= +2.0 ms | > +4.0 ms | district as a whole |
 | Client avg frame ms, D vs D0, Q2/Q3/Q6 | <= +1.5 ms | > +3.0 ms | prop **render** cost -> prop LOD cuts (not D43) |
 | Client 1 % low, D vs A | >= 85 % of A | < 75 % | |
-| D-dec vs D at Q7 (10 m / 60 m) | <= +0.5 ms | > +1.0 ms | `DECAL_CAPS` = budget / ((D-dec - D) / 12) |
+| D-dec vs D at Q7 (10 m / 60 m) | <= +0.5 ms | > +1.0 ms | `DECAL_CAPS` = budget / ((D-dec - D) / 11) client; server per-decal cost = (D-dec - D) / 9 |
 | VRAM delta D vs A (diag stats or GPU counter) | <= 150 MB | > 250 MB | texture sizes |
 | Server S1 avg, D vs A | <= +3 % **and** headroom (0.2) kept | > +6 % or headroom lost | |
 | Server S1 p99, D vs A | <= +2 ms | > +5 ms | |
@@ -85,6 +91,8 @@ entities on screen; the server thresholds keep Tower A's strictness.
 | S7 start (cold and warm), D vs A | <= +20 s | > +60 s | ENTITY_CAP |
 | S7 start, D vs D0 | <= +5 s | > +15 s | D43 (pathgraph updates per entity) |
 | S1b avg with N clients, E vs A | headroom kept | headroom lost | ENTITY_CAP per_server |
+| S6 join, E vs A | <= +5 s | > +10 s | ENTITY_CAP per_server |
+| S7 start (cold and warm), E vs A | <= +60 s | > +180 s | ENTITY_CAP per_server |
 | S4 SKY path-failure lines / 10 min, D | 0 | any | furniture aisles / doors |
 | S4 p99, D vs D0 | within the S1 band | > S1 fail | infected density (B6) |
 | S8 loot items | 50-100 % of the report's max | < 10 % | B7 (only with `-MapGroupPos`!) |
@@ -94,6 +102,9 @@ entities on screen; the server thresholds keep Tower A's strictness.
 Record per-entity cost as (D - D0) / 227 for S1, S6, S7: it predicts the merged-furniture variant
 (227 -> ~30 spawned props). Between pass and fail: re-run 5 times, then profile in the **diag**
 run (Start-DiagLocal with the `.validation` mission) before changing anything.
+
+Street lights are emissive-only models (no light sources), so `LIGHT_CAP` is not isolated: they count as
+entities in D vs A only.
 
 Over-budget assets (Apartments/Hotel Geometry 40/38 comps, roof Res1 128, Tower A core 81 comps)
 are **accepted** unless a district threshold fails **and** the diag profiler attributes the cost

@@ -22,7 +22,8 @@
     FPS protocol options (FPS_PROTOCOL.md):
       -Layout a.yaml,b.yaml   several districts merged into one mission (one spawner file each)
       -Baseline               config A: same mission copy / wipe / SKY economy, but no objects
-      -MapGroupPos <xml>      merge exported Land_SKY_* <group> lines (ExportProxyData) so loot spawns
+      -MapGroupPos a.xml,b.xml merge exported Land_SKY_* <group> lines (ExportProxyData, one per site) so loot spawns
+      -ServerArgs '-limitFPS=1000'  extra DayZServer arguments (frame cap for the FPS protocol; verify, B12)
       -NoWipe                 reuse the existing .validation copy and its storage (warm start)
       -ServerMods <names>     extra server-only mods (e.g. a diag-only perf probe), built and deployed too
 
@@ -37,7 +38,8 @@ param(
     [string[]]$ServerMods = @(),
     [string[]]$Layout = @(),
     [switch]$Baseline,
-    [string]$MapGroupPos,
+    [string[]]$MapGroupPos = @(),
+    [string[]]$ServerArgs = @(),
     [switch]$NoWipe,
     [string]$Mission,
     [int]$Minutes = 3,
@@ -55,6 +57,8 @@ Import-Module (Join-Path $PSScriptRoot '..\lib\DzCommon.psm1') -Force
 # "-Layout a.yaml,b.yaml" arrives as one string under "powershell -File": split comma lists.
 $Layout     = @($Layout | ForEach-Object { $_ -split ',' } | Where-Object { $_ })
 $ServerMods = @($ServerMods | ForEach-Object { $_ -split ',' } | Where-Object { $_ })
+$MapGroupPos = @($MapGroupPos | ForEach-Object { $_ -split ',' } | Where-Object { $_ })
+$ServerArgs = @($ServerArgs | ForEach-Object { $_ -split ',' } | Where-Object { $_ })
 
 # ---------------------------------------------------------------- log analysis
 # Lines that make the run FAIL (first match per line wins). Patterns are engine/script log
@@ -249,6 +253,7 @@ else {
 $config = Join-DzPath $repo 'server' 'serverDZ.dedicated.cfg'
 if ($Layout.Count -or $Baseline) {
     if ($Layout.Count -and $Baseline) { throw '-Baseline and -Layout are exclusive (config A has no objects).' }
+    if ($MapGroupPos.Count -and $Baseline) { throw '-Baseline and -MapGroupPos are exclusive (loot without buildings).' }
     $layoutOuts = @()
     $i = 0
     foreach ($l in $Layout) {
@@ -272,7 +277,17 @@ if ($Layout.Count -or $Baseline) {
     $what = 'baseline (no objects)'
     if ($layoutOuts.Count) { $what = "$($layoutOuts.Count) layout(s)" }
     Write-DzStep "Mission copy '$Mission.validation': $what"
+    # what this copy was built from: -NoWipe must not silently reuse another config's copy (perf re-gate M-5)
+    $markerParts = @("baseline=$Baseline") + ($Layout + $MapGroupPos | ForEach-Object {
+        if (Test-Path -LiteralPath $_) { "$_=" + (Get-FileHash -LiteralPath $_ -Algorithm SHA256).Hash } else { "$_=missing" } })
+    $marker = ($markerParts -join "`n")
+    $markerPath = Join-DzPath $valMission 'sky_validation_marker.txt'
     $reuse = $NoWipe -and (Test-Path -LiteralPath $valMission)
+    if ($reuse -and -not $DryRun) {
+        $old = ''
+        if (Test-Path -LiteralPath $markerPath) { $old = [System.IO.File]::ReadAllText($markerPath) }
+        if ($old -ne $marker) { throw "-NoWipe: $valMission was built for a different config (marker mismatch) - run it once without -NoWipe" }
+    }
     if ($reuse) { Write-DzInfo "> -NoWipe: reuse $valMission and its storage (warm start); nothing merged again" }
     else { Write-DzInfo "> copy $srcMission -> $valMission (storage wiped); merge spawner files, cfggameplay, sky_ce, mapgroupproto, mapgrouppos, roof drops, infected zone" }
     Write-DzInfo "> render $valConfig (template = $Mission.validation)"
@@ -319,13 +334,20 @@ if ($Layout.Count -or $Baseline) {
             Save-DzXml $proto $protoPath
         }
         # loot positions of spawned buildings (exported once per site with ExportProxyData)
-        if ($MapGroupPos) {
+        if ($MapGroupPos.Count) {
             $mgpPath = Join-DzPath $valMission 'mapgrouppos.xml'
             [xml]$mgp = Get-Content -Raw -LiteralPath $mgpPath
-            [xml]$exp = Get-Content -Raw -LiteralPath $MapGroupPos
             $n = 0
-            foreach ($g in $exp.SelectNodes('//group')) {
-                if ($g.GetAttribute('name') -like 'Land_SKY_*') { [void]$mgp.map.AppendChild($mgp.ImportNode($g, $true)); $n++ }
+            $seen = @{}
+            foreach ($file in $MapGroupPos) {                 # one export per site (E: 4); duplicates by name + pos dropped
+                [xml]$exp = Get-Content -Raw -LiteralPath $file
+                foreach ($g in $exp.SelectNodes('//group')) {
+                    $key = $g.GetAttribute('name') + '@' + $g.GetAttribute('pos')
+                    if ($g.GetAttribute('name') -like 'Land_SKY_*' -and -not $seen.ContainsKey($key)) {
+                        $seen[$key] = $true
+                        [void]$mgp.map.AppendChild($mgp.ImportNode($g, $true)); $n++
+                    }
+                }
             }
             Save-DzXml $mgp $mgpPath
             Add-Step 'mapgrouppos' 'PASS' "$n Land_SKY_* groups merged (loot can spawn)"
@@ -350,6 +372,7 @@ if ($Layout.Count -or $Baseline) {
             }
         }
     }
+    if (-not $DryRun -and -not $reuse) { [System.IO.File]::WriteAllText($markerPath, $marker) }
     if (-not $DryRun) {
         $text = Get-Content -Raw -LiteralPath $config
         $text = [regex]::Replace($text, 'template\s*=\s*"[^"]*"', ('template = "' + $Mission + '.validation"').Replace('$', '$$'))
@@ -380,7 +403,7 @@ if (-not $DryRun) {
 # 4. start server, wait, stop
 $profileDir = Join-DzPath $repo 'server' 'profiles' 'dedicated'
 $t0 = Get-Date
-& (Join-DzPath $repo 'tools' 'launch' 'Start-DedicatedServer.ps1') -Mods $ModName -ServerMods $ServerMods -Config $config -DryRun:$DryRun
+& (Join-DzPath $repo 'tools' 'launch' 'Start-DedicatedServer.ps1') -Mods $ModName -ServerMods $ServerMods -ExtraArgs $ServerArgs -Config $config -DryRun:$DryRun
 if ($DryRun) {
     Write-DzInfo "> wait $Minutes min, stop DayZServer_x64, copy logs newer than start from $profileDir to $outDir\logs"
     Add-Step 'server run' 'DRYRUN' "$Minutes min"
@@ -398,7 +421,7 @@ if ($DryRun) {
         }
         if ($died) { Add-Step 'server run' 'FAIL' "server exited early (code $($proc.ExitCode))" }
         else {
-            Add-Step 'server run' 'PASS' "$Minutes min, PID $($proc.Id)"
+            Add-Step 'server run' 'PASS' ("$Minutes min, PID $($proc.Id), started " + $proc.StartTime.ToString('yyyy-MM-dd HH:mm:ss'))
             if (-not $KeepRunning) { Stop-Process -Id $proc.Id -Force; Add-Step 'server stop' 'PASS' 'stopped' }
             else { Add-Step 'server stop' 'SKIP' "-KeepRunning (PID $($proc.Id))" }
         }

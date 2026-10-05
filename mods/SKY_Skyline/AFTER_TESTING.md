@@ -45,16 +45,14 @@ tools\tests\Invoke-ModValidation.ps1 -ModName SKY_Skyline -Layout <layout.yaml> 
 
 ## 3. Budgets and caps (from FPS_PROTOCOL.md results)
 
-| Result | Change |
-|---|---|
 Only valid with FPS_PROTOCOL.md §0 done (probe, frame cap, mapgrouppos export, noise floor).
 
 | Result (FPS_PROTOCOL.md §4 row) | Change |
 |---|---|
 | **server** D vs D0 (S1/S1b avg, S6, S7) over threshold | build furnished floor variants with merged furniture (D43 / D27); keep only door props spawned |
 | **client** D vs D0 (Q2/Q3/Q6) over threshold, server D vs D0 fine | cut prop LODs (Res1/Res2 triangles, sections) - not D43 |
-| D-dec vs D at Q7 > +1 ms | `DECAL_CAPS["per_tower"]` = budget / ((D-dec - D) / 12) |
-| S1/S1b/S6/S7 pass with headroom (0.2) at E | raise `ENTITY_CAP` / `PROP_CAPS` by 25 %, then re-run E **sized to the new cap** before keeping it |
+| D-dec vs D at Q7 > +1 ms | `DECAL_CAPS["per_tower"]` = budget / ((D-dec - D) / 11) |
+| S1/S1b pass with headroom (0.2) and S6/S7 "E vs A" pass | raise `ENTITY_CAP` / `PROP_CAPS` by 25 %, then re-run E **sized to the new cap** before keeping it |
 | S8 loot < 10 % of max **with** `-MapGroupPos` | B7 rollback (prop loot groups) |
 | OVER assets (Apartments/Hotel Geometry, roof Res1, Tower A core comps) | accepted unless a district threshold fails **and** the diag profiler attributes it to that asset; then apply the cut named in its review (reviews/batch4_perf.md L1, perf_review.md M2). Tower A core 81 > 80 comps: accepted statically (rule 1 freezes Tower A) |
 | any threshold in the in-between band | 5 re-runs, then diag profiler (Start-DiagLocal with the `.validation` mission) |

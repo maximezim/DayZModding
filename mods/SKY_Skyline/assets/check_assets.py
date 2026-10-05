@@ -11,6 +11,7 @@ Budgets are hypotheses, so overruns are WARN unless --strict. Structure errors a
 """
 import argparse
 import os
+import re
 import sys
 
 import yaml
@@ -23,8 +24,8 @@ import p3d_inspect  # noqa: E402
 ENTERABLE = ["Shadow Volume", "Geometry", "Fire Geometry", "View Geometry", "Roadway", "Memory"]
 # Alpha-TESTED materials are cheap at range; any other _ca texture or the blended glass in Res2+
 # is a blended draw at distance (perf_review H2, batch-6 perf M3: static gate instead of diag stats).
-ALPHA_TESTED = {"sky_foliage_ca", "sky_roadmark_ca", "sky_decal_cracks_ca", "sky_decal_graffiti_a_ca",
-                "sky_decal_graffiti_b_ca", "sky_decal_graffiti_c_ca", "sky_decal_graffiti_d_ca"}
+sys.path.insert(0, HERE)
+from gen_configs import ALPHA_TEST  # noqa: E402  (single source: rvmats with renderFlags AlphaTest32)
 
 
 def main():
@@ -89,7 +90,7 @@ def main():
         if e.get("category") != "decal":          # decal Res2 blending is a documented decision (D22)
             for i, l in enumerate(res[2:], 2):
                 blended = [t for t in l["textures"] if t.lower().endswith("_ca.paa")
-                           and os.path.basename(t.replace("\\", "/")).lower()[:-4] not in ALPHA_TESTED]
+                           and re.sub(r"(_[a-d])?_ca$", "", os.path.basename(t.replace("\\", "/")).lower()[:-4]) not in ALPHA_TEST]
                 if blended or any(m.lower().replace("\\", "/").endswith("/sky_glass.rvmat") for m in l["materials"]):
                     errs.append("blended alpha in Res%d (far LOD): %s" % (i, blended or "sky_glass.rvmat"))
         chain = " -> ".join(str(l["triangles"]) for l in res)

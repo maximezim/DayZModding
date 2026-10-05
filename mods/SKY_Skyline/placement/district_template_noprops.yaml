@@ -1,11 +1,12 @@
-# SKY_Skyline district TEMPLATE - FPS config D0 (no furniture; otherwise identical to district_template.yaml) -> python placement/sky_layout.py --layout placement/district_template.yaml
+# SKY_Skyline district TEMPLATE - FPS config D0 (no furniture; otherwise identical to district_template.yaml) -> python placement/sky_layout.py --layout placement/district_template_noprops.yaml
 #
 # Site coordinates are deliberately UNFILLED: `sky_layout.py` runs on it offline (positions
 # relative to (0, 0), warnings) and `--strict` refuses it until a surveyed site is filled in:
 #   1. survey a candidate site (placement/README.md section 1) with halfW/halfD covering the
 #      whole district (here 9 x 9 cells of 12 m = 108 m -> halfW = halfD = 56, step 2-4 m)
 #   2. set site.center, site.yaw, site.survey and placeholder: false
-#   3. python placement/sky_layout.py --layout placement/district_template.yaml --strict -> PASS
+#   3. python placement/sky_layout.py --layout placement/district_template_noprops.yaml --strict -> PASS
+#   The site: block must stay IDENTICAL to district_template.yaml (FPS D vs D0 / D-dec).
 # Do NOT start the HQ landmark, the 25-floor Office Tower or the skybridge here (not built).
 map: chernarusplus
 mission: dayzOffline.chernarusplus

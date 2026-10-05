@@ -365,7 +365,7 @@ site filled in) or single pieces via a scratch objectSpawnersArr. RPT gate as in
 | DC-06 | Walk through, shoot and drive into each decal; vehicle at 30 km/h | No collision, no bullet impact on the decal (render-only). Behind-wall cover is unchanged. Single-sided: invisible from behind. | | |
 | DC-07 | Relog and restart the server | Decals are still present (static spawner), same variant. | | |
 | DC-08 | 2 clients | Both see the same graffiti variant at the same spot. | | |
-| DC-09 | Perf: FPS_PROTOCOL config D-dec at Q7 (0 vs 12 dirt decals on T4 face E, 10 m and 60 m) | FPS delta recorded. Feeds the D19 caps. | | |
+| DC-09 | Perf: FPS_PROTOCOL config D-dec at Q7 (1 vs 12 dirt decals on T4 face E = +11, 10 m and 60 m) | FPS delta recorded. Feeds the D19 caps. | | |
 
 ### 17.2 Window sets (need a test quad or a future facade module; no shipped P3D uses them yet)
 | ID | Steps | Expected | Diag | Dedicated |

@@ -467,3 +467,18 @@ RUN,info,date|commit|client_hw|server_cpu|dayz_build|limitFPS|noise_band|site_T|
 ,server,VAL,D-dec,,summary_fail_lines,count,1,,,,,,
 ,server,VAL,E,,summary_fail_lines,count,1,,,,,,
 ,server,VRAM,D,,delta_vs_A,MB,1,,,,,,
+,server,S1,A,,avg_frame,ms,2,,,,,,repeat for noise band
+,server,S8,A,,loot_items_min15,count,1,,,,,,
+,server,S1,B,,avg_frame,ms,2,,,,,,repeat for noise band
+,server,S8,B,,loot_items_min15,count,1,,,,,,
+,server,S1,D,,avg_frame,ms,2,,,,,,repeat for noise band
+,server,S8,D,,loot_items_min15,count,1,,,,,,
+,server,S1,D0,,avg_frame,ms,2,,,,,,repeat for noise band
+,server,S8,D0,,loot_items_min15,count,1,,,,,,
+,server,S1,E,,avg_frame,ms,2,,,,,,repeat for noise band
+,server,S8,E,,loot_items_min15,count,1,,,,,,
+,server,S1b,A,,p99_frame,ms,1,,,,,,
+,server,S1b,D,,p99_frame,ms,1,,,,,,
+,server,S1b,D0,,p99_frame,ms,1,,,,,,
+,server,S1b,E,,p99_frame,ms,1,,,,,,
+,server,S6,E,,join_vs_A,s,1,,,,,,

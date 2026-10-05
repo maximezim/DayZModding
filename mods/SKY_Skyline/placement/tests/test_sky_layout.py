@@ -148,6 +148,11 @@ def district_tests(expect):
     r = subprocess.run([sys.executable, TOOL, "--layout", tpl, "--out", d2, "--others", ",".join([other] * 2)], capture_output=True, text=True)
     expect("--others: 3 template districts stay under ENTITY_CAP per_server", r.returncode == 0, r.stdout[-400:])
 
+    # FPS D / D0 / D-dec must share the same site (perf batch-6 re-gate M-7)
+    sites = [yaml.safe_load(open(os.path.join(os.path.dirname(HERE), f)))["site"]
+             for f in ("district_template.yaml", "district_template_noprops.yaml", "district_template_decals.yaml")]
+    expect("D / D0 / D-dec layouts share an identical site block", sites[0] == sites[1] == sites[2], str(sites))
+
     sys.path.insert(0, os.path.dirname(HERE))
     import sky_layout as SL
     S = SL.S
