@@ -35,7 +35,7 @@ def shade(tex_dir):
         bsdf.inputs["Base Color"].default_value = FLAT[key]
         png = None
         if tex_dir:
-            stem = os.path.basename(S.MATERIALS[key]["co"]).replace(".paa", ".png")
+            stem = S.MATERIALS[key]["co"].replace("\\", "/").split("/")[-1].replace(".paa", ".png")
             cand = os.path.join(tex_dir, stem)
             png = cand if os.path.exists(cand) else None
         if png:
@@ -99,7 +99,11 @@ def scene_setup():
     so = bpy.data.objects.new("sun", sun)
     so.rotation_euler = (math.radians(50), math.radians(10), math.radians(35))
     sc.collection.objects.link(so)
-    bpy.ops.mesh.primitive_plane_add(size=200, location=(0, 0, -0.31))
+    bpy.ops.mesh.primitive_plane_add(size=400, location=(0, 0, -0.31))
+    ground = bpy.data.materials.new("ground")
+    ground.use_nodes = True
+    ground.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = (0.18, 0.2, 0.16, 1)
+    bpy.context.active_object.data.materials.append(ground)
 
 
 def render(path):

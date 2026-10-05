@@ -5,7 +5,7 @@ fail=0
 staged=$(git diff --cached --name-only --diff-filter=ACMR)
 for f in $staged; do
   case "$f" in
-    *.biprivatekey|*.bisign|*.pbo|*.ebo)
+    *.biprivatekey|*.bisign|*.bikey|*.pbo|*.ebo|_handoff/*|*.bundle)
       echo "pre-commit: refusing to commit '$f' (key/build artifact)." >&2; fail=1 ;;
     workspace.config.json|server/serverDZ.*.cfg)
       echo "pre-commit: refusing to commit local config '$f'." >&2; fail=1 ;;

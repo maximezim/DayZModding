@@ -71,6 +71,20 @@ class UVFit:
         return [((p[0] - x0) / (x1 - x0), (p[1] - y0) / (y1 - y0)) for p in pts]
 
 
+class UVRect:
+    """Map a rectangle on any face plane to a UV box. u from coordinate axis
+    `u_axis` over [lo[0], hi[0]], v from `v_axis` over [lo[1], hi[1]]; `uv`
+    = (u0, v0, u1, v1) may exceed 0..1 to tile (e.g. road lines)."""
+
+    def __init__(self, u_axis, v_axis, lo, hi, uv=(0.0, 0.0, 1.0, 1.0)):
+        self.ua, self.va, self.lo, self.hi, self.uv = u_axis, v_axis, lo, hi, uv
+
+    def __call__(self, pts, normal):
+        u0, v0, u1, v1 = self.uv
+        return [(u0 + (p[self.ua] - self.lo[0]) / (self.hi[0] - self.lo[0]) * (u1 - u0),
+                 v0 + (p[self.va] - self.lo[1]) / (self.hi[1] - self.lo[1]) * (v1 - v0)) for p in pts]
+
+
 def _sub(a, b):
     return (a[0] - b[0], a[1] - b[1], a[2] - b[2])
 
@@ -189,6 +203,55 @@ class Lod:
             self.faces.append((tuple(base + i for i in q), mat, uv(pts, _normal(pts)) if (uv and mat) else None))
         for s in sel:
             self.groups.setdefault(s, set()).update(range(base, base + 8))
+
+    def solid(self, verts, faces, mat=None, uv=None, sel=(), component=None):
+        """Closed convex solid from vertices + polygon index lists. Faces are
+        oriented outward from the centroid; polygons > 4 verts are fanned
+        (Arma Toolbox rejects n-gons). Shared vertices -> watertight."""
+        sel = list(sel)
+        if component is None:
+            component = self.lod in COMPONENT_LODS
+        if component:
+            sel.append(self._next_component())
+        centre = tuple(sum(v[i] for v in verts) / len(verts) for i in range(3))
+        base = len(self.verts)
+        self.verts.extend(verts)
+        for poly in faces:
+            pieces = [poly] if len(poly) <= 4 else [(poly[0], poly[i], poly[i + 1]) for i in range(1, len(poly) - 1)]
+            for q in pieces:
+                pts = [verts[i] for i in q]
+                n = _normal(pts)
+                fc = tuple(sum(p[i] for p in pts) / len(pts) for i in range(3))
+                if _dot(n, _sub(fc, centre)) < 0:
+                    q = tuple(reversed(q))
+                    pts = [verts[i] for i in q]
+                self.faces.append((tuple(base + i for i in q), mat, uv(pts, _normal(pts)) if (uv and mat) else None))
+        for s in sel:
+            self.groups.setdefault(s, set()).update(range(base, base + len(verts)))
+
+    def prism(self, cx, cy, r, z0, z1, n=8, mat=None, uv=None, sel=(), component=None, rot=0.0):
+        """Regular n-gon prism along Z (poles, bollards, manholes)."""
+        ring = [(cx + r * math.cos(rot + 2 * math.pi * k / n), cy + r * math.sin(rot + 2 * math.pi * k / n)) for k in range(n)]
+        verts = [(x, y, z0) for x, y in ring] + [(x, y, z1) for x, y in ring]
+        faces = [tuple(range(n)), tuple(range(n, 2 * n))]
+        faces += [(k, (k + 1) % n, n + (k + 1) % n, n + k) for k in range(n)]
+        self.solid(verts, faces, mat, uv, sel, component)
+
+    def extrude_y(self, profile, y0, y1, mat=None, uv=None, sel=(), component=None):
+        """Extrude a convex (x, z) profile along Y (curbs, jersey barriers)."""
+        n = len(profile)
+        verts = [(x, y0, z) for x, z in profile] + [(x, y1, z) for x, z in profile]
+        faces = [tuple(range(n)), tuple(range(n, 2 * n))]
+        faces += [(k, (k + 1) % n, n + (k + 1) % n, n + k) for k in range(n)]
+        self.solid(verts, faces, mat, uv, sel, component)
+
+    def extrude_x(self, profile, x0, x1, mat=None, uv=None, sel=(), component=None):
+        """Extrude a convex (y, z) profile along X (wheels, vehicle cabins)."""
+        n = len(profile)
+        verts = [(x0, y, z) for y, z in profile] + [(x1, y, z) for y, z in profile]
+        faces = [tuple(range(n)), tuple(range(n, 2 * n))]
+        faces += [(k, (k + 1) % n, n + (k + 1) % n, n + k) for k in range(n)]
+        self.solid(verts, faces, mat, uv, sel, component)
 
     def quad(self, pts, facing, mat=None, uv=None, sel=(), double=False):
         """Single quad; `facing` = desired normal. double=True adds the back face."""
@@ -346,6 +409,24 @@ def build_object(lod, materials, cache):
         np_ = p.namedProps.add()
         np_.name, np_.value = k, v
     return obj
+
+
+def run_cli(modules, materials, stats_name):
+    """Shared CLI for generator scripts: `-- --out <addons> [--only a,b]`.
+    modules: {key: (builder, pbo_folder, p3d_name)}. Stats merge into assets/<stats_name>."""
+    import json
+    argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
+    out = argv[argv.index("--out") + 1]
+    only = argv[argv.index("--only") + 1].split(",") if "--only" in argv else list(modules)
+    stats_path = os.path.join(out, "..", "assets", stats_name)
+    stats = json.load(open(stats_path)) if os.path.exists(stats_path) else {}
+    for key in only:
+        fn, pbo, fname = modules[key]
+        path = os.path.join(out, pbo, fname)
+        stats[fname] = export_p3d(fn(), materials, path)
+        print("EXPORTED", path, stats[fname])
+    with open(stats_path, "w") as fh:
+        json.dump(stats, fh, indent=1, sort_keys=True)
 
 
 def export_p3d(lods, materials, path):

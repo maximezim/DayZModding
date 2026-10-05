@@ -1,0 +1,137 @@
+== addons/sky_street/sky_barrier_concrete.p3d (6 LODs)
+  Resolution 0           tris=20     pts=12     mass=-        sel=[]
+  Resolution 1           tris=20     pts=12     mass=-        sel=[]
+  Resolution 2           tris=12     pts=8      mass=-        sel=[]
+  Geometry               tris=20     pts=12     mass=2000     sel=[Component01]
+      props: {'class': 'house', 'autocenter': '0'}
+  View Geometry          tris=20     pts=12     mass=-        sel=[Component01]
+  Fire Geometry          tris=20     pts=12     mass=-        sel=[Component01]
+== addons/sky_street/sky_barrier_steel.p3d (5 LODs)
+  Resolution 0           tris=204    pts=408    mass=-        sel=[]
+  Resolution 1           tris=72     pts=144    mass=-        sel=[]
+  Resolution 2           tris=12     pts=24     mass=-        sel=[]
+  Geometry               tris=36     pts=24     mass=60       sel=[Component01, Component02, Component03]
+      props: {'class': 'house', 'autocenter': '0'}
+  Fire Geometry          tris=24     pts=16     mass=-        sel=[Component01, Component02]
+== addons/sky_street/sky_billboard.p3d (6 LODs)
+  Resolution 0           tris=38     pts=76     mass=-        sel=[camo]
+  Resolution 1           tris=38     pts=76     mass=-        sel=[camo]
+  Resolution 2           tris=20     pts=40     mass=-        sel=[camo]
+  Geometry               tris=36     pts=24     mass=1500     sel=[Component01, Component02, Component03]
+      props: {'class': 'house', 'autocenter': '0'}
+  View Geometry          tris=12     pts=8      mass=-        sel=[Component01]
+  Fire Geometry          tris=36     pts=24     mass=-        sel=[Component01, Component02, Component03]
+== addons/sky_street/sky_busstop.p3d (6 LODs)
+  Resolution 0           tris=94     pts=188    mass=-        sel=[]
+  Resolution 1           tris=76     pts=152    mass=-        sel=[]
+  Resolution 2           tris=10     pts=20     mass=-        sel=[]
+  Geometry               tris=96     pts=64     mass=800      sel=[Component01, Component02, Component03, Component04, Component05, Component06, Component07, Component08]
+      props: {'class': 'house', 'autocenter': '0'}
+  View Geometry          tris=12     pts=8      mass=-        sel=[Component01]
+  Fire Geometry          tris=96     pts=64     mass=-        sel=[Component01, Component02, Component03, Component04, Component05, Component06, Component07, Component08]
+== addons/sky_street/sky_curb.p3d (5 LODs)
+  Resolution 0           tris=16     pts=10     mass=-        sel=[]
+  Resolution 1           tris=16     pts=10     mass=-        sel=[]
+  Resolution 2           tris=10     pts=20     mass=-        sel=[]
+  Geometry               tris=16     pts=10     mass=300      sel=[Component01]
+      props: {'class': 'house', 'autocenter': '0'}
+  Fire Geometry          tris=16     pts=10     mass=-        sel=[Component01]
+== addons/sky_street/sky_dumpster.p3d (5 LODs)
+  Resolution 0           tris=104    pts=96     mass=-        sel=[]
+  Resolution 1           tris=24     pts=48     mass=-        sel=[]
+  Resolution 2           tris=12     pts=24     mass=-        sel=[]
+  Geometry               tris=12     pts=8      mass=400      sel=[Component01]
+      props: {'class': 'house', 'autocenter': '0'}
+  Fire Geometry          tris=12     pts=8      mass=-        sel=[Component01]
+== addons/sky_street/sky_intersection_4way.p3d (6 LODs)
+  Resolution 0           tris=38     pts=76     mass=-        sel=[]
+  Resolution 1           tris=38     pts=76     mass=-        sel=[]
+  Resolution 2           tris=6      pts=12     mass=-        sel=[]
+  Geometry               tris=36     pts=24     mass=3e+04    sel=[Component01, Component02, Component03]
+      props: {'class': 'house', 'autocenter': '0'}
+  Roadway                tris=6      pts=12     mass=-        sel=[]
+  Fire Geometry          tris=36     pts=24     mass=-        sel=[Component01, Component02, Component03]
+== addons/sky_street/sky_intersection_t.p3d (6 LODs)
+  Resolution 0           tris=46     pts=92     mass=-        sel=[]
+  Resolution 1           tris=36     pts=72     mass=-        sel=[]
+  Resolution 2           tris=6      pts=12     mass=-        sel=[]
+  Geometry               tris=36     pts=24     mass=3e+04    sel=[Component01, Component02, Component03]
+      props: {'class': 'house', 'autocenter': '0'}
+  Roadway                tris=6      pts=12     mass=-        sel=[]
+  Fire Geometry          tris=36     pts=24     mass=-        sel=[Component01, Component02, Component03]
+== addons/sky_street/sky_manhole.p3d (5 LODs)
+  Resolution 0           tris=44     pts=24     mass=-        sel=[]
+  Resolution 1           tris=28     pts=16     mass=-        sel=[]
+  Resolution 2           tris=20     pts=12     mass=-        sel=[]
+  Geometry               tris=28     pts=16     mass=90       sel=[Component01]
+      props: {'class': 'house', 'autocenter': '0'}
+  Fire Geometry          tris=28     pts=16     mass=-        sel=[Component01]
+== addons/sky_street/sky_planter.p3d (5 LODs)
+  Resolution 0           tris=18     pts=36     mass=-        sel=[]
+  Resolution 1           tris=18     pts=36     mass=-        sel=[]
+  Resolution 2           tris=10     pts=20     mass=-        sel=[]
+  Geometry               tris=12     pts=8      mass=900      sel=[Component01]
+      props: {'class': 'house', 'autocenter': '0'}
+  Fire Geometry          tris=12     pts=8      mass=-        sel=[Component01]
+== addons/sky_street/sky_road_crossing.p3d (6 LODs)
+  Resolution 0           tris=18     pts=36     mass=-        sel=[]
+  Resolution 1           tris=14     pts=28     mass=-        sel=[]
+  Resolution 2           tris=2      pts=4      mass=-        sel=[]
+  Geometry               tris=12     pts=8      mass=2e+04    sel=[Component01]
+      props: {'class': 'house', 'autocenter': '0'}
+  Roadway                tris=2      pts=4      mass=-        sel=[]
+  Fire Geometry          tris=12     pts=8      mass=-        sel=[Component01]
+== addons/sky_street/sky_road_straight.p3d (6 LODs)
+  Resolution 0           tris=16     pts=32     mass=-        sel=[]
+  Resolution 1           tris=12     pts=24     mass=-        sel=[]
+  Resolution 2           tris=2      pts=4      mass=-        sel=[]
+  Geometry               tris=12     pts=8      mass=2e+04    sel=[Component01]
+      props: {'class': 'house', 'autocenter': '0'}
+  Roadway                tris=2      pts=4      mass=-        sel=[]
+  Fire Geometry          tris=12     pts=8      mass=-        sel=[Component01]
+== addons/sky_street/sky_sidewalk.p3d (6 LODs)
+  Resolution 0           tris=20     pts=40     mass=-        sel=[]
+  Resolution 1           tris=10     pts=20     mass=-        sel=[]
+  Resolution 2           tris=2      pts=4      mass=-        sel=[]
+  Geometry               tris=12     pts=8      mass=8000     sel=[Component01]
+      props: {'class': 'house', 'autocenter': '0'}
+  Roadway                tris=2      pts=4      mass=-        sel=[]
+  Fire Geometry          tris=12     pts=8      mass=-        sel=[Component01]
+== addons/sky_street/sky_sidewalk_corner.p3d (6 LODs)
+  Resolution 0           tris=30     pts=60     mass=-        sel=[]
+  Resolution 1           tris=10     pts=20     mass=-        sel=[]
+  Resolution 2           tris=2      pts=4      mass=-        sel=[]
+  Geometry               tris=12     pts=8      mass=1500     sel=[Component01]
+      props: {'class': 'house', 'autocenter': '0'}
+  Roadway                tris=2      pts=4      mass=-        sel=[]
+  Fire Geometry          tris=12     pts=8      mass=-        sel=[Component01]
+== addons/sky_street/sky_streetlight.p3d (6 LODs)
+  Resolution 0           tris=80     pts=80     mass=-        sel=[]
+  Resolution 1           tris=72     pts=76     mass=-        sel=[]
+  Resolution 2           tris=24     pts=32     mass=-        sel=[]
+  Geometry               tris=48     pts=28     mass=250      sel=[Component01, Component02]
+      props: {'class': 'house', 'autocenter': '0'}
+  Memory                 tris=0      pts=2      mass=-        sel=[light, light_dir]
+  Fire Geometry          tris=32     pts=20     mass=-        sel=[Component01, Component02]
+== addons/sky_street/sky_trafficlight.p3d (5 LODs)
+  Resolution 0           tris=66     pts=92     mass=-        sel=[]
+  Resolution 1           tris=46     pts=64     mass=-        sel=[]
+  Resolution 2           tris=24     pts=32     mass=-        sel=[]
+  Geometry               tris=20     pts=12     mass=300      sel=[Component01]
+      props: {'class': 'house', 'autocenter': '0'}
+  Fire Geometry          tris=32     pts=20     mass=-        sel=[Component01, Component02]
+== addons/sky_street/sky_wreck_sedan.p3d (5 LODs)
+  Resolution 0           tris=136    pts=96     mass=-        sel=[]
+  Resolution 1           tris=104    pts=80     mass=-        sel=[]
+  Resolution 2           tris=24     pts=32     mass=-        sel=[]
+  Geometry               tris=24     pts=16     mass=1100     sel=[Component01, Component02]
+      props: {'class': 'house', 'autocenter': '0'}
+  Fire Geometry          tris=24     pts=16     mass=-        sel=[Component01, Component02]
+== addons/sky_street/sky_wreck_van.p3d (6 LODs)
+  Resolution 0           tris=152    pts=122    mass=-        sel=[]
+  Resolution 1           tris=120    pts=106    mass=-        sel=[]
+  Resolution 2           tris=40     pts=58     mass=-        sel=[]
+  Geometry               tris=40     pts=26     mass=2500     sel=[Component01, Component02, Component03]
+      props: {'class': 'house', 'autocenter': '0'}
+  View Geometry          tris=24     pts=16     mass=-        sel=[Component01, Component02]
+  Fire Geometry          tris=40     pts=26     mass=-        sel=[Component01, Component02, Component03]

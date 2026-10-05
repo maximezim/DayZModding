@@ -56,6 +56,26 @@ MATERIALS = {
     "roofmark": {"rvmat": rvmat("sky_roofmark"), "co": tex("sky_roofmark_ca")},
 }
 
+# --------------------------------------------------------------------- UNVERIFIED ASSUMPTIONS
+# Everything below is a guess until confirmed in DayZ (see PENDING_VERIFICATION.md).
+# Flip the value here, regenerate (gen_configs.py / build_*.py), rebuild - never hard-code.
+#
+# Hinged doors (keycard door, locker doors, vending flap): model.cfg rotation
+# angle1 = DOOR_SWING_SIGN * DOOR_OPEN_ANGLE. +1 is intended to open INTO the room/cabinet.
+DOOR_SWING_SIGN = 1
+DOOR_OPEN_ANGLE = 1.4            # radians (~80 deg), same as Bohemia's Test_Building doors
+# Elevator leaves: leaf "a" moves along -X * ELEVATOR_SLIDE_SIGN, leaf "b" along +X * sign
+# (memory axis = second point minus first). +1 is intended to slide the leaves apart.
+ELEVATOR_SLIDE_SIGN = 1
+# Super-shader Stage7 environment map (vanilla path, not present in the samples).
+ENV_MAP = "dz\\data\\data\\env_land_co.paa"
+# Armor class name used for explosion damage in DamageSystem ArmorType.
+ARMOR_EXPLOSION_CLASS = "FragGrenade"
+
+# Rvmat emmisive[] RGB for lamps / lit windows (night look unverified).
+EMISSIVE_LAMP = (1.0, 0.92, 0.75)
+EMISSIVE_WINDOW = (0.55, 0.48, 0.35)
+
 # Fire Geometry penetration materials. Only the three marked verified=True were
 # seen in Bohemia's own Test_Building sample; the others follow the same naming
 # and MUST be confirmed on P:\DZ\data\data\penetration (Check-SkyAssets.ps1 does it).
@@ -70,6 +90,8 @@ PENETRATION = {
 # in the Test_Building sample.
 ROADWAY_INT = "dz\\surfaces\\data\\roadway\\concrete_int.tga"
 ROADWAY_EXT = "dz\\surfaces\\data\\roadway\\concrete_ext.paa"
+# UNVERIFIED (P6): no asphalt roadway surface confirmed yet - roads use the verified exterior concrete.
+ROADWAY_ASPHALT = ROADWAY_EXT
 
 # --------------------------------------------------------------------- Tower A
 TOWER_A = {
@@ -190,3 +212,83 @@ LOOT_POINT = {"range": 0.6, "height": 1.5}
 
 # Roof-drop event positions on the helipad roof (Blender frame X, Y; memory points roof_drop_N).
 ROOF_DROPS = [(-8.0, -8.0), (8.0, -8.0), (-8.0, 8.0), (8.0, 8.0)]
+
+
+# ===================================================================== KIT (batches 1-4)
+# Shared materials added for the kit. Same trim-sheet idea: few rvmats, many assets.
+MATERIALS.update({
+    "paver":     {"rvmat": rvmat("sky_paver"), "co": tex("sky_paver_co")},
+    "roadmark":  {"rvmat": rvmat("sky_roadmark"), "co": tex("sky_roadmark_ca"),
+                  "bands": {"solid": (0.0, 0.25), "dashed": (0.25, 0.5), "crosswalk": (0.5, 1.0)}},
+    "asphalt":   {"rvmat": rvmat("sky_asphalt"), "co": tex("sky_asphalt_co")},
+    "rust":      {"rvmat": rvmat("sky_rust"), "co": tex("sky_rust_co"),
+                  "bands": {"green": (0.0, 0.25), "grey": (0.25, 0.5), "rust": (0.5, 0.75), "burnt": (0.75, 1.0)}},
+    "foliage":   {"rvmat": rvmat("sky_foliage"), "co": tex("sky_foliage_ca")},
+    "atlas":     {"rvmat": rvmat("sky_atlas"), "co": tex("sky_atlas_co")},
+    "billboard": {"rvmat": rvmat("sky_billboard"), "co": tex("sky_billboard_a_co")},
+    # Emissive lamp: procedural colour + emissive rvmat (P7 EMISSIVE_LAMP).
+    "lamp":      {"rvmat": rvmat("sky_lamp"), "co": "#(argb,8,8,3)color(1,0.95,0.85,1,CO)"},
+})
+
+# Props atlas cells (col, row) on a 4 x 4 grid - must match gen_textures.atlas().
+ATLAS = {
+    "manhole": (0, 0), "timetable": (1, 0), "traffic": (2, 0), "sign": (3, 0),
+    "vending": (0, 1), "rack": (1, 1), "panel": (2, 1), "appliance": (3, 1),
+}
+
+
+def atlas_uv(cell):
+    """UV rectangle (u0, v0, u1, v1) of an atlas cell in Blender UV space (v up)."""
+    c, r = ATLAS[cell]
+    return (c / 4.0, 1.0 - (r + 1) / 4.0, (c + 1) / 4.0, 1.0 - r / 4.0)
+
+
+# Street grid: 12 m tiles = 8 m carriageway + 2 x 2 m sidewalk.
+STREET = {"tile": 12.0, "carriageway": 8.0, "sidewalk": 2.0, "curb_h": 0.15, "slab_t": 0.3, "skirt": 0.5}
+
+PREFIX_STREET = MOD + "\\sky_street"
+PREFIX_PROPS = MOD + "\\sky_props"
+PREFIX_FLOORS = MOD + "\\sky_floors"
+
+# Budget hypotheses per category (same method as reviews/perf_review.md; confirm by FPS test).
+BUDGETS = {
+    "road":   {"res0": 300, "res1": 150, "res2": 40, "geo_comps": 4, "geo_tris": 60, "sections_res0": 3},
+    "small":  {"res0": 600, "res1": 300, "res2": 100, "geo_comps": 8, "geo_tris": 120, "sections_res0": 3},
+    "medium": {"res0": 1200, "res1": 600, "res2": 150, "geo_comps": 12, "geo_tris": 200, "sections_res0": 4},
+}
+
+# name -> dict(cls, p3d, pbo, category, kind, uses=[assumption params], variants={cls: texture})
+KIT = {}
+
+
+def kit(name, pbo, category, uses=(), variants=None, desc=""):
+    KIT[name] = {"cls": "Land_SKY_" + name, "p3d": "sky_" + name.lower() + ".p3d", "pbo": pbo,
+                 "category": category, "uses": list(uses), "variants": variants or {}, "desc": desc}
+
+
+# ---- batch 1: street kit + non-enterable props (no door/elevator assumptions)
+for _n, _c, _d in [
+    ("Road_Straight", "road", "8 x 12 m carriageway, centre dashed line"),
+    ("Road_Crossing", "road", "8 x 12 m carriageway with crosswalk"),
+    ("Intersection_4Way", "road", "12 x 12 m junction with stop lines"),
+    ("Intersection_T", "road", "12 x 12 m T junction (closed side = sidewalk)"),
+    ("Sidewalk", "road", "2 x 12 m paver sidewalk with curb"),
+    ("Sidewalk_Corner", "road", "2 x 2 m sidewalk corner piece"),
+    ("Curb", "road", "3 m curb stone (free placement)"),
+    ("Manhole", "road", "0.8 m cast-iron cover"),
+]:
+    kit(_n, "sky_street", _c, uses=["ROADWAY_ASPHALT"] if _n.startswith(("Road", "Inter")) else [], desc=_d)
+for _n, _c, _d, _u in [
+    ("StreetLight", "small", "8 m pole street light (emissive head)", ["EMISSIVE_LAMP"]),
+    ("TrafficLight", "small", "traffic light with 5 m arm (static atlas face, no emissive)", []),
+    ("Barrier_Concrete", "small", "3 m jersey barrier", []),
+    ("Barrier_Steel", "small", "2.4 m crowd barrier", []),
+    ("BusStop", "medium", "4 m shelter with bench and timetable", []),
+    ("Dumpster", "small", "1.8 m waste container", []),
+    ("Planter", "small", "1.5 m concrete planter with shrub", []),
+    ("Wreck_Sedan", "medium", "generic rusted sedan hulk (original shape)", []),
+    ("Wreck_Van", "medium", "generic burnt box van hulk (original shape)", []),
+]:
+    kit(_n, "sky_street", _c, uses=_u, desc=_d)
+kit("Billboard", "sky_street", "medium", desc="6 x 3 m billboard, poster via hiddenSelections",
+    variants={"Land_SKY_Billboard_%s" % k.upper(): PREFIX_TEX + "\\data\\sky_billboard_%s_co.paa" % k for k in "abcd"})

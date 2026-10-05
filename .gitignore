@@ -40,3 +40,6 @@ desktop.ini
 # --- SKY_Skyline generated textures (assets/Build-SkyAssets.ps1 regenerates them) ---
 /mods/SKY_Skyline/addons/sky_textures/data/*.paa
 /mods/SKY_Skyline/addons/sky_items/data/*.paa
+
+# --- batch hand-off bundles/zips (tools/assets/make_handoff.py) ---
+/_handoff/

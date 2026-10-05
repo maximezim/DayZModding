@@ -49,10 +49,20 @@ if ($Models) {
     if ($LASTEXITCODE -ne 0) { throw 'Blender export failed' }
     & $Blender -b --factory-startup -P (Join-Path $mod 'assets\blender\test_towera.py')
     if ($LASTEXITCODE -ne 0) { throw 'Tower A geometry tests failed' }
+    foreach ($gen in 'build_kit.py', 'build_props.py', 'build_floors.py') {
+        $g = Join-Path $mod "assets\blender\$gen"
+        if (Test-Path $g) {
+            & $Blender -b --factory-startup -P $g -- --out (Join-Path $mod 'addons')
+            if ($LASTEXITCODE -ne 0) { throw "$gen export failed" }
+        }
+    }
+    & $Blender -b --factory-startup -P (Join-Path $mod 'assets\blender\test_kit.py')
+    if ($LASTEXITCODE -ne 0) { throw 'Kit geometry tests failed' }
 }
 
 Write-DzStep 'Configs, economy, checks'
 Run-Py @((Join-Path $mod 'assets\gen_configs.py'))
+Run-Py @((Join-Path $mod 'assets\gen_manifest.py'))
 Run-Py @((Join-Path $mod 'economy\gen_economy.py'))
 Run-Py @((Join-Path $mod 'assets\check_assets.py'))
 Run-Py @((Join-Path $mod 'placement\tests\test_sky_layout.py'))

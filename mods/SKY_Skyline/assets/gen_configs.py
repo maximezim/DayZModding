@@ -54,15 +54,99 @@ def rvmat_super(base, spec_power=40, emissive=(0, 0, 0)):
     out += stage(5, d + "_smdi.paa")
     out += stage(6, "#(ai,64,64,1)fresnel(1.5,0.8)", "none")
     # Env map path follows the vanilla convention; confirmed by Check-SkyAssets.ps1 on P:.
-    out += stage(7, "dz\\data\\data\\env_land_co.paa", "none", '\tuseWorldEnvMap = "true";\n')
+    out += stage(7, S.ENV_MAP, "none", '\tuseWorldEnvMap = "true";\n')
     return out
 
+
+def rvmat_flat(emissive=(0, 0, 0), color_stage=None):
+    """Procedural-only Super rvmat (no texture files): lamps and other flat glowing parts."""
+    out = HEADER
+    out += "ambient[] = {1, 1, 1, 1};\ndiffuse[] = {1, 1, 1, 1};\nforcedDiffuse[] = {0, 0, 0, 0};\n"
+    out += "emmisive[] = {%g, %g, %g, 1};\nspecular[] = {0.2, 0.2, 0.2, 1};\nspecularPower = 20;\n" % tuple(emissive)
+    out += 'PixelShaderID = "Super";\nVertexShaderID = "Super";\n'
+    out += stage(1, "#(argb,8,8,3)color(0.5,0.5,1,1,NOHQ)")
+    out += stage(2, "#(argb,8,8,3)color(0.5,0.5,0.5,1,DT)")
+    out += stage(3, "#(argb,8,8,3)color(0,0,0,0,MC)")
+    out += stage(4, "#(argb,8,8,3)color(1,1,1,1,AS)")
+    out += stage(5, "#(argb,8,8,3)color(1,0.2,0.3,1,SMDI)")
+    out += stage(6, "#(ai,64,64,1)fresnel(1.5,0.8)", "none")
+    out += stage(7, S.ENV_MAP, "none", '\tuseWorldEnvMap = "true";\n')
+    return out
+
+
+# Alpha-tested (not blended) materials - renderFlags as in Bohemia's Test_Clutter grass rvmat.
+ALPHA_TEST = {"sky_foliage"}
 
 RVMATS = {
     "sky_concrete": ("sky_concrete", 20), "sky_metal": ("sky_metal", 60), "sky_glass": ("sky_glass", 120), "sky_glassfar": ("sky_glassfar", 80),
     "sky_tile": ("sky_tile", 50), "sky_carpet": ("sky_carpet", 5), "sky_wallpaper": ("sky_wallpaper", 10),
     "sky_roofmark": ("sky_roofmark", 15), "sky_asphalt": ("sky_asphalt", 10),
+    # kit (batch 1+)
+    "sky_paver": ("sky_paver", 10), "sky_roadmark": ("sky_roadmark", 15), "sky_rust": ("sky_rust", 25),
+    "sky_foliage": ("sky_foliage", 5), "sky_atlas": ("sky_atlas", 30), "sky_billboard": ("sky_billboard", 15),
 }
+
+
+# ------------------------------------------------------------------ kit (skyspec.KIT)
+KIT_PATCH = {"sky_street": "SKY_Skyline_Street", "sky_props": "SKY_Skyline_Props", "sky_floors": "SKY_Skyline_Floors"}
+
+
+def kit_entries(pbo):
+    return [(n, e) for n, e in S.KIT.items() if e["pbo"] == pbo]
+
+
+def kit_config(pbo):
+    prefix = S.MOD + "\\" + pbo
+    out = HEADER + patches(KIT_PATCH[pbo], ["DZ_Data", "SKY_Skyline_Textures", "SKY_Skyline_Scripts"])
+    out += "\nclass CfgVehicles\n{\n\tclass HouseNoDestruct;\n"
+    base = "Land_SKY_%s_Base" % pbo.split("_")[1].capitalize()
+    out += "\tclass %s: HouseNoDestruct\n\t{\n\t\tscope = 0;\n\t};\n" % base
+    for name, e in kit_entries(pbo):
+        body = '\t\tscope = 1;\n\t\tmodel = "%s\\%s";\n' % (prefix, e["p3d"])
+        if e["desc"]:
+            body = "\t\t// %s\n" % e["desc"] + body
+        if e["variants"]:
+            body += '\t\thiddenSelections[] = {"camo"};\n'
+            first = sorted(e["variants"])[0]
+            body += '\t\thiddenSelectionsTextures[] = {"%s"};\n' % e["variants"][first]
+        body += e.get("config_extra", "")
+        out += "\tclass %s: %s\n\t{\n%s\t};\n" % (e["cls"], base, body)
+        for vcls, texpath in sorted(e["variants"].items()):
+            out += '\tclass %s: %s\n\t{\n\t\thiddenSelectionsTextures[] = {"%s"};\n\t};\n' % (vcls, e["cls"], texpath)
+    return out + "};\n"
+
+
+def kit_model_cfg(pbo):
+    out = HEADER + """class CfgSkeletons
+{
+\tclass Default
+\t{
+\t\tisDiscrete = 1;
+\t\tskeletonInherit = "";
+\t\tskeletonBones[] = {};
+\t};
+%s};
+class CfgModels
+{
+\tclass Default
+\t{
+\t\tsectionsInherit = "";
+\t\tsections[] = {};
+\t\tskeletonName = "";
+\t};
+"""
+    skel = ""
+    for name, e in kit_entries(pbo):
+        stem = e["p3d"][:-4]
+        body = ""
+        if e["variants"]:
+            body += '\t\tsections[] = {"camo"};\n'
+        anim = e.get("model_anims")
+        if anim:
+            skel += anim["skeleton"]
+            body += '\t\tskeletonName = "%s";\n\t\tclass Animations\n\t\t{\n%s\t\t};\n' % (anim["skeleton_name"], anim["animations"])
+        out += "\tclass %s: Default\n\t{\n%s\t};\n" % (stem, body) if body else "\tclass %s: Default {};\n" % stem
+    return (out % skel) + "};\n"
 
 
 # ------------------------------------------------------------------ tower config
@@ -78,10 +162,10 @@ def damage_system_static(door_names):
 \t\t\t\t\t{
 \t\t\t\t\t\tclass Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
 \t\t\t\t\t\tclass Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
-\t\t\t\t\t\tclass FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+\t\t\t\t\t\tclass %s { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
 \t\t\t\t\t};
 \t\t\t\t};
-""" % (d, d)
+""" % (d, d, S.ARMOR_EXPLOSION_CLASS)
     return """\t\tclass DamageSystem
 \t\t{
 \t\t\tclass GlobalHealth { class Health { hitpoints = 1000; }; };
@@ -89,13 +173,13 @@ def damage_system_static(door_names):
 \t\t\t{
 \t\t\t\tclass Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
 \t\t\t\tclass Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
-\t\t\t\tclass FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+\t\t\t\tclass %s { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
 \t\t\t};
 \t\t\tclass DamageZones
 \t\t\t{
 %s\t\t\t};
 \t\t};
-""" % zones
+""" % (S.ARMOR_EXPLOSION_CLASS, zones)
 
 
 def tower_config():
@@ -240,7 +324,7 @@ def tower_model_cfg():
 \t\t\t\tminValue = 0;
 \t\t\t\tmaxValue = 1;
 \t\t\t\tangle0 = 0;
-\t\t\t\tangle1 = 1.4;
+\t\t\t\tangle1 = %g;
 \t\t\t};
 \t\t};
 \t};
@@ -253,7 +337,7 @@ def tower_model_cfg():
 \t};
 };
 """ % (stem(S.CLASS_FLOOR), stem(S.CLASS_ROOF), stem(S.CLASS_LOBBY), d["name"], d["name"], d["name"],
-       stem(S.CLASS_CORE), anims)
+       S.DOOR_SWING_SIGN * S.DOOR_OPEN_ANGLE, stem(S.CLASS_CORE), anims)
     return out
 
 
@@ -321,7 +405,7 @@ def keycard_rvmat():
     out += stage(4, "#(argb,8,8,3)color(1,1,1,1,AS)")
     out += stage(5, d + "_smdi.paa")
     out += stage(6, "#(ai,64,64,1)fresnel(1.5,0.8)", "none")
-    out += stage(7, "dz\\data\\data\\env_land_co.paa", "none", '\tuseWorldEnvMap = "true";\n')
+    out += stage(7, S.ENV_MAP, "none", '\tuseWorldEnvMap = "true";\n')
     return out
 
 
@@ -357,7 +441,15 @@ class CfgModels
 """,
     }
     for name, (base, power) in RVMATS.items():
-        files["sky_textures/data/%s.rvmat" % name] = rvmat_super(base, power)
+        text = rvmat_super(base, power)
+        if name in ALPHA_TEST:
+            text = text.replace('PixelShaderID', 'renderFlags[] = {"AlphaTest32"};\nPixelShaderID', 1)
+        files["sky_textures/data/%s.rvmat" % name] = text
+    files["sky_textures/data/sky_lamp.rvmat"] = rvmat_flat(S.EMISSIVE_LAMP)
+    for pbo in KIT_PATCH:
+        if kit_entries(pbo):
+            files["%s/config.cpp" % pbo] = kit_config(pbo)
+            files["%s/model.cfg" % pbo] = kit_model_cfg(pbo)
     return files
 
 

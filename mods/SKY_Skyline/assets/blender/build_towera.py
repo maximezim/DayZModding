@@ -370,7 +370,8 @@ def build_core():
                 kw = {"mat": "metal", "uv": UV_STEEL} if k.startswith("res") else ({"mat": "pen_metal"} if k == "fire" else {})
                 L[k].box(a0, a1, iy1 + 0.03, iy1 + 0.09, s, s + C["door_h"] - 0.005, sel=[name], **kw)
             L["mem"].point(name + "_axis", (0.0, iy1 + 0.06, s + 1.0))
-            L["mem"].point(name + "_axis", (sign * (ed + 0.01), iy1 + 0.06, s + 1.0))
+            # Slide direction is an unverified assumption: skyspec.ELEVATOR_SLIDE_SIGN.
+            L["mem"].point(name + "_axis", (sign * S.ELEVATOR_SLIDE_SIGN * (ed + 0.01), iy1 + 0.06, s + 1.0))
         # Panel (inside, east cab wall) and call button (outside, north face).
         for k in ("res0",):
             L[k].box(cx1 - 0.05, cx1, 3.4, 3.7, s + 1.0, s + 1.5, mat="metal", uv=UV_STEEL)

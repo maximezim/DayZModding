@@ -1,0 +1,139 @@
+{
+ "sky_barrier_concrete.p3d": {
+  "fire": 20,
+  "geo": 20,
+  "res0": 20,
+  "res1": 20,
+  "res2": 12,
+  "view": 20
+ },
+ "sky_barrier_steel.p3d": {
+  "fire": 24,
+  "geo": 36,
+  "res0": 204,
+  "res1": 72,
+  "res2": 12
+ },
+ "sky_billboard.p3d": {
+  "fire": 36,
+  "geo": 36,
+  "res0": 38,
+  "res1": 38,
+  "res2": 20,
+  "view": 12
+ },
+ "sky_busstop.p3d": {
+  "fire": 96,
+  "geo": 96,
+  "res0": 94,
+  "res1": 76,
+  "res2": 10,
+  "view": 12
+ },
+ "sky_curb.p3d": {
+  "fire": 16,
+  "geo": 16,
+  "res0": 16,
+  "res1": 16,
+  "res2": 10
+ },
+ "sky_dumpster.p3d": {
+  "fire": 12,
+  "geo": 12,
+  "res0": 104,
+  "res1": 24,
+  "res2": 12
+ },
+ "sky_intersection_4way.p3d": {
+  "fire": 36,
+  "geo": 36,
+  "res0": 38,
+  "res1": 38,
+  "res2": 6,
+  "road": 6
+ },
+ "sky_intersection_t.p3d": {
+  "fire": 36,
+  "geo": 36,
+  "res0": 46,
+  "res1": 36,
+  "res2": 6,
+  "road": 6
+ },
+ "sky_manhole.p3d": {
+  "fire": 28,
+  "geo": 28,
+  "res0": 44,
+  "res1": 28,
+  "res2": 20
+ },
+ "sky_planter.p3d": {
+  "fire": 12,
+  "geo": 12,
+  "res0": 18,
+  "res1": 18,
+  "res2": 10
+ },
+ "sky_road_crossing.p3d": {
+  "fire": 12,
+  "geo": 12,
+  "res0": 18,
+  "res1": 14,
+  "res2": 2,
+  "road": 2
+ },
+ "sky_road_straight.p3d": {
+  "fire": 12,
+  "geo": 12,
+  "res0": 16,
+  "res1": 12,
+  "res2": 2,
+  "road": 2
+ },
+ "sky_sidewalk.p3d": {
+  "fire": 12,
+  "geo": 12,
+  "res0": 20,
+  "res1": 10,
+  "res2": 2,
+  "road": 2
+ },
+ "sky_sidewalk_corner.p3d": {
+  "fire": 12,
+  "geo": 12,
+  "res0": 30,
+  "res1": 10,
+  "res2": 2,
+  "road": 2
+ },
+ "sky_streetlight.p3d": {
+  "fire": 32,
+  "geo": 48,
+  "mem": 0,
+  "res0": 80,
+  "res1": 72,
+  "res2": 24
+ },
+ "sky_trafficlight.p3d": {
+  "fire": 32,
+  "geo": 20,
+  "res0": 66,
+  "res1": 46,
+  "res2": 24
+ },
+ "sky_wreck_sedan.p3d": {
+  "fire": 24,
+  "geo": 24,
+  "res0": 136,
+  "res1": 104,
+  "res2": 24
+ },
+ "sky_wreck_van.p3d": {
+  "fire": 40,
+  "geo": 40,
+  "res0": 152,
+  "res1": 120,
+  "res2": 40,
+  "view": 24
+ }
+}

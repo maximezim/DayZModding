@@ -270,11 +270,166 @@ def keycards(size, out):
     save(smdi(size, 0.3, 0.5), out, "sky_keycard_smdi")
 
 
+# ------------------------------------------------------------------ street kit (batch 1)
+def paver(size, out):
+    """Sidewalk pavers: 30 x 30 cm stone blocks (mapped at 3 m -> 10 x 10 per tile)."""
+    tiled(size, out, "sky_paver", 10, (0.62, 0.60, 0.57), (0.36, 0.35, 0.33), max(3, size // 512), 101, 0.15, 0.25, tile_var=0.08)
+
+
+def roadmark(size, out):
+    """Road paint atlas (alpha): V 0-0.25 solid line, 0.25-0.5 dashed line,
+    0.5-1.0 crosswalk stripes. Lines run along U."""
+    size = min(size, 1024)
+    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    rng = np.random.default_rng(107)
+    paint = (232, 230, 220, 230)
+    q = size // 4
+    d.rectangle([0, q // 2 - q // 6, size, q // 2 + q // 6], fill=paint)                    # solid
+    for x in range(0, size, size // 4):                                                     # dashed
+        d.rectangle([x, q + q // 2 - q // 6, x + size // 8, q + q // 2 + q // 6], fill=paint)
+    for x in range(0, size, size // 8):                                                     # crosswalk
+        d.rectangle([x + size // 32, 2 * q, x + size // 16 + size // 32, size - 1], fill=paint)
+    a = np.asarray(img).astype(np.float32)
+    wear = fbm(size, 109, octaves=4, base=16)
+    a[..., 3] *= np.clip(0.55 + 0.6 * wear + 0.1 * rng.random((size, size)), 0, 1)
+    Image.fromarray(a.astype(np.uint8), "RGBA").save(os.path.join(out, "sky_roadmark_ca.png"))
+    save(normal_from_height(np.zeros((CONST_SIZE, CONST_SIZE), np.float32), 1.0), out, "sky_roadmark_nohq")
+    save(smdi(size, 0.25, 0.35), out, "sky_roadmark_smdi")
+    save(to_rgb(gray(np.ones((CONST_SIZE, CONST_SIZE), np.float32))), out, "sky_roadmark_as")
+
+
+def rust(size, out):
+    """Weathered painted metal: V bands = green paint (dumpsters), grey paint
+    (barriers/poles), rust (wrecks), burnt (wreck variant)."""
+    n = fbm(size, 113, octaves=6, base=8)
+    spots = (fbm(size, 127, octaves=4, base=16) > 0.58).astype(np.float32)
+    col = np.zeros((size, size, 3), np.float32)
+    bands = [((0.20, 0.33, 0.24), 0.0, 0.25), ((0.42, 0.43, 0.42), 0.25, 0.5),
+             ((0.40, 0.25, 0.15), 0.5, 0.75), ((0.12, 0.11, 0.10), 0.75, 1.0)]
+    rust_rgb = np.array([0.38, 0.20, 0.10], np.float32)
+    for rgb, v0, v1 in bands:
+        r0, r1 = band_rows(size, v0, v1)
+        base = np.array(rgb, np.float32) + 0.05 * gray(n[r0:r1] - 0.5)
+        m = spots[r0:r1, :, None]
+        col[r0:r1] = base * (1 - m) + (rust_rgb + 0.06 * gray(n[r0:r1] - 0.5)) * m
+    h = 0.5 * n + 0.6 * spots
+    save(to_rgb(col), out, "sky_rust_co")
+    save(normal_from_height(h, 2.0), out, "sky_rust_nohq")
+    save(smdi(size, 0.25 - 0.15 * spots, 0.3 - 0.2 * spots), out, "sky_rust_smdi")
+    save(to_rgb(gray(np.full((CONST_SIZE, CONST_SIZE), 0.95, np.float32))), out, "sky_rust_as")
+
+
+def foliage(size, out):
+    """Generic shrub leaves card (alpha-tested), for planters and garden roofs."""
+    size = min(size, 1024)
+    rng = np.random.default_rng(131)
+    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    for _ in range(900):
+        x, y = rng.integers(0, size), rng.integers(int(size * 0.1), size)
+        r = int(rng.integers(size // 64, size // 24))
+        if (x - size / 2) ** 2 / (size * 0.48) ** 2 + (y - size) ** 2 / (size * 0.9) ** 2 > 1:
+            continue
+        g = int(rng.integers(70, 130))
+        d.ellipse([x - r, y - r // 2, x + r, y + r // 2], fill=(int(g * 0.45), g, int(g * 0.35), 255))
+    img.save(os.path.join(out, "sky_foliage_ca.png"))
+    save(normal_from_height(np.zeros((CONST_SIZE, CONST_SIZE), np.float32), 1.0), out, "sky_foliage_nohq")
+    save(smdi(size, 0.05, 0.1), out, "sky_foliage_smdi")
+    save(to_rgb(gray(np.ones((CONST_SIZE, CONST_SIZE), np.float32))), out, "sky_foliage_as")
+
+
+# Props atlas: 4 x 4 cells of size/4. Cell names must match skyspec.ATLAS.
+def _font(px):
+    try:
+        return ImageFont.load_default(size=px)
+    except TypeError:
+        return ImageFont.load_default()
+
+
+def atlas(size, out):
+    c = size // 4
+    img = Image.new("RGB", (size, size), (128, 128, 128))
+    d = ImageDraw.Draw(img)
+    h = np.zeros((size, size), np.float32)
+    f_big, f_small = _font(c // 8), _font(c // 14)
+
+    def cell(col, row):
+        return col * c, row * c, (col + 1) * c, (row + 1) * c
+
+    # (0,0) manhole cover: cast iron disc with radial ribs
+    x0, y0, x1, y1 = cell(0, 0)
+    d.rectangle([x0, y0, x1, y1], fill=(60, 58, 55))
+    d.ellipse([x0 + 8, y0 + 8, x1 - 8, y1 - 8], fill=(48, 47, 45), outline=(80, 78, 74), width=6)
+    cx, cy = (x0 + x1) // 2, (y0 + y1) // 2
+    for k in range(12):
+        a = k * np.pi / 6
+        d.line([cx, cy, cx + np.cos(a) * c * 0.42, cy + np.sin(a) * c * 0.42], fill=(78, 76, 72), width=c // 40)
+    d.ellipse([cx - c // 10, cy - c // 10, cx + c // 10, cy + c // 10], fill=(72, 70, 66))
+    # (1,0) bus timetable panel
+    x0, y0, x1, y1 = cell(1, 0)
+    d.rectangle([x0, y0, x1, y1], fill=(236, 236, 230))
+    d.rectangle([x0, y0, x1, y0 + c // 6], fill=(30, 80, 140))
+    d.text((x0 + c // 16, y0 + c // 24), "LINE 7  SKYLINE", fill=(255, 255, 255), font=f_big)
+    for i in range(10):
+        d.text((x0 + c // 16, y0 + c // 4 + i * c // 15), "%02d:%02d   %02d:%02d   %02d:%02d" % (6 + i, 5, 6 + i, 25, 6 + i, 45),
+               fill=(40, 40, 40), font=f_small)
+    # (2,0) traffic light face: housing + red/amber/green lenses (vertical)
+    x0, y0, x1, y1 = cell(2, 0)
+    d.rectangle([x0, y0, x1, y1], fill=(28, 30, 28))
+    for i, rgb in enumerate([(170, 30, 25), (190, 130, 20), (30, 150, 70)]):
+        yy = y0 + c // 6 + i * c // 3
+        d.ellipse([x0 + c // 3, yy - c // 8, x0 + 2 * c // 3, yy + c // 8], fill=rgb, outline=(10, 10, 10), width=4)
+    # (3,0) generic street sign blank (blue, white border) - text-free
+    x0, y0, x1, y1 = cell(3, 0)
+    d.rectangle([x0, y0, x1, y1], fill=(30, 70, 130), outline=(240, 240, 240), width=c // 20)
+    # (0,1) vending front, (1,1) server rack front, (2,1) control panel,
+    # (3,1) appliance front - reserved for batch 3 (interior props); neutral fill now.
+    for col in range(4):
+        x0, y0, x1, y1 = cell(col, 1)
+        d.rectangle([x0, y0, x1, y1], fill=(110 + 10 * col, 110 + 10 * col, 115 + 10 * col))
+    img.save(os.path.join(out, "sky_atlas_co.png"))
+    save(normal_from_height(h, 1.0), out, "sky_atlas_nohq")
+    save(smdi(size, 0.3, 0.4), out, "sky_atlas_smdi")
+    save(to_rgb(gray(np.ones((CONST_SIZE, CONST_SIZE), np.float32))), out, "sky_atlas_as")
+
+
+BILLBOARDS = {
+    "a": ("SKYLINE TRANSIT", "RIDE THE LINE", (30, 80, 140)),
+    "b": ("COLD DRINKS", "ICE COLD - ALL DAY", (200, 60, 40)),
+    "c": ("TOWER LOFTS", "NOW LEASING", (40, 40, 48)),
+    "d": ("STAY SAFE", "CURFEW 22:00", (230, 180, 30)),
+}
+
+
+def billboards(size, out):
+    """Four original poster designs (1024 x 512), swapped via hiddenSelections."""
+    w, h = 1024, 512
+    for key, (title, sub, rgb) in BILLBOARDS.items():
+        img = Image.new("RGB", (w, h), rgb)
+        d = ImageDraw.Draw(img)
+        rng = np.random.default_rng(ord(key))
+        for _ in range(6):                                   # abstract shapes
+            x, y, r = rng.integers(0, w), rng.integers(0, h), int(rng.integers(40, 160))
+            shade = tuple(int(min(255, v * 1.25 + 20)) for v in rgb)
+            d.ellipse([x - r, y - r, x + r, y + r], fill=shade)
+        d.rectangle([0, h - 150, w, h], fill=(245, 245, 240))
+        d.text((40, 60), title, fill=(255, 255, 255), font=_font(96))
+        d.text((40, h - 120), sub, fill=rgb, font=_font(64))
+        a = np.asarray(img).astype(np.float32) / 255.0
+        a *= (0.88 + 0.12 * fbm(512, 137, octaves=3, base=8)[:h, :, None].repeat(2, 1)[:, :w])   # weathering
+        Image.fromarray((a * 255).astype(np.uint8), "RGB").save(os.path.join(out, "sky_billboard_%s_co.png" % key))
+    save(normal_from_height(np.zeros((CONST_SIZE, CONST_SIZE), np.float32), 1.0), out, "sky_billboard_nohq")
+    save(smdi(CONST_SIZE, 0.15, 0.2), out, "sky_billboard_smdi")
+    save(to_rgb(gray(np.ones((CONST_SIZE, CONST_SIZE), np.float32))), out, "sky_billboard_as")
+
+
 GENERATORS = {
     "concrete": concrete, "metal": metal, "glass": glass, "glassfar": glassfar,
     "tile": lambda s, o: tiled(s, o, "sky_tile", 5, (0.72, 0.71, 0.68), (0.45, 0.45, 0.43), max(3, s // 400), 41, 0.3, 0.5),
     "carpet": carpet, "wallpaper": wallpaper, "asphalt": asphalt,
     "roofmark": roofmark, "keycards": keycards,
+    "paver": paver, "roadmark": roadmark, "rust": rust, "foliage": foliage, "atlas": atlas, "billboards": billboards,
 }
 
 

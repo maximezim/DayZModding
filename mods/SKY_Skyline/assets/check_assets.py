@@ -28,7 +28,8 @@ def main():
     ap.add_argument("--strict", action="store_true")
     a = ap.parse_args()
     man = yaml.safe_load(open(os.path.join(HERE, "manifest.yaml")))
-    entries = [e for e in man.get("kit", []) + man.get("items", []) if isinstance(e, dict) and e.get("p3d")]
+    entries = [e for e in man.get("kit", []) + man.get("items", []) + man.get("generated_kit", [])
+               if isinstance(e, dict) and e.get("p3d")]
     fails = warns = 0
     for e in entries:
         lods = p3d_inspect.parse(os.path.join(ROOT, e["p3d"]))
@@ -37,7 +38,17 @@ def main():
         b = e.get("budget", {})
         errs, over = [], []
         is_item = e["p3d"].startswith("addons/sky_items")
-        if not is_item:
+        is_prop = "category" in e          # kit asset: 3+ Res, Geometry, Fire Geometry
+        if is_prop:
+            for req in ("Geometry", "Fire Geometry"):
+                if req not in by:
+                    errs.append("missing LOD " + req)
+            if len(res) < 3:
+                errs.append("only %d resolution LODs" % len(res))
+            g = by.get("Geometry")
+            if g and g["properties"].get("autocenter") != "0":
+                errs.append("Geometry lacks autocenter=0")
+        elif not is_item:
             for req in ENTERABLE:
                 if req not in by:
                     errs.append("missing LOD " + req)
