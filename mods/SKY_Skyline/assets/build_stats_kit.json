@@ -98,7 +98,7 @@
  },
  "sky_floor_apartments.p3d": {
   "fire": 480,
-  "geo": 336,
+  "geo": 480,
   "mem": 0,
   "res0": 1264,
   "res1": 872,
@@ -110,7 +110,7 @@
  },
  "sky_floor_hotel.p3d": {
   "fire": 456,
-  "geo": 336,
+  "geo": 456,
   "mem": 0,
   "res0": 1240,
   "res1": 848,

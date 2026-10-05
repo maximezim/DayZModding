@@ -91,3 +91,107 @@ Files referenced:
 - /home/user/DayZModding/.githooks/pre-commit
 
 GATE: FAIL (H1: sealed SE and NW apartments on Floor_Apartments)
+
+
+## Re-gate (20746e8)
+
+**Gate result: PASS.** The previous High (H1, sealed apartments) is fixed and verified. The new issues are 0 Critical, 0 High, 1 Medium, 2 Low, plus Info.
+
+**How I checked (range fcc7f4c..20746e8):**
+- Static review of the diff, plus two read-only test runs.
+- `test_kit.py` was run on a `git archive` copy in the scratchpad, with stub `bpy`/`bmesh` and `PYTHONDONTWRITEBYTECODE=1`. Nothing was written into the repo. Result: `KIT GEOMETRY TESTS: PASS (5 assets)`.
+- `tools/assets/p3d_inspect.py` was run read-only on the committed P3Ds. Their LOD, component and triangle counts match what the generator produces now (Apartments: Geometry 28 components / 336 tris, Res3 8 tris; Roof_Garden Res3 10 tris), so the binaries are rebuilt from this source.
+
+## Previous findings
+
+**H1 (sealed SE and NW apartments): fixed.**
+- `/home/user/DayZModding/mods/SKY_Skyline/assets/blender/build_floors.py:62-65`: every apartment now has two doors from the hall, plus the door between its two wings.
+- The new reachability test (`/home/user/DayZModding/mods/SKY_Skyline/assets/blender/test_kit.py:109-159`) passes, and it is not a vacuous test: when I put the old wall layout back in the scratch copy, it reported `91.2 m2 unreachable` twice (once for SE, once for NW).
+- No new sealed or trap spaces. I repeated the flood fill with all Geometry grown by a 0.3 m player radius on a 0.1 m grid. Apartments and Hotel both pass, and the mechanical floor and both roofs also pass at 0.4 m.
+  - Hotel only fails at 0.3 m on the 0.25 m grid. That is a grid-alignment artifact with its 1.0 m doors, not a real trap.
+  - The wall stubs between the new doors and the party walls (0.175 m) meet the party walls, so there is no slot.
+
+**M1 (roof-drop positions): fixed at the source; latent in layout as you described.**
+- The source of truth now exists: `/home/user/DayZModding/mods/SKY_Skyline/assets/skyspec.py:407-409` (`ROOF_DROPS_CLEAR`, `ROOF_DROP_POINTS` per roof class).
+- Both garden and mechanical builders read it (`build_floors.py:167-168`, `:183-184`).
+- `test_kit.py:179-191` checks that each memory point equals the spec, that a 1.5 m crate does not overlap Geometry, and that the crate is at least 1 m from the parapet.
+- Still open: `/home/user/DayZModding/mods/SKY_Skyline/placement/sky_layout.py:148` still loops over `S.ROOF_DROPS` (the helipad positions). This is acceptable as latent only if Batch 5 switches it to `S.ROOF_DROP_POINTS[roof_cls]`, and it must happen before any garden or mechanical roof is placed. See L2 for the related wording in TESTING.md.
+
+**M2 (climbable plant units): fixed.**
+- `build_floors.py:125`: the units now run 0..WT (3.2 m) in every LOD that has them (Res0/1, Geometry, View, Fire).
+- The committed Geometry top is 3.2 m, which is exactly the next slab's underside (3.5 − 0.3). So there is no gap under the slab and nothing to climb.
+- The service strip between the units and the louvre is about 1.38 m wide, open at both ends, and reachable.
+- TESTING.md F4-08 covers it.
+
+**L1 (shrubs only in Res0): accepted** as decoration in D36 (`/home/user/DayZModding/mods/SKY_Skyline/DECISIONS.md:40`) and TESTING F4-09.
+
+**L2 (planters had no View Geometry): fixed** at `build_floors.py:157`.
+
+**L3 (parapet easy to step over): fixed.**
+- Planters now sit 1.25 m inside the parapet (`build_floors.py:155`).
+- HVAC units are 1.75 m inside it. Any fall is self-inflicted only.
+
+## New findings
+
+### Medium
+
+**N1. The roof Res3 lid at z = 1.1 hides prone and crouched players on the roof at range.**
+- Location: `/home/user/DayZModding/mods/SKY_Skyline/assets/blender/build_floors.py:146-148`. It draws one box from -0.3 to 1.1 m with a solid top face over the whole 24 x 24 m roof.
+- Before this change, Res3 was an open parapet ring (the helipad, `build_towera.py:238`, still is). Res0-2 show the walkable roof at z = 0.
+- Exploit scenario:
+  - Anyone below 1.1 m on the roof (prone about 0.4 m, crouched about 1 m) is drawn under an opaque lid for every viewer who renders this roof at Res3.
+  - That depends on distance and the viewer's object-detail setting. F4-16 expects Res3 within 500 m, which is sniper range.
+  - The typical case is camping a roof-drop crate on a lower tower while watchers on taller towers can't see you. Viewers with low settings are hit hardest.
+  - Below the lid's height there is no view geometry, so nothing tells the viewer anyone is there.
+- Fix:
+  - Put the Res3 lid at the walkable level (z = 0) and keep the parapet as a band from -0.3 to 1.1 with its outer faces, plus inner faces if the budget allows (about 18 tris, within the roof Res3 budget of 50).
+  - In other words: `box(-HW,HW,-HD,HD,-SLAB_T,1.1, skip=("+z","-z"))` plus `hquad(-HW,HW,-HD,HD,0.0)`.
+  - Add a row to F4-16: a prone player on the roof must stay visible from a higher tower while the roof is at Res3.
+
+### Low
+
+**N2. Geometry no longer has lintels over the doors, but View/Fire do: a 2.1 to 3.2 m slot exists only in collision.**
+- Location: `build_floors.py:42-45`.
+- I confirmed the layout:
+  - Lintel components starting at z = 2.1: Geometry 0, View/Fire 12 on Apartments and 10 on Hotel.
+  - Res0/1 keep the lintels.
+  - Res2/3 have no partitions; the opaque glassfar facade covers them.
+  - `lights()` is memory points only.
+- No see-through results for line of sight or bullets: View and Fire still block above 2.1 m.
+- What remains is a mismatch between collision and what is drawn and shot at. "Nobody reaches 2.1 m" (D35) only holds if nothing climbable can stand in a doorway.
+  - Possible case: a vanilla placeable the player can climb, or a Batch-5 prop placed in a doorway. A player standing on it would have their head or third-person camera inside a visible, bullet-proof lintel.
+  - Rendering is back-face culled, so from inside the lintel they see both rooms, while Fire geometry shields their head.
+  - Thrown items can also pass through the "solid" lintel. The doorway below is already open, so that gains little.
+- Fix (either):
+  - Put the Geometry lintels back. This costs +12/+10 components against the D36 overrun.
+  - Or add a TESTING row: in each door, stand on the tallest climbable vanilla placeable and check that head and camera cannot enter the lintel band. Batch 5 should also keep doorway footprints free of props.
+
+**L2. TESTING.md wording that is wrong today.**
+- `/home/user/DayZModding/mods/SKY_Skyline/TESTING.md:303` (F4-15) says `sky_layout.py` "writes per roof class". It doesn't yet (see M1). A tester using generated events today would get the helipad drops at (±8, ±8), which land inside planters and HVAC units.
+  - Fix: mark F4-15 as blocked until Batch 5, or give the positions by hand.
+- `TESTING.md:294` (F4-06) and `:298` (F4-10) say the hall doors are all 1.0 m. The south and north hall doors are actually 1.2 m; the west and east ones are 1.0 m.
+
+## Info
+
+- **Far LODs (Res3) on the floors:** `far_band()` (`build_floors.py:30-34`) is a closed 4-sided opaque glassfar band from -0.3 to 3.2. It is just as opaque as the old facade() glassfar quads, so there is no see-through and no change in concealment. The mechanical floor band is unchanged.
+- **Reachability test gap:** `test_kit.reachability` floods 0.25 m cells without allowing for player width, so it would pass a gap narrower than a player. The current models pass a 0.3 m radius check (my run), so this is not a defect today. Growing blockers by about 0.3 m on a 0.1 m grid would make the test stricter.
+- **Louvre corners:** the change at `build_floors.py:104-105` still closes the corners. The east and west bands now butt against the inside of the north and south bands, so there are no gaps.
+- **Client-to-server surface:** none added. The batch adds no scripts, RPCs or DIAG/filePatching paths, and the config.cpp change is a comment only. BattlEye: no impact.
+- **Key and secret hygiene for fcc7f4c..20746e8: clean.**
+  - The only added files are the three review .md files. The P3Ds are Git LFS objects.
+  - `git ls-files` contains no `*.biprivatekey`, `*.bisign`, `*.bikey`, `*.pbo`, `workspace.config.json` or rendered `server/serverDZ.*.cfg`.
+  - In all history, the only `serverDZ` files ever added are the two placeholder templates.
+  - The diff adds no secret, token or webhook strings.
+  - `core.hooksPath` is `.githooks`, and `.gitignore` matches the build output, `workspace.config.json`, the rendered configs and `*.biprivatekey`.
+  - `.gitignore`, `.githooks` and `.gitattributes` are unchanged in the range.
+
+**Files:**
+- /home/user/DayZModding/mods/SKY_Skyline/assets/blender/build_floors.py
+- /home/user/DayZModding/mods/SKY_Skyline/assets/blender/test_kit.py
+- /home/user/DayZModding/mods/SKY_Skyline/assets/skyspec.py
+- /home/user/DayZModding/mods/SKY_Skyline/placement/sky_layout.py
+- /home/user/DayZModding/mods/SKY_Skyline/TESTING.md
+- /home/user/DayZModding/mods/SKY_Skyline/DECISIONS.md
+- /home/user/DayZModding/mods/SKY_Skyline/addons/sky_floors/*.p3d
+
+**GATE: PASS.** No Critical or High remain. Fix N1 (roof Res3 lid) and switch `sky_layout.py:148` over (M1) before Batch 5 places any garden or mechanical roof.

@@ -39,10 +39,7 @@ def partitions(L, walls, mat="wall", uv=None, pen="masonry"):
     for k in ("res0", "res1", "geo", "view", "fire"):
         kw = {"mat": mat, "uv": uv or T.UV_WALL} if k.startswith("res") else ({"mat": "pen_" + pen} if k == "fire" else {})
         for axis, c, a0, a1, ops in walls:
-            # Geometry: openings run to the ceiling - no lintel component (nobody reaches a slot
-            # 2.1 m up; perf batch-4 L1). Res/View/Fire keep the lintel above the 2.1 m door.
-            top = WT if k == "geo" else 2.1
-            o = [(o0, o1, 0.0, top) for (o0, o1) in ops]
+            o = [(o0, o1, 0.0, 2.1) for (o0, o1) in ops]   # lintels in every LOD (security re-gate N2)
             if axis == "x":
                 wall_x(L[k], a0, a1, c - HT, c + HT, 0.0, WT, openings=o, **kw)
             else:
@@ -143,9 +140,11 @@ def roof_base(L, top_mat, top_uv, road):
         for (x0, x1, y0, y1) in [(-HW, HW, -HD, -HD + 0.25), (-HW, HW, HD - 0.25, HD),
                                  (-HW, -HW + 0.25, -HD + 0.25, HD - 0.25), (HW - 0.25, HW, -HD + 0.25, HD - 0.25)]:
             L[k].box(x0, x1, y0, y1, 0.0, 1.1, **kw)
-    # Res3: one closed box (slab + parapet, open bottom) - the roof no longer looks hollow from
-    # above at range (perf batch-4 M2); 10 tris, 1 section.
-    L["res3"].box(-HW, HW, -HD, HD, -S.SLAB_T, 1.1, mat="concrete", uv=T.UV_CONC_REVEAL, skip=("-z",))
+    # Res3: outer parapet band + a lid at the WALKABLE level z = 0 (not on the parapet top: a
+    # lid at 1.1 m would hide prone players at range, security batch-4 re-gate N1). Closes the
+    # hollow look from above (perf batch-4 M2); 10 tris, 1 section.
+    L["res3"].box(-HW, HW, -HD, HD, -S.SLAB_T, 1.1, mat="concrete", uv=T.UV_CONC_REVEAL, skip=("+z", "-z"))
+    L["res3"].hquad(-HW, HW, -HD, HD, 0.0, mat="concrete", uv=T.UV_CONC_REVEAL)
 
 
 def build_roof_garden():
