@@ -259,4 +259,23 @@ generated_kit:
     budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 4}
     variants: [Land_SKY_Billboard_A, Land_SKY_Billboard_B, Land_SKY_Billboard_C, Land_SKY_Billboard_D]
     status: built-unverified
+  - name: Land_SKY_Decal_Dirt
+    type: "2 x 3 m run-off grime (alpha-blended)"
+    p3d: addons/sky_street/sky_decal_dirt.p3d
+    category: decal
+    budget: {res0: 4, res1: 4, res2: 2, sections_res0: 1}
+    status: built-unverified
+  - name: Land_SKY_Decal_Cracks
+    type: "2 x 2 m plaster/concrete cracks (alpha-tested)"
+    p3d: addons/sky_street/sky_decal_cracks.p3d
+    category: decal
+    budget: {res0: 4, res1: 4, res2: 2, sections_res0: 1}
+    status: built-unverified
+  - name: Land_SKY_Decal_Graffiti
+    type: "2 x 2 m original graffiti, 4 designs via hiddenSelections"
+    p3d: addons/sky_street/sky_decal_graffiti.p3d
+    category: decal
+    budget: {res0: 4, res1: 4, res2: 2, sections_res0: 1}
+    variants: [Land_SKY_Decal_Graffiti_A, Land_SKY_Decal_Graffiti_B, Land_SKY_Decal_Graffiti_C, Land_SKY_Decal_Graffiti_D]
+    status: built-unverified
 # <<< GENERATED KIT

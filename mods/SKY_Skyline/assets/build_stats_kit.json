@@ -42,6 +42,21 @@
   "res2": 10,
   "shadow": 16
  },
+ "sky_decal_cracks.p3d": {
+  "res0": 2,
+  "res1": 2,
+  "res2": 2
+ },
+ "sky_decal_dirt.p3d": {
+  "res0": 2,
+  "res1": 2,
+  "res2": 2
+ },
+ "sky_decal_graffiti.p3d": {
+  "res0": 2,
+  "res1": 2,
+  "res2": 2
+ },
  "sky_dumpster.p3d": {
   "fire": 12,
   "geo": 12,

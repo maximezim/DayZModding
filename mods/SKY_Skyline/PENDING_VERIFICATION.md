@@ -19,4 +19,8 @@ Asset lists below are kept current per batch.
 | P8 | `ROAD_GEO_THICKNESS` | 0.3 m Geometry slabs under road tiles do not snag vehicle wheels at tile seams | all road/street/intersection tiles | `ROAD_GEO_THICKNESS = 0.05` → re-export street kit |
 | P7 | `EMISSIVE_LAMP`, `EMISSIVE_WINDOW` | rvmat `emmisive[]` strength reads as "lit" at night without blooming | street lights (`sky_lamp`), lit window sets (batch 2). Traffic lights are NOT emissive (D8). | tune the numbers → `gen_configs.py` |
 
+Behaviour checks without a parameter (see TESTING.md):
+- B1 Render-only decal objects (`Decal_*`, category `decal`) have **no Geometry LOD**. Confirm a `HouseNoDestruct` P3D without Geometry spawns and renders via objectSpawnersArr. If not, give them a tiny Geometry far below the decal (fix in `build_kit.build_decal`).
+- B2 The manhole (`flat`) has only Roadway (no Geometry). Same check.
+
 Behaviour (not parameters) still to observe in-game: see `TESTING.md` and `AFTER_TESTING.md` (written in batch 6).

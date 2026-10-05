@@ -45,6 +45,8 @@ PROC = {"nohq": "#(argb,8,8,3)color(0.5,0.5,1,1,NOHQ)", "as": "#(argb,8,8,3)colo
 PROCEDURAL_MAPS = {
     "sky_roadmark": ("nohq", "as", "smdi"), "sky_foliage": ("nohq", "as", "smdi"),
     "sky_atlas": ("nohq", "as", "smdi"), "sky_billboard": ("nohq", "as", "smdi"), "sky_rust": ("as",),
+    "sky_decal_dirt": ("nohq", "as", "smdi"), "sky_decal_cracks": ("nohq", "as", "smdi"),
+    "sky_decal_graffiti": ("nohq", "as", "smdi"), "sky_windows": ("nohq", "as", "smdi"),
 }
 
 
@@ -87,7 +89,7 @@ def rvmat_flat(emissive=(0, 0, 0), color_stage=None):
 
 
 # Alpha-tested (not blended) materials - renderFlags as in Bohemia's Test_Clutter grass rvmat.
-ALPHA_TEST = {"sky_foliage", "sky_roadmark"}
+ALPHA_TEST = {"sky_foliage", "sky_roadmark", "sky_decal_cracks", "sky_decal_graffiti"}
 
 RVMATS = {
     "sky_concrete": ("sky_concrete", 20), "sky_metal": ("sky_metal", 60), "sky_glass": ("sky_glass", 120), "sky_glassfar": ("sky_glassfar", 80),
@@ -96,6 +98,10 @@ RVMATS = {
     # kit (batch 1+)
     "sky_paver": ("sky_paver", 10), "sky_roadmark": ("sky_roadmark", 15), "sky_rust": ("sky_rust", 25),
     "sky_foliage": ("sky_foliage", 5), "sky_atlas": ("sky_atlas", 30), "sky_billboard": ("sky_billboard", 15),
+    # batch 2
+    "sky_decal_dirt": ("sky_decal_dirt", 5), "sky_decal_cracks": ("sky_decal_cracks", 5),
+    "sky_decal_graffiti": ("sky_decal_graffiti", 10), "sky_windows": ("sky_windows", 60),
+    "sky_brick": ("sky_brick", 10), "sky_concpanel": ("sky_concpanel", 15),
 }
 
 
@@ -458,6 +464,7 @@ class CfgModels
             text = text.replace('PixelShaderID', 'renderFlags[] = {"AlphaTest32"};\nPixelShaderID', 1)
         files["sky_textures/data/%s.rvmat" % name] = text
     files["sky_textures/data/sky_lamp.rvmat"] = rvmat_flat(S.EMISSIVE_LAMP)
+    files["sky_textures/data/sky_windows_lit.rvmat"] = rvmat_super("sky_windows", 60, tuple(S.EMISSIVE_WINDOW))
     for pbo in KIT_PATCH:
         if kit_entries(pbo):
             files["%s/config.cpp" % pbo] = kit_config(pbo)

@@ -161,4 +161,40 @@ class CfgVehicles
 	{
 		hiddenSelectionsTextures[] = {"SKY_Skyline\sky_textures\data\sky_billboard_d_co.paa"};
 	};
+	class Land_SKY_Decal_Dirt: Land_SKY_Street_Base
+	{
+		// 2 x 3 m run-off grime (alpha-blended)
+		scope = 1;
+		model = "SKY_Skyline\sky_street\sky_decal_dirt.p3d";
+	};
+	class Land_SKY_Decal_Cracks: Land_SKY_Street_Base
+	{
+		// 2 x 2 m plaster/concrete cracks (alpha-tested)
+		scope = 1;
+		model = "SKY_Skyline\sky_street\sky_decal_cracks.p3d";
+	};
+	class Land_SKY_Decal_Graffiti: Land_SKY_Street_Base
+	{
+		// 2 x 2 m original graffiti, 4 designs via hiddenSelections
+		scope = 1;
+		model = "SKY_Skyline\sky_street\sky_decal_graffiti.p3d";
+		hiddenSelections[] = {"camo"};
+		hiddenSelectionsTextures[] = {"SKY_Skyline\sky_textures\data\sky_decal_graffiti_a_ca.paa"};
+	};
+	class Land_SKY_Decal_Graffiti_A: Land_SKY_Decal_Graffiti
+	{
+		hiddenSelectionsTextures[] = {"SKY_Skyline\sky_textures\data\sky_decal_graffiti_a_ca.paa"};
+	};
+	class Land_SKY_Decal_Graffiti_B: Land_SKY_Decal_Graffiti
+	{
+		hiddenSelectionsTextures[] = {"SKY_Skyline\sky_textures\data\sky_decal_graffiti_b_ca.paa"};
+	};
+	class Land_SKY_Decal_Graffiti_C: Land_SKY_Decal_Graffiti
+	{
+		hiddenSelectionsTextures[] = {"SKY_Skyline\sky_textures\data\sky_decal_graffiti_c_ca.paa"};
+	};
+	class Land_SKY_Decal_Graffiti_D: Land_SKY_Decal_Graffiti
+	{
+		hiddenSelectionsTextures[] = {"SKY_Skyline\sky_textures\data\sky_decal_graffiti_d_ca.paa"};
+	};
 };

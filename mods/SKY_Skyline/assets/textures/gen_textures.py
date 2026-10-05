@@ -412,12 +412,147 @@ def billboards(size, out):
     # nohq/smdi/as are procedural in sky_billboard.rvmat (perf M5)
 
 
+# ------------------------------------------------------------------ batch 2: decals, windows, facades
+def _decal_save(out, name, rgba):
+    Image.fromarray(np.clip(rgba * 255, 0, 255).astype(np.uint8), "RGBA").save(os.path.join(out, name + "_ca.png"))
+
+
+def decals(size, out):
+    """Alpha decals (1024): dirt streaks, cracks, graffiti atlas (2 x 2 original
+    designs: abstract shapes + invented words; no real tags, logos or brands)."""
+    size = min(size, 1024)
+    # dirt: vertical run-off streaks + base grime band
+    n = fbm(size, 151, octaves=5, base=6)
+    x = np.linspace(0, 1, size, dtype=np.float32)[None, :]
+    y = np.linspace(0, 1, size, dtype=np.float32)[:, None]
+    streak = np.repeat(value_noise(size, 64, 157)[:1, :], size, 0)
+    a = np.clip((streak - 0.45) * 2.0, 0, 1) * (1 - y) ** 1.5 * 0.7 + np.clip((y - 0.75) * 3, 0, 1) * 0.6
+    a = np.clip(a * (0.6 + 0.6 * n), 0, 0.9)
+    rgb = np.stack([0.20 + 0.05 * n, 0.18 + 0.05 * n, 0.15 + 0.04 * n], -1)
+    _decal_save(out, "sky_decal_dirt", np.concatenate([rgb, a[..., None]], -1))
+    # cracks: random-walk polylines
+    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    rng = np.random.default_rng(163)
+    for _ in range(7):
+        px, py = rng.integers(0, size), rng.integers(0, size)
+        ang = rng.random() * 2 * np.pi
+        for _s in range(rng.integers(20, 60)):
+            ang += rng.normal(0, 0.5)
+            nx, ny = px + np.cos(ang) * size / 60, py + np.sin(ang) * size / 60
+            d.line([px, py, nx, ny], fill=(25, 24, 22, 230), width=int(rng.integers(1, 4)))
+            px, py = nx, ny
+    img.save(os.path.join(out, "sky_decal_cracks_ca.png"))
+    # graffiti: 4 original designs (abstract spray shapes + invented words), 512 each,
+    # swapped via hiddenSelections like the billboards.
+    g = 512
+    for key, (w, rgb) in zip("abcd", [("SKY", (220, 60, 160)), ("NO CURFEW", (40, 180, 220)),
+                                       ("ZONE 7", (240, 200, 40)), ("RUN", (120, 220, 90))]):
+        img = Image.new("RGBA", (g, g), (0, 0, 0, 0))
+        dd = ImageDraw.Draw(img)
+        for _ in range(5):
+            r = int(rng.integers(g // 10, g // 4))
+            x0, y0 = int(rng.integers(r, g - r)), int(rng.integers(r, g - r))
+            dd.ellipse([x0 - r, y0 - r // 2, x0 + r, y0 + r // 2], fill=rgb + (255,))
+        fs = int(g * 0.8 / max(4, len(w)) * 1.6)              # fit the word inside the 512 tile
+        dd.text((g // 12 + 4, g // 3 + 4), w, fill=(20, 20, 20, 255), font=_font(fs))
+        dd.text((g // 12, g // 3), w, fill=(255, 255, 255, 255), font=_font(fs))
+        a = np.asarray(img).astype(np.float32) / 255.0
+        a[..., 3] *= (fbm(g, 167 + ord(key), octaves=3, base=16) > 0.3)    # binary alpha (alpha-tested)
+        _decal_save(out, "sky_decal_graffiti_%s" % key, a)
+    # nohq/smdi/as of all decals are procedural in their rvmats (no files).
+
+
+def windows(size, out):
+    """Window sets atlas (2048, 4 x 4 cells): interiors seen through glass at night.
+    Same _co for the unlit (sky_windows) and lit (sky_windows_lit, emissive rvmat) materials."""
+    c = size // 4
+    rng = np.random.default_rng(173)
+    img = Image.new("RGB", (size, size), (20, 22, 26))
+    d = ImageDraw.Draw(img)
+    for row in range(4):
+        for col in range(4):
+            x0, y0 = col * c, row * c
+            lit = (row * 4 + col) % 3 != 2
+            warm = (rng.integers(180, 255), rng.integers(150, 210), rng.integers(90, 150)) if lit else (25, 28, 34)
+            d.rectangle([x0 + 4, y0 + 4, x0 + c - 4, y0 + c - 4], fill=tuple(int(v) for v in warm))
+            for _ in range(int(rng.integers(1, 4))):                # furniture / blinds silhouettes
+                bx = x0 + int(rng.integers(8, c - 60))
+                bw, bh = int(rng.integers(30, c // 2)), int(rng.integers(20, c // 3))
+                d.rectangle([bx, y0 + c - 8 - bh, bx + bw, y0 + c - 8], fill=(15, 15, 18))
+            if rng.random() < 0.5:                                   # blinds
+                for k in range(0, c // 2, 10):
+                    d.line([x0 + 4, y0 + 4 + k, x0 + c - 4, y0 + 4 + k], fill=(60, 55, 50), width=3)
+            d.rectangle([x0, y0, x0 + c - 1, y0 + c - 1], outline=(70, 72, 76), width=6)   # mullion frame
+    img.save(os.path.join(out, "sky_windows_co.png"))   # nohq/smdi/as procedural in the window rvmats
+
+
+def brick(size, out):
+    """Brick facade trim: V 0-0.6 running bond, 0.6-0.8 soldier course, 0.8-1 stone sill."""
+    n = fbm(size, 181, octaves=4, base=8)
+    col = np.zeros((size, size, 3), np.float32)
+    h = 0.1 * n
+    ao = np.ones((size, size), np.float32)
+    rng = np.random.default_rng(191)
+    mortar = np.array([0.55, 0.53, 0.50], np.float32)
+    r0, r1 = band_rows(size, 0.0, 0.6)
+    bh, bw = size // 32, size // 8                       # brick ~ 6.5 x 21.5 cm at 3 m mapping
+    for row, y in enumerate(range(r0, r1, bh)):
+        off = (bw // 2) * (row % 2)
+        for x in range(-bw, size, bw):
+            tint = np.array([0.45, 0.22, 0.15]) * (0.8 + 0.4 * rng.random())
+            xa, xb = max(0, x + off + 2), min(size, x + off + bw - 2)
+            if xb > xa:
+                col[y + 2:min(y + bh - 2, r1), xa:xb] = tint
+        col[y:y + 2, :] = mortar
+        h[y:y + 2, :] -= 0.8
+        ao[y:y + 2, :] *= 0.8
+    m = col[r0:r1].sum(-1) == 0
+    col[r0:r1][m] = mortar
+    r0, r1 = band_rows(size, 0.6, 0.8)                   # soldier course
+    for x in range(0, size, size // 32):
+        tint = np.array([0.40, 0.20, 0.14]) * (0.85 + 0.3 * rng.random())
+        col[r0 + 2:r1 - 2, x + 2:x + size // 32 - 2] = tint
+    col[r0:r1][col[r0:r1].sum(-1) == 0] = mortar
+    r0, r1 = band_rows(size, 0.8, 1.0)                   # stone sill
+    col[r0:r1] = np.array([0.66, 0.64, 0.60]) + 0.04 * gray(n[r0:r1] - 0.5)
+    col += 0.04 * gray(n - 0.5)
+    save(to_rgb(col), out, "sky_brick_co")
+    save(normal_from_height(h, 2.0), out, "sky_brick_nohq")
+    save(smdi(size, 0.08, 0.15), out, "sky_brick_smdi")
+    save(to_rgb(gray(0.8 + 0.2 * ao)), out, "sky_brick_as")
+
+
+def concpanel(size, out):
+    """Precast concrete panel facade: 2 x 2 panels per sheet with deep window
+    reveal band at the top (V 0-0.2) and panel joints."""
+    n = fbm(size, 197, octaves=5, base=8)
+    col = gray(0.66 + 0.06 * (n - 0.5))
+    h = 0.15 * n
+    ao = np.ones((size, size), np.float32)
+    j = max(3, size // 256)
+    for p in (0, size // 2):
+        col[:, p:p + j] *= 0.6
+        col[p:p + j, :] *= 0.6
+        h[:, p:p + j] -= 1
+        h[p:p + j, :] -= 1
+        ao[:, p:p + j] *= 0.6
+        ao[p:p + j, :] *= 0.6
+    r0, r1 = band_rows(size, 0.0, 0.2)
+    col[r0:r1] *= 0.85
+    h[r1 - j:r1, :] -= 1.5
+    save(to_rgb(col), out, "sky_concpanel_co")
+    save(normal_from_height(h, 2.5), out, "sky_concpanel_nohq")
+    save(smdi(size, 0.1, 0.2), out, "sky_concpanel_smdi")
+    save(to_rgb(gray(0.75 + 0.25 * ao)), out, "sky_concpanel_as")
+
 GENERATORS = {
     "concrete": concrete, "metal": metal, "glass": glass, "glassfar": glassfar,
     "tile": lambda s, o: tiled(s, o, "sky_tile", 5, (0.72, 0.71, 0.68), (0.45, 0.45, 0.43), max(3, s // 400), 41, 0.3, 0.5),
     "carpet": carpet, "wallpaper": wallpaper, "asphalt": asphalt,
     "roofmark": roofmark, "keycards": keycards,
     "paver": paver, "roadmark": roadmark, "rust": rust, "foliage": foliage, "atlas": atlas, "billboards": billboards,
+    "decals": decals, "windows": windows, "brick": brick, "concpanel": concpanel,
 }
 
 

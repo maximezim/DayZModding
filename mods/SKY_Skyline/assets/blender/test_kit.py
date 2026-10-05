@@ -84,8 +84,9 @@ def main():
         res = [k for k in lods if k.startswith("res")]
         check(len(res) >= 3, "%s: only %d resolution LODs" % (n, len(res)))
         if not S.KIT[n]["collide"]:
-            check("geo" not in lods and "fire" not in lods and "road" in lods,
-                  "%s: flat decal must have Roadway and no Geometry/Fire" % n)
+            check("geo" not in lods and "fire" not in lods, "%s: decal must not have Geometry/Fire" % n)
+            if S.KIT[n]["category"] == "flat":
+                check("road" in lods, "%s: flat decal needs a Roadway LOD" % n)
             continue
         for k in ("geo", "fire"):
             check(k in lods and lods[k].verts, "%s: missing %s" % (n, k))

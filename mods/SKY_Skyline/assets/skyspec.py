@@ -306,3 +306,24 @@ for _n, _c, _d, _u in [
     kit(_n, "sky_street", _c, uses=_u, desc=_d)
 kit("Billboard", "sky_street", "medium", desc="6 x 3 m billboard, poster via hiddenSelections",
     variants={"Land_SKY_Billboard_%s" % k.upper(): PREFIX_TEX + "\\data\\sky_billboard_%s_co.paa" % k for k in "abcd"})
+
+
+# ---- batch 2: textures, decals, windows, facades
+MATERIALS.update({
+    "decal_dirt":     {"rvmat": rvmat("sky_decal_dirt"), "co": tex("sky_decal_dirt_ca")},       # alpha-blended (soft)
+    "decal_cracks":   {"rvmat": rvmat("sky_decal_cracks"), "co": tex("sky_decal_cracks_ca")},   # alpha-tested
+    "decal_graffiti": {"rvmat": rvmat("sky_decal_graffiti"), "co": tex("sky_decal_graffiti_a_ca")},
+    "windows":        {"rvmat": rvmat("sky_windows"), "co": tex("sky_windows_co")},             # unlit set
+    "windows_lit":    {"rvmat": rvmat("sky_windows_lit"), "co": tex("sky_windows_co")},         # emissive (P7)
+    "brick":          {"rvmat": rvmat("sky_brick"), "co": tex("sky_brick_co"),
+                       "bands": {"bond": (0.0, 0.6), "soldier": (0.6, 0.8), "sill": (0.8, 1.0)}},
+    "concpanel":      {"rvmat": rvmat("sky_concpanel"), "co": tex("sky_concpanel_co"),
+                       "bands": {"reveal": (0.0, 0.2), "panel": (0.2, 1.0)}},
+})
+# Wall decals: render-only quads (no collision), placed 1 cm off a wall by the layout tool.
+BUDGETS["decal"] = {"res0": 4, "res1": 4, "res2": 2, "sections_res0": 1}
+kit("Decal_Dirt", "sky_street", "decal", desc="2 x 3 m run-off grime (alpha-blended)")
+kit("Decal_Cracks", "sky_street", "decal", desc="2 x 2 m plaster/concrete cracks (alpha-tested)")
+kit("Decal_Graffiti", "sky_street", "decal", desc="2 x 2 m original graffiti, 4 designs via hiddenSelections",
+    variants={"Land_SKY_Decal_Graffiti_%s" % k.upper(): PREFIX_TEX + "\\data\\sky_decal_graffiti_%s_ca.paa" % k for k in "abcd"})
+KIT["Decal_Dirt"]["collide"] = KIT["Decal_Cracks"]["collide"] = KIT["Decal_Graffiti"]["collide"] = False

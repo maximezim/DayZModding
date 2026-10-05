@@ -1,0 +1,31 @@
+Land_SKY_TowerA_Lobby            PASS LODs=10 res=1064 -> 668 -> 92 -> 24 
+Land_SKY_TowerA_Floor_Office     PASS LODs=10 res=928 -> 536 -> 56 -> 16 
+Land_SKY_TowerA_Core             OVER LODs=10 res=1602 -> 846 -> 132 -> 10 geo comps 81 > 80
+Land_SKY_TowerA_Roof_Helipad     PASS LODs=10 res=98 -> 98 -> 96 -> 48 
+SKY_Keycard_T1 / T2 / T3         PASS LODs=5 res=12 -> 12 
+Land_SKY_Road_Straight           PASS LODs=6 res=24 -> 20 -> 2 
+Land_SKY_Road_Crossing           PASS LODs=6 res=32 -> 24 -> 2 
+Land_SKY_Intersection_4Way       PASS LODs=6 res=46 -> 42 -> 6 
+Land_SKY_Intersection_T          PASS LODs=6 res=54 -> 42 -> 6 
+Land_SKY_Sidewalk                PASS LODs=6 res=28 -> 18 -> 2 
+Land_SKY_Sidewalk_Corner         PASS LODs=6 res=38 -> 18 -> 2 
+Land_SKY_Curb                    PASS LODs=6 res=16 -> 16 -> 10 
+Land_SKY_Manhole                 PASS LODs=4 res=12 -> 8 -> 2 
+Land_SKY_Street_Straight         PASS LODs=6 res=64 -> 40 -> 6 
+Land_SKY_Street_Crossing         PASS LODs=6 res=72 -> 44 -> 6 
+Land_SKY_Street_Intersection     PASS LODs=6 res=166 -> 86 -> 14 
+Land_SKY_StreetLight             PASS LODs=7 res=80 -> 72 -> 24 
+Land_SKY_TrafficLight            PASS LODs=6 res=66 -> 46 -> 24 
+Land_SKY_Barrier_Concrete        PASS LODs=7 res=20 -> 20 -> 12 
+Land_SKY_Barrier_Steel           PASS LODs=6 res=204 -> 72 -> 12 
+Land_SKY_BusStop                 PASS LODs=7 res=94 -> 76 -> 24 
+Land_SKY_Dumpster                PASS LODs=6 res=104 -> 24 -> 12 
+Land_SKY_Planter                 PASS LODs=6 res=18 -> 18 -> 12 
+Land_SKY_Wreck_Sedan             PASS LODs=7 res=136 -> 104 -> 24 
+Land_SKY_Wreck_Van               PASS LODs=7 res=152 -> 120 -> 40 
+Land_SKY_Billboard               PASS LODs=7 res=38 -> 38 -> 20 
+Land_SKY_Decal_Dirt              PASS LODs=3 res=2 -> 2 -> 2 
+Land_SKY_Decal_Cracks            PASS LODs=3 res=2 -> 2 -> 2 
+Land_SKY_Decal_Graffiti          PASS LODs=3 res=2 -> 2 -> 2 
+
+29 checked, 0 fail, 1 over budget (hypotheses)

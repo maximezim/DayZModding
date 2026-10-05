@@ -450,6 +450,17 @@ def build_billboard():
     return finish(L, 1500.0)
 
 
+# ------------------------------------------------------------------ wall decals (batch 2)
+def build_decal(mat, w, h, camo=False):
+    """Render-only quad facing -Y (stick it 1 cm in front of a wall); no collision LODs."""
+    uv = UVRect(0, 2, (-w / 2, 0.0), (w / 2, h))
+    lods = [Lod("res0", LOD_RES, 0.0), Lod("res1", LOD_RES, 1.0), Lod("res2", LOD_RES, 2.0)]
+    for L in lods:
+        L.quad([(-w / 2, 0.0, 0.0), (w / 2, 0.0, 0.0), (w / 2, 0.0, h), (-w / 2, 0.0, h)], (0, -1, 0), mat, uv,
+               sel=["camo"] if camo else ())
+    return lods
+
+
 BUILDERS = {
     "Road_Straight": build_road, "Road_Crossing": lambda: build_road(crossing=True),
     "Street_Straight": build_street, "Street_Crossing": lambda: build_street(crossing=True),
@@ -460,6 +471,9 @@ BUILDERS = {
     "Barrier_Concrete": build_barrier_concrete, "Barrier_Steel": build_barrier_steel, "BusStop": build_busstop,
     "Dumpster": build_dumpster, "Planter": build_planter, "Wreck_Sedan": build_wreck_sedan,
     "Wreck_Van": build_wreck_van, "Billboard": build_billboard,
+    "Decal_Dirt": lambda: build_decal("decal_dirt", 2.0, 3.0),
+    "Decal_Cracks": lambda: build_decal("decal_cracks", 2.0, 2.0),
+    "Decal_Graffiti": lambda: build_decal("decal_graffiti", 2.0, 2.0, camo=True),
 }
 
 KIT_MATS = dict(MATS)
