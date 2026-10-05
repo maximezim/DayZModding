@@ -492,3 +492,164 @@ Ready-wait logic (`:446-470`), by reading:
 - The `build/` folders created in the scratch snapshots were deleted afterwards.
 
 GATE: FAIL
+
+## Re-gate 2 (c049831)
+
+Commit `c049831` (range `6520175..c049831`, D51), clean snapshot (`git archive c049831`) in the session scratchpad (`qa6c/`). No mod or repo code was changed; only this section was appended.
+Tools: PowerShell 7.4 on Linux (PS 5.1 by reading), Blender 4.2 LTS + `ARMATOOLBOX_PATH`. The fake `<ServerDir>` is a fresh copy of `qa6b_srv` (`qa6c_srv`).
+
+**GATE: PASS.** The RG-H1 fix covers the paths that run on every validation: the ready-line wait and the log analysis both read through `Read-DzShared`. RG-M1 and RG-M2 are fixed, and so are L1-L7. L8 is partly fixed (cosmetic).
+One Medium is left (RG2-M1): with `-KeepRunning`, the log collection still copies the live RPT / script log / ADM with `Copy-Item`, not `Read-DzShared`. FPS S6 uses `-KeepRunning`, so fix this before the first S6 run on Windows. It fails closed (FAIL summary, exit 1), so it does not block the gate.
+
+### Standard suite (snapshot c049831)
+
+| Check | Result | Evidence |
+|---|---|---|
+| `gen_configs.py --check` / `gen_manifest.py --check` / `gen_economy.py --check` | PASS, exit 0 | `up to date` / (no output) / `up to date` |
+| `check_assets.py` | PASS, exit 0 | `44 checked, 0 fail, 5 over budget (hypotheses)` |
+| `placement/tests/test_sky_layout.py` | PASS, exit 0 | `0 failed` |
+| `tools\tests\Invoke-SelfTest.ps1` | PASS, exit 0 | 51 `[OK]` lines, `[OK]   all self-tests passed` |
+| Python checks with `PYTHONIOENCODING=cp1252` | PASS | no encoding errors |
+| `Invoke-ModValidation.ps1` parse (PS 7.4 `Parser.ParseFile`) | PASS | 0 parse errors |
+
+`-AnalyzeOnly` fixtures (fresh copies of `qa6b_logs/`):
+- Unchanged results: clean 0/PASS, vanilla 0/PASS. All the FAIL fixtures still give 1/FAIL: sp_fail, sp_fail_other, sp_path, sky_warn_rpt, sky_warn_script, sky_error, low_obj, low_tex, low_rvmat, low_cls, mixed_obj, skyerr (6 categories), crashlog, dmp, empty, only_adm, missing.
+- The pattern fixtures still FAIL on their pattern, not only on missing logs. Each has an RPT and a script log, with `failCount` 1 (skyerr: 6).
+- **rpt_only now gives 1/FAIL** (`**RPT or script log missing**`), and a new `script_only` fixture gives 1/FAIL (see L6).
+
+### Previous findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| RG-H1 live RPT read | **FIXED on the every-run paths; residual RG2-M1 for `-KeepRunning`** | See "RG-H1 read paths" below |
+| RG-M1 installer probe under 5.1 | **FIXED** | `Install-Toolchain.ps1:115-119` switches to `Continue` around `& python -c ... 2>$null`, reads `$LASTEXITCODE` into `$probe`, and restores the preference. See "RG-M1 simulation" below |
+| RG-M2 time freeze | **FIXED** (residuals RG2-L1/L2/L3) | See "RG-M2 run" below |
+| RG-L1 S7 resolution | FIXED | `:474` polls every 1 s until ready, then every 5 s. The fake appends the ready line 8 s after launch: summary `server ready: PASS 8 s from launch to "Player connect enabled"` (previously 10 s) |
+| RG-L2 refusals without summary | FIXED | Outer `try { } catch { }` (`:234-515`) writes `summary.md` with an `error` FAIL step and exits 1. The inner `exit` calls are not caught (checked: `exit 3` inside `try` returns 3). Runs are in the table below |
+| RG-L3 marker | FIXED | The fresh run's `sky_validation_marker.txt` holds `baseline=False`, `placeholder=True`, the layout and MapGroupPos hashes, and **one SHA256 per overlay file** (`overlay/cfgweather.xml`, `overlay/env/qa6b_marker.xml`). `-NoWipe` with a different placeholder flag or an added overlay -> marker mismatch, exit 1 |
+| RG-L4 TESTING §13 shape | FIXED | Header and the B3-MC, B9-VAL and B10-EXP rows all have 3 cells; the steps and the expected result now share the "Expected" cell |
+| RG-L5 B10-EXP | FIXED | See "RG-L5 run" below |
+| RG-L6 RPT-only folder | FIXED | `:145`: no `*.RPT` **or** no `script*.log` -> NoLogs. rpt_only -> exit 1, script_only -> exit 1, `die` run -> `**RPT or script log missing**` |
+| RG-L7 S-01 | FIXED | TESTING S-01 now names Pillow / PyYAML / numpy and `Install-Toolchain.ps1 -Only Pillow` |
+| RG-L8 cosmetic | PARTLY FIXED (accepted) | Text is now `server exited early (exit code )`, but the code is still empty on Linux: `Get-Process` objects do not expose `ExitCode` there; Windows likely shows it. `-AnalyzeOnly <missing>` still creates the folder to write its summary. Both cosmetic |
+
+**RG-H1 read paths** (by reading every file access in `Invoke-ModValidation.ps1`):
+- `Read-DzShared` (`:91-99`): `FileStream(Open, Read, ReadWrite -bor Delete)` + `StreamReader.ReadToEnd`, disposed in `finally`. Any exception returns `''`.
+- Used by the ready wait (`:480`), by `Get-DzLogSummary` (`:125`, replacing `File.ReadLines`) and by the marker read (`:319`).
+- The other `Get-Content` / `Copy-Item` calls (`:335-423`, `:435`) touch the mission copy, the repo economy files and the server cfg, none of which the server holds open.
+- **Exception: `:500-502`** copies the profile's logs with `Copy-Item`; see RG2-M1.
+- The analysis then runs on those copies (`$logOut`), so `Get-DzLogSummary` never reads the live files in a normal run.
+- Sharing semantics cannot be exercised on Linux, which has no mandatory locks.
+
+**RG-M1 simulation** (pwsh): an extracted copy of the block with `$PSNativeCommandUseErrorActionPreference = $true` stands in for 5.1's terminating stderr. A fake `python` writes `ModuleNotFoundError` to stderr and exits 1.
+- Old code: `THREW: NativeCommandExitException`.
+- New code: reaches `Confirm-Install` (`PROMPT: Pillow + numpy + PyYAML`), then `skipped by user (probe=1, EAP now Stop)`.
+- The real script refuses non-Windows hosts, so it was not run directly.
+
+**RG-M2 run**: real merge against the fake server (`-Layout district_template.yaml -AllowPlaceholder -MapGroupPos mgp_a.xml -MissionOverlay overlay -ServerTime 2026/6/15/12/0 -Minutes 0`), exit 0.
+- `diff serverDZ.dedicated.cfg serverDZ.validation.cfg` shows only the intended changes:
+  - `serverTime = "2026/6/15/12/0";`
+  - `serverTimeAcceleration = 0;`
+  - `serverNightTimeAcceleration = 0;`
+  - `template = "dayzOffline.chernarusplus.validation";`
+- `serverTimePersistent = 0` is kept. The config the fake server received is identical to the rendered file.
+- A following `-NoWipe -ServerTime 2026/6/15/17/0` run re-renders to `serverTime = "2026/6/15/17/0";` (the cfg is not part of the marker, which is correct).
+- Format check (`:418`):
+  - `12:00` is refused, exit 1, with a summary.
+  - The injection attempt `2026/6/15/12/0"; BattlEye = 0; x="` is refused, exit 1.
+- FPS_PROTOCOL §0.45 now covers weather by overlay and time by `-ServerTime` (12:0 and 17:0), with the value format marked B12. D51 is recorded.
+- Vanilla mission md5s (43 files) are unchanged after all runs. No fake server was left running.
+
+**RG-L5 run**: B10-EXP was run as written on Linux, with Blender 4.2 + `ARMATOOLBOX_PATH`. It used scratch `qa6c_exp/addons` + `qa6c_exp/assets`, and all 4 builders ran with `--python-exit-code 1`.
+- All exit 0.
+- **44/44 P3Ds byte-identical** to the committed ones. `build_stats.json` / `build_stats_kit.json` are identical too; the builders write them to `<out>\..\assets`, which is why the row creates that folder.
+- The mod tree is unchanged apart from git-ignored `__pycache__`.
+
+Refusal and error runs:
+
+| Run | Exit | Summary / message |
+|---|---|---|
+| `-NoWipe`, same config | 0 | `reused (-NoWipe, warm start)` |
+| `-NoWipe` + `-AllowPlaceholder` (copy built without) | 1 | summary `\| error \| FAIL \| -NoWipe: ... was built for a different config (marker mismatch) ...` |
+| `-NoWipe` + an overlay the copy was built without | 1 | same marker mismatch, summary written |
+| `-Baseline -Layout` | 1 | summary `-Baseline and -Layout are exclusive ...` |
+| `-Baseline -MapGroupPos` | 1 | summary `-Baseline and -MapGroupPos are exclusive ...` |
+| `-Mission nosuchmission` | 1 | summary `Vanilla mission not found: ...` |
+| `-ServerTime 12:00` / injection string | 1 | summary `-ServerTime must look like 2026/6/15/12/0` |
+| `-Mission ../evil` | 1 | `Invalid -Mission '../evil' (letters, digits, _ . - only)`, no folder (accepted as specified) |
+| `die` | 1 | `server run: FAIL server exited early (exit code )` + `RPT or script log missing` |
+| `-KeepRunning` | 0 | `server stop: SKIP -KeepRunning (PID ...)`, logs copied while the fake server ran (works on Linux; see RG2-M1) |
+
+### PowerShell 5.1 (by reading)
+
+- `Invoke-ModValidation.ps1` and `Install-Toolchain.ps1` contain no `??`, ternaries, `&&`/`||`, `::new(`, `$IsWindows`, `-AsHashtable`, `-Parallel` or `utf8NoBOM`.
+- Both are CRLF throughout (515/515 and 157/157 lines) and contain no non-ASCII bytes.
+- 5.1-compatible constructs:
+  - `New-Object System.IO.FileStream(...)` with a `-bor` of `FileShare` values;
+  - `return` inside `try`/`finally`;
+  - the outer `try`/`catch` around a script body containing `exit`.
+
+### New findings
+
+#### Medium
+
+**RG2-M1. Live logs are still copied with `Copy-Item` when the server is running (`-KeepRunning`), and right after `Stop-Process -Force`.**
+- Where: `Invoke-ModValidation.ps1:500-502`, `Get-ChildItem ... | ForEach-Object { Copy-Item -LiteralPath $_.FullName -Destination $logOut }`.
+- Why it matters:
+  - With `-KeepRunning` (FPS_PROTOCOL S6, `FPS_PROTOCOL.md:72`) the RPT, script log and ADM are still open for writing. On Windows, `Copy-Item` goes through `File.Copy` / `CopyFile`, which does not use `Read-DzShared`. Whether that open succeeds against the server's write handle is not guaranteed and cannot be tested here.
+  - If it fails, the outer catch writes a FAIL summary with an `error` step and exits 1. The log analysis is lost, but the server keeps running, as requested.
+  - Without `-KeepRunning`, `Stop-Process -Force` does not wait for the process to exit (`TerminateProcess` is asynchronous), so the same copy can race the closing handles. This is unlikely.
+- It fails closed, so it does not block the gate. It does mean the RG-H1 criterion "also with -KeepRunning" is not fully met.
+- Fix (script only):
+  - copy through a shared read, e.g. `Save-DzText (Join-DzPath $logOut $_.Name) (Read-DzShared $_.FullName)` for text logs, and keep `Copy-Item` for `.mdmp`;
+  - add `Wait-Process -Id $proc.Id -Timeout 30 -ErrorAction SilentlyContinue` after `Stop-Process`.
+
+#### Low
+
+- **RG2-L1. `-ServerTime` without `-Layout` / `-Baseline` is silently ignored.**
+  - Run with only `-ServerTime 2026/6/15/12/0`: exit 0 PASS. The server got `-config=...serverDZ.dedicated.cfg` with `serverTime = "SystemTime"` / acceleration 12, and no warning was given.
+  - Also, `-DryRun -ServerTime bogus` is not validated (exit 0, DRYRUN).
+  - The FPS protocol always passes `-Layout` or `-Baseline` (§1), so FPS runs are not affected.
+  - Fix: refuse `-ServerTime` without them, and check the format before the build.
+- **RG2-L2. A bad `-ServerTime` is detected only after the mission copy has been rebuilt.**
+  - `:418` runs after the wipe and merge, so a typo wipes the existing `.validation` copy and its storage before refusing. A following `-NoWipe` then reuses a cold copy as "warm".
+  - Fix: move the format check up next to the `-Mission` check (`:204`).
+- **RG2-L3. `serverNightTimeAcceleration = 0` is outside the range the server docs give (0.1-64).**
+  - It is a multiplier on `serverTimeAcceleration`, which is 0 here, so it is redundant. The engine may clamp it or log a warning.
+  - Setting it to 1, or leaving it as is, is enough. Confirm together with the `serverTime` format and the effect of `serverTimeAcceleration = 0` on the first run (B12).
+  - The summary does not record the `-ServerTime` value. For the FPS CSV, note it in `notes` or add it to the `mission copy` step detail.
+- **RG2-L4. `Read-DzShared` returns `''` on any read error, so an unreadable log is analysed as empty (fail-open).**
+  - NoLogs only checks that the file exists.
+  - In a normal run it reads the copies in `logs\`, so the risk is small.
+  - Fix: count read errors as a failure line (e.g. `crash`/`missing file`), or return `$null` and FAIL.
+
+#### Info
+
+- Parameter comment misplaced: `:43-44` now carries the `-MissionOverlay` description at the end of the `-ServerTime` line. The `.DESCRIPTION` block does not list `-MissionOverlay` / `-ServerTime`. Cosmetic.
+- The outer catch does not stop a server that was already started. After launch, only `Stop-Process` (when racing a self-exit) or the log copy can throw, and both happen after the stop or under `-KeepRunning`, so no leftover server is expected.
+- `Mod not found` (`:232`) is still thrown before the `try`, so it writes no summary. It is not on the RG-L2 list.
+- Two runs started in the same second share `build\validation\<stamp>`, and the second overwrites the first's summary. Seen here with back-to-back refusals; not a problem for manual runs.
+- B10-EXP does not mention `ARMATOOLBOX_PATH`. The builders fail with a clear `Set ARMATOOLBOX_PATH ...` message, and AFTER_TESTING P2 shows it.
+- Carried: the 5.1 `ConvertTo-Json` round trip of `cfggameplay.json` still needs a diff on the first Windows run.
+
+### Files and artefacts
+
+- Reviewed:
+  - `tools/tests/Invoke-ModValidation.ps1`
+  - `tools/setup/Install-Toolchain.ps1`
+  - `server/templates/serverDZ.dedicated.cfg`
+  - `mods/SKY_Skyline/TESTING.md` (S-01, §13)
+  - `mods/SKY_Skyline/FPS_PROTOCOL.md` (§0.45, S6)
+  - `mods/SKY_Skyline/DECISIONS.md` (D51)
+  - `mods/SKY_Skyline/AFTER_TESTING.md` (B10)
+  - `mods/SKY_Skyline/assets/blender/build_*.py` / `skygeo.py` (output paths)
+- Scratch (not in the repo), under the session scratchpad:
+  - `qa6c/`: snapshot
+  - `qa6c_srv/`: fake server
+  - `qa6c_logs/`: fixtures + `script_only`
+  - `qa6c_exp/`: B10-EXP export
+  - `qa6c_m1.ps1` + `qa6c_fakepy/`: RG-M1 simulation
+  - `qa6c_*.log`: run logs
+- `qa6c/build/` was deleted afterwards.
+
+GATE: PASS

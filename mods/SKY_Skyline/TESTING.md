@@ -263,7 +263,7 @@ Record the results there, or link them from here.
 | PERF-02 | All `FPS_PROTOCOL.md` §4 thresholds are in "Pass" (district: configs A/B/D/D0/D-dec/E; prerequisites §0 done) | |
 | B3-MC | Search `P:\DZ\structures\**\data\*.rvmat` for a Stage3 texture ending in `_mc` (PENDING B3). Expected: found / not found, with one example path | |
 | B9-VAL | First real `Invoke-ModValidation.ps1` run: clean start -> summary 0 SKY FAIL lines; then rename one SKY texture in a scratch build -> summary FAIL naming it (PENDING B9). Expected: both behave as stated | |
-| B10-EXP | On the test machine export into a **scratch** folder (never over `addons\`): create `C:\tmp\skyexp\addons` and `C:\tmp\skyexp\assets`, then per builder `blender -b --factory-startup --python-exit-code 1 -P mods\SKY_Skyline\assets\blender\build_kit.py -- --out C:\tmp\skyexp\addons` (same for build_props / build_floors / build_towera); compare with `python tools\assets\p3d_inspect.py` old vs new (PENDING B10). Expected: identical LOD / selection / triangle counts (or byte-identical) | |
+| B10-EXP | On the test machine (Blender 4.2 + Arma Toolbox: set `$env:ARMATOOLBOX_PATH` to the folder containing the ArmaToolbox package) export into a **scratch** folder (never over `addons\`): create `C:\tmp\skyexp\addons` and `C:\tmp\skyexp\assets`, then per builder `blender -b --factory-startup --python-exit-code 1 -P mods\SKY_Skyline\assets\blender\build_kit.py -- --out C:\tmp\skyexp\addons` (same for build_props / build_floors / build_towera); compare with `python tools\assets\p3d_inspect.py` old vs new (PENDING B10). Expected: identical LOD / selection / triangle counts (or byte-identical) | |
 
 ## 14. Interior props (batch 3, `sky_props`)
 

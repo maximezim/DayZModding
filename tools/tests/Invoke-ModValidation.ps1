@@ -40,8 +40,8 @@ param(
     [switch]$Baseline,
     [string[]]$MapGroupPos = @(),
     [string[]]$ServerArgs = @(),
-    [string]$MissionOverlay,
-    [string]$ServerTime,         # e.g. '2026/6/15/12/0': freezes the validation server clock (serverTime + acceleration 0)     # folder copied over the mission copy last (e.g. frozen cfgweather.xml for the FPS protocol)
+    [string]$MissionOverlay,     # folder copied over the mission copy last (e.g. frozen cfgweather.xml)
+    [string]$ServerTime,         # e.g. '2026/6/15/12/0': freezes the validation server clock (serverTime + acceleration 0)
     [switch]$NoWipe,
     [string]$Mission,
     [int]$Minutes = 3,
@@ -95,7 +95,7 @@ function Read-DzShared([string]$Path) {
         $fs = New-Object System.IO.FileStream($Path, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read,
             ([System.IO.FileShare]::ReadWrite -bor [System.IO.FileShare]::Delete))
         try { $sr = New-Object System.IO.StreamReader($fs); return $sr.ReadToEnd() } finally { $fs.Dispose() }
-    } catch { return '' }
+    } catch { return $null }       # unreadable is NOT empty: the analysis fails it (RG2-L4)
 }
 
 function Save-DzText([string]$Path, [string]$Text) {
@@ -122,7 +122,9 @@ function Get-DzLogSummary {
     foreach ($f in $files) {
         if ($f.Name -like 'crash*' -or $f.Name -like '*.mdmp') { [void]$fails['crash'].Add("$($f.Name): crash log / dump present"); if ($f.Name -like '*.mdmp') { continue } }
         $n = 0
-        foreach ($line in ((Read-DzShared $f.FullName) -split "`r?`n")) {
+        $content = Read-DzShared $f.FullName
+        if ($null -eq $content -or $content -eq '__SKY_VALIDATION_UNREADABLE__') { [void]$fails['crash'].Add("$($f.Name): unreadable log"); continue }
+        foreach ($line in ($content -split "`r?`n")) {
             $n++
             foreach ($k in $script:FailPatterns.Keys) {
                 # case-sensitive: vanilla "StaticHeliCrash" / lower-case "sky_" paths must not match (QA R-L4)
@@ -202,6 +204,8 @@ if (-not $Mission) { $Mission = $cfg.server.mission }
 # The mission name builds a path that is deleted/recreated and goes into the server cfg: plain names only
 # (security batch-6 L1/L3).
 if ($Mission -notmatch '^[A-Za-z0-9_][A-Za-z0-9_.-]*$' -or $Mission -match '\.\.') { throw "Invalid -Mission '$Mission' (letters, digits, _ . - only)" }
+if ($ServerTime -and $ServerTime -notmatch '^\d{4}/\d{1,2}/\d{1,2}/\d{1,2}/\d{1,2}$') { throw "-ServerTime must look like 2026/6/15/12/0" }
+if ($ServerTime -and -not ($Layout.Count -or $Baseline)) { throw '-ServerTime needs -Layout or -Baseline (it is written into the validation cfg of the mission copy).' }
 $modDir = Join-DzPath $repo 'mods' $ModName
 $stamp  = Get-Date -Format 'yyyyMMdd-HHmmss'
 $outDir = Join-DzPath $repo 'build' 'validation' $stamp
@@ -316,7 +320,7 @@ if ($Layout.Count -or $Baseline) {
     $reuse = $NoWipe -and (Test-Path -LiteralPath $valMission)
     if ($reuse -and -not $DryRun) {
         $old = ''
-        if (Test-Path -LiteralPath $markerPath) { $old = Read-DzShared $markerPath }
+        if (Test-Path -LiteralPath $markerPath) { $old = [string](Read-DzShared $markerPath) }
         if ($old -ne $marker) { throw "-NoWipe: $valMission was built for a different config (marker mismatch) - run it once without -NoWipe" }
     }
     if ($reuse) { Write-DzInfo "> -NoWipe: reuse $valMission and its storage (warm start); nothing merged again" }
@@ -415,10 +419,9 @@ if ($Layout.Count -or $Baseline) {
         $text = Get-Content -Raw -LiteralPath $config
         $text = [regex]::Replace($text, 'template\s*=\s*"[^"]*"', ('template = "' + $Mission + '.validation"').Replace('$', '$$'))
         if ($ServerTime) {      # server-cfg keys (template lines serverTime / serverTimeAcceleration); value format: PENDING B12
-            if ($ServerTime -notmatch '^\d{4}/\d{1,2}/\d{1,2}/\d{1,2}/\d{1,2}$') { throw "-ServerTime must look like 2026/6/15/12/0" }
             $text = [regex]::Replace($text, 'serverTime\s*=\s*"[^"]*"\s*;', 'serverTime = "' + $ServerTime + '";')
             $text = [regex]::Replace($text, 'serverTimeAcceleration\s*=\s*[0-9.]+\s*;', 'serverTimeAcceleration = 0;')
-            $text = [regex]::Replace($text, 'serverNightTimeAcceleration\s*=\s*[0-9.]+\s*;', 'serverNightTimeAcceleration = 0;')
+            $text = [regex]::Replace($text, 'serverNightTimeAcceleration\s*=\s*[0-9.]+\s*;', 'serverNightTimeAcceleration = 1;')   # documented range 0.1-64 (B12)
         }
         Set-Content -LiteralPath $valConfig -Value $text -Encoding ASCII
     }
@@ -427,7 +430,9 @@ if ($Layout.Count -or $Baseline) {
     if ($reuse) { $mode = 'reused (-NoWipe, warm start)' }
     $mcRes = 'PASS'
     if ($DryRun) { $mcRes = 'DRYRUN' }
-    Add-Step 'mission copy' $mcRes "$Mission.validation: $what, $mode"
+    $tinfo = ''
+    if ($ServerTime) { $tinfo = ", clock frozen at $ServerTime" }
+    Add-Step 'mission copy' $mcRes "$Mission.validation: $what, $mode$tinfo"
 }
 
 # Release-like settings are mandatory for a validation run (security batch-6 L2): never inherit a relaxed cfg.
@@ -477,7 +482,7 @@ if ($DryRun) {
             if (-not $readyAt) {
                 $rpt = Get-ChildItem -LiteralPath $profileDir -Filter '*.RPT' -ErrorAction SilentlyContinue | Where-Object { $_.LastWriteTime -ge $t0 }
                 foreach ($r in $rpt) {
-                    $txt = Read-DzShared $r.FullName
+                    $txt = [string](Read-DzShared $r.FullName)
                     if ($txt -match 'Player connect enabled') { $readyAt = Get-Date; $deadline = $readyAt.AddMinutes($Minutes); break }
                 }
             }
@@ -487,7 +492,11 @@ if ($DryRun) {
         if ($died) { Add-Step 'server run' 'FAIL' ("server exited early (exit code " + $proc.ExitCode + ")") }
         else {
             Add-Step 'server run' 'PASS' ("$Minutes min, PID $($proc.Id), started " + $proc.StartTime.ToString('yyyy-MM-dd HH:mm:ss'))
-            if (-not $KeepRunning) { Stop-Process -Id $proc.Id -Force; Add-Step 'server stop' 'PASS' 'stopped' }
+            if (-not $KeepRunning) {
+                Stop-Process -Id $proc.Id -Force
+                Wait-Process -Id $proc.Id -Timeout 60 -ErrorAction SilentlyContinue      # release the log handles (RG2-M1)
+                Add-Step 'server stop' 'PASS' 'stopped'
+            }
             else { Add-Step 'server stop' 'SKIP' "-KeepRunning (PID $($proc.Id))" }
         }
     }
@@ -499,7 +508,14 @@ New-Item -ItemType Directory -Force -Path $logOut | Out-Null
 if (-not $DryRun -and (Test-Path -LiteralPath $profileDir)) {
     Get-ChildItem -LiteralPath $profileDir -File | Where-Object { $_.LastWriteTime -ge $t0 } |
         Where-Object { $_.Name -match '\.(RPT|log|ADM|mdmp)$' -or $_.Name -like 'crash*' } |
-        ForEach-Object { Copy-Item -LiteralPath $_.FullName -Destination $logOut }
+        ForEach-Object {
+            if ($_.Name -like '*.mdmp') { Copy-Item -LiteralPath $_.FullName -Destination $logOut }
+            else {                       # the server may still hold it open (-KeepRunning): shared read (RG2-M1)
+                $txt = Read-DzShared $_.FullName
+                if ($null -eq $txt) { $txt = '__SKY_VALIDATION_UNREADABLE__' }
+                Save-DzText (Join-DzPath $logOut $_.Name) $txt
+            }
+        }
 }
 $sum = Get-DzLogSummary -LogDir $logOut
 $status = Write-DzSummary -Summary $sum -Steps $steps -OutDir $outDir -Title "Validation $ModName $stamp"

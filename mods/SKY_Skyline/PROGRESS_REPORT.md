@@ -17,7 +17,7 @@ batches 1-5, and one goes out with this report.
 | 5 Economy + placement | 9 new loot groups (5 floor/roof types, 4 props); layout generator with 12 m street grid, blocks, tower variants, furniture sets, decals, street lights, caps, roof drops per roof type, one infected zone per district; zombie notes per floor type; district template with unfilled site | `placement/sky_layout.py`, `placement/district_template*.yaml`, `economy/` |
 | 6 Testing + Windows readiness | TESTING.md sections for every asset type (§0b, §14-§18), one-command validation `tools\tests\Invoke-ModValidation.ps1`, FPS protocol + results template, AFTER_TESTING checklist | `TESTING.md`, `FPS_PROTOCOL.md`, `AFTER_TESTING.md`, `reviews/fps_results_template.csv` |
 
-Totals: 44 P3Ds (39 kit + 5 Tower A/keycard), 12 loot groups, 50 decisions (`DECISIONS.md`),
+Totals: 44 P3Ds (39 kit + 5 Tower A/keycard), 12 loot groups, 52 decisions (`DECISIONS.md`),
 9 parameters P1-P9 + 12 behaviour checks B1-B12 (`PENDING_VERIFICATION.md`).
 
 ## 2. Gate results (static; reviews in `reviews/batchN_*.md`)
@@ -29,9 +29,9 @@ Totals: 44 P3Ds (39 kit + 5 Tower A/keycard), 12 loot groups, 50 decisions (`DEC
 | 3 | PASS | PASS | FAIL (vending flap swung inward) -> fixed -> PASS |
 | 4 | FAIL (2 sealed apartments) -> fixed -> PASS | PASS | FAIL (same) -> fixed -> PASS |
 | 5 | PASS | PASS | FAIL (street tiles without survey at Y = 0) -> fixed -> PASS |
-| 6 | PASS | FAIL (protocol could not produce server numbers) -> fixed -> PASS | FAIL (validation passed on spawn errors) -> fixed -> __RE-GATE__ |
+| 6 | PASS | FAIL (protocol could not produce server numbers) -> fixed -> PASS | FAIL (validation passed on spawn errors) -> fixed -> FAIL (new: live RPT read would hit a Windows sharing violation) -> fixed -> PASS |
 
-No gate failed twice on the same issue. Every finding was fixed or recorded as a decision.
+No gate failed twice on the same issue (Batch 6 QA failed twice, on two different issues). Every finding was fixed or recorded as a decision. Your two setup commits (smoke test, SETUP_REPORT) were merged, not rebased; the verified ready line `Player connect enabled` is now used by the validation run.
 Static suite on the final commit: `check_assets` 44 checked / 0 fail / 5 over budget, generators
 `--check` clean, `test_kit` PASS (39), `test_towera` PASS, `test_sky_layout` PASS,
 `Invoke-SelfTest.ps1` PASS, script xref OK.
@@ -80,7 +80,7 @@ Each step: diag first where noted, then dedicated; fill the TESTING.md rows and 
     move statuses `built-unverified -> packed -> tested`.
 
 ## 5. Where things are
-- Decisions: `DECISIONS.md` (D1-D50). Untested assumptions: `PENDING_VERIFICATION.md`.
+- Decisions: `DECISIONS.md` (D1-D52). Untested assumptions: `PENDING_VERIFICATION.md`.
 - Tests: `TESTING.md`, `FPS_PROTOCOL.md`, `AFTER_TESTING.md`. Gate reviews: `reviews/`.
 - Asset spec (single source of truth): `assets/skyspec.py`; manifest: `assets/manifest.yaml`.
 - Handoffs: `_handoff/batchN/` (git-ignored; bundle + zip + HANDOFF.txt).
