@@ -16,9 +16,10 @@ param()
 $ErrorActionPreference = 'Stop'
 Import-Module (Join-Path $PSScriptRoot '..\lib\DzCommon.psm1') -Force
 
-$code = Find-DzOnPath 'code'
+$code = Find-DzOnPath 'code-insiders'
+if (-not $code) { $code = Find-DzOnPath 'code' }
 if (-not $code) { $code = Find-DzOnPath 'code.cmd' }
-if (-not $code) { throw 'VS Code CLI "code" not on PATH. Install VS Code (and reopen the terminal).' }
+if (-not $code) { throw 'VS Code CLI "code-insiders" / "code" not on PATH. Install VS Code (and reopen the terminal).' }
 
 $wanted = (Get-Content -Raw (Join-DzPath (Get-DzRepoRoot) '.vscode\extensions.json') | ConvertFrom-Json).recommendations
 $have = @(& $code --list-extensions)

@@ -13,7 +13,7 @@
 #>
 [CmdletBinding()]
 param(
-    [int]$ServerTimeoutSeconds = 180,
+    [int]$ServerTimeoutSeconds = 600,
     [switch]$SkipServer,
     [switch]$SkipBuild
 )

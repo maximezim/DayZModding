@@ -11,7 +11,7 @@
     If WorkDrive.exe fails, falls back to `subst` for the mount (not
     persistent across reboots - re-run this script or use DayZ Tools).
 
-    Extraction takes a long time and ~15+ GB. Re-run with -ExtractOnly after
+    Extraction takes a long time and ~25 GB (more with DLC maps). Re-run with -ExtractOnly after
     every major game update so P:\scripts matches the live game.
 #>
 [CmdletBinding()]
@@ -34,7 +34,8 @@ if (-not $ExtractOnly) {
     else {
         New-Item -ItemType Directory -Force -Path $paths.WorkDriveSrc | Out-Null
         try {
-            Invoke-DzTool -FilePath $paths.WorkDriveExe -ArgumentList @('/Mount', $letter, $paths.WorkDriveSrc) -WorkingDirectory (Split-Path $paths.WorkDriveExe) | Out-Null
+            # WorkDrive.exe ends with a "hit any key" prompt that throws without a console (exit -532462766); the mount itself succeeds.
+            Invoke-DzTool -FilePath $paths.WorkDriveExe -ArgumentList @('/Mount', $letter, $paths.WorkDriveSrc) -WorkingDirectory (Split-Path $paths.WorkDriveExe) -OkExitCodes @(0, -532462766) | Out-Null
         } catch { Write-DzWarn "WorkDrive.exe /Mount failed: $_" }
         if (-not (Test-Path -LiteralPath $drive)) {
             Write-DzWarn "Falling back to: subst $letter`: `"$($paths.WorkDriveSrc)`""
@@ -50,8 +51,21 @@ if (-not $MountOnly) {
     if ((Test-Path -LiteralPath $scripts) -and -not $Force) {
         Write-DzOk "$scripts exists - skip extraction (use -Force after a game update)"
     } else {
-        Write-DzStep 'Extract game data to the work drive (slow, ~15+ GB)'
-        Invoke-DzTool -FilePath $paths.WorkDriveExe -ArgumentList @('/ExtractGameData') -WorkingDirectory (Split-Path $paths.WorkDriveExe) | Out-Null
+        Write-DzStep 'Extract game data to the work drive (slow, ~25 GB incl. Sakhal, 30+ min)'
+        # /ExtractGameData ignores the mounted drive and unpacks to <Documents>\DayZ Projects
+        # (often inside OneDrive). Junction that folder to the work-drive source dir so the data lands there.
+        $docs = [Environment]::GetFolderPath('MyDocuments')
+        $projects = Join-DzPath $docs 'DayZ Projects'
+        $existing = Get-Item -LiteralPath $projects -Force -ErrorAction SilentlyContinue
+        if (-not $existing) {
+            New-Item -ItemType Junction -Path $projects -Target $paths.WorkDriveSrc | Out-Null
+            Write-DzOk "$projects -> $($paths.WorkDriveSrc) (junction)"
+        } elseif ($existing.LinkType -eq 'Junction' -and ($existing.Target -contains $paths.WorkDriveSrc)) {
+            Write-DzOk "$projects already junctioned to $($paths.WorkDriveSrc)"
+        } else {
+            throw "$projects exists and is not a junction to $($paths.WorkDriveSrc). Move or remove it yourself (this script never deletes), then re-run."
+        }
+        Invoke-DzTool -FilePath $paths.WorkDriveExe -ArgumentList @('/ExtractGameData') -WorkingDirectory (Split-Path $paths.WorkDriveExe) -OkExitCodes @(0, -532462766) | Out-Null
     }
     $n = @(Get-ChildItem -LiteralPath $scripts -Recurse -Filter '*.c' -File -ErrorAction SilentlyContinue).Count
     if ($n -eq 0) { throw "No .c files under $scripts after extraction. Use DayZ Tools > 'Extract Game Data' and check DayZ Tools\Bin\Logs." }
