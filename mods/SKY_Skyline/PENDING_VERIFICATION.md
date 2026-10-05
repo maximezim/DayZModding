@@ -10,11 +10,11 @@ Asset lists below are kept current per batch.
 
 | # | Parameter (skyspec.py) | Assumption | Assets depending on it | One-line fix once known |
 |---|---|---|---|---|
-| P1 | `DOOR_SWING_SIGN` (+ `DOOR_OPEN_ANGLE`) | `+1` opens hinged doors *into* the room/cabinet | Lobby `door_sec` (model.cfg `Door_Sec`); every hinged prop door (lockers, cabinets, vending flap; see manifest `uses: [DOOR_SWING_SIGN]`) | `DOOR_SWING_SIGN = -1` → `gen_configs.py` |
+| P1 | `DOOR_SWING_SIGN` (+ `DOOR_OPEN_ANGLE`) | `+1` opens hinged doors *into* the room/cabinet | Lobby `door_sec` (model.cfg `Door_Sec`); props `Land_SKY_Locker` (`locker_door1..3`), `Land_SKY_ExtinguisherCabinet` (`cab_door`), `Land_SKY_VendingMachine` (`flap`, scaled 0.6) - model.cfg `<door>_rot` | `DOOR_SWING_SIGN = -1` → `python3 assets/gen_configs.py` (no re-export) |
 | P2 | `ELEVATOR_SLIDE_SIGN` | `+1` slides elevator leaves apart (a → −X, b → +X) | `sky_towera_core.p3d` (memory axes `elev_door_lN_a/b_axis`) | `ELEVATOR_SLIDE_SIGN = -1` → re-export core (`build_towera.py --only core`) |
-| P3 | `PENETRATION["concrete"]`, `PENETRATION["glass"]` | `dz\data\data\penetration\concrete.rvmat` / `glass.rvmat` exist | Fire Geometry of every module and prop using concrete or glass | point to the real file names → re-export P3Ds |
+| P3 | `PENETRATION["concrete"]`, `PENETRATION["glass"]` | `dz\data\data\penetration\concrete.rvmat` / `glass.rvmat` exist | Fire Geometry of every module and prop using concrete or glass (incl. `ExtinguisherCabinet` glass door, BusStop glass) | point to the real file names → re-export P3Ds |
 | P4 | `ENV_MAP` | `dz\data\data\env_land_co.paa` exists (Super shader Stage7) | every SKY rvmat | set the real path → `gen_configs.py` |
-| P5 | `ARMOR_EXPLOSION_CLASS` | explosion damage armor class is called `FragGrenade` | Lobby security door DamageSystem | rename → `gen_configs.py` |
+| P5 | `ARMOR_EXPLOSION_CLASS` | explosion damage armor class is called `FragGrenade` | Lobby security door DamageSystem; prop door DamageSystems (Locker, ExtinguisherCabinet, VendingMachine) | rename → `gen_configs.py` |
 | P6 | `ROADWAY_ASPHALT` | no verified asphalt surface; roads use the verified `concrete_ext` surface sound | street kit Roadway LODs | set a vanilla asphalt roadway texture → re-export street kit |
 | P8 | `ROAD_GEO_THICKNESS` | 0.3 m Geometry slabs under road tiles do not snag vehicle wheels at tile seams | all road/street/intersection tiles | `ROAD_GEO_THICKNESS = 0.05` → re-export street kit |
 | P7 | `EMISSIVE_LAMP`, `EMISSIVE_WINDOW` | rvmat `emmisive[]` strength reads as "lit" at night without blooming | street lights (`sky_lamp`), lit window sets (batch 2). Traffic lights are NOT emissive (D8). | tune the numbers → `gen_configs.py` |

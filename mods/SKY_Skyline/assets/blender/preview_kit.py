@@ -57,7 +57,8 @@ def main():
         bpy.context.scene.collection.objects.link(to)
     PT.shade(tex)
     for m in bpy.data.materials:
-        if m.name in ("rust", "asphalt", "paver", "atlas", "billboard", "foliage", "roadmark", "lamp") and tex:
+        if m.name in ("rust", "asphalt", "paver", "atlas", "billboard", "foliage", "roadmark", "lamp", "wood", "fabric",
+                      "brick", "concpanel", "windows") and tex:
             m.use_nodes = True
             nt = m.node_tree
             bsdf = nt.nodes.get("Principled BSDF")

@@ -331,3 +331,39 @@ kit("Decal_Cracks", "sky_street", "decal", desc="2 x 2 m plaster/concrete cracks
 kit("Decal_Graffiti", "sky_street", "decal", desc="2 x 2 m original graffiti, 4 designs via hiddenSelections",
     variants={"Land_SKY_Decal_Graffiti_%s" % k.upper(): PREFIX_TEX + "\\data\\sky_decal_graffiti_%s_ca.paa" % k for k in "abcd"})
 KIT["Decal_Dirt"]["collide"] = KIT["Decal_Cracks"]["collide"] = KIT["Decal_Graffiti"]["collide"] = False
+
+
+# ---- batch 3: interior props (pbo sky_props)
+MATERIALS.update({
+    "wood":   {"rvmat": rvmat("sky_wood"), "co": tex("sky_wood_co"),
+               "bands": {"oak": (0.0, 0.4), "walnut": (0.4, 0.7), "laminate": (0.7, 1.0)}},
+    "fabric": {"rvmat": rvmat("sky_fabric"), "co": tex("sky_fabric_co"),
+               "bands": {"grey": (0.0, 0.33), "blue": (0.33, 0.66), "beige": (0.66, 1.0)}},
+})
+ATLAS.update({"monitor": (0, 2), "extinguisher": (1, 2)})
+
+
+def door(name, display, scale=1.0):
+    """Openable prop part: vanilla building Doors entry (bone/component/memory = name).
+    Open angle = DOOR_SWING_SIGN * DOOR_OPEN_ANGLE * scale (P1, unverified)."""
+    return {"name": name, "display": display, "scale": scale}
+
+
+for _n, _c, _d, _doors in [
+    ("ReceptionDesk", "medium", "3 m lobby counter with return and monitor", []),
+    ("Desk", "small", "1.6 m office desk with monitor", []),
+    ("Cubicle", "medium", "2 x 2 m workstation: 3 fabric screens + L desk", []),
+    ("ServerRack", "small", "42U server rack (closed, atlas front)", []),
+    ("VendingMachine", "small", "drinks vending machine with openable pickup flap",
+     [door("flap", "Pickup flap", 0.6)]),
+    ("Locker", "medium", "bank of 3 steel lockers, each door openable",
+     [door("locker_door%d" % i, "Locker door", 1.0) for i in (1, 2, 3)]),
+    ("Sofa", "small", "2-seat fabric sofa", []),
+    ("Bed", "small", "single bed with headboard", []),
+    ("Kitchenette", "medium", "1.8 m counter, sink, upper cabinets, fridge", []),
+    ("ExtinguisherCabinet", "small", "wall cabinet with extinguisher, openable glass door",
+     [door("cab_door", "Cabinet door", 1.0)]),
+]:
+    kit(_n, "sky_props", _c, uses=["DOOR_SWING_SIGN", "DOOR_OPEN_ANGLE"] if _doors else [], desc=_d)
+    KIT[_n]["doors"] = _doors
+KIT["ExtinguisherCabinet"]["uses"].append("PENETRATION")      # glass door Fire Geometry (glass unverified)

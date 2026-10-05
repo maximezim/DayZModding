@@ -100,6 +100,24 @@ def main():
             check(comps, "%s %s: no components" % (n, k))
             for c in comps:
                 check(watertight(lods[k], c), "%s %s %s is not watertight" % (n, k, c))
+        for d in S.KIT[n].get("doors", []):
+            dn = d["name"]
+            for k in ("res0", "res1", "geo", "fire"):
+                check(dn in lods[k].groups, "%s %s: door selection %s missing" % (n, k, dn))
+            if "shadow" in lods:
+                check(dn in lods["shadow"].groups, "%s shadow: door selection %s missing (shadow would not swing)" % (n, dn))
+            mem = lods.get("mem")
+            check(mem is not None, "%s: doors need a Memory LOD" % n)
+            if mem is not None:
+                check(len(mem.groups.get(dn + "_axis", ())) == 2, "%s: %s_axis must have 2 points" % (n, dn))
+                for pt in (dn + "_action", dn):
+                    check(len(mem.groups.get(pt, ())) == 1, "%s: memory point %s missing" % (n, pt))
+            # the door leaf must be its own Geometry component (Doors component = selection)
+            if dn in lods["geo"].groups:
+                gv = lods["geo"].groups[dn]
+                comps = [g for g, v in lods["geo"].groups.items() if g.startswith("Component") and v & gv]
+                check(len(comps) == 1 and lods["geo"].groups[comps[0]] == gv,
+                      "%s: door %s is not exactly one Geometry component" % (n, dn))
         if n in SNAP:
             x0, x1, y0, y1, top = SNAP[n]
             b = bounds(lods["geo"])

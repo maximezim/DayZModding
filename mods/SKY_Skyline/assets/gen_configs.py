@@ -48,9 +48,10 @@ PROCEDURAL_MAPS = {
     "sky_decal_dirt": ("nohq", "as", "smdi"), "sky_decal_cracks": ("nohq", "as", "smdi"),
     "sky_decal_graffiti": ("nohq", "as", "smdi"), "sky_windows": ("nohq", "as", "smdi"),
     "sky_brick": ("as", "smdi"), "sky_concpanel": ("as", "smdi"),          # perf batch-2 M1
+    "sky_wood": ("as", "smdi"), "sky_fabric": ("as", "smdi"),
 }
 # Constant specular/gloss for procedural _smdi stages (default PROC["smdi"] otherwise).
-PROC_SMDI = {"sky_brick": (0.08, 0.15), "sky_concpanel": (0.1, 0.2)}
+PROC_SMDI = {"sky_brick": (0.08, 0.15), "sky_concpanel": (0.1, 0.2), "sky_wood": (0.25, 0.35), "sky_fabric": (0.03, 0.1)}
 
 
 def rvmat_super(base, spec_power=40, emissive=(0, 0, 0)):
@@ -111,6 +112,8 @@ RVMATS = {
     "sky_decal_dirt": ("sky_decal_dirt", 5), "sky_decal_cracks": ("sky_decal_cracks", 5),
     "sky_decal_graffiti": ("sky_decal_graffiti", 10), "sky_windows": ("sky_windows", 60),
     "sky_brick": ("sky_brick", 10), "sky_concpanel": ("sky_concpanel", 15),
+    # batch 3
+    "sky_wood": ("sky_wood", 30), "sky_fabric": ("sky_fabric", 5),
 }
 
 
@@ -137,10 +140,55 @@ def kit_config(pbo):
             first = sorted(e["variants"])[0]
             body += '\t\thiddenSelectionsTextures[] = {"%s"};\n' % e["variants"][first]
         body += e.get("config_extra", "")
+        if e.get("doors"):
+            body += kit_doors_config(e["doors"])
         out += "\tclass %s: %s\n\t{\n%s\t};\n" % (e["cls"], base, body)
         for vcls, texpath in sorted(e["variants"].items()):
             out += '\tclass %s: %s\n\t{\n\t\thiddenSelectionsTextures[] = {"%s"};\n\t};\n' % (vcls, e["cls"], texpath)
     return out + "};\n"
+
+
+def kit_doors_config(doors):
+    """Doors on a prop: same Test_Building pattern and sounds as the Tower A lobby door."""
+    out = "\t\tclass Doors\n\t\t{\n"
+    for d in doors:
+        out += """\t\t\tclass %s
+\t\t\t{
+\t\t\t\tdisplayName = "%s";
+\t\t\t\tcomponent = "%s";
+\t\t\t\tsoundPos = "%s_action";
+\t\t\t\tanimPeriod = 0.8;
+\t\t\t\tinitPhase = 0.0;
+\t\t\t\tinitOpened = 0.0;
+\t\t\t\tsoundOpen = "doorMetalSmallOpen";
+\t\t\t\tsoundClose = "doorMetalSmallClose";
+\t\t\t\tsoundLocked = "doorMetalSmallRattle";
+\t\t\t\tsoundOpenABit = "doorMetalSmallOpenABit";
+\t\t\t};
+""" % (d["name"], d["display"], d["name"], d["name"])
+    return out + "\t\t};\n" + damage_system_static([d["name"] for d in doors])
+
+
+def kit_door_anims(name, doors):
+    """model.cfg skeleton + rotation per door; swing = DOOR_SWING_SIGN (P1)."""
+    skel = "\tclass SKY_Skeleton_%s: Default\n\t{\n\t\tskeletonInherit = \"Default\";\n" % name
+    skel += "\t\tskeletonBones[] = {%s};\n\t};\n" % ", ".join('"%s",""' % d["name"] for d in doors)
+    anims = ""
+    for d in doors:
+        anims += """\t\t\tclass %s_rot
+\t\t\t{
+\t\t\t\ttype = "rotation";
+\t\t\t\tselection = "%s";
+\t\t\t\tsource = "%s";
+\t\t\t\taxis = "%s_axis";
+\t\t\t\tmemory = 1;
+\t\t\t\tminValue = 0;
+\t\t\t\tmaxValue = 1;
+\t\t\t\tangle0 = 0;
+\t\t\t\tangle1 = %g;
+\t\t\t};
+""" % (d["name"], d["name"], d["name"], d["name"], S.DOOR_SWING_SIGN * S.DOOR_OPEN_ANGLE * d["scale"])
+    return {"skeleton": skel, "skeleton_name": "SKY_Skeleton_%s" % name, "animations": anims}
 
 
 def kit_model_cfg(pbo):
@@ -168,7 +216,7 @@ class CfgModels
         body = ""
         if e["variants"]:
             body += '\t\tsections[] = {"camo"};\n'
-        anim = e.get("model_anims")
+        anim = e.get("model_anims") or (kit_door_anims(name, e["doors"]) if e.get("doors") else None)
         if anim:
             skel += anim["skeleton"]
             body += '\t\tskeletonName = "%s";\n\t\tclass Animations\n\t\t{\n%s\t\t};\n' % (anim["skeleton_name"], anim["animations"])

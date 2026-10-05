@@ -16,6 +16,14 @@
   "res2": 12,
   "shadow": 36
  },
+ "sky_bed.p3d": {
+  "fire": 36,
+  "geo": 36,
+  "res0": 48,
+  "res1": 36,
+  "res2": 24,
+  "shadow": 36
+ },
  "sky_billboard.p3d": {
   "fire": 36,
   "geo": 36,
@@ -33,6 +41,15 @@
   "res2": 24,
   "shadow": 96,
   "view": 12
+ },
+ "sky_cubicle.p3d": {
+  "fire": 60,
+  "geo": 60,
+  "res0": 62,
+  "res1": 60,
+  "res2": 60,
+  "shadow": 60,
+  "view": 36
  },
  "sky_curb.p3d": {
   "fire": 16,
@@ -57,6 +74,14 @@
   "res1": 2,
   "res2": 2
  },
+ "sky_desk.p3d": {
+  "fire": 36,
+  "geo": 36,
+  "res0": 62,
+  "res1": 36,
+  "res2": 12,
+  "shadow": 36
+ },
  "sky_dumpster.p3d": {
   "fire": 12,
   "geo": 12,
@@ -64,6 +89,15 @@
   "res1": 24,
   "res2": 12,
   "shadow": 12
+ },
+ "sky_extinguishercabinet.p3d": {
+  "fire": 72,
+  "geo": 72,
+  "mem": 0,
+  "res0": 100,
+  "res1": 92,
+  "res2": 12,
+  "shadow": 72
  },
  "sky_intersection_4way.p3d": {
   "fire": 48,
@@ -81,6 +115,25 @@
   "res2": 6,
   "road": 6
  },
+ "sky_kitchenette.p3d": {
+  "fire": 36,
+  "geo": 36,
+  "res0": 62,
+  "res1": 50,
+  "res2": 24,
+  "shadow": 36,
+  "view": 24
+ },
+ "sky_locker.p3d": {
+  "fire": 120,
+  "geo": 120,
+  "mem": 0,
+  "res0": 132,
+  "res1": 120,
+  "res2": 12,
+  "shadow": 120,
+  "view": 96
+ },
  "sky_manhole.p3d": {
   "res0": 12,
   "res1": 8,
@@ -94,6 +147,15 @@
   "res1": 18,
   "res2": 12,
   "shadow": 12
+ },
+ "sky_receptiondesk.p3d": {
+  "fire": 24,
+  "geo": 24,
+  "res0": 38,
+  "res1": 36,
+  "res2": 24,
+  "shadow": 24,
+  "view": 12
  },
  "sky_road_crossing.p3d": {
   "fire": 24,
@@ -111,6 +173,15 @@
   "res2": 2,
   "road": 2
  },
+ "sky_serverrack.p3d": {
+  "fire": 12,
+  "geo": 12,
+  "res0": 14,
+  "res1": 14,
+  "res2": 12,
+  "shadow": 12,
+  "view": 12
+ },
  "sky_sidewalk.p3d": {
   "fire": 24,
   "geo": 24,
@@ -126,6 +197,14 @@
   "res1": 18,
   "res2": 2,
   "road": 2
+ },
+ "sky_sofa.p3d": {
+  "fire": 48,
+  "geo": 48,
+  "res0": 72,
+  "res1": 48,
+  "res2": 24,
+  "shadow": 48
  },
  "sky_street_crossing.p3d": {
   "fire": 48,
@@ -167,6 +246,16 @@
   "res1": 46,
   "res2": 24,
   "shadow": 20
+ },
+ "sky_vendingmachine.p3d": {
+  "fire": 24,
+  "geo": 24,
+  "mem": 0,
+  "res0": 26,
+  "res1": 26,
+  "res2": 14,
+  "shadow": 24,
+  "view": 24
  },
  "sky_wreck_sedan.p3d": {
   "fire": 24,

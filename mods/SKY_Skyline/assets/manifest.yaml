@@ -282,4 +282,67 @@ generated_kit:
     budget: {res0: 4, res1: 4, res2: 2, sections_res0: 1}
     variants: [Land_SKY_Decal_Graffiti_A, Land_SKY_Decal_Graffiti_B, Land_SKY_Decal_Graffiti_C, Land_SKY_Decal_Graffiti_D]
     status: built-unverified
+  - name: Land_SKY_ReceptionDesk
+    type: "3 m lobby counter with return and monitor"
+    p3d: addons/sky_props/sky_receptiondesk.p3d
+    category: medium
+    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 4}
+    status: built-unverified
+  - name: Land_SKY_Desk
+    type: "1.6 m office desk with monitor"
+    p3d: addons/sky_props/sky_desk.p3d
+    category: small
+    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 3}
+    status: built-unverified
+  - name: Land_SKY_Cubicle
+    type: "2 x 2 m workstation: 3 fabric screens + L desk"
+    p3d: addons/sky_props/sky_cubicle.p3d
+    category: medium
+    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 4}
+    status: built-unverified
+  - name: Land_SKY_ServerRack
+    type: "42U server rack (closed, atlas front)"
+    p3d: addons/sky_props/sky_serverrack.p3d
+    category: small
+    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 3}
+    status: built-unverified
+  - name: Land_SKY_VendingMachine
+    type: "drinks vending machine with openable pickup flap"
+    p3d: addons/sky_props/sky_vendingmachine.p3d
+    category: small
+    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 3}
+    uses: [DOOR_SWING_SIGN, DOOR_OPEN_ANGLE]
+    status: built-unverified
+  - name: Land_SKY_Locker
+    type: "bank of 3 steel lockers, each door openable"
+    p3d: addons/sky_props/sky_locker.p3d
+    category: medium
+    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 4}
+    uses: [DOOR_SWING_SIGN, DOOR_OPEN_ANGLE]
+    status: built-unverified
+  - name: Land_SKY_Sofa
+    type: "2-seat fabric sofa"
+    p3d: addons/sky_props/sky_sofa.p3d
+    category: small
+    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 3}
+    status: built-unverified
+  - name: Land_SKY_Bed
+    type: "single bed with headboard"
+    p3d: addons/sky_props/sky_bed.p3d
+    category: small
+    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 3}
+    status: built-unverified
+  - name: Land_SKY_Kitchenette
+    type: "1.8 m counter, sink, upper cabinets, fridge"
+    p3d: addons/sky_props/sky_kitchenette.p3d
+    category: medium
+    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 4}
+    status: built-unverified
+  - name: Land_SKY_ExtinguisherCabinet
+    type: "wall cabinet with extinguisher, openable glass door"
+    p3d: addons/sky_props/sky_extinguishercabinet.p3d
+    category: small
+    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 3}
+    uses: [DOOR_SWING_SIGN, DOOR_OPEN_ANGLE, PENETRATION]
+    status: built-unverified
 # <<< GENERATED KIT

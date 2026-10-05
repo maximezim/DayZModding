@@ -376,11 +376,61 @@ def atlas(size, out):
     # (3,0) generic street sign blank (blue, white border) - text-free
     x0, y0, x1, y1 = cell(3, 0)
     d.rectangle([x0, y0, x1, y1], fill=(30, 70, 130), outline=(240, 240, 240), width=c // 20)
-    # (0,1) vending front, (1,1) server rack front, (2,1) control panel,
-    # (3,1) appliance front - reserved for batch 3 (interior props); neutral fill now.
-    for col in range(4):
-        x0, y0, x1, y1 = cell(col, 1)
-        d.rectangle([x0, y0, x1, y1], fill=(110 + 10 * col, 110 + 10 * col, 115 + 10 * col))
+    # (0,1) vending front: glass product window + selection panel + pickup slot
+    x0, y0, x1, y1 = cell(0, 1)
+    d.rectangle([x0, y0, x1, y1], fill=(150, 30, 35))
+    d.rectangle([x0 + c // 12, y0 + c // 12, x0 + 2 * c // 3, y1 - c // 4], fill=(30, 34, 40))
+    for r in range(5):
+        for k in range(4):
+            px = x0 + c // 12 + 8 + k * (c // 2 // 4 + 4)
+            py = y0 + c // 12 + 8 + r * (c // 2 // 4 + 10)
+            d.rectangle([px, py, px + c // 10, py + c // 9], fill=(60 + 35 * k, 120 + 20 * r, 90 + 25 * ((k + r) % 3)))
+    d.rectangle([x0 + 3 * c // 4, y0 + c // 6, x1 - c // 16, y0 + c // 2], fill=(20, 20, 22))
+    for r in range(4):
+        for k in range(3):
+            bx, by = x0 + 3 * c // 4 + 6 + k * c // 22, y0 + c // 6 + 10 + r * c // 18
+            d.rectangle([bx, by, bx + c // 30, by + c // 30], fill=(200, 200, 200))
+    d.rectangle([x0 + c // 8, y1 - c // 6, x0 + 5 * c // 8, y1 - c // 16], fill=(15, 15, 15))
+    d.text((x0 + c // 12, y1 - c // 4 + 4), "COLD DRINKS", fill=(255, 255, 255), font=f_small)
+    # (1,1) server rack front: perforated door with 1U units and status LEDs
+    x0, y0, x1, y1 = cell(1, 1)
+    d.rectangle([x0, y0, x1, y1], fill=(22, 23, 26))
+    u = c // 24
+    for i in range(1, 23):
+        yy = y0 + i * u
+        d.rectangle([x0 + c // 10, yy, x1 - c // 10, yy + u - 3], fill=(34 + 6 * (i % 3), 36, 40))
+        for k in range(3):
+            d.ellipse([x1 - c // 6 + k * 8, yy + 4, x1 - c // 6 + k * 8 + 4, yy + 8],
+                      fill=[(40, 200, 80), (220, 160, 30), (40, 200, 80)][(i + k) % 3])
+    # (2,1) control panel: grey box with gauges and switches (mechanical floors)
+    x0, y0, x1, y1 = cell(2, 1)
+    d.rectangle([x0, y0, x1, y1], fill=(150, 152, 148), outline=(90, 90, 88), width=c // 40)
+    for k in range(3):
+        gx = x0 + c // 8 + k * c // 4 + c // 16
+        d.ellipse([gx - c // 12, y0 + c // 6, gx + c // 12, y0 + c // 6 + c // 6], fill=(235, 235, 228), outline=(30, 30, 30), width=3)
+        d.line([gx, y0 + c // 4, gx + c // 20, y0 + c // 5], fill=(170, 20, 20), width=3)
+        d.rectangle([gx - c // 40, y0 + c // 2, gx + c // 40, y0 + c // 2 + c // 10], fill=(30, 30, 30))
+    d.rectangle([x0 + c // 8, y1 - c // 5, x1 - c // 8, y1 - c // 10], fill=(230, 190, 30))
+    d.text((x0 + c // 6, y1 - c // 5 + 4), "DANGER 400V", fill=(20, 20, 20), font=f_small)
+    # (3,1) appliance front (fridge): off-white door, handle, seam
+    x0, y0, x1, y1 = cell(3, 1)
+    d.rectangle([x0, y0, x1, y1], fill=(224, 224, 218))
+    d.line([x0, y0 + c // 3, x1, y0 + c // 3], fill=(150, 150, 146), width=4)
+    d.rectangle([x0 + c // 12, y0 + c // 10, x0 + c // 12 + c // 40, y0 + c // 4], fill=(170, 172, 175))
+    d.rectangle([x0 + c // 12, y0 + c // 3 + c // 12, x0 + c // 12 + c // 40, y0 + 2 * c // 3], fill=(170, 172, 175))
+    # (0,2) monitor screen: dark bezel, dim desktop glow (no UI branding)
+    x0, y0, x1, y1 = cell(0, 2)
+    d.rectangle([x0, y0, x1, y1], fill=(18, 18, 20))
+    d.rectangle([x0 + c // 20, y0 + c // 20, x1 - c // 20, y1 - c // 20], fill=(20, 40, 60))
+    for k in range(5):
+        d.rectangle([x0 + c // 10, y0 + c // 8 + k * c // 7, x0 + c // 10 + c // 12, y0 + c // 8 + k * c // 7 + c // 14],
+                    fill=(60, 90, 120))
+    # (1,2) extinguisher: red body band with white label (wrapped on the prism)
+    x0, y0, x1, y1 = cell(1, 2)
+    d.rectangle([x0, y0, x1, y1], fill=(170, 25, 25))
+    d.rectangle([x0, y0, x1, y0 + c // 8], fill=(30, 30, 30))
+    d.rectangle([x0 + c // 6, y0 + c // 3, x1 - c // 6, y0 + 2 * c // 3], fill=(240, 240, 235))
+    d.text((x0 + c // 5, y0 + c // 3 + c // 12), "FIRE", fill=(170, 25, 25), font=f_big)
     img.save(os.path.join(out, "sky_atlas_co.png"))   # nohq/smdi/as are procedural in sky_atlas.rvmat
 
 
@@ -567,6 +617,41 @@ def concpanel(size, out):
     nh = normal_from_height(h, 2.5)
     save(nh.resize((max(1, size // 2),) * 2, Image.BILINEAR) if size > 1024 else nh, out, "sky_concpanel_nohq")
 
+
+# ------------------------------------------------------------------ batch 3: interior props
+def wood(size, out):
+    """Furniture wood trim (1024): V 0-0.4 oak, 0.4-0.7 walnut, 0.7-1 grey laminate."""
+    size = min(size, 1024)
+    y = np.linspace(0, 1, size, dtype=np.float32)[:, None]
+    x = np.linspace(0, 1, size, dtype=np.float32)[None, :]
+    n = fbm(size, 211, octaves=4, base=4)
+    grain = 0.5 + 0.5 * np.sin((x * 60 + 6 * n) * np.pi)          # long grain along U
+    col = np.zeros((size, size, 3), np.float32)
+    h = 0.05 * grain
+    for (v0, v1), base, amp in [((0.0, 0.4), (0.62, 0.45, 0.28), 0.10),
+                                ((0.4, 0.7), (0.36, 0.23, 0.15), 0.08),
+                                ((0.7, 1.0), (0.58, 0.58, 0.56), 0.02)]:
+        r0, r1 = band_rows(size, v0, v1)
+        col[r0:r1] = np.array(base, np.float32) + amp * gray(grain[r0:r1] - 0.5) + 0.03 * gray(n[r0:r1] - 0.5)
+    save(to_rgb(col), out, "sky_wood_co")
+    save(normal_from_height(h, 1.0), out, "sky_wood_nohq")      # _smdi/_as procedural (rvmat)
+
+
+def fabric(size, out):
+    """Upholstery trim (512): V 0-0.33 grey, 0.33-0.66 blue, 0.66-1 beige weave."""
+    size = min(size, 512)
+    yy, xx = np.mgrid[0:size, 0:size]
+    weave = (((xx // 2) + (yy // 2)) % 2).astype(np.float32)
+    n = fbm(size, 223, octaves=3, base=8)
+    col = np.zeros((size, size, 3), np.float32)
+    for (v0, v1), base in [((0.0, 0.33), (0.42, 0.42, 0.44)), ((0.33, 0.66), (0.20, 0.28, 0.45)),
+                           ((0.66, 1.0), (0.66, 0.60, 0.50))]:
+        r0, r1 = band_rows(size, v0, v1)
+        col[r0:r1] = np.array(base, np.float32) * (0.92 + 0.08 * gray(weave[r0:r1])) + 0.04 * gray(n[r0:r1] - 0.5)
+    save(to_rgb(col), out, "sky_fabric_co")
+    save(normal_from_height(0.3 * weave + 0.2 * n, 1.0), out, "sky_fabric_nohq")
+
+
 GENERATORS = {
     "concrete": concrete, "metal": metal, "glass": glass, "glassfar": glassfar,
     "tile": lambda s, o: tiled(s, o, "sky_tile", 5, (0.72, 0.71, 0.68), (0.45, 0.45, 0.43), max(3, s // 400), 41, 0.3, 0.5),
@@ -574,6 +659,7 @@ GENERATORS = {
     "roofmark": roofmark, "keycards": keycards,
     "paver": paver, "roadmark": roadmark, "rust": rust, "foliage": foliage, "atlas": atlas, "billboards": billboards,
     "decals": decals, "windows": windows, "brick": brick, "concpanel": concpanel,
+    "wood": wood, "fabric": fabric,
 }
 
 

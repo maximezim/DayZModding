@@ -49,6 +49,8 @@ def finish(L, mass, shadow=True):
         sh = Lod("shadow", LOD_SHADOW)
         sh.verts = list(L["geo"].verts)
         sh.faces = [(idx, None, None) for idx, _m, _uv in L["geo"].faces]
+        # keep named (door) selections so the shadow swings with the bone; drop ComponentNN
+        sh.groups = {g: set(v) for g, v in L["geo"].groups.items() if not g.startswith("Component")}
         L["shadow"] = sh
     return list(L.values())
 
