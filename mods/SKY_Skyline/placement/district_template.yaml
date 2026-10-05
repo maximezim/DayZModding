@@ -29,7 +29,7 @@ streets:
   ew: [-4, 0, 4]
   crossings: [[0, -2], [0, 2], [-2, 0], [2, 0]]   # zebra crossings mid-block
   lights_every: 2               # a street light on every 2nd straight tile (LIGHT_CAP 0.5/tile)
-  base_y: null                  # null = from survey per tile
+  base_y: null                  # null = ONE street plane: max surveyed ground under any tile + clearance
 
 # Blocks = grid cells between streets ([i0, j0, i1, j1]); a tower needs 3 x 3 cells (36 m)
 # for its 24 m footprint + BLOCK_SETBACK. Towers sit block-locally (`at` from the block centre).

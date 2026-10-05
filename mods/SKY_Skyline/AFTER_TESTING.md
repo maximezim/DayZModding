@@ -25,6 +25,7 @@ tools\tests\Invoke-ModValidation.ps1 -ModName SKY_Skyline -Layout <layout.yaml> 
 | P6 | driving sounds like concrete and an asphalt surface is found on P: | `ROADWAY_ASPHALT` | re-export street kit (`build_kit.py`) | street-kit driving rows |
 | P7 | lamps / lit windows too dim or blooming at night | `EMISSIVE_LAMP`, `EMISSIVE_WINDOW` | `gen_configs.py` | night visual rows, W-xx |
 | P8 | vehicles snag on tile seams | `ROAD_GEO_THICKNESS = 0.05` | re-export street kit | street-kit driving rows |
+| P9 | P5-YAW: off-centre props / decals of a yaw-90/270 tower mirrored or rotated the wrong way | `YAW_SIGN = -1` (only the written engine yaw flips) | `python placement/sky_layout.py --layout <yaml> --strict` (no rebuild) | P5-YAW, P5-06, P5-05 |
 
 ## 2. Behaviour checks (no parameter; one targeted change each)
 
@@ -37,6 +38,8 @@ tools\tests\Invoke-ModValidation.ps1 -ModName SKY_Skyline -Layout <layout.yaml> 
 | B6 | infected never reach upper floors / overload | tune the district's `InfectedCity` zone `dmin/dmax` (economy/README.md); no code change |
 | B7 | no `mapgrouppos` entries / loot on spawned props | delete the prop groups from `skyspec.LOOT` (Locker, Desk, ReceptionDesk, Kitchenette), `gen_economy.py` |
 | B8 | street lights block the sidewalk, or decals z-fight | move the light offset in `sky_layout.py` (0.5 m inside the curb) / raise `DECAL_OFFSET` per type |
+| B9 | a clean run shows FAIL lines, or a broken build shows none | adjust `$FailPatterns` / `$ModScoped` in `tools\tests\Invoke-ModValidation.ps1` (regexes only) |
+| B10 | you need to re-export P3Ds (P2/P3/P6/P8, B1/B2) | install Blender 4.2 LTS + Arma Toolbox next to Blender 5.2 and pass `-Blender`, or port `skygeo.export_p3d` to the DayZ Object Builder exporter and prove the output identical |
 
 ## 3. Budgets and caps (from FPS_PROTOCOL.md results)
 

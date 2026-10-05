@@ -50,9 +50,10 @@ FACE_YAW = {"S": 0.0, "W": 90.0, "N": 180.0, "E": 270.0}   # decal quad faces -Y
 
 
 def rot(u, v, yaw_deg):
-    """Local (u east, v north) -> world offset for a DayZ yaw (clockwise from north when
-    skyspec.YAW_SIGN = 1; P9, unverified)."""
-    a = math.radians(S.YAW_SIGN * yaw_deg)
+    """Local (u east, v north) -> world offset for a yaw turning clockwise from north. All
+    generator maths uses this one convention; P9 (`YAW_SIGN`) is applied only to the yaw value
+    written to the JSON (spawner), so flipping it re-orients nothing but the engine angle."""
+    a = math.radians(yaw_deg)
     return (u * math.cos(a) + v * math.sin(a), -u * math.sin(a) + v * math.cos(a))
 
 
@@ -69,7 +70,7 @@ def box_corners(cx, cz, box, yaw):
 def inside(px, pz, cx, cz, hw, hd, yaw):
     # inverse rotation of the point into the footprint frame
     dx, dz = px - cx, pz - cz
-    a = math.radians(S.YAW_SIGN * yaw)
+    a = math.radians(yaw)
     u = dx * math.cos(a) - dz * math.sin(a)
     v = dx * math.sin(a) + dz * math.cos(a)
     return abs(u) <= hw and abs(v) <= hd
@@ -108,8 +109,9 @@ def poly_gap(a, b):
 
 
 def spawner(name, pos, yaw):
+    # ypr[0] = YAW_SIGN * yaw (P9 engine yaw sense; positions never depend on it)
     return {"name": name, "pos": [round(pos[0], 4), round(pos[1], 4), round(pos[2], 4)],
-            "ypr": [round(yaw % 360.0, 4), 0.0, 0.0], "scale": 1.0, "enableCEPersistency": 0, "customString": ""}
+            "ypr": [round((S.YAW_SIGN * yaw) % 360.0, 4), 0.0, 0.0], "scale": 1.0, "enableCEPersistency": 0, "customString": ""}
 
 
 class Ctx:
@@ -417,9 +419,10 @@ def main():
                 lu = -(S.STREET["carriageway"] / 2 + 0.5)
                 dx, dz = rot(lu, 0.0, yaw)
                 ctx.add("lights", S.KIT["StreetLight"]["cls"], (wx + dx, street_y + S.STREET["curb_h"], wz + dz), yaw)
-    if n_straight and ctx.counts.get("lights", 0) > S.LIGHT_CAP["per_tile"] * n_straight:
-        ctx.errors.append("%d street lights on %d straight tiles > LIGHT_CAP %.2f per tile"
-                          % (ctx.counts["lights"], n_straight, S.LIGHT_CAP["per_tile"]))
+    allowed = sum(math.ceil(S.LIGHT_CAP["per_tile"] * n - 1e-9) for n in per_line.values())   # per street, rounded up
+    if n_straight and ctx.counts.get("lights", 0) > allowed:
+        ctx.errors.append("%d street lights on %d straight tiles > LIGHT_CAP %.2f per tile (%d allowed per street line)"
+                          % (ctx.counts["lights"], n_straight, S.LIGHT_CAP["per_tile"], allowed))
     ctx.street_y = street_y if rows else None
 
     # ---- towers (blocks + legacy site-frame towers)
@@ -471,7 +474,10 @@ def main():
     if ctx.street_y is not None:
         for t in placed:
             step = t["base_y"] - (ctx.street_y + S.STREET["curb_h"])
-            if abs(step) > 0.3:
+            if abs(step) > 0.5:
+                ctx.soft("tower %s: lobby floor %.2f m %s the sidewalk - entrance step too high (> 0.5 m)" % (
+                    t["id"], abs(step), "above" if step > 0 else "below"))
+            elif abs(step) > 0.3:
                 ctx.warnings.append("tower %s: lobby floor %.2f m %s the sidewalk - entrance step" % (
                     t["id"], abs(step), "above" if step > 0 else "below"))
     # one InfectedCity zone per district (economy/README.md, perf batch-5 M4), vanilla
@@ -480,7 +486,7 @@ def main():
     if placed:
         res = sum(1 for t in jobs_res if t)
         dmax = min(15, 10 + res)
-        r = min(100.0, max(math.hypot(t["c"][0] - cx0, t["c"][1] - cz0) for t in placed) + 20.0)
+        r = min(100.0, max(50.0, max(math.hypot(t["c"][0] - cx0, t["c"][1] - cz0) for t in placed) + 20.0))   # vanilla zones r >= 50
         zone = '<zone name="InfectedCity" smin="0" smax="0" dmin="%d" dmax="%d" x="%.1f" z="%.1f" r="%.0f"/>' % (
             dmax // 2, dmax, cx0, cz0, r)
 

@@ -203,3 +203,132 @@ Logs: newest `script_*.log`, `*.RPT` and `*.ADM` in `server\profiles\{diag-serve
 | Z5-04 | Death + respawn near the district, then reconnect | none | No infected stuck in furniture or walls | |
 | R5-01 | Regression: vanilla town loot and infected nearby | no new CE warnings | Vanilla buildings still get loot. Vanilla zones unchanged | |
 | R5-02 | Regression: Tower A lobby security door + keycard + elevator on each variant | ADM: swipe/elevator lines as in TESTING.md | Works the same on every floor variant | |
+
+---
+
+## Re-gate (28d9c52)
+
+Date: 2026-10-05. This re-gate is static only, on a Linux host with no DayZ, DayZ Tools or P:. It was run on a clean `git archive 28d9c52` snapshot (scratchpad `qa5b/`).
+Tools used: Blender 4.2 + ArmaToolbox, pwsh 7.4, the vanilla scripts dump and the `dayzOffline.chernarusplus` CE reference.
+It changed no mod code. All probes, mutations and the fake server dir were made in scratch, and the scratch `build/` dirs were deleted afterwards. This section is the only repo edit.
+The range includes the user's setup merge, which is out of scope apart from the self-test.
+
+**Verdict: GATE: PASS.** H1 and every previous Medium are fixed. One new Medium (R-M1) is a latent bug: it only bites if P9 is flipped. It must be fixed before `YAW_SIGN = -1` is ever applied.
+
+### R1. Standard suite
+
+| # | Check | Result |
+|---|---|---|
+| 1 | `check_assets.py` | exit 0, `44 checked, 0 fail, 5 over budget (hypotheses)` (unchanged list) |
+| 2-4 | `gen_configs` / `gen_manifest` / `gen_economy --check` | exit 0 / 0 / 0 (`up to date`) |
+| 5 | `test_kit.py` | exit 0, `KIT GEOMETRY TESTS: PASS (39 assets)` |
+| 6 | `test_towera.py` | exit 0, `TOWER A GEOMETRY TESTS: PASS (81 core components checked)` |
+| 7 | rebuild floors/props/kit/towera into scratch (sequential), then `cmp` | 5 + 10 + 24 + 5 `EXPORTED`, 0 failed. **44/44 P3Ds byte-identical** to the committed files, including the 3 re-exported props (locker, receptiondesk, kitchenette). `build_stats.json` and `build_stats_kit.json` are identical |
+| 8 | `enscript_xref.py` | `OK: 11 files, all calls/types resolve` |
+| 9 | Tower A vs `681ecdc` | `addons/sky_towera` tree `79904d3` is identical. The 4 P3D sha256 equal the LFS oids. `build_towera.py` is unchanged in `bc4d299..28d9c52` |
+| 10 | `placement/tests/test_sky_layout.py` | exit 0, 33 PASS, `0 failed`. New cases: tile without samples, rock under a tile, yaw not a multiple of 90, duplicate ids, decal on lobby glass, no deployable output on FAIL |
+| 11 | regenerate `out/` and `out_district/` into scratch, then `diff -r --strip-trailing-cr` | **identical** (8 / 323 entities, `PASS (with warnings)`). The only raw differences are CRLF on the `*.xml` snippets (`.gitattributes`) |
+| 12 | `--strict` on the template | exit 1 (placeholder, no survey, no centre, 4 x no base height). It wrote only `placement_report.md`, `sky_objects.FAILED.json` and `cfgeventspawns_snippet.FAILED.xml` |
+| 13 | `tools/tests/Invoke-SelfTest.ps1` (pwsh 7.4) | exit 0, 46 `[OK]`, `all self-tests passed` (incl. `parse Invoke-ModValidation.ps1`) |
+
+### R2. Previous findings
+
+| Finding | Status | Evidence |
+|---|---|---|
+| **H1** tiles without survey samples | **FIXED** | `sky_layout.py:381-382` now errors. Re-ran the batch-5 probes on the new template: (a) yaw 37 with the axis-aligned survey gives exit 1 with exactly 4 errors, `street tile (-4, -4) / (-4, 4) / (4, -4) / (4, 4) has no survey samples`, plus 4 thin-tile warnings (7 samples). (b) The site-frame survey with a 14 m gap gives `street tile (4, 1) has no survey samples`. A full-cover flat survey at yaw 37 gives `--strict` PASS, exit 0 |
+| **M1** light arm | **FIXED** | The pole is at local `-(4 + 0.5)` (`:417`). The StreetLight arm and head extend to local +X 1.2..1.8 (`build_kit.py:265-267`), so the head sits at -3.3..-2.7, i.e. 0.7-1.3 m inside the 8 m carriageway. My independent verifier checks every light at tile-frame u = -4.5, v = 0, y = street + 0.15. 16/16 pass at site yaw 0 and at yaw 37 |
+| **L2** lights per street | **FIXED** | The verifier recomputes every 2nd straight tile per line (ascending along the line, crossings and intersections excluded). The expected set equals the output at yaw 0 and yaw 37. Example: column i = -4 is lit at j = -3, -1, 2 |
+| **M2** decals on glass | **FIXED** | `opaque` bands come only from `DECAL_OPAQUE_FLOORS = ("mechanical",)` (`skyspec.py:340`, `sky_layout.py:290-291, 317-320`). The louvre is a solid 0..3.2 m Geometry/View/Fire box flush at 12.00 (`build_floors.py:98-112`). Template decals: T4 level 3 (z 14.0..17.2), N 14.1..16.1, E 14.1..17.1, S 15.0..17.0, all inside the band (verified). Probes all fail as they should: T1 lobby glass z 0.2, the lobby entrance z 0.5, a decal straddling the slab (13.0..15.0) or the roof edge (16..18), and a T2 (apartments) facade at 14.1 |
+| **M3** zone premise / format | **FIXED** | D45 supersedes D41. The generated zone (`<zone name="InfectedCity" smin="0" smax="0" dmin="6" dmax="12" x=".." z=".." r="54"/>`) has the same attribute set and order as vanilla `env/zombie_territories.xml` (e.g. `<zone name="InfectedCity" smin="0" smax="0" dmin="8" dmax="12" x="11585.5" z="14725" r="100"/>`). The template values match the README formula (2 residential towers, so dmax 12). See R-L6 for radius and territory |
+| **L1** loot on collision | **FIXED** | An independent MLOD read of the committed props: the locker shelf is Geometry and Fire comp 1.45..1.47, the reception top 1.05..1.10, and the kitchenette worktop 0.88..0.92. Each of the 13 prop points rests on a Geometry and a Fire component whose top is 0..0.06 m below the point, with the whole range disk inside it, and none is inside Geometry. `PROP_BOX` Reception/Kitchenette match Geometry (test_kit). **Mutations**, all caught: Desk point z 1.30 gives `does not rest on a Geometry surface`. Locker shelf Res0-only gives 3 FAIL. Worktop Res0-only gives 2 FAIL + PROP_BOX. Kitchenette point sunk to 0.80 gives rest + inside |
+| **L3** seams | **FIXED** | There is now one plane (`:388-395`). Every tile shares one y (flat 200.05; sloped 200.59). The lobby-step warning works (see R-L5 for the side effect) |
+| **L4** gaps | mostly fixed | `DECAL_CAPS.per_tower` 12 is enforced (12 PASS, 13 `13 decals > DECAL_CAPS per_tower 12`). The lobby row now says weapons only. D45 records that ReceptionDesk is not furnished. Cabinet z: see (7). Still open: economy/README install step 3 still names `placement/out/` only (R-L7) |
+| (7) cabinet mounting | **FIXED** | FURNISH has an optional 5th field (`skyspec.py` office_open / mechanical `("ExtinguisherCabinet", -3.0, 0.0, 90, 1.0)`). The generator spawns at `base + z + pz` (`:242`), which I verified: 307/307 non-light objects matched. test_kit raises the box to `pz + 0.05..pz + 1.0` (`test_kit.py:255-258`). Mutation x -3.0 -> -2.9 gives `ExtinguisherCabinet at (-2.9, 0) blocks the core core footprint`. With `YAW_SIGN = 1` the cabinet box is x -3.27..-3.00, flush on the core's west face |
+| Security M1/M2/L1/L3/L4/Info | **FIXED** | Strict probes at site yaw 37: a rock on tile (4, 1) and a `Land_House_1W01` on tile (0, -2) give ERROR. A fence `wall_indfnc_3` in the T1 footprint gives ERROR. A tree gives only WARN (exit 0). Tower yaw 135 or 90.0000001 gives ERROR, while 450 and -90 are accepted. Duplicate `T1` gives `duplicate tower id T1`. A FAIL run into a folder that holds an old PASS output deletes `sky_objects.json`, `cfggameplay_snippet.json`, `cfgeventspawns_snippet.xml` and `zombie_territories_snippet.xml`, and writes only `*.FAILED.*` + the report. Residuals (accepted, Info): (a) only the object centre is tested, as the survey exports no extents. (b) Drops still write `a="0"`, so with site yaw 37 the crate sits 37 deg to the roof. The nearest roof obstacle is 3.75 m from every drop point, which is more than the circumscribed 1.06 m, so this is harmless |
+| Security L2 / P9 `YAW_SIGN` | **PARTIAL** -> R-M1 | `rot()` and `inside()` use `YAW_SIGN`, and so do all positions (`footprint_corners`, `box_corners`, props, decals, drops, lights). The intra-module angles do not |
+| Perf M1/M3/L1/L3 (D43) | **FIXED** | `PROP_CAPS per_tower` 70 binds (5 x 25 = 125 > 70; towers are 55/60/60/52). Template: 323 entities + 226 loot = 549 (≤ 800). `--others` x3 gives server total 2196, PASS. x4 gives `server total 2745 (entities + loot) > ENTITY_CAP per_server 2500`, exit 1, no deployable output. mapgroupproto has 12 groups with no Cubicle/Bed. Locker lootmax 1, and an office floor is 9 items (6 + 1 + 1 + 1). The report prints the export radius (`exportRadius >= 73 m`) |
+| Perf M2 (props as proxies) | deferred (D43) | Accepted. It is decided by FPS_PROTOCOL D vs D0 |
+
+### R3. `tools/tests/Invoke-ModValidation.ps1`
+
+- **`-DryRun`** (pwsh 7.4, no Windows tools): exit 0. It prints every command, both without `-Layout` and with `-Layout mods/SKY_Skyline/placement/district_template.yaml`: sky_layout, the mission-copy merge and the render of `serverDZ.validation.cfg`.
+- **Merge path exercised for real**: `-SkipStatic -SkipBuild -Layout <yaw-37 flat probe>` against a scratch server dir holding a copy of the vanilla mission.
+  - `cfggameplay.json` gets `objectSpawnersArr ["sky/sky_objects.json"]` and is otherwise JSON-equal to vanilla.
+  - `cfgeconomycore.xml` gets `<ce folder="sky_ce">` with 3 files.
+  - `mapgroupproto.xml` goes from 446 to 458 groups.
+  - `cfgeventspawns.xml` gets `StaticSKYRoofDrop`, and the zone was appended.
+  - All XML stays well-formed (`xmllint`).
+  - The run then stopped at `DayZServer_x64.exe not found`, as expected.
+- **`-AnalyzeOnly`** on synthetic folders:
+
+| Folder | Result |
+|---|---|
+| clean RPT/script/ADM with `[SKY]` and `Land_SKY_` lines | **PASS, exit 0** |
+| + `SCRIPT    (E): NULL pointer to instance` | **FAIL, exit 1** (script error 1) |
+| + `SCRIPT (E)` + `Can't compile "World" script module!` | FAIL, exit 1 (script 1, compile 1) |
+| + `Cannot open object SKY_Skyline\sky_towera\sky_towera_core.p3d` | **FAIL, exit 1** (missing object 1) |
+| + `crash_2026-10-05.log` | **FAIL, exit 1** |
+| vanilla only: `Cannot open file dz\structures\...`, `Warning Message: Cannot open object dz\plants\...`, `Updating base class ... DZ_Gear` | **PASS, exit 0** (3 under "other-mod / vanilla load errors") |
+| vanilla `[CE][DE] StaticHeliCrash: spawned ...` | FAIL (false positive, R-L4) |
+| vanilla `Cannot open file dz\data\data\sky_clouds.paa` | FAIL (false positive, R-L4) |
+| only a `.mdmp` | PASS (missed, R-L4) |
+
+- **PowerShell 5.1 by reading**:
+  - No `??`, `?.`, ternary, `&&`/`||`, `-Parallel`, `-AsHashtable`, `utf8NoBOM`, `$IsWindows` or multi-child `Join-Path`.
+  - Uses `Join-DzPath` throughout. `[ordered]`, `[pscustomobject]` and `Add-Member -NotePropertyName` are all PS 3+.
+  - The file is ASCII with CRLF line endings.
+  - One runtime difference applies (R-L3).
+
+### R4. Docs
+
+- TESTING §0b: matches the script. Rows Z5-01 (dmin 6 / dmax 12 / r 54), L5-01/L5-03 (4 loot props, D43), P5-02..P5-06 and P5-YAW match the code. §16 and §17 are unchanged in substance.
+- Sign-off rows exist for §1-§11 and §13-§18. **§0b (validation run), §12 (regression) and the FPS protocol have no row** (R-L1).
+- FPS_PROTOCOL: entity numbers match the report (323 / 226 / 227 props / 8), as do Q2 (12 hotel props), Q3 (6 cubicles) and S8. **D-dec and E do not work with the code** (R-L2).
+- AFTER_TESTING: P1-P8 and B1-B8 match PENDING. **P9 (`YAW_SIGN`, decided by P5-YAW), B9 and B10 are missing** (R-L1).
+- PENDING: P9 is present. B7 lists the 4 props. B9/B10 are present.
+
+### R5. New findings
+
+#### Medium
+- **R-M1: the P9 remedy (`YAW_SIGN = -1`, "regenerate, no rebuild") covers positions but not intra-module angles, so it would ship a broken layout without any warning.**
+  - **What goes wrong.** `FACE_YAW` (`sky_layout.py:49, 325`) and the FURNISH `pyaw` (`:242`) are added to the tower yaw as clockwise angles regardless of the sign. `test_kit.placed_box` (`test_kit.py:212-218`) also rotates clockwise only.
+  - **Reproduction.** A scratch copy with `YAW_SIGN = -1`, yaw-37 flat survey, `--strict` still says `PASS`. Then interpret the output with counter-clockwise engine yaw (the case P9 = -1 describes):
+    - **E/W-face decals face into the building**: `Decal_Dirt` on T4 E has outward·front = -0.89, so it is invisible from the street.
+    - **Every ExtinguisherCabinet (yaw 90, off-centre box) lands at tower-frame x -3.00..-2.73.** That is inside the core wall (-3.00..-2.75), poking 2 cm into the stairwell, with its door against the wall.
+    - Sofas, lockers and desks at 90/270 turn 180 deg (their boxes are centred, so it is a visual change only).
+  - **Fix.** Emit `t.yaw + YAW_SIGN * FACE_YAW[...]` and `yaw + YAW_SIGN * pyaw`, use `YAW_SIGN` in `placed_box`, and add a generator self-test that runs with the sign flipped. Alternatively, reword P9 / P5-YAW / AFTER_TESTING so they say this flip is not regenerate-only.
+  - **Default build.** None of this affects the shipped default (`YAW_SIGN = 1`).
+
+#### Low
+- **R-L1: AFTER_TESTING and the sign-off table are behind PENDING.** AFTER_TESTING has no rows for P9, B9 or B10. The sign-off table has no rows for §0b, §12 or the FPS protocol.
+- **R-L2: FPS_PROTOCOL configs D-dec and E cannot be produced as written.**
+  - D-dec: "40 `Decal_Dirt` on T1 face S" is rejected by D44, because T1 has no mechanical storey and face S is glass. Use T4's louvre storey.
+  - E: "3 x template, expect FAIL on ENTITY_CAP" is wrong in two ways:
+    - 3 districts total 1647, and even 4 total only 2196, both under 2500. The FAIL needs 5 districts.
+    - A FAIL writes nothing deployable.
+  - `Invoke-ModValidation -Layout` also merges a single `sky/sky_objects.json` only.
+- **R-L3: Invoke-ModValidation robustness.**
+  - (a) `-Layout` runs `sky_layout.py` without `--strict` (`:218`). TESTING §0b, line 3, and §16/§18 run the unfilled template, which spawns the district at world (0, 0) with Y = 0.
+  - (b) If sky_layout FAILs, `Copy-Item ... sky_objects.json` (`:232`) throws, so the run ends with no summary.
+  - (c) `-DryRun` ends with `Validation PASS` and writes `build\validation\<stamp>\summary.*`.
+  - (d) The zone is appended to the first `<territory>` (`:262`), which is vanilla's all-`InfectedVillageTier1` group. Vanilla keeps `InfectedCity` zones in their own territories (#5 and #9).
+  - (e) PS 5.1: `& $Exe @CheckArgs 2>&1` under `$ErrorActionPreference = 'Stop'` (`:42, :162`) turns any stderr line into a terminating error. Examples are a Python traceback or Blender stderr. A failing check then aborts the script instead of being recorded as a FAIL step. pwsh 7 does not do this.
+- **R-L4: log patterns.** `-match` is case-insensitive, which causes two false positives and one miss:
+  - `'Crash'` fails a vanilla `StaticHeliCrash` line.
+  - The ModFilter `SKY_` scopes any vanilla path containing `sky_` to the mod.
+  - A lone `.mdmp` is not detected.
+  
+  Feed these into B9.
+- **R-L5: the single street plane limits districts to about 0.75 m of relief across 108 m.** A 1 % slope fails every edge tile (`ground falls 1.13 m below the tile`). Lobbies up to about 0.8 m below the sidewalk only warn. Document the limit in placement/README section 4, and consider making the lobby step a `soft()` error in `--strict`.
+- **R-L6: the zone radius has no lower bound** (`:483`). The slice `out/zombie_territories_snippet.xml` has `r="20"`, while the smallest vanilla zone is r 50. economy/README.md:69 still says "r = 60 m, dmin 6 / dmax 10".
+- **R-L7: stale text.** `district_template.yaml:32` still says `# null = from survey per tile`. economy/README install step 3 names `placement/out/` only.
+
+#### Info
+- **Self-test gaps.** test_sky_layout has no cases for light side and per-line spacing, the one-plane height, `--others`, or the zone snippet. The scratch verifier (`scratchpad/qa5b_verify_layout.py`) covers them: 307 matched + 16 lights + 16 drops, 0 mismatches at yaw 0 and yaw 37.
+- **BOMs.** `XmlDocument.Save` adds a UTF-8 BOM to the merged mission XMLs, and on 5.1 `Set-Content -Encoding UTF8` adds one to `cfggameplay.json`. Confirm on the first real run (B9).
+
+### Severity summary (re-gate)
+High 0 · Medium 1 (R-M1, latent: only if P9 flips) · Low 7 · Info 2. Previous H1, M1-M3 and L1-L3 are fixed. L4 is mostly fixed.
+Security M1/M2/L1/L3/L4 are fixed, and security L2 is partial (R-M1). Perf M1/M3/L1/L3 are fixed, and M2 is deferred per D43.
+
+**GATE: PASS**

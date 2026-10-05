@@ -442,3 +442,6 @@ Static results: `reviews/batch5_qa.md`. Deploy the district template on a survey
 | Street kit §16 | | | |
 | Decals / windows §17 | | | |
 | Economy / district §18 | | | |
+| Validation script §0b (summary PASS, 0 SKY FAIL lines) | | | |
+| Regression §12 | | | |
+| FPS protocol (`FPS_PROTOCOL.md` §4 thresholds) | | | |

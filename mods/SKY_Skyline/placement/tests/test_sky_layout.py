@@ -128,6 +128,26 @@ def district_tests(expect):
     expect("failed run writes no deployable sky_objects.json", not os.path.exists(os.path.join(od, "sky_objects.json"))
            and os.path.exists(os.path.join(od, "sky_objects.FAILED.json")))
 
+    # lights: pole on the -X sidewalk of its tile, arm (+X) over the road; every 2nd straight tile per street
+    lit = variant(-1, -1)
+    lit["streets"]["lights_every"] = 2
+    rc, out, objs = run("lights-side", flat, towers=[], extra=lit)
+    tiles = [o for o in objs if o["name"] == "Land_SKY_Street_Straight" and abs(o["pos"][0] - (1000 - 24.0)) < 1e-3]
+    lights = [o for o in objs if o["name"] == "Land_SKY_StreetLight" and abs(o["pos"][0] - (1000 - 24.0 - 4.5)) < 1e-3]
+    expect("lights sit on the -X sidewalk (arm over the road)", rc == 0 and lights and len(lights) == (len(tiles) + 1) // 2, "%d lights / %d tiles\n%s" % (len(lights), len(tiles), out))
+    ys = {round(o["pos"][1], 3) for o in objs if o["name"].startswith("Land_SKY_Street_")}
+    expect("one street plane for every tile", rc == 0 and len(ys) == 1, str(ys))
+    _rc, _out, tod = run_layout(tpl)
+    zt = os.path.join(tod, "zombie_territories_snippet.xml")
+    expect("district writes one InfectedCity zone (r >= 50)", os.path.exists(zt) and open(zt).read().count('<zone name="InfectedCity"') == 1
+           and float(open(zt).read().split('r="')[1].split('"')[0]) >= 50)
+    other = os.path.join(tod, "sky_objects.json")
+    d2 = tempfile.mkdtemp()
+    r = subprocess.run([sys.executable, TOOL, "--layout", tpl, "--out", d2, "--others", ",".join([other] * 4)], capture_output=True, text=True)
+    expect("--others: 5 template districts exceed ENTITY_CAP per_server", r.returncode == 1 and "per_server" in r.stdout, r.stdout[-400:])
+    r = subprocess.run([sys.executable, TOOL, "--layout", tpl, "--out", d2, "--others", ",".join([other] * 2)], capture_output=True, text=True)
+    expect("--others: 3 template districts stay under ENTITY_CAP per_server", r.returncode == 0, r.stdout[-400:])
+
     sys.path.insert(0, os.path.dirname(HERE))
     import sky_layout as SL
     S = SL.S
@@ -139,6 +159,12 @@ def district_tests(expect):
     SL.furnish(ctx, t, mods, 0.0, 0.0, 0.0, 0.0)
     expect("PROP_CAPS per_floor enforced", any("per_floor" in e for e in ctx.errors), str(ctx.errors))
     expect("aisle minimum enforced", any("aisle" in e for e in ctx.errors), str(ctx.errors))
+    # P9: flipping YAW_SIGN changes only the written yaw, never a position (QA re-gate R-M1)
+    base = SL.spawner("X", (1.0, 2.0, 3.0), 90.0)
+    S.YAW_SIGN = -1
+    flip = SL.spawner("X", (1.0, 2.0, 3.0), 90.0)
+    S.YAW_SIGN = 1
+    expect("YAW_SIGN flips only ypr (270 vs 90), positions unchanged", base["pos"] == flip["pos"] and base["ypr"][0] == 90.0 and flip["ypr"][0] == 270.0, "%s %s" % (base, flip))
 
 
 def main():

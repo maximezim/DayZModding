@@ -16,8 +16,8 @@ first, then dedicated; never edit the vanilla mission - use the `.validation` mi
 | B | Tower A slice (8 entities) | `-Layout mods\SKY_Skyline\placement\layout.yaml` |
 | D | district template (323 entities + up to 226 loot) | `-Layout mods\SKY_Skyline\placement\district_template.yaml` (fill `site.center` with T first) |
 | D0 | district without props | copy of the template with every `furnish:` removed (227 fewer entities) |
-| D-dec | district + 40 `Decal_Dirt` on one facade | template + 40 decal rows on T1 face S (temporarily raise `DECAL_CAPS` for the test only) |
-| E | stress: 3 x template side by side | three districts, run `sky_layout.py --others` to see the server total (expect FAIL on ENTITY_CAP: that is the point) |
+| D-dec | district + 40 `Decal_Dirt` on one facade | template + 40 decal rows on T4's mechanical storey (z 14.0-17.2, faces N/E/S/W; decals are only allowed on opaque storeys, D44); temporarily raise `DECAL_CAPS["per_tower"]` for this test only |
+| E | stress: 3 x template side by side | three districts at different site centres; generate each, then run the third with `--others d1.json,d2.json`: server total 3 x 549 = 1647 (< 2500, PASS). A 5th district would FAIL the per-server cap (and a FAIL writes nothing deployable) |
 
 D vs D0 isolates the spawned-prop cost (perf batch-5 M2: decides whether furnished floor variants
 with merged furniture are needed, D43). D vs B isolates the street kit + variants.

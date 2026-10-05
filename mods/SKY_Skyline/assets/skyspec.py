@@ -102,8 +102,8 @@ ROADWAY_ASPHALT = ROADWAY_EXT
 # vehicle wheels at tile seams (perf batch-1 M4); if so set ~0.05 (top stays at z = 0).
 ROAD_GEO_THICKNESS = 0.3
 # UNVERIFIED (P9): DayZ object yaw (objectSpawnersArr "ypr"[0]) turns CLOCKWISE seen from above
-# (north -> east). Used by placement/sky_layout.py rot() for everything placed off a tower's
-# centre (props, decals, roof drops, street lights). Centred modules look the same either way.
+# (north -> east). placement/sky_layout.py computes every position and orientation clockwise and
+# writes ypr[0] = YAW_SIGN * yaw, so -1 flips only the engine angle (offsets stay consistent).
 YAW_SIGN = 1
 
 # --------------------------------------------------------------------- Tower A

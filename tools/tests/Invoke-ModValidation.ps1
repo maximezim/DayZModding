@@ -33,6 +33,7 @@ param(
     [int]$Minutes = 3,
     [string]$Python = 'python',
     [string]$Blender,
+    [switch]$AllowPlaceholder,
     [switch]$SkipStatic,
     [switch]$SkipBuild,
     [switch]$KeepRunning,
@@ -53,7 +54,7 @@ $script:FailPatterns = [ordered]@{
     'config inheritance' = 'Updating base class'
     'config entry'       = 'No entry'
     'signature'          = 'Signature check|is not signed|wrong signature'
-    'crash'              = 'Crash|Access violation|EXCEPTION_'
+    'crash'              = '\bCrash\b|Access violation|EXCEPTION_'
 }
 # These four only FAIL when the line names the mod (ModFilter); the same lines from vanilla or
 # other mods are listed under "Notable" so vanilla noise cannot fail a run.
@@ -65,22 +66,35 @@ $script:NotePatterns = [ordered]@{
     'other-mod / vanilla load errors' = '__scoped__'
 }
 
+function Save-DzText([string]$Path, [string]$Text) {
+    [System.IO.File]::WriteAllText($Path, $Text, (New-Object System.Text.UTF8Encoding($false)))   # no BOM (QA Info)
+}
+
+function Save-DzXml($Doc, [string]$Path) {
+    $set = New-Object System.Xml.XmlWriterSettings
+    $set.Encoding = New-Object System.Text.UTF8Encoding($false)
+    $set.Indent = $true
+    $w = [System.Xml.XmlWriter]::Create($Path, $set)
+    try { $Doc.Save($w) } finally { $w.Close() }
+}
+
 function Get-DzLogSummary {
     param([Parameter(Mandatory)][string]$LogDir, [string]$ModFilter = 'SKY_|Land_SKY|\[SKY\]')
     $files = @(Get-ChildItem -LiteralPath $LogDir -File -ErrorAction SilentlyContinue |
-        Where-Object { $_.Name -match '\.(RPT|log|ADM)$' -or $_.Name -like 'crash*' })
+        Where-Object { $_.Name -match '\.(RPT|log|ADM|mdmp)$' -or $_.Name -like 'crash*' })
     $fails = [ordered]@{}
     $notes = [ordered]@{}
     foreach ($k in $script:FailPatterns.Keys) { $fails[$k] = New-Object System.Collections.ArrayList }
     foreach ($k in $script:NotePatterns.Keys) { $notes[$k] = 0 }
     foreach ($f in $files) {
-        if ($f.Name -like 'crash*') { [void]$fails['crash'].Add("$($f.Name): crash log present") }
+        if ($f.Name -like 'crash*' -or $f.Name -like '*.mdmp') { [void]$fails['crash'].Add("$($f.Name): crash log / dump present"); if ($f.Name -like '*.mdmp') { continue } }
         $n = 0
         foreach ($line in [System.IO.File]::ReadLines($f.FullName)) {
             $n++
             foreach ($k in $script:FailPatterns.Keys) {
-                if ($line -match $script:FailPatterns[$k]) {
-                    if (($script:ModScoped -contains $k) -and ($line -notmatch $ModFilter)) {
+                # case-sensitive: vanilla "StaticHeliCrash" / lower-case "sky_" paths must not match (QA R-L4)
+                if ($line -cmatch $script:FailPatterns[$k]) {
+                    if (($script:ModScoped -contains $k) -and ($line -cnotmatch $ModFilter)) {
                         $notes['other-mod / vanilla load errors']++
                     } else {
                         [void]$fails[$k].Add(('{0}:{1}: {2}' -f $f.Name, $n, $line.Trim()))
@@ -89,7 +103,7 @@ function Get-DzLogSummary {
                 }
             }
             foreach ($k in $script:NotePatterns.Keys) {
-                if ($script:NotePatterns[$k] -ne '__scoped__' -and $line -match $script:NotePatterns[$k]) { $notes[$k]++ }
+                if ($script:NotePatterns[$k] -ne '__scoped__' -and $line -cmatch $script:NotePatterns[$k]) { $notes[$k]++ }
             }
         }
     }
@@ -102,6 +116,7 @@ function Write-DzSummary {
     param($Summary, $Steps, [string]$OutDir, [string]$Title)
     $status = 'PASS'
     if ($Summary.FailCount -gt 0) { $status = 'FAIL' }
+    foreach ($s in $Steps) { if ($s.Result -eq 'DRYRUN' -and $status -eq 'PASS') { $status = 'DRYRUN' } }
     foreach ($s in $Steps) { if ($s.Result -eq 'FAIL') { $status = 'FAIL' } }
     $md = New-Object System.Text.StringBuilder
     [void]$md.AppendLine("# $Title")
@@ -159,8 +174,12 @@ function Add-Step([string]$Name, [string]$Result, [string]$Detail) {
 function Invoke-DzCheck([string]$Name, [string]$Exe, [string[]]$CheckArgs) {
     Write-DzInfo "> $Exe $($CheckArgs -join ' ')"
     if ($DryRun) { Add-Step $Name 'DRYRUN' ''; return }
-    $out = & $Exe @CheckArgs 2>&1
+    # PowerShell 5.1 turns native stderr into terminating errors under 'Stop' (QA R-L3)
+    $old = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    $out = & $Exe @CheckArgs 2>&1 | ForEach-Object { "$_" }
     $code = $LASTEXITCODE
+    $ErrorActionPreference = $old
     $last = ($out | Select-Object -Last 1) -as [string]
     if ($code -eq 0) { Add-Step $Name 'PASS' $last } else { Add-Step $Name 'FAIL' "exit $code - $last" }
 }
@@ -215,7 +234,14 @@ $config = Join-DzPath $repo 'server' 'serverDZ.dedicated.cfg'
 if ($Layout) {
     Write-DzStep "Layout $Layout -> mission copy '$Mission.validation'"
     $layoutOut = Join-DzPath $outDir 'layout'
-    Invoke-DzCheck 'sky_layout' $Python @((Join-DzPath $modDir 'placement' 'sky_layout.py'), '--layout', $Layout, '--out', $layoutOut)
+    $layoutArgs = @((Join-DzPath $modDir 'placement' 'sky_layout.py'), '--layout', $Layout, '--out', $layoutOut)
+    if (-not $AllowPlaceholder) { $layoutArgs += '--strict' }     # a placeholder/unsurveyed site must not spawn at (0, 0, 0)
+    Invoke-DzCheck 'sky_layout' $Python $layoutArgs
+    if ($steps[$steps.Count - 1].Result -eq 'FAIL') {
+        $st = Write-DzSummary -Summary (Get-DzLogSummary -LogDir $outDir) -Steps $steps -OutDir $outDir -Title "Validation $ModName $stamp"
+        Write-DzFail "Layout failed (see $layoutOut\placement_report.md). Validation $st -> $(Join-DzPath $outDir 'summary.md')"
+        exit 1
+    }
     $srcMission = Join-DzPath $paths.ServerDir 'mpmissions' $Mission
     $valMission = Join-DzPath $paths.ServerDir 'mpmissions' "$Mission.validation"
     $valConfig  = Join-DzPath $repo 'server' 'serverDZ.validation.cfg'
@@ -234,7 +260,7 @@ if ($Layout) {
         $gp = Get-Content -Raw -LiteralPath $gpPath | ConvertFrom-Json
         if (-not $gp.WorldsData) { $gp | Add-Member -NotePropertyName WorldsData -NotePropertyValue ([pscustomobject]@{}) }
         $gp.WorldsData | Add-Member -NotePropertyName objectSpawnersArr -NotePropertyValue @('sky/sky_objects.json') -Force
-        Set-Content -LiteralPath $gpPath -Value ($gp | ConvertTo-Json -Depth 20) -Encoding UTF8
+        Save-DzText $gpPath ($gp | ConvertTo-Json -Depth 20)
         # economy: <ce folder="sky_ce"> + mapgroupproto groups + roof-drop positions
         $eco = Join-DzPath $modDir 'economy'
         if (Test-Path -LiteralPath (Join-DzPath $eco 'sky_ce')) {
@@ -243,25 +269,26 @@ if ($Layout) {
             [xml]$core = Get-Content -Raw -LiteralPath $corePath
             [xml]$snip = '<root>' + ((Get-Content -Raw -LiteralPath (Join-DzPath $eco 'cfgeconomycore_snippet.xml')) -replace '<!--[\s\S]*?-->', '') + '</root>'
             foreach ($n in $snip.root.ChildNodes) { [void]$core.economycore.AppendChild($core.ImportNode($n, $true)) }
-            $core.Save($corePath)
+            Save-DzXml $core $corePath
             $protoPath = Join-DzPath $valMission 'mapgroupproto.xml'
             [xml]$proto = Get-Content -Raw -LiteralPath $protoPath
             [xml]$ours = Get-Content -Raw -LiteralPath (Join-DzPath $eco 'mapgroupproto_sky.xml')
             foreach ($g in $ours.prototype.SelectNodes('group')) { [void]$proto.prototype.AppendChild($proto.ImportNode($g, $true)) }
-            $proto.Save($protoPath)
+            Save-DzXml $proto $protoPath
             $evPath = Join-DzPath $valMission 'cfgeventspawns.xml'
             [xml]$ev = Get-Content -Raw -LiteralPath $evPath
             [xml]$drops = Get-Content -Raw -LiteralPath (Join-DzPath $layoutOut 'cfgeventspawns_snippet.xml')
             [void]$ev.eventposdef.AppendChild($ev.ImportNode($drops.event, $true))
-            $ev.Save($evPath)
+            Save-DzXml $ev $evPath
             $zoneSnip = Join-DzPath $layoutOut 'zombie_territories_snippet.xml'
             $ztPath = Join-DzPath $valMission 'env' 'zombie_territories.xml'
             if ((Test-Path -LiteralPath $zoneSnip) -and (Test-Path -LiteralPath $ztPath)) {
                 [xml]$zt = Get-Content -Raw -LiteralPath $ztPath
                 [xml]$zs = '<root>' + ((Get-Content -Raw -LiteralPath $zoneSnip) -replace '<!--[\s\S]*?-->', '') + '</root>'
-                $terr = $zt.SelectSingleNode('//territory')
+                $terr = $zt.SelectSingleNode("//territory[zone[@name='InfectedCity']]")
+                if (-not $terr) { $terr = $zt.SelectSingleNode('//territory') }
                 foreach ($z in $zs.root.SelectNodes('zone')) { [void]$terr.AppendChild($zt.ImportNode($z, $true)) }
-                $zt.Save($ztPath)
+                Save-DzXml $zt $ztPath
             }
         }
         $text = Get-Content -Raw -LiteralPath $config

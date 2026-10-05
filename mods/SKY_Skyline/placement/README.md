@@ -56,8 +56,9 @@ until a surveyed site is filled in). It shows every key:
   per-type `DECAL_OFFSET` (D16, D19); cap `DECAL_CAPS` (12 per tower).
 * Roof drops: each roof class writes its own `ROOF_DROP_POINTS` into `cfgeventspawns_snippet.xml`.
 * Streets sit on **one** plane (max surveyed ground under any tile + clearance): no steps at seams; a
-  tile whose ground falls more than slab + skirt below it, or that has no survey samples, fails. Lobbies
-  more than 0.3 m off the sidewalk are warned (entrance step).
+  tile whose ground falls more than slab + skirt (0.8 m) below it, or that has no survey samples, fails.
+  So a district needs a site with <= ~0.75 m of relief under its streets (about 0.7 % over 108 m):
+  pick flat sites (D46). Lobbies 0.3-0.5 m off the sidewalk warn, > 0.5 m fail in `--strict`.
 * Infected: one `InfectedCity` zone per district in `zombie_territories_snippet.xml` (economy/README.md).
 * A failed run writes only `placement_report.md` and `*.FAILED.*` files - nothing deployable.
 
