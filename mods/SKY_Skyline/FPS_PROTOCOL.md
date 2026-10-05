@@ -13,7 +13,7 @@ median). It **replaces** that protocol's config C (3 x 3 Tower A) with config E 
 | 0.1 | **Server frame probe** `SKY_PerfProbe`: a separate, diag-only, never-shipped server mod (`modded class MissionServer`, accumulate `OnUpdate(float timeslice)`, every 10 s print avg / p99 / max frame ms to `script_*.log`; once at minute 15 print the count of `Land_SKY_*` objects and of items within 80 m of T, and infected per 3.5 m height band in T3's footprint). Verify `MissionServer.OnUpdate` in `P:\scripts\5_Mission` first (enforce-coder). **Not written yet: new mod code needs your go-ahead (CLAUDE.md "no mods unless asked"), PENDING B11.** Load it with `-ServerMods SKY_PerfProbe`. | S1/S4/S6 have no other server-side metric source: RPT has no frame data |
 | 0.2 | Frame cap: start config A once, read the probe's idle avg. If it sits at a cap, add `-ServerArgs '-limitFPS=<high>'` to every run (verify the parameter and its default on this build, PENDING B12) and record it. **Frame budget** = the production server's target frame time (e.g. 1000 / production limitFPS), not the raised limit. **Headroom** = probe **work** time (the probe's own tick count per frame, not `timeslice`, which includes the limiter's sleep) < 50 % of that budget. S1 avg rows are only valid when A's idle avg is below the cap; at the cap use p99 / max only. | an idle A and D both at the cap would "pass" with no headroom |
 | 0.3 | Survey each config's site with `exportRadius` >= the value in its layout report (73 m for the template), after one run with that layout spawned; save `storage_1\export\mapgrouppos.xml` as `placement\surveys\<site>_<config>_mapgrouppos.xml` (**D0 gets its own export** - D's export contains furniture loot groups CE would fill without the furniture; E needs one export per district, passed as `-MapGroupPos a.xml,b.xml,c.xml,d.xml`). The run summary prints "N Land_SKY_* groups merged": expect the report's module + loot-prop count per district (x 4 for E). Then **delete `SKY_survey_request.json`** from the profile, or every later start re-runs the survey and inflates S7. | without it no loot spawns on spawned buildings (ENTITY_CAP counts loot) |
-| 0.4 | Verify the RPT "mission ready" line text and the ADM connect/spawn line texts on the first A run; note them here: ready = `________`, connect = `________`, spawn = `________` (PENDING B12). | S6/S7 timing source |
+| 0.4 | Ready line **verified on the test machine: `Player connect enabled`** (SETUP_REPORT.md finding 5; ~90 s after launch). The validation script waits for it, counts `-Minutes` from it and writes "N s from launch to Player connect enabled" into the summary (= S7). Still to note on the first A run: ADM connect = `________`, spawn = `________` (PENDING B12). | S6/S7 timing source |
 | 0.45 | Freeze time and weather in a folder (e.g. `placement\surveys\fps_overlay\` with a frozen `cfgweather.xml` and the time settings the mission uses) and pass it to **every** run with `-MissionOverlay <folder>`: each run re-copies the vanilla mission, so freezes must be re-applied (copied last, over the merged copy). | runs are otherwise not comparable |
 | 0.5 | Noise floor, per state: two **cold** A runs, and separately two **warm** A runs (`-NoWipe`). The run-to-run delta within the same state is the noise band of each metric; no delta smaller than 2 x that band counts. (Cold vs warm is a systematic CE-fill effect, not noise.) | |
 
@@ -57,7 +57,7 @@ overlay and profiler). Dedicated runs (retail client, BattlEye) use PresentMon /
 
 ## 3. Server scenarios (dedicated)
 
-`-Minutes` counts from launch (boot included, ~5 min slack in the values below); the "last 15 min"
+`-Minutes` counts from the ready line (`Player connect enabled`); the "last 15 min"
 windows are cut from the probe log by timestamp, not taken from the run end. A cold run that feeds a
 warm (`-NoWipe`) run must last past one storage autosave (the stop is a hard kill; verify the autosave
 interval, B12). D, D0 and D-dec must share the **same `site:` block** (checked by
@@ -70,7 +70,7 @@ interval, B12). D, D0 and D-dec must share the **same `site:` block** (checked b
 | S4 | infected: the generated zone (template: `InfectedCity` dmin 6 / dmax 12, r 54); 1 player walks T3 floors 1-5 | 40 | RPT path-failure lines naming SKY classes or T's area; probe p99; probe infected per height band |
 | S5 | visual at 17:00: shadows, LOD pops walking Q1 -> Q5 | - | screenshots / notes |
 | S6 | join: `-KeepRunning`; first join, walk to T, log out; then 3 x rejoin within the same session | 30 | seconds from ADM connect line to spawn line (0.4 texts) |
-| S7 | server start: cold (fresh copy) and warm (`-NoWipe`, second boot) | 8 each | seconds from first RPT line to the "mission ready" line; validation `summary.json` cross-check with process start |
+| S7 | server start: cold (fresh copy) and warm (`-NoWipe`, second boot) | 8 each | validation summary step "server ready": seconds from process start to `Player connect enabled` |
 | S8 | CE fill: fresh copy, 40 min | 45 | probe item count within 80 m of T at minute 15 and 40 vs the report's "loot items (max)" |
 | S2/S3 | elevator loop / desync (Tower A, unchanged) | 15 | as in perf_review.md |
 

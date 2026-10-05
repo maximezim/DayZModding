@@ -443,13 +443,25 @@ if ($DryRun) {
     $proc = Get-Process -Name 'DayZServer_x64' -ErrorAction SilentlyContinue | Where-Object { $_.StartTime -ge $t0.AddSeconds(-2) } | Select-Object -First 1
     if (-not $proc) { Add-Step 'server run' 'FAIL' 'DayZServer_x64 did not start' }
     else {
-        $deadline = $t0.AddMinutes($Minutes)
+        # ready marker verified on the test machine (SETUP_REPORT.md finding 5): "Player connect enabled";
+        # -Minutes then counts from ready, and start-to-ready seconds go into the summary (FPS S7)
+        $readyAt = $null
+        $deadline = $t0.AddMinutes($Minutes + 10)      # boot allowance until ready
         $died = $false
         while ((Get-Date) -lt $deadline) {
             Start-Sleep -Seconds 5
             $proc.Refresh()
             if ($proc.HasExited) { $died = $true; break }
+            if (-not $readyAt) {
+                $rpt = Get-ChildItem -LiteralPath $profileDir -Filter '*.RPT' -ErrorAction SilentlyContinue | Where-Object { $_.LastWriteTime -ge $t0 }
+                foreach ($r in $rpt) {
+                    $txt = [System.IO.File]::ReadAllText($r.FullName)
+                    if ($txt -match 'Player connect enabled') { $readyAt = Get-Date; $deadline = $readyAt.AddMinutes($Minutes); break }
+                }
+            }
         }
+        if ($readyAt) { Add-Step 'server ready' 'PASS' ('{0:N0} s from launch to "Player connect enabled"' -f ($readyAt - $proc.StartTime).TotalSeconds) }
+        elseif (-not $died) { Add-Step 'server ready' 'FAIL' "no 'Player connect enabled' within $Minutes + 10 min" }
         if ($died) { Add-Step 'server run' 'FAIL' "server exited early (code $($proc.ExitCode))" }
         else {
             Add-Step 'server run' 'PASS' ("$Minutes min, PID $($proc.Id), started " + $proc.StartTime.ToString('yyyy-MM-dd HH:mm:ss'))
