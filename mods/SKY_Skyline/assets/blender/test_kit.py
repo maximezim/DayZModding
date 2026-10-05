@@ -320,7 +320,7 @@ def convention_check():
 def main():
     self_check()
     builders = {}
-    for modname in ("build_kit", "build_props", "build_floors"):
+    for modname in ("build_kit", "build_props", "build_floors", "build_city"):
         try:
             m = __import__(modname)
         except ImportError:

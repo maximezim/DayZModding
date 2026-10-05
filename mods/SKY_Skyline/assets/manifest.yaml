@@ -382,4 +382,298 @@ generated_kit:
     budget: {res0: 8000, res1: 3000, res2: 300, res3: 60, shadow: 100, geo_comps: 40, geo_tris: 500, sections_res0: 10}
     uses: [PENETRATION]
     status: built-unverified
+  - name: Land_SKY_City_Rowhouse_Intact
+    type: "3-storey brick townhouse, party walls both sides (intact)"
+    p3d: addons/sky_city/sky_city_rowhouse_intact.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_Rowhouse_Damaged
+    type: "3-storey brick townhouse, party walls both sides (damaged)"
+    p3d: addons/sky_city/sky_city_rowhouse_damaged.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_Rowhouse_Ruined
+    type: "3-storey brick townhouse, party walls both sides (ruined)"
+    p3d: addons/sky_city/sky_city_rowhouse_ruined.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_City_AptBlock_Intact
+    type: "5-storey precast apartment block, 2 flats per floor round a central stair (intact)"
+    p3d: addons/sky_city/sky_city_aptblock_intact.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_AptBlock_Damaged
+    type: "5-storey precast apartment block, 2 flats per floor round a central stair (damaged)"
+    p3d: addons/sky_city/sky_city_aptblock_damaged.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_AptBlock_Ruined
+    type: "5-storey precast apartment block, 2 flats per floor round a central stair (ruined)"
+    p3d: addons/sky_city/sky_city_aptblock_ruined.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_City_CornerShop_Intact
+    type: "corner bakery with two flats above, shopfront on two streets (intact)"
+    p3d: addons/sky_city/sky_city_cornershop_intact.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_CornerShop_Damaged
+    type: "corner bakery with two flats above, shopfront on two streets (damaged)"
+    p3d: addons/sky_city/sky_city_cornershop_damaged.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_CornerShop_Ruined
+    type: "corner bakery with two flats above, shopfront on two streets (ruined)"
+    p3d: addons/sky_city/sky_city_cornershop_ruined.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_City_OfficeMid_Intact
+    type: "6-storey glass office building, open plan with corner offices (intact)"
+    p3d: addons/sky_city/sky_city_officemid_intact.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_OfficeMid_Damaged
+    type: "6-storey glass office building, open plan with corner offices (damaged)"
+    p3d: addons/sky_city/sky_city_officemid_damaged.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_OfficeMid_Ruined
+    type: "6-storey glass office building, open plan with corner offices (ruined)"
+    p3d: addons/sky_city/sky_city_officemid_ruined.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_City_Warehouse_Intact
+    type: "single-bay steel warehouse, 2 roller doors, racks and a site office (intact)"
+    p3d: addons/sky_city/sky_city_warehouse_intact.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_Warehouse_Damaged
+    type: "single-bay steel warehouse, 2 roller doors, racks and a site office (damaged)"
+    p3d: addons/sky_city/sky_city_warehouse_damaged.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_Warehouse_Ruined
+    type: "single-bay steel warehouse, 2 roller doors, racks and a site office (ruined)"
+    p3d: addons/sky_city/sky_city_warehouse_ruined.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_City_Police_Intact
+    type: "2-storey police station: lobby counter, offices, 3 barred cells (intact)"
+    p3d: addons/sky_city/sky_city_police_intact.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_Police_Damaged
+    type: "2-storey police station: lobby counter, offices, 3 barred cells (damaged)"
+    p3d: addons/sky_city/sky_city_police_damaged.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_Police_Ruined
+    type: "2-storey police station: lobby counter, offices, 3 barred cells (ruined)"
+    p3d: addons/sky_city/sky_city_police_ruined.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_City_RowhouseRender_Intact
+    type: "4-storey rendered townhouse with shutters, party walls (intact)"
+    p3d: addons/sky_city/sky_city_rowhouserender_intact.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_RowhouseRender_Damaged
+    type: "4-storey rendered townhouse with shutters, party walls (damaged)"
+    p3d: addons/sky_city/sky_city_rowhouserender_damaged.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_RowhouseRender_Ruined
+    type: "4-storey rendered townhouse with shutters, party walls (ruined)"
+    p3d: addons/sky_city/sky_city_rowhouserender_ruined.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_City_RowhousePanel_Intact
+    type: "2-storey precast townhouse, party walls (intact)"
+    p3d: addons/sky_city/sky_city_rowhousepanel_intact.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_RowhousePanel_Damaged
+    type: "2-storey precast townhouse, party walls (damaged)"
+    p3d: addons/sky_city/sky_city_rowhousepanel_damaged.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_RowhousePanel_Ruined
+    type: "2-storey precast townhouse, party walls (ruined)"
+    p3d: addons/sky_city/sky_city_rowhousepanel_ruined.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_City_AptBlockTall_Intact
+    type: "8-storey precast apartment block (intact)"
+    p3d: addons/sky_city/sky_city_aptblocktall_intact.p3d
+    category: city_tall
+    budget: {res0: 50000, res1: 15000, res2: 2000, res3: 200, shadow: 800, geo_comps: 340, geo_tris: 4200, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_AptBlockTall_Damaged
+    type: "8-storey precast apartment block (damaged)"
+    p3d: addons/sky_city/sky_city_aptblocktall_damaged.p3d
+    category: city_tall
+    budget: {res0: 50000, res1: 15000, res2: 2000, res3: 200, shadow: 800, geo_comps: 340, geo_tris: 4200, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_AptBlockTall_Ruined
+    type: "8-storey precast apartment block (ruined)"
+    p3d: addons/sky_city/sky_city_aptblocktall_ruined.p3d
+    category: city_tall
+    budget: {res0: 50000, res1: 15000, res2: 2000, res3: 200, shadow: 800, geo_comps: 340, geo_tris: 4200, sections_res0: 24}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_City_AptBlockBrick_Intact
+    type: "4-storey brick apartment block (intact)"
+    p3d: addons/sky_city/sky_city_aptblockbrick_intact.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_AptBlockBrick_Damaged
+    type: "4-storey brick apartment block (damaged)"
+    p3d: addons/sky_city/sky_city_aptblockbrick_damaged.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_AptBlockBrick_Ruined
+    type: "4-storey brick apartment block (ruined)"
+    p3d: addons/sky_city/sky_city_aptblockbrick_ruined.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_City_CornerPharmacy_Intact
+    type: "corner pharmacy with two flats above (intact)"
+    p3d: addons/sky_city/sky_city_cornerpharmacy_intact.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_CornerPharmacy_Damaged
+    type: "corner pharmacy with two flats above (damaged)"
+    p3d: addons/sky_city/sky_city_cornerpharmacy_damaged.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_CornerPharmacy_Ruined
+    type: "corner pharmacy with two flats above (ruined)"
+    p3d: addons/sky_city/sky_city_cornerpharmacy_ruined.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_City_CornerHardware_Intact
+    type: "corner hardware store with two flats above (intact)"
+    p3d: addons/sky_city/sky_city_cornerhardware_intact.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_CornerHardware_Damaged
+    type: "corner hardware store with two flats above (damaged)"
+    p3d: addons/sky_city/sky_city_cornerhardware_damaged.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_CornerHardware_Ruined
+    type: "corner hardware store with two flats above (ruined)"
+    p3d: addons/sky_city/sky_city_cornerhardware_ruined.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_City_OfficeTall_Intact
+    type: "9-storey glass office building (intact)"
+    p3d: addons/sky_city/sky_city_officetall_intact.p3d
+    category: city_tall
+    budget: {res0: 50000, res1: 15000, res2: 2000, res3: 200, shadow: 800, geo_comps: 340, geo_tris: 4200, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_OfficeTall_Damaged
+    type: "9-storey glass office building (damaged)"
+    p3d: addons/sky_city/sky_city_officetall_damaged.p3d
+    category: city_tall
+    budget: {res0: 50000, res1: 15000, res2: 2000, res3: 200, shadow: 800, geo_comps: 340, geo_tris: 4200, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_OfficeTall_Ruined
+    type: "9-storey glass office building (ruined)"
+    p3d: addons/sky_city/sky_city_officetall_ruined.p3d
+    category: city_tall
+    budget: {res0: 50000, res1: 15000, res2: 2000, res3: 200, shadow: 800, geo_comps: 340, geo_tris: 4200, sections_res0: 24}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_City_WarehouseSmall_Intact
+    type: "small steel warehouse, 1 roller door (intact)"
+    p3d: addons/sky_city/sky_city_warehousesmall_intact.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_WarehouseSmall_Damaged
+    type: "small steel warehouse, 1 roller door (damaged)"
+    p3d: addons/sky_city/sky_city_warehousesmall_damaged.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_WarehouseSmall_Ruined
+    type: "small steel warehouse, 1 roller door (ruined)"
+    p3d: addons/sky_city/sky_city_warehousesmall_ruined.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION]
+    status: built-unverified
 # <<< GENERATED KIT

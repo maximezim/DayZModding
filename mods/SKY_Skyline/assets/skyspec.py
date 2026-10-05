@@ -12,6 +12,8 @@ P3D / game model space : x = X, y = Z (up), z = Y  (Arma Toolbox swaps Y/Z on ex
 Every module's origin is the TOP of its floor slab at the footprint centre, and
 every Geometry LOD carries autocenter=0, so stacking is pure +Y offsets.
 """
+import json as _json
+import os
 
 TAG = "SKY"
 MOD = "SKY_Skyline"
@@ -512,6 +514,165 @@ TOWER_A_BUDGETS.update({
                  "sections_res0": 6},
     CLASS_ROOF: dict(BUDGETS["roof"]),
 })
+
+
+# ===================================================================== city buildings (D56)
+# Procedural low/mid-rise buildings for a full city (assets/blender/build_city.py). One style
+# grammar (CITY_STYLE) + per-archetype data (CITY_ARCHETYPES) -> every building in three ruin
+# states (intact / damaged / ruined). Model frame: front = -Y (street side), origin = centre of
+# the footprint at ground-floor slab top. Catalog + estimate: CITY_CATALOG / CITY_PLAN.md.
+MATERIALS.update({
+    "render": {"rvmat": rvmat("sky_render"), "co": tex("sky_render_co"),
+               "bands": {"cream": (0.0, 0.25), "ochre": (0.25, 0.5), "grey": (0.5, 0.75), "white": (0.75, 1.0)}},
+    "rubble": {"rvmat": rvmat("sky_rubble"), "co": tex("sky_rubble_co"), "sheet_m": 3.0},
+    "signs":  {"rvmat": rvmat("sky_signs"), "co": tex("sky_signs_co")},
+})
+SIGN_BAND = {k: (i / 8.0, (i + 1) / 8.0) for i, k in enumerate(
+    ["police", "pharmacy", "market", "cafe", "offices", "depot", "bakery", "hardware"])}
+RUIN_STATES = ("Intact", "Damaged", "Ruined")
+CITY_STYLE = {
+    "wall_t": 0.3,            # exterior wall thickness
+    "part_t": 0.15,           # interior partition thickness
+    "parapet": 0.9,           # roof parapet height (+ coping)
+    "plinth": 0.5,            # stone / granite base band on the ground floor
+    "skirt": 1.5,             # foundation skirt below the ground slab (sloped sites)
+    "door": (1.2, 2.2),       # front door clear width / height
+    "stair_w": 2.6,           # switchback stair well width (2 x 1.15 flights + divider)
+    "tread": 0.27, "riser_max": 0.18,
+    "string_course": 0.06,    # floor-line band projection on masonry skins
+}
+# Skins: window size per bay (width, sill, head above the level floor), recess, extras.
+CITY_SKINS = {
+    "brick":   {"mat": "brick", "ww": 1.2, "sill": 0.9, "head": 2.3, "recess": 0.12, "soldier": True},
+    "panel":   {"mat": "concpanel", "ww": 1.5, "sill": 0.9, "head": 2.3, "recess": 0.1},
+    "render":  {"mat": "render", "ww": 1.1, "sill": 0.9, "head": 2.4, "recess": 0.1, "shutters": True},
+    "stone":   {"mat": "stone", "ww": 1.3, "sill": 0.8, "head": 2.7, "recess": 0.14},
+    "curtain": {"mat": "metal", "ww": None, "sill": 0.0, "head": None, "recess": 0.06},
+    "metal":   {"mat": "metal", "ww": 2.0, "sill": None, "head": None, "recess": 0.05},
+}
+# Archetypes: footprint w x d, levels [(use, floor-to-floor)], skin (+ band), ground-floor skin,
+# blank sides (party walls), stair position, front door bay, sign, loot (CE verified names).
+CITY_ARCHETYPES = {
+    "Rowhouse": {"group": "residential", "w": 7.2, "d": 12.0, "levels": [("house", 3.0)] * 3,
+                 "skin": ("brick", None), "blank": ("W", "E"), "stair": "back_left", "bay": 2.4, "door_bay": 0,
+                 "usage": ["Town"], "cats": ["tools", "containers", "clothes", "food", "books"],
+                 "desc": "3-storey brick townhouse, party walls both sides"},
+    "AptBlock": {"group": "residential", "w": 18.0, "d": 12.0, "levels": [("flats", 3.0)] * 5,
+                 "skin": ("panel", None), "blank": (), "stair": "back_center", "bay": 2.6, "door_bay": "center",
+                 "usage": ["Town"], "cats": ["tools", "containers", "clothes", "food", "books"],
+                 "desc": "5-storey precast apartment block, 2 flats per floor round a central stair"},
+    "CornerShop": {"group": "mixed", "w": 12.0, "d": 12.0, "levels": [("shop", 4.0), ("flat", 3.0), ("flat", 3.0)],
+                   "skin": ("render", "ochre"), "ground": "shopfront", "shop_sides": ("S", "W"), "blank": ("E",),
+                   "stair": "back_right", "bay": 3.0, "door_bay": 1, "sign": "bakery",
+                   "usage": ["Town"], "cats": ["food", "containers", "tools", "clothes"],
+                   "desc": "corner bakery with two flats above, shopfront on two streets"},
+    "OfficeMid": {"group": "commercial", "w": 18.0, "d": 18.0, "levels": [("office_lobby", 3.5)] + [("office", 3.5)] * 5,
+                  "skin": ("curtain", None), "blank": (), "stair": "back_center", "bay": 3.0, "door_bay": "center",
+                  "sign": "offices", "usage": ["Office", "Town"], "cats": ["tools", "containers", "books", "clothes"],
+                  "desc": "6-storey glass office building, open plan with corner offices"},
+    "Warehouse": {"group": "industrial", "w": 24.0, "d": 18.0, "levels": [("warehouse", 7.0)],
+                  "skin": ("metal", None), "blank": (), "stair": None, "bay": 4.0, "door_bay": 0, "sign": "depot",
+                  "roller_bays": (2, 4), "usage": ["Industrial"], "cats": ["tools", "containers"],
+                  "desc": "single-bay steel warehouse, 2 roller doors, racks and a site office"},
+    "Police": {"group": "civic", "w": 20.0, "d": 14.0, "levels": [("police_ground", 3.5), ("police_upper", 3.5)],
+               "skin": ("stone", None), "blank": (), "stair": "back_left", "bay": 2.86, "door_bay": "center",
+               "sign": "police", "usage": ["Police"], "cats": ["weapons", "clothes", "tools", "containers"],
+               "desc": "2-storey police station: lobby counter, offices, 3 barred cells"},
+}
+# Variants of the wave-1 types (same grammar, different skin / height / size): "catalog" = type id.
+def _variant(base, **kw):
+    v = dict(CITY_ARCHETYPES[base])
+    v.update(kw)
+    v["catalog"] = base
+    return v
+
+
+CITY_ARCHETYPES.update({
+    "RowhouseRender": _variant("Rowhouse", levels=[("house", 3.0)] * 4, skin=("render", "cream"),
+                               desc="4-storey rendered townhouse with shutters, party walls"),
+    "RowhousePanel": _variant("Rowhouse", levels=[("house", 3.0)] * 2, skin=("panel", None),
+                              desc="2-storey precast townhouse, party walls"),
+    "AptBlockTall": _variant("AptBlock", levels=[("flats", 3.0)] * 8, desc="8-storey precast apartment block"),
+    "AptBlockBrick": _variant("AptBlock", levels=[("flats", 3.0)] * 4, skin=("brick", None),
+                              desc="4-storey brick apartment block"),
+    "CornerPharmacy": _variant("CornerShop", skin=("render", "white"), sign="pharmacy",
+                               usage=["Medic", "Town"], cats=["tools", "containers", "clothes"],
+                               desc="corner pharmacy with two flats above"),
+    "CornerHardware": _variant("CornerShop", skin=("brick", None), sign="hardware",
+                               cats=["tools", "containers"], desc="corner hardware store with two flats above"),
+    "OfficeTall": _variant("OfficeMid", levels=[("office_lobby", 3.5)] + [("office", 3.5)] * 8,
+                           desc="9-storey glass office building"),
+    "WarehouseSmall": _variant("Warehouse", w=18.0, d=12.0, roller_bays=(2,), bay=4.5,
+                               desc="small steel warehouse, 1 roller door"),
+})
+CITY_TESTED = ()          # catalog ids whose TESTING.md city rows passed in DayZ (city_progress.py)
+for _a, _e in CITY_ARCHETYPES.items():
+    for _i, _st in enumerate(RUIN_STATES):
+        kit("City_%s_%s" % (_a, _st), "sky_city", "city_tall" if len(_e["levels"]) >= 7 else "city", uses=["PENETRATION"] + (["DOOR_SWING_SIGN"] if _i < 2 else []),
+            desc="%s (%s)" % (_e["desc"], _st.lower()))
+        # orient -1: city front doors open inward (action point inside), see test_city swing test
+        KIT["City_%s_%s" % (_a, _st)]["doors"] = [door("door_front", "Door", -1)] if _i < 2 else []
+        KIT["City_%s_%s" % (_a, _st)]["city"] = {"archetype": _a, "ruin": _i}
+# Loot points of the city buildings are computed by build_city.py (on a slab, clear of every solid,
+# outside stair and collapse) and committed in assets/city_loot.json -> CE groups here.
+_CITY_LOOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "city_loot.json")
+if os.path.exists(_CITY_LOOT):
+    for _cls, _pts in _json.load(open(_CITY_LOOT)).items():
+        _a = CITY_ARCHETYPES[KIT[_cls[len("Land_SKY_"):]]["city"]["archetype"]]
+        LOOT[_cls] = {"usages": _a["usage"], "lootmax": max(1, min(12, len(_pts) // 2)), "containers": [
+            {"name": "lootFloor", "lootmax": max(1, min(12, len(_pts) // 2)), "categories": _a["cats"], "tags": ["floor"],
+             "points": [(p[0], p[1], p[2], LOOT_POINT["range"], LOOT_POINT["height"]) for p in _pts]}]}
+# ---- full-city catalog + estimate (CITY_PLAN.md is generated from this by city_progress.py)
+# Reference (vanilla dayzOffline.chernarusplus mapgroupproto / mapgrouppos, counted D56):
+# 414 lootable building types on the map; Chernogorsk ~980 lootable buildings of 169 types,
+# Elektrozavodsk ~545 of 136. Target "SKY city" = dense downtown + midtown + 2 residential
+# districts + an industrial edge, about the size of Chernogorsk: ~650 placed buildings, ~150
+# unique models. kind: proc = build_city archetype (x 3 ruin states), modular = Tower A system,
+# kit = sky_street / sky_props pieces. variants = size / layout / skin variants of the type.
+CITY_CATALOG = [
+    # id, group, footprint (m), floors, kind, variants, instances in the full city, wave, note
+    ("Rowhouse", "residential", "7.2x12", 3, "proc", 3, 120, 1, "brick / render / panel skins, 2-4 floors"),
+    ("AptBlock", "residential", "18x12", 5, "proc", 3, 45, 1, "4 / 5 / 8 floors"),
+    ("Villa", "residential", "10x10", 2, "proc", 3, 50, 2, "detached house with garden wall"),
+    ("CourtyardBlock", "residential", "30x30", 5, "proc", 2, 8, 3, "perimeter block, inner yard"),
+    ("TowerResidential", "residential", "24x24", 7, "modular", 1, 6, 0, "Tower A core + apartment / hotel floors"),
+    ("CornerShop", "mixed", "12x12", 3, "proc", 3, 30, 1, "bakery / pharmacy / hardware signs"),
+    ("ShopRow", "mixed", "9x14", 4, "proc", 4, 80, 2, "shops on the ground floor, flats above"),
+    ("OfficeMid", "commercial", "18x18", 6, "proc", 2, 20, 1, "6 / 9 floors"),
+    ("OfficeTower", "commercial", "24x24", 25, "modular", 2, 3, 4, "needs a taller core (D38)"),
+    ("HQLandmark", "commercial", "30x30", 35, "modular", 1, 1, 4, "the one 4K-facade asset"),
+    ("TowerOffice", "commercial", "24x24", 7, "modular", 1, 4, 0, "Tower A as built"),
+    ("Supermarket", "commercial", "24x20", 1, "proc", 2, 6, 2, "shelf aisles, loading bay"),
+    ("GasStation", "commercial", "20x14", 1, "proc", 1, 4, 2, "shop + pump canopy"),
+    ("Cafe", "commercial", "12x10", 1, "proc", 2, 10, 2, "pavilion with terrace"),
+    ("Bank", "commercial", "16x14", 3, "proc", 1, 3, 3, "vault (keycard tier 3)"),
+    ("DepartmentStore", "commercial", "40x30", 3, "proc", 1, 1, 3, "atrium, escalators as stairs"),
+    ("Police", "civic", "20x14", 2, "proc", 1, 3, 1, "cells, armoury loot"),
+    ("FireStation", "civic", "22x16", 2, "proc", 1, 2, 2, "engine bays"),
+    ("Clinic", "civic", "16x14", 2, "proc", 1, 4, 2, "Medic loot"),
+    ("Hospital", "civic", "40x24", 5, "proc", 1, 1, 3, "wards, Medic loot"),
+    ("School", "civic", "30x16", 3, "proc", 1, 2, 3, "School usage"),
+    ("TownHall", "civic", "24x18", 3, "proc", 1, 1, 3, "landmark square"),
+    ("Church", "civic", "14x24", 1, "proc", 1, 1, 3, "landmark, tower"),
+    ("PostOffice", "civic", "14x12", 2, "proc", 1, 2, 3, ""),
+    ("Warehouse", "industrial", "24x18", 1, "proc", 3, 30, 1, "18x12 / 24x18 / 36x24"),
+    ("Workshop", "industrial", "12x10", 1, "proc", 2, 30, 2, "garage / car repair"),
+    ("FactoryHall", "industrial", "36x24", 1, "proc", 1, 4, 3, "sawtooth roof"),
+    ("ParkingGarage", "industrial", "30x18", 4, "proc", 1, 4, 3, "ramps, cars"),
+    ("Substation", "industrial", "10x8", 1, "proc", 1, 6, 2, "fenced, not enterable"),
+    ("WaterTower", "industrial", "6x6", 1, "kit", 1, 2, 3, ""),
+    ("Kiosk", "small", "3x2", 1, "kit", 2, 30, 2, "news / snack"),
+    ("MetroEntrance", "small", "4x6", 1, "kit", 2, 8, 3, "stairs down (no tunnel)"),
+    ("RubbleLot", "ruin", "12x12", 0, "kit", 4, 50, 2, "collapsed lot fillers"),
+    ("GarageBlock", "industrial", "18x6", 1, "proc", 1, 40, 2, "row of lock-up garages"),
+    ("Shed", "small", "4x3", 1, "kit", 2, 40, 2, "yard sheds / annexes"),
+]
+# One object per building (Tower A splits into 7 modules, 77 sections): ~20 sections and ~200
+# convex parts for a 5-6 storey block are in line with large vanilla buildings (hypothesis, D56).
+BUDGETS["city"] = {"res0": 30000, "res1": 9000, "res2": 1500, "res3": 200, "shadow": 600, "geo_comps": 240,
+                   "geo_tris": 3000, "sections_res0": 24}
+BUDGETS["city_tall"] = {"res0": 50000, "res1": 15000, "res2": 2000, "res3": 200, "shadow": 800, "geo_comps": 340,
+                        "geo_tris": 4200, "sections_res0": 24}            # 7+ storeys (scales per storey)
 
 
 # ===================================================================== batch 5: economy + placement prep

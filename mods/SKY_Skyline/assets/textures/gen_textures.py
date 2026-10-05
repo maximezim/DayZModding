@@ -866,6 +866,93 @@ def textile(size, out):
     save(normal_from_height(0.4 * weave + 0.3 * n, 1.0), out, "sky_textile_nohq")
 
 
+# ------------------------------------------------------------------ city wave 1 (D56)
+RENDER = [(0.86, 0.80, 0.66), (0.80, 0.62, 0.38), (0.70, 0.70, 0.68), (0.90, 0.88, 0.84)]
+
+
+def render(size, out):
+    """Exterior render / stucco (sheet 4 m): 4 colour bands cream, ochre, grey, white; float
+    texture, hairline cracks, rain streaks and dirt toward the bottom of each band (weathering
+    is part of the coherent city style)."""
+    n = fbm(size, 401, octaves=6, base=8)
+    fine = fbm(size, 409, octaves=3, base=128)
+    yy = np.linspace(0, 1, size, dtype=np.float32)[:, None] * np.ones((1, size), np.float32)
+    streak = fbm(size, 419, octaves=3, base=64)
+    streak = np.clip((value_noise(size, 96, 421) - 0.6) * 3, 0, 1) * 0.5 + 0.5 * streak
+    col = np.zeros((size, size, 3), np.float32)
+    h = 0.2 * fine + 0.1 * n
+    for i, rgb in enumerate(RENDER):
+        r0, r1 = band_rows(size, i * 0.25, (i + 1) * 0.25)
+        t = (yy[r0:r1] - i * 0.25) / 0.25                          # 0 top -> 1 bottom of band
+        dirt = 0.10 * t + 0.08 * streak[r0:r1] * (0.3 + t)
+        col[r0:r1] = np.array(rgb, np.float32) * (1 - gray(dirt)) + 0.03 * gray(fine[r0:r1] - 0.5)
+    crack = np.abs(np.sin((yy * 9 + n * 6) * np.pi)) < 0.012
+    col[crack] *= 0.72
+    h[crack] -= 0.6
+    save(to_rgb(col), out, "sky_render_co")
+    save(normal_from_height(h, 1.2), out, "sky_render_nohq")
+
+
+def rubble(size, out):
+    """Collapse debris (sheet 3 m): broken concrete and brick chunks, dust, rebar stubs;
+    real nohq + smdi (matte)."""
+    rng = np.random.default_rng(431)
+    col = np.zeros((size, size, 3), np.float32) + np.array([0.42, 0.40, 0.37], np.float32)
+    h = np.zeros((size, size), np.float32)
+    img = Image.new("RGB", (size, size), (107, 102, 94))
+    d = ImageDraw.Draw(img)
+    hm = Image.new("L", (size, size), 60)
+    dh = ImageDraw.Draw(hm)
+    for _ in range(1600):
+        cx, cy = rng.integers(0, size, 2)
+        r = int(rng.integers(size // 120, size // 20))
+        k = rng.integers(5, 9)
+        ang = np.sort(rng.random(k) * 2 * np.pi)
+        pts = [(int(cx + r * (0.6 + 0.4 * rng.random()) * np.cos(a)), int(cy + r * (0.6 + 0.4 * rng.random()) * np.sin(a))) for a in ang]
+        brick = rng.random() < 0.3
+        base = (150, 70, 52) if brick else (int(rng.integers(120, 175)),) * 3
+        f = 0.75 + 0.35 * rng.random()
+        tint = tuple(int(c * f) for c in base)
+        d.polygon(pts, fill=tint, outline=(60, 58, 55))
+        dh.polygon(pts, fill=int(rng.integers(120, 255)))
+    for _ in range(40):                                          # rebar
+        x0, y0 = rng.integers(0, size, 2)
+        a = rng.random() * np.pi
+        L = rng.integers(size // 30, size // 10)
+        d.line([x0, y0, x0 + L * np.cos(a), y0 + L * np.sin(a)], fill=(80, 50, 35), width=max(2, size // 512))
+    col = np.asarray(img, np.float32) / 255.0
+    n = fbm(size, 439, octaves=5, base=16)
+    col = col * (0.85 + 0.25 * gray(n)) * 0.95 + 0.04
+    h = np.asarray(hm, np.float32) / 255.0 + 0.2 * n
+    save(to_rgb(col), out, "sky_rubble_co")
+    save(normal_from_height(h, 3.0), out, "sky_rubble_nohq")
+    save(smdi(size, 0.05, 0.08), out, "sky_rubble_smdi")
+
+
+SIGNS = ["POLICE", "PHARMACY", "MARKET", "CAFE  ROSA", "OFFICES", "DEPOT  3", "BAKERY", "HARDWARE"]
+
+
+def signs(size, out):
+    """Building sign strips (1024): 8 horizontal bands, invented names, enamel / backlit
+    styles; mapped one band per sign (skyspec.SIGN_BAND)."""
+    size = min(size, 1024)
+    img = Image.new("RGB", (size, size), (30, 30, 34))
+    d = ImageDraw.Draw(img)
+    styles = [((20, 40, 110), (240, 240, 240)), ((20, 120, 70), (245, 245, 240)), ((170, 40, 35), (250, 240, 220)),
+              ((60, 30, 25), (240, 200, 120)), ((40, 44, 50), (230, 230, 225)), ((200, 160, 30), (30, 30, 30)),
+              ((120, 70, 40), (250, 236, 200)), ((30, 60, 90), (250, 200, 60))]
+    bh = size // 8
+    for i, txt in enumerate(SIGNS):
+        bg, fg = styles[i]
+        y0 = i * bh
+        d.rectangle([0, y0, size, y0 + bh - 1], fill=bg)
+        d.rectangle([4, y0 + 4, size - 5, y0 + bh - 5], outline=fg, width=3)
+        f = _font(int(bh * 0.55))
+        tb = d.textbbox((0, 0), txt, font=f)
+        d.text(((size - (tb[2] - tb[0])) // 2 - tb[0], y0 + (bh - (tb[3] - tb[1])) // 2 - tb[1]), txt, fill=fg, font=f)
+    img.save(os.path.join(out, "sky_signs_co.png"))
+
+
 GENERATORS = {
     "concrete": concrete, "metal": metal, "glass": glass, "glassfar": glassfar,
     "tile": lambda s, o: tiled(s, o, "sky_tile", 5, (0.72, 0.71, 0.68), (0.45, 0.45, 0.43), max(3, s // 400), 41, 0.3, 0.5),
@@ -875,6 +962,7 @@ GENERATORS = {
     "decals": decals, "windows": windows, "brick": brick, "concpanel": concpanel,
     "wood": wood, "fabric": fabric, "ceiling": ceiling,
     "marble": marble, "parquet": parquet, "paint": paint, "stone": stone, "textile": textile,
+    "render": render, "rubble": rubble, "signs": signs,
 }
 
 

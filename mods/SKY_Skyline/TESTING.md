@@ -469,6 +469,26 @@ Gameplay rows §1-§15 and §19 must still pass unchanged.
 | SP-08 | Roofs | Pad edge lights, obstruction lights on masts, garden trees / loungers (collide) / string and bollard lights, ladder on the tall unit; roof drops land clear (§10). | | |
 | SP-09 | FPS_PROTOCOL 4.1 | Within the thresholds. | | |
 
+## 21. City buildings (D56, pbo `sky_city`)
+
+Static results: `reviews/city_wave1_gates.md`; renders `reviews/img/city_*.png`; estimate and progress
+`CITY_PLAN.md`. Spawn single buildings with the admin tools / objectSpawnersArr (front = -Y faces
+the street), intact + damaged + ruined of each archetype. When a type passes, add its catalog id to
+`skyspec.CITY_TESTED` and re-run `assets/city_progress.py`.
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| CB-01 | Walk in through the front door of every intact / damaged building | Door opens inward (orient -1 under P1), closes; lockpick can lock it like a vanilla house; ruined buildings have an open doorway | | |
+| CB-02 | Climb every stair to the top floor and back | Steps / ramps walkable (Roadway), headroom at every landing, guard rail on the top landing, no fall-through | | |
+| CB-03 | Walk every room of every floor | No invisible walls, no clipping into furniture, every room reachable (test_city flood fill); furniture never blocks a doorway | | |
+| CB-04 | Ruined buildings: walk the floor below the collapse and the floor above it | Rubble collides and can be walked around; the cut edge of the floor above drops you onto the rubble, never into the void below the ground; jagged walls collide | | |
+| CB-05 | Damaged / ruined windows from outside and inside | Broken windows show the soot and the dark void, still block movement (Geometry); boarded windows stop bullets (wood) | | |
+| CB-06 | Shoot through glass, brick, render, stone, cladding, roller doors, cell bars | Penetration per material (P3); bars stop movement but not bullets / sight | | |
+| CB-07 | Loot (CE running) | Items spawn on the floors (city_loot.json points), none in the stair wells or behind the collapse | | |
+| CB-08 | Night (`-ServerTime` 23:00) | Intact buildings light up (2 lights, cool in offices / police / warehouses); damaged and ruined stay dark; script log clean (P10) | | |
+| CB-09 | LOD walk-away 5 -> 300 m | Res1 / Res2 / Res3 switches without holes; ruined silhouettes keep the collapse at Res3 | | |
+| CB-10 | Signs, awnings, sign text | Names read correctly (not mirrored): BAKERY, PHARMACY, HARDWARE, OFFICES, DEPOT 3, POLICE | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -494,4 +514,5 @@ Gameplay rows §1-§15 and §19 must still pass unchanged.
 | Regression §12 | | | |
 | Realism pass §19 | | | |
 | Splendour pass §20 | | | |
+| City buildings §21 | | | |
 | FPS protocol (`FPS_PROTOCOL.md` §4 thresholds) | | | |

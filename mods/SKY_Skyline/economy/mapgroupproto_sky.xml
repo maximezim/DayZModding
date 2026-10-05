@@ -59,6 +59,1233 @@
             <point pos="-9.000000 0.000000 9.000000" range="0.600000" height="1.500000" />
         </container>
     </group>
+    <group name="Land_SKY_City_AptBlockBrick_Damaged" lootmax="12">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="12">
+            <category name="tools" />
+            <category name="containers" />
+            <category name="clothes" />
+            <category name="food" />
+            <category name="books" />
+            <tag name="floor" />
+            <point pos="-7.900000 0.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 0.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 0.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 0.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 0.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 0.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 0.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 3.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 3.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 3.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 3.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 3.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 3.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 3.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 6.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 6.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 6.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 6.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 6.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 6.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 6.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 9.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 9.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 9.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 9.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 9.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 9.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 9.000000 -2.300000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_AptBlockBrick_Intact" lootmax="12">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="12">
+            <category name="tools" />
+            <category name="containers" />
+            <category name="clothes" />
+            <category name="food" />
+            <category name="books" />
+            <tag name="floor" />
+            <point pos="-7.900000 0.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 0.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 0.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 0.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 0.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 0.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 0.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 3.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 3.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 3.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 3.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 3.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 3.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 3.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 6.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 6.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 6.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 6.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 6.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 6.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 6.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 9.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 9.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 9.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 9.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 9.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 9.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 9.000000 -2.300000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_AptBlockBrick_Ruined" lootmax="6">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="6">
+            <category name="tools" />
+            <category name="containers" />
+            <category name="clothes" />
+            <category name="food" />
+            <category name="books" />
+            <tag name="floor" />
+            <point pos="3.800000 0.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 0.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 0.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 3.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 3.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 3.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 6.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 6.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 6.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 9.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 9.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 9.000000 2.900000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_AptBlockTall_Damaged" lootmax="12">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="12">
+            <category name="tools" />
+            <category name="containers" />
+            <category name="clothes" />
+            <category name="food" />
+            <category name="books" />
+            <tag name="floor" />
+            <point pos="-5.300000 0.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 0.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 0.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 0.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 0.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 0.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 0.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 3.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 3.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 3.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 3.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 3.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 3.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 3.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 6.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 6.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 6.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 6.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 6.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 6.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 6.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 9.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 9.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 9.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 9.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 9.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 9.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 9.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 12.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 12.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 12.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 12.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 12.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 12.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 12.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 15.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 15.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 15.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 15.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 15.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 15.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 15.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 18.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 18.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 18.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 18.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 18.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 18.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 18.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 21.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 21.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 21.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 21.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 21.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 21.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 21.000000 1.600000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_AptBlockTall_Intact" lootmax="12">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="12">
+            <category name="tools" />
+            <category name="containers" />
+            <category name="clothes" />
+            <category name="food" />
+            <category name="books" />
+            <tag name="floor" />
+            <point pos="5.100000 0.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 0.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 0.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 0.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 0.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 0.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 0.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 3.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 3.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 3.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 3.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 3.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 3.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 3.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 6.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 6.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 6.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 6.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 6.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 6.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 6.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 9.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 9.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 9.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 9.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 9.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 9.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 9.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 12.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 12.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 12.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 12.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 12.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 12.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 12.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 15.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 15.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 15.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 15.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 15.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 15.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 15.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 18.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 18.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 18.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 18.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 18.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 18.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 18.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 21.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 21.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 21.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 21.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 21.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 21.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 21.000000 -4.900000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_AptBlockTall_Ruined" lootmax="12">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="12">
+            <category name="tools" />
+            <category name="containers" />
+            <category name="clothes" />
+            <category name="food" />
+            <category name="books" />
+            <tag name="floor" />
+            <point pos="7.700000 0.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 0.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 0.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 3.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 3.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 3.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 6.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 6.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 6.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 9.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 9.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 9.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 12.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 12.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 12.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 15.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 15.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 15.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 18.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 18.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 18.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 21.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 21.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 21.000000 -4.900000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_AptBlock_Damaged" lootmax="12">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="12">
+            <category name="tools" />
+            <category name="containers" />
+            <category name="clothes" />
+            <category name="food" />
+            <category name="books" />
+            <tag name="floor" />
+            <point pos="-5.300000 0.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 0.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 0.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 0.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 0.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 0.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 0.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 3.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 3.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 3.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 3.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 3.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 3.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 3.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 6.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 6.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 6.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 6.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 6.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 6.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 6.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 9.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 9.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 9.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 9.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 9.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 9.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 9.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 12.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 12.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 12.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 12.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 12.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 12.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 12.000000 -1.000000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_AptBlock_Intact" lootmax="12">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="12">
+            <category name="tools" />
+            <category name="containers" />
+            <category name="clothes" />
+            <category name="food" />
+            <category name="books" />
+            <tag name="floor" />
+            <point pos="2.500000 0.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 0.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 0.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 0.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 0.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 0.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 0.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 3.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 3.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 3.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 3.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 3.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 3.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 3.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 6.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 6.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 6.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 6.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 6.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 6.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 6.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 9.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 9.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 9.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 9.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 9.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 9.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 9.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 12.000000 0.300000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 12.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 12.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 12.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 12.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 12.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 12.000000 -1.000000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_AptBlock_Ruined" lootmax="7">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="7">
+            <category name="tools" />
+            <category name="containers" />
+            <category name="clothes" />
+            <category name="food" />
+            <category name="books" />
+            <tag name="floor" />
+            <point pos="-2.700000 0.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 0.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 0.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 3.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 3.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 3.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 6.000000 0.300000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 6.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 6.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 9.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 9.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 9.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 12.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 12.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 12.000000 -4.900000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_CornerHardware_Damaged" lootmax="6">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="6">
+            <category name="tools" />
+            <category name="containers" />
+            <tag name="floor" />
+            <point pos="-3.600000 0.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="0.300000 0.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-1.000000 0.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-4.900000 0.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-3.600000 4.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="-4.900000 4.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-3.600000 4.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="-1.000000 4.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="1.600000 7.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-3.600000 7.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-1.000000 7.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-4.900000 7.000000 -1.000000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_CornerHardware_Intact" lootmax="6">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="6">
+            <category name="tools" />
+            <category name="containers" />
+            <tag name="floor" />
+            <point pos="1.600000 0.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="1.600000 0.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="0.300000 0.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="4.200000 0.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-1.000000 4.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-3.600000 4.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-4.900000 4.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-3.600000 4.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="-2.300000 7.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="1.600000 7.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-4.900000 7.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="-1.000000 7.000000 -2.300000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_CornerHardware_Ruined" lootmax="3">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="3">
+            <category name="tools" />
+            <category name="containers" />
+            <tag name="floor" />
+            <point pos="2.900000 0.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="0.300000 0.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="4.200000 4.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="2.900000 4.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="1.600000 7.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="4.200000 7.000000 -1.000000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_CornerPharmacy_Damaged" lootmax="6">
+        <usage name="Medic" />
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="6">
+            <category name="tools" />
+            <category name="containers" />
+            <category name="clothes" />
+            <tag name="floor" />
+            <point pos="1.600000 0.000000 0.300000" range="0.600000" height="1.500000" />
+            <point pos="1.600000 0.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-2.300000 0.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-4.900000 0.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="1.600000 4.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="0.300000 4.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="1.600000 4.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="-3.600000 4.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-3.600000 7.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="1.600000 7.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="1.600000 7.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="-3.600000 7.000000 1.600000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_CornerPharmacy_Intact" lootmax="6">
+        <usage name="Medic" />
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="6">
+            <category name="tools" />
+            <category name="containers" />
+            <category name="clothes" />
+            <tag name="floor" />
+            <point pos="0.300000 0.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="-1.000000 0.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="-3.600000 0.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="-4.900000 0.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="-1.000000 4.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="-4.900000 4.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="-2.300000 4.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="1.600000 4.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="1.600000 7.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-4.900000 7.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-3.600000 7.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-1.000000 7.000000 -1.000000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_CornerPharmacy_Ruined" lootmax="3">
+        <usage name="Medic" />
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="3">
+            <category name="tools" />
+            <category name="containers" />
+            <category name="clothes" />
+            <tag name="floor" />
+            <point pos="0.300000 0.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="2.900000 0.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="1.600000 4.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="1.600000 4.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="1.600000 7.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="4.200000 7.000000 -3.600000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_CornerShop_Damaged" lootmax="6">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="6">
+            <category name="food" />
+            <category name="containers" />
+            <category name="tools" />
+            <category name="clothes" />
+            <tag name="floor" />
+            <point pos="4.200000 0.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="1.600000 0.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-2.300000 0.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="1.600000 0.000000 0.300000" range="0.600000" height="1.500000" />
+            <point pos="0.300000 4.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="1.600000 4.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-4.900000 4.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-1.000000 4.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-1.000000 7.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="1.600000 7.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="1.600000 7.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="-4.900000 7.000000 -2.300000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_CornerShop_Intact" lootmax="6">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="6">
+            <category name="food" />
+            <category name="containers" />
+            <category name="tools" />
+            <category name="clothes" />
+            <tag name="floor" />
+            <point pos="-3.600000 0.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="2.900000 0.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-4.900000 0.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="-3.600000 0.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="1.600000 4.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="0.300000 4.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="1.600000 4.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-4.900000 4.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-1.000000 7.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-4.900000 7.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="1.600000 7.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-3.600000 7.000000 2.900000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_CornerShop_Ruined" lootmax="3">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="3">
+            <category name="food" />
+            <category name="containers" />
+            <category name="tools" />
+            <category name="clothes" />
+            <tag name="floor" />
+            <point pos="-1.000000 0.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="-3.600000 0.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="4.200000 4.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="1.600000 4.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="4.200000 7.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="1.600000 7.000000 4.200000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_OfficeMid_Damaged" lootmax="12">
+        <usage name="Office" />
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="12">
+            <category name="tools" />
+            <category name="containers" />
+            <category name="books" />
+            <category name="clothes" />
+            <tag name="floor" />
+            <point pos="-4.000000 0.000000 7.700000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 0.000000 -1.400000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 0.000000 2.500000" range="0.600000" height="1.500000" />
+            <point pos="-1.400000 0.000000 -0.100000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 0.000000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 0.000000 5.100000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 0.000000 5.100000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 0.000000 3.800000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 3.500000 -2.700000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 3.500000 -5.300000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 3.500000 -4.000000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 3.500000 2.500000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 3.500000 7.700000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 3.500000 -2.700000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 3.500000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 3.500000 -0.100000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 7.000000 -2.700000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 7.000000 3.800000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 7.000000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 7.000000 3.800000" range="0.600000" height="1.500000" />
+            <point pos="1.200000 7.000000 -2.700000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 7.000000 -5.300000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 7.000000 1.200000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 7.000000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="-1.400000 10.500000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 10.500000 3.800000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 10.500000 -2.700000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 10.500000 2.500000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 10.500000 1.200000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 10.500000 -5.300000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 10.500000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 10.500000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 14.000000 3.800000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 14.000000 -5.300000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 14.000000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 14.000000 2.500000" range="0.600000" height="1.500000" />
+            <point pos="-1.400000 14.000000 -4.000000" range="0.600000" height="1.500000" />
+            <point pos="-1.400000 14.000000 -5.300000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 14.000000 1.200000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 14.000000 -2.700000" range="0.600000" height="1.500000" />
+            <point pos="1.200000 17.500000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 17.500000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 17.500000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 17.500000 2.500000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 17.500000 6.400000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 17.500000 7.700000" range="0.600000" height="1.500000" />
+            <point pos="-1.400000 17.500000 1.200000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 17.500000 -2.700000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_OfficeMid_Intact" lootmax="12">
+        <usage name="Office" />
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="12">
+            <category name="tools" />
+            <category name="containers" />
+            <category name="books" />
+            <category name="clothes" />
+            <tag name="floor" />
+            <point pos="-2.700000 0.000000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 0.000000 -0.100000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 0.000000 3.800000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 0.000000 6.400000" range="0.600000" height="1.500000" />
+            <point pos="-1.400000 0.000000 -2.700000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 0.000000 -5.300000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 0.000000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 0.000000 6.400000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 3.500000 6.400000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 3.500000 7.700000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 3.500000 -5.300000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 3.500000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 3.500000 -2.700000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 3.500000 -5.300000" range="0.600000" height="1.500000" />
+            <point pos="1.200000 3.500000 -2.700000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 3.500000 -5.300000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 7.000000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="1.200000 7.000000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 7.000000 -4.000000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 7.000000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 7.000000 7.700000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 7.000000 6.400000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 7.000000 2.500000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 7.000000 -4.000000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 10.500000 7.700000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 10.500000 6.400000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 10.500000 3.800000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 10.500000 2.500000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 10.500000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 10.500000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 10.500000 3.800000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 10.500000 3.800000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 14.000000 -5.300000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 14.000000 5.100000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 14.000000 1.200000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 14.000000 -4.000000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 14.000000 -5.300000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 14.000000 1.200000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 14.000000 -2.700000" range="0.600000" height="1.500000" />
+            <point pos="1.200000 14.000000 -1.400000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 17.500000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 17.500000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 17.500000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 17.500000 1.200000" range="0.600000" height="1.500000" />
+            <point pos="1.200000 17.500000 -2.700000" range="0.600000" height="1.500000" />
+            <point pos="-1.400000 17.500000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="-1.400000 17.500000 2.500000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 17.500000 6.400000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_OfficeMid_Ruined" lootmax="12">
+        <usage name="Office" />
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="12">
+            <category name="tools" />
+            <category name="containers" />
+            <category name="books" />
+            <category name="clothes" />
+            <tag name="floor" />
+            <point pos="-5.300000 0.000000 7.700000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 0.000000 7.700000" range="0.600000" height="1.500000" />
+            <point pos="-1.400000 0.000000 2.500000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 0.000000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 3.500000 7.700000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 3.500000 -1.400000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 3.500000 -4.000000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 3.500000 7.700000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 7.000000 -5.300000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 7.000000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 7.000000 5.100000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 7.000000 5.100000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 10.500000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 10.500000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 10.500000 5.100000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 10.500000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 14.000000 3.800000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 14.000000 -5.300000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 14.000000 5.100000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 14.000000 1.200000" range="0.600000" height="1.500000" />
+            <point pos="-1.400000 17.500000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="-1.400000 17.500000 2.500000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 17.500000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 17.500000 6.400000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_OfficeTall_Damaged" lootmax="12">
+        <usage name="Office" />
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="12">
+            <category name="tools" />
+            <category name="containers" />
+            <category name="books" />
+            <category name="clothes" />
+            <tag name="floor" />
+            <point pos="-7.900000 0.000000 2.500000" range="0.600000" height="1.500000" />
+            <point pos="-1.400000 0.000000 -0.100000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 0.000000 2.500000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 0.000000 6.400000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 0.000000 -5.300000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 0.000000 -0.100000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 0.000000 7.700000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 0.000000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 3.500000 3.800000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 3.500000 -0.100000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 3.500000 -0.100000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 3.500000 -5.300000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 3.500000 -2.700000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 3.500000 7.700000" range="0.600000" height="1.500000" />
+            <point pos="1.200000 3.500000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 3.500000 2.500000" range="0.600000" height="1.500000" />
+            <point pos="-1.400000 7.000000 -1.400000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 7.000000 6.400000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 7.000000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="-1.400000 7.000000 1.200000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 7.000000 1.200000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 7.000000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 7.000000 3.800000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 7.000000 -2.700000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 10.500000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 10.500000 3.800000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 10.500000 -5.300000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 10.500000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 10.500000 -2.700000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 10.500000 7.700000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 10.500000 2.500000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 10.500000 3.800000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 14.000000 -2.700000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 14.000000 1.200000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 14.000000 1.200000" range="0.600000" height="1.500000" />
+            <point pos="-1.400000 14.000000 -5.300000" range="0.600000" height="1.500000" />
+            <point pos="-1.400000 14.000000 -4.000000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 14.000000 1.200000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 14.000000 -5.300000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 14.000000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 17.500000 -2.700000" range="0.600000" height="1.500000" />
+            <point pos="-1.400000 17.500000 1.200000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 17.500000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 17.500000 1.200000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 17.500000 5.100000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 17.500000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="1.200000 17.500000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 17.500000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 21.000000 3.800000" range="0.600000" height="1.500000" />
+            <point pos="-1.400000 21.000000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 21.000000 2.500000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 21.000000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 21.000000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="1.200000 21.000000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 21.000000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 21.000000 5.100000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 24.500000 5.100000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 24.500000 5.100000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 24.500000 5.100000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 24.500000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 24.500000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="1.200000 24.500000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 24.500000 -5.300000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 24.500000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="1.200000 28.000000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 28.000000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 28.000000 5.100000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 28.000000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 28.000000 1.200000" range="0.600000" height="1.500000" />
+            <point pos="-1.400000 28.000000 1.200000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 28.000000 -2.700000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 28.000000 3.800000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_OfficeTall_Intact" lootmax="12">
+        <usage name="Office" />
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="12">
+            <category name="tools" />
+            <category name="containers" />
+            <category name="books" />
+            <category name="clothes" />
+            <tag name="floor" />
+            <point pos="5.100000 0.000000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 0.000000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 0.000000 6.400000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 0.000000 -4.000000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 0.000000 -2.700000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 0.000000 6.400000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 0.000000 -5.300000" range="0.600000" height="1.500000" />
+            <point pos="-1.400000 0.000000 1.200000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 3.500000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="1.200000 3.500000 -0.100000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 3.500000 7.700000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 3.500000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 3.500000 2.500000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 3.500000 -5.300000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 3.500000 -2.700000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 3.500000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 7.000000 6.400000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 7.000000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 7.000000 -2.700000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 7.000000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 7.000000 1.200000" range="0.600000" height="1.500000" />
+            <point pos="1.200000 7.000000 -4.000000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 7.000000 -4.000000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 7.000000 3.800000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 10.500000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 10.500000 -0.100000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 10.500000 3.800000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 10.500000 -1.400000" range="0.600000" height="1.500000" />
+            <point pos="-1.400000 10.500000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 10.500000 1.200000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 10.500000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="1.200000 10.500000 -4.000000" range="0.600000" height="1.500000" />
+            <point pos="1.200000 14.000000 1.200000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 14.000000 1.200000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 14.000000 5.100000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 14.000000 -4.000000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 14.000000 -5.300000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 14.000000 2.500000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 14.000000 6.400000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 14.000000 3.800000" range="0.600000" height="1.500000" />
+            <point pos="-1.400000 17.500000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 17.500000 2.500000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 17.500000 5.100000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 17.500000 -5.300000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 17.500000 2.500000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 17.500000 -4.000000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 17.500000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 17.500000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 21.000000 1.200000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 21.000000 7.700000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 21.000000 6.400000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 21.000000 3.800000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 21.000000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 21.000000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 21.000000 3.800000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 21.000000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="-1.400000 24.500000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 24.500000 -1.400000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 24.500000 2.500000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 24.500000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 24.500000 7.700000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 24.500000 6.400000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 24.500000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="1.200000 24.500000 -4.000000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 28.000000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 28.000000 5.100000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 28.000000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 28.000000 2.500000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 28.000000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 28.000000 -4.000000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 28.000000 -5.300000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 28.000000 5.100000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_OfficeTall_Ruined" lootmax="12">
+        <usage name="Office" />
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="12">
+            <category name="tools" />
+            <category name="containers" />
+            <category name="books" />
+            <category name="clothes" />
+            <tag name="floor" />
+            <point pos="6.400000 0.000000 -1.400000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 0.000000 -2.700000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 0.000000 -5.300000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 0.000000 7.700000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 3.500000 3.800000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 3.500000 7.700000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 3.500000 -2.700000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 3.500000 1.200000" range="0.600000" height="1.500000" />
+            <point pos="-1.400000 7.000000 -4.000000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 7.000000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 7.000000 -5.300000" range="0.600000" height="1.500000" />
+            <point pos="1.200000 7.000000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 10.500000 -1.400000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 10.500000 1.200000" range="0.600000" height="1.500000" />
+            <point pos="-0.100000 10.500000 2.500000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 10.500000 7.700000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 14.000000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 14.000000 7.700000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 14.000000 -5.300000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 14.000000 3.800000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 17.500000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 17.500000 7.700000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 17.500000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 17.500000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 21.000000 -4.000000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 21.000000 2.500000" range="0.600000" height="1.500000" />
+            <point pos="1.200000 21.000000 1.200000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 21.000000 -5.300000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 24.500000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 24.500000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="-1.400000 24.500000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="2.500000 24.500000 6.400000" range="0.600000" height="1.500000" />
+            <point pos="-1.400000 28.000000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 28.000000 6.400000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 28.000000 7.700000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 28.000000 1.200000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_Police_Damaged" lootmax="8">
+        <usage name="Police" />
+        <container name="lootFloor" lootmax="8">
+            <category name="weapons" />
+            <category name="clothes" />
+            <category name="tools" />
+            <category name="containers" />
+            <tag name="floor" />
+            <point pos="-3.700000 0.000000 1.900000" range="0.600000" height="1.500000" />
+            <point pos="-6.300000 0.000000 -4.600000" range="0.600000" height="1.500000" />
+            <point pos="1.500000 0.000000 4.500000" range="0.600000" height="1.500000" />
+            <point pos="-7.600000 0.000000 0.600000" range="0.600000" height="1.500000" />
+            <point pos="-5.000000 0.000000 4.500000" range="0.600000" height="1.500000" />
+            <point pos="6.700000 0.000000 -3.300000" range="0.600000" height="1.500000" />
+            <point pos="-3.700000 0.000000 -5.900000" range="0.600000" height="1.500000" />
+            <point pos="8.000000 0.000000 -2.000000" range="0.600000" height="1.500000" />
+            <point pos="-5.000000 3.500000 0.600000" range="0.600000" height="1.500000" />
+            <point pos="5.400000 3.500000 1.900000" range="0.600000" height="1.500000" />
+            <point pos="2.800000 3.500000 -5.900000" range="0.600000" height="1.500000" />
+            <point pos="0.200000 3.500000 -2.000000" range="0.600000" height="1.500000" />
+            <point pos="6.700000 3.500000 -0.700000" range="0.600000" height="1.500000" />
+            <point pos="1.500000 3.500000 0.600000" range="0.600000" height="1.500000" />
+            <point pos="-1.100000 3.500000 1.900000" range="0.600000" height="1.500000" />
+            <point pos="8.000000 3.500000 -4.600000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_Police_Intact" lootmax="8">
+        <usage name="Police" />
+        <container name="lootFloor" lootmax="8">
+            <category name="weapons" />
+            <category name="clothes" />
+            <category name="tools" />
+            <category name="containers" />
+            <tag name="floor" />
+            <point pos="2.800000 0.000000 -2.000000" range="0.600000" height="1.500000" />
+            <point pos="-1.100000 0.000000 3.200000" range="0.600000" height="1.500000" />
+            <point pos="0.200000 0.000000 -5.900000" range="0.600000" height="1.500000" />
+            <point pos="-8.900000 0.000000 0.600000" range="0.600000" height="1.500000" />
+            <point pos="4.100000 0.000000 0.600000" range="0.600000" height="1.500000" />
+            <point pos="5.400000 0.000000 -2.000000" range="0.600000" height="1.500000" />
+            <point pos="8.000000 0.000000 3.200000" range="0.600000" height="1.500000" />
+            <point pos="-1.100000 0.000000 -5.900000" range="0.600000" height="1.500000" />
+            <point pos="8.000000 3.500000 0.600000" range="0.600000" height="1.500000" />
+            <point pos="6.700000 3.500000 0.600000" range="0.600000" height="1.500000" />
+            <point pos="4.100000 3.500000 4.500000" range="0.600000" height="1.500000" />
+            <point pos="2.800000 3.500000 0.600000" range="0.600000" height="1.500000" />
+            <point pos="-3.700000 3.500000 -5.900000" range="0.600000" height="1.500000" />
+            <point pos="-1.100000 3.500000 0.600000" range="0.600000" height="1.500000" />
+            <point pos="8.000000 3.500000 -5.900000" range="0.600000" height="1.500000" />
+            <point pos="-3.700000 3.500000 4.500000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_Police_Ruined" lootmax="4">
+        <usage name="Police" />
+        <container name="lootFloor" lootmax="4">
+            <category name="weapons" />
+            <category name="clothes" />
+            <category name="tools" />
+            <category name="containers" />
+            <tag name="floor" />
+            <point pos="-5.000000 0.000000 1.900000" range="0.600000" height="1.500000" />
+            <point pos="-6.300000 0.000000 -2.000000" range="0.600000" height="1.500000" />
+            <point pos="-3.700000 0.000000 4.500000" range="0.600000" height="1.500000" />
+            <point pos="-3.700000 0.000000 3.200000" range="0.600000" height="1.500000" />
+            <point pos="-3.700000 3.500000 0.600000" range="0.600000" height="1.500000" />
+            <point pos="-3.700000 3.500000 -5.900000" range="0.600000" height="1.500000" />
+            <point pos="-2.400000 3.500000 -5.900000" range="0.600000" height="1.500000" />
+            <point pos="-8.900000 3.500000 0.600000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_RowhousePanel_Damaged" lootmax="2">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="2">
+            <category name="tools" />
+            <category name="containers" />
+            <category name="clothes" />
+            <category name="food" />
+            <category name="books" />
+            <tag name="floor" />
+            <point pos="0.100000 0.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="0.100000 0.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="1.400000 3.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-1.200000 3.000000 -4.900000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_RowhousePanel_Intact" lootmax="2">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="2">
+            <category name="tools" />
+            <category name="containers" />
+            <category name="clothes" />
+            <category name="food" />
+            <category name="books" />
+            <tag name="floor" />
+            <point pos="-1.200000 0.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-2.500000 0.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-1.200000 3.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="0.100000 3.000000 -3.600000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_RowhousePanel_Ruined" lootmax="1">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="1">
+            <category name="tools" />
+            <category name="containers" />
+            <category name="clothes" />
+            <category name="food" />
+            <category name="books" />
+            <tag name="floor" />
+            <point pos="-2.500000 0.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-2.500000 3.000000 -2.300000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_RowhouseRender_Damaged" lootmax="4">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="4">
+            <category name="tools" />
+            <category name="containers" />
+            <category name="clothes" />
+            <category name="food" />
+            <category name="books" />
+            <tag name="floor" />
+            <point pos="-2.500000 0.000000 0.300000" range="0.600000" height="1.500000" />
+            <point pos="0.100000 0.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-1.200000 3.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="-2.500000 3.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="1.400000 6.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="0.100000 6.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="-1.200000 9.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-2.500000 9.000000 -1.000000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_RowhouseRender_Intact" lootmax="4">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="4">
+            <category name="tools" />
+            <category name="containers" />
+            <category name="clothes" />
+            <category name="food" />
+            <category name="books" />
+            <tag name="floor" />
+            <point pos="0.100000 0.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="0.100000 0.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="0.100000 3.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-2.500000 3.000000 0.300000" range="0.600000" height="1.500000" />
+            <point pos="0.100000 6.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="1.400000 6.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="0.100000 9.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="-2.500000 9.000000 -4.900000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_RowhouseRender_Ruined" lootmax="2">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="2">
+            <category name="tools" />
+            <category name="containers" />
+            <category name="clothes" />
+            <category name="food" />
+            <category name="books" />
+            <tag name="floor" />
+            <point pos="-1.200000 0.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="1.400000 3.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-2.500000 6.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="-2.500000 9.000000 -4.900000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_Rowhouse_Damaged" lootmax="3">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="3">
+            <category name="tools" />
+            <category name="containers" />
+            <category name="clothes" />
+            <category name="food" />
+            <category name="books" />
+            <tag name="floor" />
+            <point pos="-1.200000 0.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-2.500000 0.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="0.100000 3.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="1.400000 3.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="0.100000 6.000000 0.300000" range="0.600000" height="1.500000" />
+            <point pos="-1.200000 6.000000 0.300000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_Rowhouse_Intact" lootmax="3">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="3">
+            <category name="tools" />
+            <category name="containers" />
+            <category name="clothes" />
+            <category name="food" />
+            <category name="books" />
+            <tag name="floor" />
+            <point pos="1.400000 0.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="1.400000 0.000000 1.600000" range="0.600000" height="1.500000" />
+            <point pos="0.100000 3.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="-1.200000 3.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-2.500000 6.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-1.200000 6.000000 -4.900000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_Rowhouse_Ruined" lootmax="1">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="1">
+            <category name="tools" />
+            <category name="containers" />
+            <category name="clothes" />
+            <category name="food" />
+            <category name="books" />
+            <tag name="floor" />
+            <point pos="1.400000 0.000000 0.300000" range="0.600000" height="1.500000" />
+            <point pos="-2.500000 3.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-2.500000 6.000000 -4.900000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_WarehouseSmall_Damaged" lootmax="3">
+        <usage name="Industrial" />
+        <container name="lootFloor" lootmax="3">
+            <category name="tools" />
+            <category name="containers" />
+            <tag name="floor" />
+            <point pos="2.500000 0.000000 0.300000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 0.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 0.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="-4.000000 0.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 0.000000 0.300000" range="0.600000" height="1.500000" />
+            <point pos="-1.400000 0.000000 -3.600000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 0.000000 -4.900000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_WarehouseSmall_Intact" lootmax="3">
+        <usage name="Industrial" />
+        <container name="lootFloor" lootmax="3">
+            <category name="tools" />
+            <category name="containers" />
+            <tag name="floor" />
+            <point pos="5.100000 0.000000 -4.900000" range="0.600000" height="1.500000" />
+            <point pos="-1.400000 0.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="7.700000 0.000000 -1.000000" range="0.600000" height="1.500000" />
+            <point pos="3.800000 0.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 0.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="-1.400000 0.000000 4.200000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 0.000000 1.600000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_WarehouseSmall_Ruined" lootmax="1">
+        <usage name="Industrial" />
+        <container name="lootFloor" lootmax="1">
+            <category name="tools" />
+            <category name="containers" />
+            <tag name="floor" />
+            <point pos="-2.700000 0.000000 -2.300000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 0.000000 2.900000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 0.000000 -4.900000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_Warehouse_Damaged" lootmax="4">
+        <usage name="Industrial" />
+        <container name="lootFloor" lootmax="4">
+            <category name="tools" />
+            <category name="containers" />
+            <tag name="floor" />
+            <point pos="-0.500000 0.000000 -4.000000" range="0.600000" height="1.500000" />
+            <point pos="0.800000 0.000000 -1.400000" range="0.600000" height="1.500000" />
+            <point pos="3.400000 0.000000 6.400000" range="0.600000" height="1.500000" />
+            <point pos="2.100000 0.000000 5.100000" range="0.600000" height="1.500000" />
+            <point pos="-1.800000 0.000000 -6.600000" range="0.600000" height="1.500000" />
+            <point pos="-1.800000 0.000000 6.400000" range="0.600000" height="1.500000" />
+            <point pos="-0.500000 0.000000 5.100000" range="0.600000" height="1.500000" />
+            <point pos="7.300000 0.000000 6.400000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_Warehouse_Intact" lootmax="4">
+        <usage name="Industrial" />
+        <container name="lootFloor" lootmax="4">
+            <category name="tools" />
+            <category name="containers" />
+            <tag name="floor" />
+            <point pos="-0.500000 0.000000 7.700000" range="0.600000" height="1.500000" />
+            <point pos="-5.700000 0.000000 -0.100000" range="0.600000" height="1.500000" />
+            <point pos="8.600000 0.000000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="7.300000 0.000000 6.400000" range="0.600000" height="1.500000" />
+            <point pos="-4.400000 0.000000 -5.300000" range="0.600000" height="1.500000" />
+            <point pos="-10.900000 0.000000 -5.300000" range="0.600000" height="1.500000" />
+            <point pos="3.400000 0.000000 6.400000" range="0.600000" height="1.500000" />
+            <point pos="2.100000 0.000000 5.100000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_Warehouse_Ruined" lootmax="2">
+        <usage name="Industrial" />
+        <container name="lootFloor" lootmax="2">
+            <category name="tools" />
+            <category name="containers" />
+            <tag name="floor" />
+            <point pos="-9.600000 0.000000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="-4.400000 0.000000 5.100000" range="0.600000" height="1.500000" />
+            <point pos="-10.900000 0.000000 -7.900000" range="0.600000" height="1.500000" />
+            <point pos="6.000000 0.000000 6.400000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
     <group name="Land_SKY_Floor_Apartments" lootmax="8">
         <usage name="Town" />
         <container name="lootFloor" lootmax="8">

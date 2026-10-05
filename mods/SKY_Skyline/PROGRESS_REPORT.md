@@ -115,3 +115,13 @@ runner / sconces / art; plant floor, roofs, core wayfinding), and night-only cli
 (`reviews/splendour_gates.md`), renders `reviews/img/d55_*.png`, in-game rows TESTING §20, FPS
 checks FPS_PROTOCOL 4.1.
 
+## 8. City buildings, wave 1 (D56)
+
+Estimate for a full city: 35 building types, 60 variants, **148 unique models**, **651 placed
+buildings** (grounded in vanilla Chernarus counts). Procedural generator `assets/blender/build_city.py`
+(one style grammar, three ruin states through one ruin layer). Wave 1: 14 archetypes (6 types + 8
+variants) x intact / damaged / ruined = 42 P3Ds, all passing `test_city.py` (walkability per floor,
+stairs, doors, loot reachable), `test_kit.py`, `check_assets.py` (0 over budget). Progress is tracked in
+the generated `CITY_PLAN.md` (30 % of the unique models; one variant per started type could already
+fill 40 % of the city's lots). Next waves and the city layout generator: CITY_PLAN.md "Waves".
+

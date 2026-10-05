@@ -246,11 +246,17 @@ elseif (Test-Path -LiteralPath (Join-DzPath $modDir 'assets' 'check_assets.py'))
     Invoke-DzCheck 'gen_economy --check'  $Python @((Join-DzPath $modDir 'economy' 'gen_economy.py'), '--check')
     Invoke-DzCheck 'check_assets'         $Python @((Join-DzPath $modDir 'assets' 'check_assets.py'))
     Invoke-DzCheck 'placement self-test'  $Python @((Join-DzPath $modDir 'placement' 'tests' 'test_sky_layout.py'))
+    if (Test-Path -LiteralPath (Join-DzPath $modDir 'assets' 'city_progress.py')) {
+        Invoke-DzCheck 'city_progress --check' $Python @((Join-DzPath $modDir 'assets' 'city_progress.py'), '--check')
+    }
     if ($Blender) {
         Write-DzStep 'Static checks (Blender geometry tests)'
         # --python-exit-code: a crashing test script must not exit 0 (QA batch-6 M2)
         Invoke-DzCheck 'test_kit'    $Blender @('-b', '--factory-startup', '--python-exit-code', '1', '-P', (Join-DzPath $modDir 'assets' 'blender' 'test_kit.py'))
         Invoke-DzCheck 'test_towera' $Blender @('-b', '--factory-startup', '--python-exit-code', '1', '-P', (Join-DzPath $modDir 'assets' 'blender' 'test_towera.py'))
+        if (Test-Path -LiteralPath (Join-DzPath $modDir 'assets' 'blender' 'test_city.py')) {
+            Invoke-DzCheck 'test_city' $Blender @('-b', '--factory-startup', '--python-exit-code', '1', '-P', (Join-DzPath $modDir 'assets' 'blender' 'test_city.py'))
+        }
     } else { Add-Step 'Blender geometry tests' 'SKIP' 'pass -Blender <blender.exe> to run test_kit / test_towera' }
 } else { Add-Step 'static checks' 'SKIP' 'mod has no assets\check_assets.py' }
 
