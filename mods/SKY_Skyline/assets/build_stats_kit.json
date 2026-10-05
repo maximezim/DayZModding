@@ -96,6 +96,42 @@
   "res1": 82,
   "res2": 12
  },
+ "sky_floor_apartments.p3d": {
+  "fire": 360,
+  "geo": 360,
+  "mem": 0,
+  "res0": 1144,
+  "res1": 752,
+  "res2": 56,
+  "res3": 16,
+  "road": 8,
+  "shadow": 48,
+  "view": 320
+ },
+ "sky_floor_hotel.p3d": {
+  "fire": 456,
+  "geo": 456,
+  "mem": 0,
+  "res0": 1240,
+  "res1": 848,
+  "res2": 56,
+  "res3": 16,
+  "road": 8,
+  "shadow": 48,
+  "view": 416
+ },
+ "sky_floor_mechanical.p3d": {
+  "fire": 144,
+  "geo": 144,
+  "mem": 0,
+  "res0": 152,
+  "res1": 128,
+  "res2": 80,
+  "res3": 8,
+  "road": 8,
+  "shadow": 48,
+  "view": 152
+ },
  "sky_intersection_4way.p3d": {
   "fire": 48,
   "geo": 48,
@@ -169,6 +205,30 @@
   "res1": 20,
   "res2": 2,
   "road": 2
+ },
+ "sky_roof_garden.p3d": {
+  "fire": 144,
+  "geo": 144,
+  "mem": 0,
+  "res0": 168,
+  "res1": 136,
+  "res2": 96,
+  "res3": 48,
+  "road": 8,
+  "shadow": 96,
+  "view": 104
+ },
+ "sky_roof_mechanical.p3d": {
+  "fire": 144,
+  "geo": 144,
+  "mem": 0,
+  "res0": 280,
+  "res1": 136,
+  "res2": 96,
+  "res3": 48,
+  "road": 8,
+  "shadow": 96,
+  "view": 152
  },
  "sky_serverrack.p3d": {
   "fire": 12,

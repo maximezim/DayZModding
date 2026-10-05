@@ -347,4 +347,39 @@ generated_kit:
     budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 3}
     uses: [DOOR_SWING_SIGN, DOOR_OPEN_ANGLE, PENETRATION]
     status: built-unverified
+  - name: Land_SKY_Floor_Apartments
+    type: "typical floor: 4 apartments around a hall ring that wraps the core"
+    p3d: addons/sky_floors/sky_floor_apartments.p3d
+    category: floor
+    budget: {res0: 1500, res1: 900, res2: 120, res3: 24, shadow: 100, geo_comps: 24, geo_tris: 300, sections_res0: 5}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_Floor_Hotel
+    type: "typical floor: corridor ring, 8 guest rooms + 2 suites"
+    p3d: addons/sky_floors/sky_floor_hotel.p3d
+    category: floor
+    budget: {res0: 1500, res1: 900, res2: 120, res3: 24, shadow: 100, geo_comps: 24, geo_tris: 300, sections_res0: 5}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_Floor_Mechanical
+    type: "plant floor: opaque louvre facade, 4 plant units"
+    p3d: addons/sky_floors/sky_floor_mechanical.p3d
+    category: floor
+    budget: {res0: 1500, res1: 900, res2: 120, res3: 24, shadow: 100, geo_comps: 24, geo_tris: 300, sections_res0: 5}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_Roof_Garden
+    type: "roof terrace: parapet, 4 planters with shrubs, 4 roof-drop points"
+    p3d: addons/sky_floors/sky_roof_garden.p3d
+    category: roof
+    budget: {res0: 300, res1: 120, res2: 100, res3: 50, shadow: 100, geo_comps: 12, geo_tris: 150, sections_res0: 2}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_Roof_Mechanical
+    type: "plant roof: parapet, 4 HVAC units, 4 roof-drop points"
+    p3d: addons/sky_floors/sky_roof_mechanical.p3d
+    category: roof
+    budget: {res0: 300, res1: 120, res2: 100, res3: 50, shadow: 100, geo_comps: 12, geo_tris: 150, sections_res0: 2}
+    uses: [PENETRATION]
+    status: built-unverified
 # <<< GENERATED KIT

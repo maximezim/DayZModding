@@ -82,6 +82,51 @@ def self_check():
     check(not watertight(t, "Component01"), "self-check: open box reported watertight")
 
 
+def overlaps(a, b):
+    """Strict overlap of two (x0, x1, y0, y1, z0, z1) boxes (touching is not overlap)."""
+    return all(a[2 * i] < b[2 * i + 1] - 1e-6 and b[2 * i] < a[2 * i + 1] - 1e-6 for i in range(3))
+
+
+def comp_boxes(lod):
+    out = []
+    for g, v in lod.groups.items():
+        if g.startswith("Component"):
+            pts = [lod.verts[i] for i in v]
+            out.append((g, tuple(f(p[j] for p in pts) for j in range(3) for f in (min, max))))
+    return out
+
+
+# Clear zones in front of the unchanged core's doors on every level (1.2 m deep, door
+# height + 0.1), plus the core footprint itself (the core P3D occupies it).
+_C = S.CORE
+CORE_CLEAR = {
+    "stair door": (_C["stair_door_x"][0], _C["stair_door_x"][1], _C["y"][0] - 1.2, _C["y"][0], 0.0, 2.2),
+    "elevator door": (-_C["door_w"] / 2, _C["door_w"] / 2, _C["y"][1], _C["y"][1] + 1.2, 0.0, _C["door_h"] + 0.1),
+    "core footprint": (_C["x"][0], _C["x"][1], _C["y"][0], _C["y"][1], -S.SLAB_T, S.FLOOR_H),
+}
+
+
+def module_checks(n, lods):
+    """Batch 4 floor / roof variants: same stacking and core as Tower A."""
+    for k in ("shadow", "view", "road", "mem"):
+        check(k in lods and lods[k].verts, "%s: enterable module needs %s" % (n, k))
+    b = bounds(lods["geo"])
+    hw, hd = S.TOWER_A["footprint"][0] / 2, S.TOWER_A["footprint"][1] / 2
+    check(abs(b[0] + hw) < 1e-6 and abs(b[1] - hw) < 1e-6 and abs(b[2] + hd) < 1e-6 and abs(b[3] - hd) < 1e-6,
+          "%s footprint %s != +-%g x +-%g" % (n, b[:4], hw, hd))
+    check(abs(b[4] + S.SLAB_T) < 1e-6, "%s: slab underside %.3f != %.3f" % (n, b[4], -S.SLAB_T))
+    if S.KIT[n]["category"] == "floor":
+        top = S.FLOOR_H - S.SLAB_T
+        check(b[5] <= top + 1e-6, "%s: Geometry reaches z %.2f, next slab starts at %.2f" % (n, b[5], top))
+    for k in ("geo", "view", "fire"):
+        for comp, box in comp_boxes(lods[k]):
+            for zone, cz in CORE_CLEAR.items():
+                check(not overlaps(box, cz), "%s %s %s blocks the core %s" % (n, k, comp, zone))
+    road = lods["road"]
+    check(all(not (_C["x"][0] + 1e-6 < v[0] < _C["x"][1] - 1e-6 and _C["y"][0] + 1e-6 < v[1] < _C["y"][1] - 1e-6)
+              for v in road.verts), "%s: Roadway covers the core hole" % n)
+
+
 def convention_check():
     """P1 anchor: under the same convention the Tower A lobby door (read-only use of
     build_towera) must open INTO the security room, i.e. away from its action point."""
@@ -163,6 +208,8 @@ def main():
                 comps = [g for g, v in lods["geo"].groups.items() if g.startswith("Component") and v & gv]
                 check(len(comps) == 1 and lods["geo"].groups[comps[0]] == gv,
                       "%s: door %s is not exactly one Geometry component" % (n, dn))
+        if S.KIT[n]["category"] in ("floor", "roof"):
+            module_checks(n, lods)
         if n in SNAP:
             x0, x1, y0, y1, top = SNAP[n]
             b = bounds(lods["geo"])

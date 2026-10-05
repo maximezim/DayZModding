@@ -383,3 +383,21 @@ for _n, _c, _d, _doors in [
     kit(_n, "sky_props", _c, uses=["DOOR_SWING_SIGN", "DOOR_OPEN_ANGLE"] if _doors else [], desc=_d)
     KIT[_n]["doors"] = _doors
 KIT["ExtinguisherCabinet"]["uses"].append("PENETRATION")      # glass door Fire Geometry (glass unverified)
+
+
+# ---- batch 4: floor / roof variants (pbo sky_floors) on the UNCHANGED Tower A core.
+# Same stacking as Tower A: origin = slab top, FLOOR_H storeys, 24 x 24 m footprint,
+# core hole CORE; the core's stair door (south face) and elevator door (north face)
+# must stay clear on every level (test_kit.py CORE_CLEAR).
+BUDGETS["floor"] = {"res0": 1500, "res1": 900, "res2": 120, "res3": 24, "shadow": 100, "geo_comps": 24,
+                    "geo_tris": 300, "sections_res0": 5}      # = Tower A Floor_Office budget
+BUDGETS["roof"] = {"res0": 300, "res1": 120, "res2": 100, "res3": 50, "shadow": 100, "geo_comps": 12,
+                   "geo_tris": 150, "sections_res0": 2}       # = Tower A Roof_Helipad budget
+for _n, _c, _d in [
+    ("Floor_Apartments", "floor", "typical floor: 4 apartments around a hall ring that wraps the core"),
+    ("Floor_Hotel", "floor", "typical floor: corridor ring, 8 guest rooms + 2 suites"),
+    ("Floor_Mechanical", "floor", "plant floor: opaque louvre facade, 4 plant units"),
+    ("Roof_Garden", "roof", "roof terrace: parapet, 4 planters with shrubs, 4 roof-drop points"),
+    ("Roof_Mechanical", "roof", "plant roof: parapet, 4 HVAC units, 4 roof-drop points"),
+]:
+    kit(_n, "sky_floors", _c, uses=["PENETRATION"], desc=_d)
