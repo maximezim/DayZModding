@@ -432,4 +432,11 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception:
+        # Blender -P exits 0 on an uncaught exception (QA batch-3 R-L1); geometry unchanged.
+        import traceback
+        traceback.print_exc()
+        print("EXPORT FAILED")
+        sys.exit(1)

@@ -37,5 +37,7 @@ contain P3Ds) through P:. Then open `DayZ Tools\Bin\Logs\AddonBuilder*.rpt` and 
 
 ## C. In-game checks that need a human
 See `TESTING.md`. In particular the door swing direction. If `door_sec` opens outward or into the wall,
-flip `angle1` to `-1.4` in `assets/gen_configs.py` (model.cfg `Door_Sec`) and rebuild. If the elevator leaves
-slide the wrong way, swap the axis point order in `build_towera.py`.
+set `DOOR_SWING_SIGN = -1` in `assets/skyspec.py`, run `python3 assets/gen_configs.py` and rebuild: that flips the
+lobby door and every prop door together (PENDING_VERIFICATION P1, D30). If only one prop door is wrong, flip its
+`orient` in `skyspec.py`. If the elevator leaves slide the wrong way, set `ELEVATOR_SLIDE_SIGN = -1` and re-export
+the core (`build_towera.py -- --out addons --only core`, P2).

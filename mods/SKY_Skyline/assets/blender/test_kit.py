@@ -138,7 +138,9 @@ def convention_check():
     leaf = [geo.verts[i] for i in geo.groups[dn]]
     c0 = [sum(v[j] for v in leaf) / len(leaf) for j in range(3)]
     c1 = rotate(c0, p0, p1, -S.DOOR_OPEN_ANGLE)   # sign-independent, see swing test below
-    check(dist(c1, act) > dist(c0, act) + 0.02, "P1 convention: lobby door would not open into the room")
+    # signed check (QA batch-3 R-M1): the room lies on the +X side of the hinge (KEYCARD_DOOR
+    # "swings inward (+X)"); a reversed swing would end on the -X (corridor) side.
+    check(c1[0] - c0[0] > 0.3, "P1 convention: lobby door would not open into the room (+X)")
 
 
 def main():

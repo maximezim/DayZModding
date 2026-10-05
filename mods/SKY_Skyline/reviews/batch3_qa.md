@@ -170,3 +170,117 @@ Quote the newest log lines with timestamps as evidence. Shared prop checks (appl
 | P3-24 | Regression (SKY) | lobby `door_sec` (D-01), a street prop (bus stop) and its atlas cells | Unchanged from batches 1-2. Atlas row 0 is pixel-identical. | | | |
 
 Run status: all P3-xx items **NOT RUN** (no DayZ on this host).
+
+---
+
+## Re-gate (e259877)
+
+Date: 2026-10-05. Same host and limits as above: static checks only, nothing run in DayZ, every asset stays **built-unverified**.
+Snapshot: `git archive e259877` -> `scratchpad/qa3b`. Mutations and the `DOOR_SWING_SIGN = -1` variant were made in separate
+scratch copies (`qa3b_mut_*`, `qa3b_neg`). No mod code, asset, config or generator was changed; only this section was appended.
+
+**Verdict: GATE: PASS.** H1 is fixed and confirmed independently from the P3D bytes. There are no High findings. Two new Medium
+findings (R-M1 test gap, R-M2 stale fix instruction) should be fixed before the first in-game run of D-01 / P3-10..14.
+
+### R1. Commands and results (cwd `mods/SKY_Skyline` of the snapshot)
+
+| # | Command | Result |
+|---|---|---|
+| 1 | `python3 assets/check_assets.py` | exit 0, `39 checked, 0 fail, 1 over budget (hypotheses)`. The only OVER is still `Land_SKY_TowerA_Core ... geo comps 81 > 80`. Props: `Land_SKY_Locker PASS LODs=8 res=132 -> 120 -> 12`, `Land_SKY_VendingMachine PASS LODs=8 res=26 -> 26 -> 14`, `Land_SKY_ExtinguisherCabinet PASS LODs=6 res=90 -> 82 -> 12`, `Land_SKY_Cubicle PASS LODs=7 res=62 -> 60 -> 36`. No shadow OVER. |
+| 2 | `gen_configs.py --check` / `gen_manifest.py --check` / `economy/gen_economy.py --check` | exit 0 / 0 / 0 (`up to date`, silent, `up to date`) |
+| 3 | `blender -b --factory-startup --python-exit-code 1 -P assets/blender/test_kit.py` | exit 0, `KIT GEOMETRY TESTS: PASS (34 assets)` |
+| 4 | `... -P assets/blender/test_towera.py` | exit 0, `TOWER A GEOMETRY TESTS: PASS (81 core components checked)` |
+| 5 | `build_props.py` + `build_kit.py -- --out scratch/qa3b_rb/addons`, then `cmp` | both exit 0, 10 + 24 `EXPORTED`. **34/34 P3Ds byte-identical**. The regenerated `build_stats_kit.json` equals the committed one (34 keys). The arbitrary `--out` no longer fails (L1 part 1 fixed: `os.makedirs` for the stats dir). |
+| 6 | `gen_textures.py --out scratch/qa3b_tex` (2048) | exit 0, 1 min 19 s, **69 PNGs** (was 70: `sky_wood_nohq` is now procedural), 0 non-power-of-two. `sky_wood_co` 1024, `sky_fabric_co` / `_nohq` 512. |
+| 7 | Texture reference resolution (rvmats, P3D faces of all LODs, configs) | **66 `SKY_Skyline\...\*.paa` refs, 0 unresolved**; 22 rvmat refs, 0 missing. `sky_wood_nohq` is referenced nowhere. Orphans unchanged (`sky_brick_co`, `sky_concpanel_co`, `sky_windows_co`). |
+| 8 | `python3 tools/assets/enscript_xref.py --vanilla scratch/dzs/scripts --mod mods/SKY_Skyline/addons/sky_scripts/scripts` | exit 0, `OK: 11 files, all calls/types resolve` (includes the new `Land_SKY_Props_Base.c`). |
+| 9 | `git diff 681ecdc e259877 -- addons/sky_towera addons/sky_items` | **empty** (0 lines). PASS. |
+| 10 | `tools/assets/p3d_inspect.py --json addons/sky_props/*.p3d` + scratch MLOD parsers (`qa3b_swing.py`, `qa3b_faces.py`) | exit 0. Used for R2 and R4. |
+
+### R2. H1 / M1: P1 convention, recomputed from the committed bytes
+
+**Wording.** `skyspec.py:65-71` now anchors P1 on the lobby: "+1 assumes RV rotates a positive angle by the LEFT-hand rule about the memory axis (first point -> second point, Blender frame)". The PENDING P1 row and DECISIONS D30 say the same. If the lobby is wrong, the fix is `DOOR_SWING_SIGN = -1`; if the lobby is right but one prop door is wrong, flip that door's `orient`. PASS (but see R-M2).
+
+**Method (independent of `test_kit.py`).** I took the axis points (selection `<door>_axis` in point-index order), the action point, and the Geometry leaf centroid directly from the MLOD bytes. I mapped P3D (x, y-up, z) to the Blender frame (x, y, z-up). Then I rotated the centroid by `angle1` from the `model.cfg` file (LH rule = right-hand Rodrigues with -angle). Doors: lobby `door_sec` (`sky_towera/model.cfg:62` angle1 = 1.4), `locker_door1..3` (1.4), `cab_door` (1.4), `flap` (-0.84). Blender frame: prop front = -y; security room = x 6.0..11.85.
+
+| Door | Committed cfg, **LH rule** | Committed cfg, RH rule | `SIGN = -1` regenerated cfg, **RH rule** | `SIGN = -1`, LH rule |
+|---|---|---|---|---|
+| lobby `door_sec` | centroid x 6.000 -> **6.493 (into room)** | 6.000 -> 5.507 (out) | **6.493 (into room)** | 5.507 (out) |
+| `locker_door1/2/3` | y -0.260 -> **-0.403 (out)**, d_act 0.477 -> 0.370 | -> -0.117 (into carcass) | **-0.403 (out)** | -0.117 (in) |
+| `cab_door` | y -0.260 -> **-0.447 (out)**, d_act 0.443 -> 0.302 | -> -0.073 (in) | **-0.447 (out)** | -0.073 (in) |
+| `flap` | y -0.420 -> **-0.513, z 0.275 -> 0.233 (out/down)**, d_act 0.381 -> 0.295 | -> -0.327 (into body) | **-0.513 (out/down)** | -0.327 (in) |
+
+- Under ONE rule (LH, `SIGN = +1`), the lobby door opens into the security room and all 5 prop doors open outward. Under the opposite rule (RH) with `SIGN = -1`, the same holds. **H1 is fixed.**
+- `gen_configs.py` with `DOOR_SWING_SIGN = -1` (copy `qa3b_neg`) changes exactly 6 lines: `sky_towera/model.cfg` Door_Sec 1.4 -> -1.4 and the 5 prop `angle1` values. The one-line fix moves the lobby and all props together. PASS.
+- Fully open leaf extents (LH, committed): the locker leaves stay in front of the carcass (carcass y >= -0.250; open leaves y -0.547..-0.258) at disjoint x (-0.455..-0.386 / -0.155..-0.086 / 0.145..0.214), so the open doors do not intersect each other. Cabinet open y -0.636..-0.258 (body y >= -0.250). Flap open y -0.613..-0.413, z 0.143..0.324 (body y >= -0.400). No leaf penetrates its body.
+
+**Mutation tests of `test_kit.py`** (one change per scratch copy, full test run):
+
+| Mutation | Result | Expected |
+|---|---|---|
+| `cab_door` orient +1 -> -1 | exit 1, `FAIL ExtinguisherCabinet: door cab_door swings away from its action point (inward)` | fail: OK |
+| `flap` orient -1 -> +1 | exit 1, `FAIL VendingMachine: door flap swings away from its action point (inward)` | fail: OK |
+| only `locker_door2` orient -> -1 | exit 1, `FAIL Locker: door locker_door2 swings away from its action point (inward)` | fail: OK |
+| lobby `door_sec` axis point order swapped (`build_towera.py:224-225`, which reverses the lobby swing) | **exit 0, `KIT GEOMETRY TESTS: PASS (34 assets)`** | **should fail: NOT detected (R-M1)** |
+| `DOOR_SWING_SIGN = -1` only | exit 0, PASS | pass (the tests are sign-independent by design): OK |
+
+### R3. `Land_SKY_Props_Base.c` (lock compatibility NONE)
+- xref: resolves (R1 #8). The script class `Land_SKY_Props_Base extends House` (the same base as `Land_SKY_TowerA_Lobby.c:16`) matches config `class Land_SKY_Props_Base: HouseNoDestruct` (`addons/sky_props/config.cpp:16`, scope 0). The 10 props inherit from it. Vanilla has no `HouseNoDestruct` script class, so `House` (`4_world/entities/game/super/building.c:85`) is the right script parent.
+- Cited vanilla lines are correct: `3_game/entities/building.c:167` `int GetLockCompatibilityType(int doorIdx)` returns `1 << EBuildingLockType.LOCKPICK`; `3_game/enums/ebuildinglocktypes.c:3` `NONE = 0`; `actionlockdoors.c:39` `tool.GetKeyCompatibilityType() & building.GetLockCompatibilityType(doorIndex)`. `actionunlockdoors.c:38` has the same mask, so unlocking is blocked too. PASS. Whether child config classes resolve to this script class stays PENDING B5 (in-game, P3-25).
+
+### R4. Perf fixes (from the committed P3Ds)
+
+| Item | Evidence | Result |
+|---|---|---|
+| Shadow hull + door boxes | Locker Shadow 48 tris, selections `locker_door1..3` (1 hull + 3 doors); VendingMachine 24 tris with `flap`; ServerRack 12; Kitchenette 12 | PASS |
+| No shadow for `interior_small` | Desk, Sofa, Bed, ExtinguisherCabinet: no Shadow Volume LOD | PASS |
+| Monitor on wood screen band | Desk / ReceptionDesk / Cubicle Res0: one `sky_wood` quad at V 0.95-1.00; no `sky_atlas` in these 3 models. In `sky_wood_co`, rows 973-1023 are uniform (25, 40, 61) | PASS |
+| Cubicle Res2 = screens only | Res2: `sky_fabric` only, 18 faces / 36 tris, 1 section | PASS |
+| Cabinet glass = 1 quad | Res0 `sky_glass_ca` 1 face; Res1 `sky_glassfar_co` 1 face; none in Res2 / Shadow | PASS |
+| `sky_wood` nohq procedural | `sky_wood.rvmat:12` `#(argb,8,8,3)color(0.5,0.5,1,1,NOHQ)`; `gen_configs.py:51` | PASS |
+| Fabric 8 px weave | `gen_textures.py:644` `((xx // 4) + (yy // 4)) % 2` (8 px period) | PASS |
+| BUDGETS shadow keys | `skyspec.py:352-354`: small 60, medium 100, `interior_small` without shadow; `check_assets.py:45,72` | PASS |
+| `PROP_CAPS` | `skyspec.py:357` `{"per_floor": 25, "per_tower": 600, "aisle_min": 1.2}`; D27 | PASS (enforced by the batch-5 layout generator, not yet) |
+
+### R5. `skygeo.run_cli` exit code
+- `--only NoSuchProp`: Blender **without** `--python-exit-code` exits **1**, printing `KeyError: 'NoSuchProp'` and then `EXPORT FAILED`.
+- `--out` under a regular file: exits **1**, printing `NotADirectoryError ...` and then `EXPORT FAILED`.
+- Arbitrary new `--out` dir: exits 0 and creates `<out>/../assets`. PASS for `build_kit.py` / `build_props.py`. See R-L1 for `build_towera.py`.
+
+### R6. Docs
+- `TESTING.md:238` `## 14. Interior props (batch 3, sky_props)` contains P3-01..P3-25 (P3-25 = lockpick / B5). The Sign-off table has the `Interior props §14` row. PASS.
+- `manifest.yaml`: `props: status: built-unverified` with a note; `textures:` has `sky_wood` (co, 1024, nohq/smdi/as procedural) and `sky_fabric` (co + nohq, 512, 8 px weave). PASS.
+- DECISIONS: D29 (L3/L4/Info) and D30 (P1 anchor) added. PENDING P1 row rewritten. PASS.
+
+### Status of the previous findings
+H1 fixed (R2). M1 fixed in skyspec, PENDING and D30, but one stale instruction remains (R-M2). M2 fixed (R6). L1 fixed for `run_cli` (R5; `build_towera` remains, R-L1). L2 fixed. L3 accepted (D29). L4 fixed (D29, D30).
+
+### New findings
+
+**High:** none.
+
+**Medium**
+- **R-M1 - The lobby convention check cannot fail.** `test_kit.py:85-96` `convention_check()` requires the lobby leaf centroid to move more than 0.02 m *away* from `door_sec_action`. The action point (5.6, 7.5, 1.1) is 0.4 m on the lobby side but lies laterally on the leaf centre line, so the wrong swing also moves the centroid away from it:
+  - correct swing: d 0.4038 -> 0.9860;
+  - reversed swing: d 0.4038 -> 0.4288 > threshold 0.4238.
+  Mutation (lobby axis order swapped) gives `PASS (34 assets)`. The D30 anchor is therefore not guarded. The committed geometry is correct (R2), so this is a test gap, not a bug.
+  Likely fix (enforce-coder / asset-pipeline): check the signed direction, e.g. `c1[0] > p0[0] + 0.3` (into the room, +x) or `dot(c1 - c0, act - hinge) < 0` with a margin. Then re-run the axis-swap mutation and confirm it fails.
+- **R-M2 - The D-01 failure instruction still says to flip only the lobby angle.** `TESTING.md:96` (D-01: "flip `angle1` (`assets/MANUAL_STEPS.md` C)") and `assets/MANUAL_STEPS.md:39-41` ("flip `angle1` to `-1.4` in `assets/gen_configs.py` (model.cfg `Door_Sec`)") contradict P1, P3-22 and D30. A tester who finds the lobby opening outward and follows D-01 would fix the lobby alone and leave every prop door opening inward. That is the M1 risk, still present on the first door anyone tests.
+  Fix: point D-01 and MANUAL_STEPS C to `DOOR_SWING_SIGN = -1` + `gen_configs.py`. Also update the elevator line in C to `ELEVATOR_SLIDE_SIGN` (P2) instead of "swap the axis point order".
+
+**Low**
+- **R-L1 - `build_towera.py` `main()` (`:419-431`) still exits 0 on an export exception.** It does not use `run_cli`, and `Build-SkyAssets.ps1:48-49` relies on `$LASTEXITCODE`. This is pre-existing and Tower A is frozen, but the same `try/sys.exit(1)` (or `--python-exit-code 1` in the ps1) closes it.
+
+**Info**
+- I-R1: The prop swing test reads `orient` from skyspec, not the generated `angle1` from `model.cfg`. Consistency relies on `gen_configs.py --check` (passes) and the formula in `gen_configs.py:190`. R2 checked the committed `model.cfg` directly.
+- I-R2: "LEFT-hand rule (Blender frame)" equals a right-hand rotation in the P3D/engine left-handed frame (y-up). The wording is correct as written, because it names the frame. Testers should judge by the lobby door only, as PENDING P1 says.
+- I-R3: D24 still says "right-hand-rule convention". D30 explicitly supersedes it. P3-14 cites D24 for the flap fix (D30 is the anchor).
+- I-R4: ReceptionDesk (24 tris) and Cubicle (60 tris, all 5 boxes) keep Geometry-copy shadows. Both are within the medium budget of 100 and not in the D26 hull list; acceptable.
+- I-R5: The ReceptionDesk screen quad has V flipped relative to Desk/Cubicle. The screen band is uniform, so it has no visible effect.
+
+### In-game status
+P3-01..P3-25 and D-01: **NOT RUN** (no DayZ on this host). Updated expectations from this re-gate:
+- P3-14 expects out/down.
+- D-01 and P3-10..14 must be judged together under P3-22. Fix R-M2 first.
+
+GATE: PASS
