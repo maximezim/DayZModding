@@ -327,6 +327,7 @@ Expected clean logs: no `Cannot open object SKY_Skyline\sky_floors\...`, no `mis
 | F4-20 | all | 2 players on different floors of the same stack, dedicated | Both see the same geometry. No desync at the module seams | | |
 | F4-21 | all | Death on the floor/roof (fall from the parapet, shot) | The body stays on the slab and does not fall through | | |
 | F4-R | Tower A (regression) | Repeat S-10, C-04, C-05 and E-02 on the unchanged office stack | Same results as before batch 4 (Tower A P3Ds are byte-identical) | | |
+| P5-YAW | district | Deploy the template: T4 (yaw 270) carries the asymmetric `office_open` set. On T4 floor 1, check the cubicles stand on open floor north/south of the core, not inside the SW enclosed office, and the decals sit on T4's louvre storey | Props and decals where the report says; if mirrored, P9 `YAW_SIGN = -1` | screenshots | |
 
 ## 16. Street kit (batch 1, `sky_street`)
 

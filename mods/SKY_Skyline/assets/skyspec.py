@@ -101,6 +101,10 @@ ROADWAY_ASPHALT = ROADWAY_EXT
 # UNVERIFIED (P8): road-tile Geometry slab thickness. 0.3 m solid slabs may snag
 # vehicle wheels at tile seams (perf batch-1 M4); if so set ~0.05 (top stays at z = 0).
 ROAD_GEO_THICKNESS = 0.3
+# UNVERIFIED (P9): DayZ object yaw (objectSpawnersArr "ypr"[0]) turns CLOCKWISE seen from above
+# (north -> east). Used by placement/sky_layout.py rot() for everything placed off a tower's
+# centre (props, decals, roof drops, street lights). Centred modules look the same either way.
+YAW_SIGN = 1
 
 # --------------------------------------------------------------------- Tower A
 TOWER_A = {
@@ -331,6 +335,9 @@ MATERIALS.update({
 # never share a plane (perf batch-2 M2), and caps their count (DECAL_CAPS, hypothesis).
 DECAL_OFFSET = {"Decal_Dirt": 0.015, "Decal_Cracks": 0.020, "Decal_Graffiti": 0.025}
 DECAL_CAPS = {"per_tower": 12}                 # perf batch-5 L1
+# Decals go only on OPAQUE facade storeys (security batch-5 M1: glass or an open entrance behind a
+# single-sided decal gives one-way concealment). Floor variants whose facade is opaque:
+DECAL_OPAQUE_FLOORS = ("mechanical",)
 DECAL_SIZE = {"Decal_Dirt": (2.0, 3.0), "Decal_Cracks": (2.0, 2.0), "Decal_Graffiti": (2.0, 2.0)}   # w, h (m)
 BUDGETS["decal"] = {"res0": 4, "res1": 4, "res2": 2, "sections_res0": 1}
 kit("Decal_Dirt", "sky_street", "decal", desc="2 x 3 m run-off grime (alpha-blended)")

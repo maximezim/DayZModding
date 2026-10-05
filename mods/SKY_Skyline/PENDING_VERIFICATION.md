@@ -18,6 +18,7 @@ Asset lists below are kept current per batch.
 | P6 | `ROADWAY_ASPHALT` | no verified asphalt surface; roads use the verified `concrete_ext` surface sound | street kit Roadway LODs | set a vanilla asphalt roadway texture → re-export street kit |
 | P8 | `ROAD_GEO_THICKNESS` | 0.3 m Geometry slabs under road tiles do not snag vehicle wheels at tile seams | all road/street/intersection tiles | `ROAD_GEO_THICKNESS = 0.05` → re-export street kit |
 | P7 | `EMISSIVE_LAMP`, `EMISSIVE_WINDOW` | rvmat `emmisive[]` strength reads as "lit" at night without blooming | street lights (`sky_lamp`), lit window sets (batch 2). Traffic lights are NOT emissive (D8). | tune the numbers → `gen_configs.py` |
+| P9 | `YAW_SIGN` | DayZ object yaw (`ypr[0]` in objectSpawnersArr) turns clockwise seen from above; `sky_layout.rot()` uses it for everything placed off a tower's centre | furniture (`FURNISH`, asymmetric `office_open` on yaw 90/270 towers), decals, roof-drop positions, street lights; centred modules are unaffected | `YAW_SIGN = -1` → `python placement/sky_layout.py --layout ...` (regenerate, no rebuild) |
 
 Behaviour checks without a parameter (see TESTING.md):
 - B1 Render-only decal objects (`Decal_*`, category `decal`) have **no Geometry LOD**. Confirm a `HouseNoDestruct` P3D without Geometry spawns and renders via objectSpawnersArr. If not, give them a tiny Geometry far below the decal (fix in `build_kit.build_decal`).

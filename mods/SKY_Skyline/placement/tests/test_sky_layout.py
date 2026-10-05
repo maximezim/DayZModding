@@ -71,6 +71,8 @@ def district_tests(expect):
     expect("district template refused by --strict", rc == 1 and "PLACEHOLDER" in out, out)
 
     flat = survey(1000, 2000, lambda i, j: 150.0)
+    # districts: the survey must cover the street tiles too (tiles without samples fail)
+    flat["samples"] += [v for x in range(-31, 32, 3) for z in range(-31, 32, 3) for v in (1000 + x, 150.0, 2000 + z)]
     rc, out, objs = run("variants-ok", flat, towers=[{"id": "A1", "type": "TowerA", "offset": [0, 0], "yaw": 0,
                                                      "floors": ["hotel"] * 5, "roof": "mechanical"}])
     expect("legacy tower with variants passes", rc == 0 and any(o["name"] == "Land_SKY_Roof_Mechanical" for o in objs), out)
@@ -93,11 +95,14 @@ def district_tests(expect):
     lit["streets"]["lights_every"] = 1
     rc, out, _ = run("lights", flat, towers=[], extra=lit)
     expect("street lights over LIGHT_CAP fail", rc == 1 and "LIGHT_CAP" in out, out)
-    dec = variant(-1, -1)
-    dec["decals"] = [{"tower": "B1", "face": "S", "u": 11.5, "z": 1.0, "type": "Decal_Graffiti_A"}]
+    dec = variant(-1, -1, floors=["mechanical", "office", "office", "office", "office"])
+    dec["decals"] = [{"tower": "B1", "face": "S", "u": 11.5, "z": 7.5, "type": "Decal_Graffiti_A"}]
     rc, out, _ = run("decal-off", flat, towers=[], extra=dec)
     expect("decal running off the facade fails", rc == 1 and "runs off" in out, out)
     dec["decals"] = [{"tower": "B1", "face": "S", "u": 0.0, "z": 1.0, "type": "Decal_Graffiti_A"}]
+    rc, out, _ = run("decal-glass", flat, towers=[], extra=dec)
+    expect("decal over lobby glass / entrance fails (D44)", rc == 1 and "opaque" in out, out)
+    dec["decals"] = [{"tower": "B1", "face": "S", "u": 0.0, "z": 7.5, "type": "Decal_Graffiti_A"}]
     rc, out, objs = run("decal-ok", flat, towers=[], extra=dec)
     d = [o for o in objs if o["name"] == "Land_SKY_Decal_Graffiti_A"]
     expect("decal placed flush at facade + DECAL_OFFSET", rc == 0 and d and abs(d[0]["pos"][2] - (2000.0 - 12.0 - 0.025)) < 1e-3, str(d))
@@ -106,6 +111,22 @@ def district_tests(expect):
     slope["samples"] += [v for x in range(-30, 31, 3) for z in range(-30, 31, 3) for v in (1000 + x, 150.0 - (2.0 if abs(x) > 20 else 0.0), 2000 + z)]
     rc, out, _ = run("tile-slope", slope, towers=[], extra=variant(-1, -1))
     expect("street tile over a drop deeper than its skirt fails", rc == 1 and "skirt" in out, out)
+    rc, out, _ = run("tile-unsurveyed", survey(1000, 2000, lambda i, j: 150.0), towers=[], extra=variant(-1, -1))
+    expect("street tile without survey samples fails (security M2)", rc == 1 and "no survey samples" in out, out)
+    rock = dict(flat, objects=[{"type": "rock_bright_spike1", "pos": [1024.0, 150.0, 2000.0]}])
+    rc, out, _ = run("tile-rock", rock, towers=[], extra=variant(-1, -1))
+    expect("rock under a street tile fails in --strict (security M2/L1)", rc == 1 and "rock_bright_spike1" in out, out)
+    yw = variant(-1, -1, yaw=45)
+    rc, out, _ = run("yaw45", flat, towers=[], extra=yw)
+    expect("tower yaw not a multiple of 90 fails", rc == 1 and "multiple of 90" in out, out)
+    dup = variant(-1, -1)
+    dup["towers"] = [{"id": "B1", "type": "TowerA", "offset": [200, 0]}]
+    rc, out, _ = run("dup-id", flat, towers=None, extra=dup)
+    expect("duplicate tower ids fail", rc == 1 and "duplicate tower id" in out, out)
+    d = tempfile.mkdtemp()
+    rc, _o, od = run_layout(tpl, strict=True)
+    expect("failed run writes no deployable sky_objects.json", not os.path.exists(os.path.join(od, "sky_objects.json"))
+           and os.path.exists(os.path.join(od, "sky_objects.FAILED.json")))
 
     sys.path.insert(0, os.path.dirname(HERE))
     import sky_layout as SL

@@ -350,6 +350,6 @@ map: chernarusplus  site: district-template  status: **PASS (with warnings)**
 - Land_SKY_Locker at [21.5, 21.0, -33.5] yaw 0.0
 - Land_SKY_VendingMachine at [26.0, 21.0, -29.0] yaw 270.0
 - Land_SKY_ExtinguisherCabinet at [24.0, 21.0, -27.0] yaw 0.0
-- Land_SKY_Decal_Graffiti_B at [-30.0, 0.2, 11.975] yaw 0.0
-- Land_SKY_Decal_Dirt at [-18.0, 4.0, 11.985] yaw 0.0
-- Land_SKY_Decal_Cracks at [-36.02, 0.5, -24.0] yaw 90.0
+- Land_SKY_Decal_Graffiti_B at [11.975, 14.1, -30.0] yaw 90.0
+- Land_SKY_Decal_Dirt at [18.0, 14.1, -11.985] yaw 180.0
+- Land_SKY_Decal_Cracks at [36.02, 15.0, -24.0] yaw 270.0
