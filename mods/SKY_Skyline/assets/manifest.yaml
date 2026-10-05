@@ -43,8 +43,8 @@ kit:
     budget: {res0: 1500, res1: 900, res2: 120, res3: 24, shadow: 100, geo_comps: 24, geo_tris: 300, sections_res0: 5}
     textures: [concrete, glass, metal, carpet, wall, glassfar]
     status: built-unverified
-  - {name: Land_SKY_Floor_Apartments, type: typical floor (apartments), status: planned}
-  - {name: Land_SKY_Floor_Hotel, type: typical floor (hotel), status: planned}
+  - {name: Land_SKY_Floor_Apartments, type: typical floor (apartments), status: built-unverified, note: batch 4 - see generated_kit (sky_floors)}
+  - {name: Land_SKY_Floor_Hotel, type: typical floor (hotel), status: built-unverified, note: batch 4 - see generated_kit (sky_floors)}
   - name: Land_SKY_TowerA_Core
     type: stair + elevator core (7 stops, teleport elevator, script Land_SKY_TowerA_Core)
     p3d: addons/sky_towera/sky_towera_core.p3d
@@ -52,15 +52,15 @@ kit:
     textures: [concrete, metal, tile]
     status: built-unverified
     open_items: [Geometry 81 comps > 80 (merge plan in perf_review M2). Stacked-opening bug (perf H1) fixed; doors exist at all 7 stops]
-  - {name: Land_SKY_Floor_Mechanical, type: mechanical floor, status: planned}
+  - {name: Land_SKY_Floor_Mechanical, type: mechanical floor, status: built-unverified, note: batch 4 - see generated_kit (sky_floors)}
   - name: Land_SKY_TowerA_Roof_Helipad
     type: roof (helipad)
     p3d: addons/sky_towera/sky_towera_roof_helipad.p3d
     budget: {res0: 300, res1: 120, res2: 100, res3: 50, shadow: 100, geo_comps: 12, geo_tris: 150, sections_res0: 2}
     textures: [concrete, roofmark]
     status: built-unverified
-  - {name: Land_SKY_Roof_Mechanical, type: roof (mechanical), status: planned}
-  - {name: Land_SKY_Roof_Garden, type: roof (garden), status: planned}
+  - {name: Land_SKY_Roof_Mechanical, type: roof (mechanical), status: built-unverified, note: batch 4 - see generated_kit (sky_floors)}
+  - {name: Land_SKY_Roof_Garden, type: roof (garden), status: built-unverified, note: batch 4 - see generated_kit (sky_floors)}
   - {name: Land_SKY_Skybridge, type: skybridge, status: planned}
   - {name: SKY_Facade_Glass, type: facade variant, status: built-unverified, note: built into floor/lobby generators (facade())}
   - {name: SKY_Facade_Concrete, type: facade variant, status: planned}
@@ -355,7 +355,7 @@ generated_kit:
     uses: [PENETRATION]
     status: built-unverified
   - name: Land_SKY_Floor_Hotel
-    type: "typical floor: corridor ring, 8 guest rooms + 2 suites"
+    type: "typical floor: corridor around the core, 4 guest rooms + 2 suites with 4 connecting corner rooms"
     p3d: addons/sky_floors/sky_floor_hotel.p3d
     category: floor
     budget: {res0: 1500, res1: 900, res2: 120, res3: 24, shadow: 100, geo_comps: 24, geo_tris: 300, sections_res0: 5}

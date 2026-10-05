@@ -189,9 +189,16 @@ def module_checks(n, lods):
                 check(not overlaps(crate, box), "%s: roof_drop_%d crate overlaps Geometry %s" % (n, i + 1, comp))
             check(hw - abs(x) - 0.75 >= 1.25 - 1e-6 and hd - abs(y) - 0.75 >= 1.25 - 1e-6,
                   "%s: roof_drop_%d crate closer than 1 m to the parapet" % (n, i + 1))
+    # Roadway: no face may overlap the core hole (face bbox test - catches quads spanning it, QA batch-4 M2)
     road = lods["road"]
-    check(all(not (_C["x"][0] + 1e-6 < v[0] < _C["x"][1] - 1e-6 and _C["y"][0] + 1e-6 < v[1] < _C["y"][1] - 1e-6)
-              for v in road.verts), "%s: Roadway covers the core hole" % n)
+    hole = (_C["x"][0], _C["x"][1], _C["y"][0], _C["y"][1], -1.0, 1.0)
+    for idx, _m, _uv in road.faces:
+        pts = [road.verts[i] for i in idx]
+        fb = tuple(f(p[j] for p in pts) for j in range(3) for f in (min, max))
+        fb = fb[:4] + (fb[4] - 0.01, fb[5] + 0.01)
+        check(not overlaps(fb, hole), "%s: a Roadway face covers the core hole" % n)
+    occ = [g for g in lods["view"].groups if g.startswith("occluder_")]
+    check(len(occ) >= 4, "%s: %d slab occluders (< 4)" % (n, len(occ)))
 
 
 def convention_check():

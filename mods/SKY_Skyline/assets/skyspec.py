@@ -395,7 +395,7 @@ BUDGETS["roof"] = {"res0": 300, "res1": 120, "res2": 100, "res3": 50, "shadow": 
                    "geo_tris": 150, "sections_res0": 2}       # = Tower A Roof_Helipad budget
 for _n, _c, _d in [
     ("Floor_Apartments", "floor", "typical floor: 4 apartments around a hall ring that wraps the core"),
-    ("Floor_Hotel", "floor", "typical floor: corridor ring, 8 guest rooms + 2 suites"),
+    ("Floor_Hotel", "floor", "typical floor: corridor around the core, 4 guest rooms + 2 suites with 4 connecting corner rooms"),
     ("Floor_Mechanical", "floor", "plant floor: opaque louvre facade, 4 plant units"),
     ("Roof_Garden", "roof", "roof terrace: parapet, 4 planters with shrubs, 4 roof-drop points"),
     ("Roof_Mechanical", "roof", "plant roof: parapet, 4 HVAC units, 4 roof-drop points"),

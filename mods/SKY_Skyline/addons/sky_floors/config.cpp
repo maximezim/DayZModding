@@ -25,7 +25,7 @@ class CfgVehicles
 	};
 	class Land_SKY_Floor_Hotel: Land_SKY_Floors_Base
 	{
-		// typical floor: corridor ring, 8 guest rooms + 2 suites
+		// typical floor: corridor around the core, 4 guest rooms + 2 suites with 4 connecting corner rooms
 		scope = 1;
 		model = "SKY_Skyline\sky_floors\sky_floor_hotel.p3d";
 	};

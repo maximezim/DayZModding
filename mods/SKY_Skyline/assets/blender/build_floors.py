@@ -75,7 +75,8 @@ def build_floor_apartments():
 
 
 def build_floor_hotel():
-    """Corridor ring around the core with guest rooms on the facade side."""
+    """Corridor around the core (x +-5, y +-6.5) with 4 guest rooms off it on the north and south
+    sides, 2 suites east / west, and 4 corner rooms reached through the suites (connecting rooms)."""
     L = T.std_lods()
     T.floor_slab(L, "carpet", T.UV_CARPET, "road_int")
     T.facade(L, 0.0, WT)
@@ -99,8 +100,9 @@ def build_floor_hotel():
 
 def louvre_facade(L, z0, z1):
     """Mechanical floor: opaque metal louvre band instead of glass (no alpha)."""
+    # E/W bands stop inside the N/S bands: no coplanar overlap at the corners (QA batch-4 L5)
     sides = [((-HW, HW), "y", -HD, (0, -1, 0)), ((-HW, HW), "y", HD, (0, 1, 0)),
-             ((-HD, HD), "x", -HW, (-1, 0, 0)), ((-HD, HD), "x", HW, (1, 0, 0))]
+             ((-HD + CT, HD - CT), "x", -HW, (-1, 0, 0)), ((-HD + CT, HD - CT), "x", HW, (1, 0, 0))]
     for (a0, a1), axis, c, out in sides:
         sgn = 1 if c > 0 else -1
         d0, d1 = sorted((c, c - sgn * CT))

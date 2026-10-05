@@ -274,6 +274,41 @@ Quote the newest log lines with timestamps as evidence. Shared prop checks (appl
 | P3-24 | Regression (SKY) | lobby `door_sec` (D-01), a street prop (bus stop) and its atlas cells | Unchanged from batches 1-2. Atlas row 0 is pixel-identical. | | | |
 | P3-25 | Lockpick (D25 / PENDING B5) | with a lockpick in hand, look at a closed locker door, the cabinet door and the flap | No `Lock door` / `Unlock door` action is offered on any prop door. If one appears, apply the B5 fix. | screenshot | | |
 
+## 15. Floor and roof variants (batch 4, `sky_floors`)
+
+Static results: `reviews/batch4_qa.md`. Spawn the modules on the unchanged Tower A core (layout `floors:` / `roof:` keys, batch 5) and run each row in diag, then dedicated.
+
+
+Setup for all items: diag (`Build-And-Run.ps1 -ModName SKY_Skyline -FilePatching`) and dedicated (`-Mode Dedicated`, signed). Spawn a
+test stack by hand at a flat site: Tower A lobby + core at T. Put the variant under test at each core stop z = 7.0, 10.5, 14.0, 17.5, 21.0
+(floors) and 24.5 (roof), using objectSpawnersArr with the same yaw as the core. Logs: newest `script_*.log`, `*.RPT` and `*.ADM` per profile.
+Expected clean logs: no `Cannot open object SKY_Skyline\sky_floors\...`, no `missing in CfgPatches`, no `SCRIPT (E)`.
+
+| ID | Module | Steps (diag, then dedicated) | Expected | Evidence | Result |
+|---|---|---|---|---|---|
+| F4-01 | all 5 | Spawn each class once; check the RPT | Loads with no missing model/texture/rvmat lines. Dedicated: no signature kick for `sky_floors.pbo` | RPT lines + timestamps | |
+| F4-02 | Apartments, Hotel, Mechanical | Stack the variant at every core stop (5 floors) | Slabs meet the core walls with no visible gap. The stair door (south face, x -1.8..-0.6) and elevator door (north face) open onto the floor at every stop | screenshot per stop | |
+| F4-03 | Roof_Garden, Roof_Mechanical | Place it at the roof stop (z 24.5) on the core | The core penthouse rises through the hole. Stair and elevator roof-stop doors open onto the roof | screenshot | |
+| F4-04 | all floors | Stand on the slab beside the core and above the module seam. Crouch, prone, roll, and drop items at 4 spots per floor | **Nothing falls through the seam** between modules (slab -0.3..0 meets the walls' top 3.2) or the slab/core gap | | |
+| F4-05 | all floors | Jump/vault against the partition tops and the facade at ceiling height | No climbing into the slab above. Walls stop flush at 3.2 | | |
+| F4-06 | Apartments | Walk from the stair door to every apartment | Every apartment has **two** 1.0 m x 2.1 m hall doors (security H1 fix, D35) and an internal door between its two wings; `test_kit` flood fill passes statically | screenshots | |
+| F4-07 | Hotel | Walk the corridor and enter all 8 rooms + 2 suites | The 4 inner rooms open off the corridor; the 4 corner rooms are entered through the suites (connecting rooms, by design) | | |
+| F4-08 | Mechanical | Walk around all 4 plant units and along the louvre | The units are solid and full height (3.2 m, not climbable, D35). There are no openings in the louvre. Ducts are visual only | | |
+| F4-09 | Roofs | Walk the parapet perimeter. Climb the planters (0.5 m) and HVAC units (1.5-2.4 m) | Parapet 1.1 m and solid. Planters (0.5 m, 1.25 m inside the parapet) can be stepped onto; you cannot step from a planter over the parapet. Shrubs have no collision and are Res0-only decoration | | |
+| F4-10 | Apartments, Hotel | Navmesh visualisation after spawn (`ProcessMarkedObjectsForPathgraphUpdate`) | Navmesh connects the hall/corridor to every room through each door opening (all 1.0 m). It does not cross partitions or the facade | screenshots | |
+| F4-11 | Apartments, Hotel, Mechanical | Aggro 3 infected on the floor, then run from the core into the farthest room and around the plant units | Infected follow through the door openings and around the units. They do not walk through partitions or get stuck in the 1.0 m doors | | |
+| F4-12 | Roofs | Aggro infected from the stair door to each roof corner | They path around planters/HVAC units to the corners | | |
+| F4-13 | all floors | View Geometry: A in a room, B in the hall behind a partition; then A on floor N, B on floor N+1 | Partitions and slabs block sight both ways (AI does not detect through them). The louvre blocks sight (mechanical) | | |
+| F4-14 | all | Fire Geometry: shoot the partitions (bricks), slab (concrete, P3), louvre/units/HVAC (metalplate), and facade glass (P3) | Penetration and impact effects match the material. Rounds do not leak between floors | | |
+| F4-15 | Roofs | Merge a `StaticSKYRoofDrop` with this roof's drop positions from `skyspec.ROOF_DROP_POINTS` (+-8, +-2), which `placement/sky_layout.py` writes per roof class. Wipe storage, restart | The supply box sits on the open roof east/west of the core, not inside a planter/unit and not over the core | RPT: no event errors | |
+| F4-16 | all | LOD switches: walk away 10 -> 500 m, and use the diag LOD display | Res0 -> 1 -> 2 -> 3 with no holes. Watch for pop of HVAC units, planters and shrubs at Res1 -> 2 (L4). Res3 is one band per floor (glassfar / louvre) and one closed box per roof (D35) | screenshots per LOD | |
+| F4-17 | Mechanical | Corner close-up of the louvre | No z-fighting on the corner strip (E/W bands now stop inside the N/S bands) | | |
+| F4-18 | all | Shadows in sun | The slab/parapet shadows are correct. Note the missing shadows from partitions/louvre/HVAC (L4) | | |
+| F4-19 | all | Relog and server restart | Modules are static (objectSpawnersArr) and reappear identically. No persistence issues | | |
+| F4-20 | all | 2 players on different floors of the same stack, dedicated | Both see the same geometry. No desync at the module seams | | |
+| F4-21 | all | Death on the floor/roof (fall from the parapet, shot) | The body stays on the slab and does not fall through | | |
+| F4-R | Tower A (regression) | Repeat S-10, C-04, C-05 and E-02 on the unchanged office stack | Same results as before batch 4 (Tower A P3Ds are byte-identical) | | |
+
 ---
 
 ### Sign-off
@@ -293,3 +328,4 @@ Quote the newest log lines with timestamps as evidence. Shared prop checks (appl
 | Clean logs §11 | | | |
 | Perf §13 | | | |
 | Interior props §14 | | | |
+| Floor / roof variants §15 | | | |
