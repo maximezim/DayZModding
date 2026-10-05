@@ -106,12 +106,65 @@ CORE_CLEAR = {
 }
 
 
+def reachability(n, lods, cell=0.25):
+    """Flood fill over the walkable slab (security batch-4 H1): 0.25 m grid, blocked by every
+    Geometry component spanning body height (z 0.1..1.9) and by the core footprint; seeds are
+    the core's stair / elevator door clear zones. Any unreached free region > 1 m2 fails."""
+    hw, hd = S.TOWER_A["footprint"][0] / 2, S.TOWER_A["footprint"][1] / 2
+    nx, ny = int(round(2 * hw / cell)), int(round(2 * hd / cell))
+    blockers = [b for _c, b in comp_boxes(lods["geo"]) if b[4] < 1.9 and b[5] > 0.1]
+    blockers.append(CORE_CLEAR["core footprint"][:4] + (0.0, 2.0))
+    free = [[True] * ny for _ in range(nx)]
+    for i in range(nx):
+        for j in range(ny):
+            x0, y0 = -hw + i * cell, -hd + j * cell
+            c = (x0, x0 + cell, y0, y0 + cell, 0.1, 1.9)
+            free[i][j] = not any(overlaps(c, b) for b in blockers)
+    seen = [[False] * ny for _ in range(nx)]
+    stack = []
+    for zone in ("stair door", "elevator door"):
+        z = CORE_CLEAR[zone]
+        for i in range(nx):
+            for j in range(ny):
+                xc, yc = -hw + (i + 0.5) * cell, -hd + (j + 0.5) * cell
+                if z[0] < xc < z[1] and z[2] < yc < z[3] and free[i][j]:
+                    stack.append((i, j))
+    check(stack, "%s: core door zones are blocked" % n)
+    while stack:
+        i, j = stack.pop()
+        if seen[i][j] or not free[i][j]:
+            continue
+        seen[i][j] = True
+        for di, dj in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            a, b = i + di, j + dj
+            if 0 <= a < nx and 0 <= b < ny and not seen[a][b] and free[a][b]:
+                stack.append((a, b))
+    lost = [[free[i][j] and not seen[i][j] for j in range(ny)] for i in range(nx)]
+    for i in range(nx):
+        for j in range(ny):
+            if not lost[i][j]:
+                continue
+            region, st = [], [(i, j)]
+            while st:
+                a, b = st.pop()
+                if not (0 <= a < nx and 0 <= b < ny) or not lost[a][b]:
+                    continue
+                lost[a][b] = False
+                region.append((a, b))
+                st += [(a + 1, b), (a - 1, b), (a, b + 1), (a, b - 1)]
+            area = len(region) * cell * cell
+            if area > 1.0:
+                a, b = region[0]
+                check(False, "%s: %.1f m2 unreachable from the core (near x %.1f, y %.1f)"
+                      % (n, area, -hw + a * cell, -hd + b * cell))
+
+
 def module_checks(n, lods):
     """Batch 4 floor / roof variants: same stacking and core as Tower A."""
+    hw, hd = S.TOWER_A["footprint"][0] / 2, S.TOWER_A["footprint"][1] / 2
     for k in ("shadow", "view", "road", "mem"):
         check(k in lods and lods[k].verts, "%s: enterable module needs %s" % (n, k))
     b = bounds(lods["geo"])
-    hw, hd = S.TOWER_A["footprint"][0] / 2, S.TOWER_A["footprint"][1] / 2
     check(abs(b[0] + hw) < 1e-6 and abs(b[1] - hw) < 1e-6 and abs(b[2] + hd) < 1e-6 and abs(b[3] - hd) < 1e-6,
           "%s footprint %s != +-%g x +-%g" % (n, b[:4], hw, hd))
     check(abs(b[4] + S.SLAB_T) < 1e-6, "%s: slab underside %.3f != %.3f" % (n, b[4], -S.SLAB_T))
@@ -122,6 +175,20 @@ def module_checks(n, lods):
         for comp, box in comp_boxes(lods[k]):
             for zone, cz in CORE_CLEAR.items():
                 check(not overlaps(box, cz), "%s %s %s blocks the core %s" % (n, k, comp, zone))
+    reachability(n, lods)
+    if S.KIT[n]["category"] == "roof":
+        mem = lods["mem"]
+        pts = S.ROOF_DROP_POINTS[S.KIT[n]["cls"]]
+        for i, (x, y) in enumerate(pts):
+            g = mem.groups.get("roof_drop_%d" % (i + 1))
+            check(g and abs(mem.verts[next(iter(g))][0] - x) < 1e-6 and abs(mem.verts[next(iter(g))][1] - y) < 1e-6,
+                  "%s: roof_drop_%d memory point != skyspec.ROOF_DROP_POINTS" % (n, i + 1))
+            # supply crate ~1.5 m cube must fit, >= 1 m from the parapet (security batch-4 M1)
+            crate = (x - 0.75, x + 0.75, y - 0.75, y + 0.75, 0.05, 1.55)
+            for comp, box in comp_boxes(lods["geo"]):
+                check(not overlaps(crate, box), "%s: roof_drop_%d crate overlaps Geometry %s" % (n, i + 1, comp))
+            check(hw - abs(x) - 0.75 >= 1.25 - 1e-6 and hd - abs(y) - 0.75 >= 1.25 - 1e-6,
+                  "%s: roof_drop_%d crate closer than 1 m to the parapet" % (n, i + 1))
     road = lods["road"]
     check(all(not (_C["x"][0] + 1e-6 < v[0] < _C["x"][1] - 1e-6 and _C["y"][0] + 1e-6 < v[1] < _C["y"][1] - 1e-6)
               for v in road.verts), "%s: Roadway covers the core hole" % n)

@@ -401,3 +401,9 @@ for _n, _c, _d in [
     ("Roof_Mechanical", "roof", "plant roof: parapet, 4 HVAC units, 4 roof-drop points"),
 ]:
     kit(_n, "sky_floors", _c, uses=["PENETRATION"], desc=_d)
+# Roof-drop memory points per roof class (Blender X, Y). Helipad = ROOF_DROPS; garden and
+# mechanical roofs use the open strips east / west of the core (D33). Read by build_floors.py,
+# test_kit.py (crate clearance) and placement/sky_layout.py (cfgeventspawns positions).
+ROOF_DROPS_CLEAR = [(-8.0, -2.0), (8.0, -2.0), (-8.0, 2.0), (8.0, 2.0)]
+ROOF_DROP_POINTS = {CLASS_ROOF: ROOF_DROPS, KIT["Roof_Garden"]["cls"]: ROOF_DROPS_CLEAR,
+                    KIT["Roof_Mechanical"]["cls"]: ROOF_DROPS_CLEAR}

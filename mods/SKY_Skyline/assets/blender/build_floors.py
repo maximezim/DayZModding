@@ -18,16 +18,20 @@ sys.path.insert(0, os.path.dirname(HERE))
 import build_towera as T  # noqa: E402
 import skyspec as S  # noqa: E402
 from build_kit import KIT_MATS  # noqa: E402
-from skygeo import UVBand, UVRect, wall_x, wall_y, run_cli  # noqa: E402
+from skygeo import LOD_RES, Lod, UVBand, UVRect, wall_x, wall_y, run_cli  # noqa: E402
 
 HW, HD, CT = T.HW, T.HD, T.CT
 WT = S.FLOOR_H - S.SLAB_T
 HT = S.WALL_T / 2
 UV_BRICKWALL = T.UV_WALL
 UV_LOUVRE = UVBand(S.MATERIALS["metal"]["bands"]["steel"], 1.0)
-# Roof-drop points for the garden / mechanical roofs: the helipad's (+-8, +-8) fall inside
-# planters / plant units here, so use the open strips east and west of the core.
-ROOF_DROPS_CLEAR = [(-8.0, -2.0, 0.05), (8.0, -2.0, 0.05), (-8.0, 2.0, 0.05), (8.0, 2.0, 0.05)]
+
+
+def far_band(L):
+    """Res3 = one opaque glassfar band for slab + storey: 1 section, 8 tris (perf batch-4 M3).
+    Replaces what the shared Tower A facade() put in Res3 (facade() itself is unchanged)."""
+    L["res3"] = Lod("res3", LOD_RES, 3.0)
+    L["res3"].box(-HW, HW, -HD, HD, -S.SLAB_T, WT, mat="glassfar", uv=T.UV_GLASS, skip=("+z", "-z"))
 
 
 def partitions(L, walls, mat="wall", uv=None, pen="masonry"):
@@ -35,7 +39,10 @@ def partitions(L, walls, mat="wall", uv=None, pen="masonry"):
     for k in ("res0", "res1", "geo", "view", "fire"):
         kw = {"mat": mat, "uv": uv or T.UV_WALL} if k.startswith("res") else ({"mat": "pen_" + pen} if k == "fire" else {})
         for axis, c, a0, a1, ops in walls:
-            o = [(o0, o1, 0.0, 2.1) for (o0, o1) in ops]
+            # Geometry: openings run to the ceiling - no lintel component (nobody reaches a slot
+            # 2.1 m up; perf batch-4 L1). Res/View/Fire keep the lintel above the 2.1 m door.
+            top = WT if k == "geo" else 2.1
+            o = [(o0, o1, 0.0, top) for (o0, o1) in ops]
             if axis == "x":
                 wall_x(L[k], a0, a1, c - HT, c + HT, 0.0, WT, openings=o, **kw)
             else:
@@ -50,10 +57,12 @@ def build_floor_apartments():
     e = HW - CT
     partitions(L, [
         # hall boundary: ring 2.5 m outside the core (core x +-3, y +-4.5)
-        ("x", -7.0, -e, e, [(-1.5, -0.3), (-8.0, -7.0), (7.0, 8.0)]),       # south hall wall; door to core stair side
-        ("x", 7.0, -e, e, [(-8.0, -7.0), (7.0, 8.0)]),                       # north hall wall
-        ("y", -5.5, -7.0 + HT, 7.0 - HT, [(-1.0, 0.0)]),                       # west hall wall
-        ("y", 5.5, -7.0 + HT, 7.0 - HT, [(0.0, 1.0)]),                         # east hall wall
+        # every apartment gets 2 doors from the hall (security batch-4 H1: SE/NW were sealed);
+        # (-8, -7) / (7, 8) are internal doors between the two wings of one apartment
+        ("x", -7.0, -e, e, [(-1.5, -0.3), (0.3, 1.5), (-8.0, -7.0), (7.0, 8.0)]),   # south hall wall: SW, SE
+        ("x", 7.0, -e, e, [(-1.5, -0.3), (0.3, 1.5), (-8.0, -7.0), (7.0, 8.0)]),    # north hall wall: NW, NE
+        ("y", -5.5, -7.0 + HT, 7.0 - HT, [(-1.2, -0.2), (0.2, 1.2)]),               # west hall wall: SW, NW
+        ("y", 5.5, -7.0 + HT, 7.0 - HT, [(-1.2, -0.2), (0.2, 1.2)]),                # east hall wall: SE, NE
         # party walls between apartments
         ("y", 0.0, -e, -7.0 - HT, []), ("y", 0.0, 7.0 + HT, e, []),
         ("x", 0.0, -e, -5.5 - HT, []), ("x", 0.0, 5.5 + HT, e, []),
@@ -61,7 +70,7 @@ def build_floor_apartments():
     T.lights(L, WT - 0.1)
     L["mem"].point("floor_center", (0.0, -6.0, 0.05))
     T.building_props(L, 40000.0)
-    L["res3"].box(-HW, HW, -HD, HD, -S.SLAB_T, 0.0, mat="concrete", uv=T.UV_CONC_REVEAL, skip=("+z", "-z"))
+    far_band(L)
     return list(L.values())
 
 
@@ -84,7 +93,7 @@ def build_floor_hotel():
     T.lights(L, WT - 0.1)
     L["mem"].point("floor_center", (0.0, -5.75, 0.05))
     T.building_props(L, 40000.0)
-    L["res3"].box(-HW, HW, -HD, HD, -S.SLAB_T, 0.0, mat="concrete", uv=T.UV_CONC_REVEAL, skip=("+z", "-z"))
+    far_band(L)
     return list(L.values())
 
 
@@ -111,7 +120,7 @@ def build_floor_mechanical():
     for (x0, x1, y0, y1) in units:                                              # plant units
         for k in ("res0", "res1", "geo", "view", "fire"):
             kw = {"mat": "metal", "uv": T.UV_STEEL} if k.startswith("res") else ({"mat": "pen_metal"} if k == "fire" else {})
-            L[k].box(x0, x1, y0, y1, 0.0, 2.2, **kw)
+            L[k].box(x0, x1, y0, y1, 0.0, WT, **kw)      # full height: not climbable (security batch-4 M2)
     for k in ("res0",):                                                         # duct runs
         L[k].box(-10.5, 10.5, -11.0, -10.6, 2.6, 3.0, mat="metal", uv=T.UV_ALU)
         L[k].box(-10.5, 10.5, 10.6, 11.0, 2.6, 3.0, mat="metal", uv=T.UV_ALU)
@@ -125,19 +134,25 @@ def build_floor_mechanical():
 
 def roof_base(L, top_mat, top_uv, road):
     T.floor_slab(L, top_mat, top_uv, road)
-    for k in ("res0", "res1", "res2", "geo", "view", "fire", "res3", "shadow"):
+    for k in ("res0", "res1", "res2", "geo", "view", "fire", "shadow"):
         kw = {"mat": "concrete", "uv": T.UV_CONC_REVEAL} if k.startswith("res") else ({"mat": "pen_concrete"} if k == "fire" else {})
+        if k.startswith("res"):
+            kw["skip"] = ("-z",)                                                # sits on the slab (perf L3)
         for (x0, x1, y0, y1) in [(-HW, HW, -HD, -HD + 0.25), (-HW, HW, HD - 0.25, HD),
                                  (-HW, -HW + 0.25, -HD + 0.25, HD - 0.25), (HW - 0.25, HW, -HD + 0.25, HD - 0.25)]:
             L[k].box(x0, x1, y0, y1, 0.0, 1.1, **kw)
+    # Res3: one closed box (slab + parapet, open bottom) - the roof no longer looks hollow from
+    # above at range (perf batch-4 M2); 10 tris, 1 section.
+    L["res3"].box(-HW, HW, -HD, HD, -S.SLAB_T, 1.1, mat="concrete", uv=T.UV_CONC_REVEAL, skip=("-z",))
 
 
 def build_roof_garden():
     L = T.std_lods()
     roof_base(L, "paver", T.UVWorld(3.0), "road_ext")
-    beds = [(-11.0, -6.0, -11.0, -6.5), (6.0, 11.0, -11.0, -6.5), (-11.0, -6.0, 6.5, 11.0), (6.0, 11.0, 6.5, 11.0)]
+    # planters >= 1.2 m inside the parapet (security batch-4 L3)
+    beds = [(-10.5, -6.0, -10.5, -6.5), (6.0, 10.5, -10.5, -6.5), (-10.5, -6.0, 6.5, 10.5), (6.0, 10.5, 6.5, 10.5)]
     for (x0, x1, y0, y1) in beds:
-        for k in ("res0", "res1", "geo", "fire"):                                # planters (not in Res2: budget)
+        for k in ("res0", "res1", "geo", "view", "fire"):                        # planters (not in Res2: budget)
             kw = {"mat": "concrete", "uv": T.UV_CONC_REVEAL} if k.startswith("res") else ({"mat": "pen_concrete"} if k == "fire" else {})
             L[k].box(x0, x1, y0, y1, 0.0, 0.5, skip=("-z",) if k.startswith("res") else (), **kw)
         cx = (x0 + x1) / 2
@@ -147,8 +162,8 @@ def build_roof_garden():
                       UVRect(0, 2, (x0 + 0.3, 0.5), (x1 - 0.3, 2.0)), double=True)
             L[k].quad([(cx, y0 + 0.3, 0.5), (cx, y1 - 0.3, 0.5), (cx, y1 - 0.3, 2.0), (cx, y0 + 0.3, 2.0)], (1, 0, 0),
                       "foliage", UVRect(1, 2, (y0 + 0.3, 0.5), (y1 - 0.3, 2.0)), double=True)
-    for i in range(len(S.ROOF_DROPS)):
-        L["mem"].point("roof_drop_%d" % (i + 1), ROOF_DROPS_CLEAR[i])
+    for i, (x, y) in enumerate(S.ROOF_DROPS_CLEAR):                         # D33, shared with sky_layout
+        L["mem"].point("roof_drop_%d" % (i + 1), (x, y, 0.05))
     T.building_props(L, 32000.0)
     return list(L.values())
 
@@ -163,8 +178,8 @@ def build_roof_mechanical():
             L[k].box(x0, x1, y0, y1, 0.0, h, skip=("-z",) if k.startswith("res") else (), **kw)
         for k in ("res0",):                                                      # fan housings
             L[k].prism((x0 + x1) / 2, (y0 + y1) / 2, 0.6, h, h + 0.3, n=10, mat="metal", uv=T.UV_ALU)
-    for i in range(len(S.ROOF_DROPS)):
-        L["mem"].point("roof_drop_%d" % (i + 1), ROOF_DROPS_CLEAR[i])
+    for i, (x, y) in enumerate(S.ROOF_DROPS_CLEAR):                         # D33, shared with sky_layout
+        L["mem"].point("roof_drop_%d" % (i + 1), (x, y, 0.05))
     T.building_props(L, 34000.0)
     return list(L.values())
 
