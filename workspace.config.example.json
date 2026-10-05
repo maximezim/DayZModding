@@ -1,0 +1,22 @@
+{
+  "_comment": "Copy to workspace.config.json (git-ignored) and edit. Empty paths are auto-detected from Steam.",
+  "steamDir": "",
+  "dayzDir": "",
+  "dayzToolsDir": "",
+  "serverDir": "C:\\DayZServer",
+  "steamCmdDir": "C:\\SteamCMD",
+  "mikeroBinDir": "",
+  "workDrive": {
+    "letter": "P",
+    "sourceDir": "C:\\DayZWork"
+  },
+  "signing": {
+    "keyName": "",
+    "keyDir": "%USERPROFILE%\\.dayz-keys"
+  },
+  "packer": "addonbuilder",
+  "server": {
+    "port": 2302,
+    "mission": "dayzOffline.chernarusplus"
+  }
+}

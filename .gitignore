@@ -1,0 +1,38 @@
+# --- Signing keys: private keys must NEVER be committed ---
+*.biprivatekey
+*.bisign
+# Public keys are distributed with built mods, not stored in source.
+*.bikey
+
+# --- Build output ---
+/build/
+*.pbo
+*.ebo
+
+# --- Local machine config (paths, key names) ---
+/workspace.config.json
+
+# --- Local test server runtime state (generated from server/templates) ---
+/server/serverDZ.*.cfg
+/server/profiles/
+/server/mpmissions/
+/server/battleye/
+
+# --- Logs / dumps ---
+*.RPT
+*.rpt
+*.log
+*.mdmp
+*.bidmp
+
+# --- Tool/editor junk ---
+*.bak
+*.tmp
+__pycache__/
+*.pyc
+.vs/
+Thumbs.db
+desktop.ini
+# Blender autosaves
+*.blend1
+*.blend2

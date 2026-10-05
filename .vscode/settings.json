@@ -1,0 +1,11 @@
+{
+  "files.associations": {
+    "config.cpp": "cpp",
+    "model.cfg": "cpp",
+    "*.rvmat": "cpp",
+    "mod.cpp": "cpp"
+  },
+  "files.eol": "\r\n",
+  "files.exclude": { "build/": true },
+  "search.exclude": { "build/": true, "server/profiles/": true }
+}

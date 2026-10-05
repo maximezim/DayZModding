@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "yuval.enfusion-script",
+    "ms-vscode.cpptools",
+    "redhat.vscode-xml",
+    "eamodio.gitlens",
+    "ms-vscode.powershell"
+  ]
+}

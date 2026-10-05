@@ -1,0 +1,21 @@
+#!/bin/sh
+# Blocks commits that would leak signing material or build output.
+# Enabled by: git config core.hooksPath .githooks  (done by tools/setup/Install-Toolchain.ps1)
+fail=0
+staged=$(git diff --cached --name-only --diff-filter=ACMR)
+for f in $staged; do
+  case "$f" in
+    *.biprivatekey|*.bisign|*.pbo|*.ebo)
+      echo "pre-commit: refusing to commit '$f' (key/build artifact)." >&2; fail=1 ;;
+    workspace.config.json|server/serverDZ.*.cfg)
+      echo "pre-commit: refusing to commit local config '$f'." >&2; fail=1 ;;
+  esac
+done
+# Catch real admin/RCon passwords in staged text (templates use __PLACEHOLDER__ tokens).
+# Matches the serverDZ.cfg admin-password assignment and the BattlEye RCon password line.
+if git diff --cached -U0 | grep -E '^\+' | sed 's/^+//' \
+   | grep -iE '(^|[^A-Za-z])passwordAdmin[[:space:]]*=[[:space:]]*"[^"]+"|^[[:space:]]*RConPassword[[:space:]]+[^[:space:]]+' \
+   | grep -vE '__[A-Z_]+__' >/dev/null; then
+  echo "pre-commit: staged change appears to contain an admin/RCon password." >&2; fail=1
+fi
+exit $fail
