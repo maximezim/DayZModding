@@ -59,10 +59,11 @@ blocks:
 
 towers: []                      # legacy site-frame towers (offset: [u, v]) - use blocks instead
 
-# Wall decals, flush on a tower facade (D16): face N/E/S/W of the tower's own frame, u along
-# the face from its centre, z = bottom above the lobby floor. Types: Decal_Dirt, Decal_Cracks,
-# Decal_Graffiti_A..D. Caps: DECAL_CAPS.
+# Wall decals, flush on a tower facade (D16, D44): face N/E/S/W of the tower's own frame, u along
+# the face from its centre, z = bottom above the lobby floor. Only on OPAQUE storeys (mechanical
+# floors; T4 level 3 = z 14.0..17.2) - never over glass or an entrance. Types: Decal_Dirt,
+# Decal_Cracks, Decal_Graffiti_A..D. Cap: DECAL_CAPS (12 per tower).
 decals:
-  - {tower: T1, face: S, u: -6.0, z: 0.2, type: Decal_Graffiti_B}
-  - {tower: T1, face: S, u: 6.0, z: 4.0, type: Decal_Dirt}
-  - {tower: T3, face: E, u: 0.0, z: 0.5, type: Decal_Cracks}
+  - {tower: T4, face: N, u: -6.0, z: 14.1, type: Decal_Graffiti_B}
+  - {tower: T4, face: E, u: 6.0, z: 14.1, type: Decal_Dirt}
+  - {tower: T4, face: S, u: 0.0, z: 15.0, type: Decal_Cracks}

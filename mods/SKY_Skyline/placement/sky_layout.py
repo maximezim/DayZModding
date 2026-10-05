@@ -50,8 +50,9 @@ FACE_YAW = {"S": 0.0, "W": 90.0, "N": 180.0, "E": 270.0}   # decal quad faces -Y
 
 
 def rot(u, v, yaw_deg):
-    """Local (u east, v north) -> world offset for a DayZ yaw (clockwise from north)."""
-    a = math.radians(yaw_deg)
+    """Local (u east, v north) -> world offset for a DayZ yaw (clockwise from north when
+    skyspec.YAW_SIGN = 1; P9, unverified)."""
+    a = math.radians(S.YAW_SIGN * yaw_deg)
     return (u * math.cos(a) + v * math.sin(a), -u * math.sin(a) + v * math.cos(a))
 
 
@@ -68,7 +69,7 @@ def box_corners(cx, cz, box, yaw):
 def inside(px, pz, cx, cz, hw, hd, yaw):
     # inverse rotation of the point into the footprint frame
     dx, dz = px - cx, pz - cz
-    a = math.radians(yaw)
+    a = math.radians(S.YAW_SIGN * yaw)
     u = dx * math.cos(a) - dz * math.sin(a)
     v = dx * math.sin(a) + dz * math.cos(a)
     return abs(u) <= hw and abs(v) <= hd
@@ -124,6 +125,25 @@ class Ctx:
     def add(self, kind, name, pos, yaw):
         self.objects.append(spawner(name, pos, yaw))
         self.counts[kind] = self.counts.get(kind, 0) + 1
+
+
+VEGETATION = ("tree", "bush", "plant", "grass", "t_", "b_")   # survey object types/models allowed to overlap (hypothesis)
+
+
+def foreign_objects(ctx, survey, what, test):
+    """Survey objects inside an area: Land_* = error; vegetation = warning; anything else
+    (rocks, walls, fences) = error in --strict (security batch-5 L1/M2)."""
+    for o in survey.get("objects", []) if survey else []:
+        if o["type"].startswith("Land_SKY_"):
+            continue
+        if test(o["pos"][0], o["pos"][2]):
+            msg = "%s contains existing object %s at %s" % (what, o["type"], [round(v, 1) for v in o["pos"]])
+            if o["type"].startswith("Land_"):
+                ctx.errors.append(msg)
+            elif o["type"].lower().startswith(VEGETATION):
+                ctx.warnings.append(msg)
+            else:
+                ctx.soft(msg)
 
 
 def survey_ground(survey, poly_test):
@@ -245,12 +265,7 @@ def place_tower(ctx, lay, t, cx, cz, yaw, survey, site):
             if drop > float(site.get("max_ground_drop", 2.2)):
                 ctx.errors.append("tower %s: ground falls %.2f m below the slab (> skirt %.2f m) - pick a flatter site"
                                   % (t["id"], drop, site["max_ground_drop"]))
-        for o in survey.get("objects", []):
-            if o["type"].startswith("Land_SKY_"):
-                continue
-            if inside(o["pos"][0], o["pos"][2], cx, cz, hw, hd, yaw):
-                msg = "tower %s footprint contains existing object %s at %s" % (t["id"], o["type"], [round(v, 1) for v in o["pos"]])
-                (ctx.errors if o["type"].startswith("Land_") else ctx.warnings).append(msg)
+        foreign_objects(ctx, survey, "tower %s footprint" % t["id"], lambda x, z: inside(x, z, cx, cz, hw, hd, yaw))
     if base_y is None:
         base_y = 0.0
         ctx.soft("tower %s: no base height (survey or base_y) - Y set to 0.0" % t["id"])
@@ -270,7 +285,9 @@ def place_tower(ctx, lay, t, cx, cz, yaw, survey, site):
     nprops = furnish(ctx, t, mods, cx, cz, base_y, yaw)
     ctx.notes.append("tower %s: %d entities (%d modules + core, %d props): %s" % (
         t["id"], len(mods) + 1 + nprops, len(mods), nprops, " / ".join(c.replace("Land_SKY_", "") for c, _ in mods)))
-    return {"id": t["id"], "c": (cx, cz), "yaw": yaw, "hw": hw, "hd": hd, "base_y": base_y,
+    floors = t.get("floors") or [spec["floor_variant"]] * spec["typical_floors"]
+    opaque = [(z, z + S.FLOOR_H - S.SLAB_T) for (_c, z), v in zip(mods[1:-1], floors) if v in S.DECAL_OPAQUE_FLOORS]
+    return {"id": t["id"], "c": (cx, cz), "yaw": yaw, "hw": hw, "hd": hd, "base_y": base_y, "opaque": opaque,
             "top": base_y + mods[-1][1], "quad": footprint_corners(cx, cz, hw, hd, yaw)}
 
 
@@ -295,8 +312,9 @@ def place_decals(ctx, lay, towers, site_yaw):
         if abs(d["u"]) > half_face - w / 2:
             ctx.errors.append("decal %s: u %.2f runs off the %s face (+-%.2f)" % (d, d["u"], d["face"], half_face - w / 2))
             continue
-        if not 0.0 <= d["z"] <= t["top"] - t["base_y"] - h:
-            ctx.errors.append("decal %s: z %.2f..%.2f outside the facade height" % (d, d["z"], d["z"] + h))
+        if not any(z0 - 1e-6 <= d["z"] and d["z"] + h <= z1 + 1e-6 for z0, z1 in t["opaque"]):
+            ctx.errors.append("decal %s: z %.2f..%.2f is not on an opaque facade storey %s (glass / entrance behind "
+                              "a decal = one-way concealment, D44)" % (d, d["z"], d["z"] + h, t["opaque"]))
             continue
         # flush by construction (D16): facade plane + per-type offset, quad facing out
         dist = (t["hd"] if nv else t["hw"]) + S.DECAL_OFFSET[base]
@@ -358,6 +376,9 @@ def main():
         base_y = st.get("base_y")
         if survey is not None:
             ys = survey_ground(survey, lambda x, z: inside(x, z, wx, wz, TILE / 2, TILE / 2, yaw))
+            if not ys:
+                ctx.errors.append("street tile (%d, %d) has no survey samples - extend the survey (halfW/halfD)" % (i, j))
+            foreign_objects(ctx, survey, "street tile (%d, %d)" % (i, j), lambda x, z: inside(x, z, wx, wz, TILE / 2, TILE / 2, yaw))
             if 0 < len(ys) < 9:
                 ctx.warnings.append("street tile (%d, %d): only %d survey samples - survey the district in smaller pieces" % (i, j, len(ys)))
             if ys:
@@ -400,7 +421,13 @@ def main():
             jobs.append((t, bu + t.get("at", [0, 0])[0], bv + t.get("at", [0, 0])[1], rect, b["id"]))
     for t in lay.get("towers", []) or []:
         jobs.append((t, t["offset"][0], t["offset"][1], None, None))
+    seen_ids = set()
     for t, u, v, rect, bid in jobs:
+        if t["id"] in seen_ids:
+            ctx.errors.append("duplicate tower id %s" % t["id"])
+        seen_ids.add(t["id"])
+        if float(t.get("yaw", 0.0)) % 90.0:
+            ctx.errors.append("tower %s: yaw %s is not a multiple of 90 (block grid, crate clearance; security L4)" % (t["id"], t.get("yaw")))
         spec = TOWER_TYPES[t["type"]]
         hw, hd = spec["footprint"][0] / 2, spec["footprint"][1] / 2
         yaw_rel = float(t.get("yaw", 0.0))
@@ -442,11 +469,17 @@ def main():
     ctx.notes.append("loot export: survey request \"exportRadius\" >= %.0f m around site.center" % math.ceil(radius))
 
     os.makedirs(a.out, exist_ok=True)
-    with open(os.path.join(a.out, "sky_objects.json"), "w") as fh:
+    # a failed layout must not be deployable (security batch-5 L3): only the report + *.FAILED.json
+    for name in ("sky_objects.json", "cfggameplay_snippet.json", "cfgeventspawns_snippet.xml"):
+        if os.path.exists(os.path.join(a.out, name)):
+            os.remove(os.path.join(a.out, name))
+    objects_name = "sky_objects.FAILED.json" if ctx.errors else "sky_objects.json"
+    with open(os.path.join(a.out, objects_name), "w") as fh:
         json.dump({"Objects": ctx.objects}, fh, indent=1)
-    with open(os.path.join(a.out, "cfggameplay_snippet.json"), "w") as fh:
-        json.dump({"WorldsData": {"objectSpawnersArr": ["sky/sky_objects.json"]}}, fh, indent=1)
-    with open(os.path.join(a.out, "cfgeventspawns_snippet.xml"), "w") as fh:
+    if not ctx.errors:
+        with open(os.path.join(a.out, "cfggameplay_snippet.json"), "w") as fh:
+            json.dump({"WorldsData": {"objectSpawnersArr": ["sky/sky_objects.json"]}}, fh, indent=1)
+    with open(os.path.join(a.out, "cfgeventspawns_snippet.xml" if not ctx.errors else "cfgeventspawns_snippet.FAILED.xml"), "w") as fh:
         fh.write("<!-- MERGE into the mission cfgeventspawns.xml (inside <eventposdef>). y = roof height. -->\n")
         fh.write('<event name="StaticSKYRoofDrop">\n    <zone smin="0" smax="0" dmin="0" dmax="0" r="0" />\n')
         for (x, y, z) in ctx.drops:
