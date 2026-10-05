@@ -161,6 +161,9 @@ $cfg   = Get-DzConfig
 $paths = Get-DzPaths -Config $cfg
 $repo  = Get-DzRepoRoot
 if (-not $Mission) { $Mission = $cfg.server.mission }
+# The mission name builds a path that is deleted/recreated and goes into the server cfg: plain names only
+# (security batch-6 L1/L3).
+if ($Mission -notmatch '^[A-Za-z0-9_][A-Za-z0-9_.-]*$' -or $Mission -match '\.\.') { throw "Invalid -Mission '$Mission' (letters, digits, _ . - only)" }
 $modDir = Join-DzPath $repo 'mods' $ModName
 $stamp  = Get-Date -Format 'yyyyMMdd-HHmmss'
 $outDir = Join-DzPath $repo 'build' 'validation' $stamp
@@ -249,7 +252,14 @@ if ($Layout) {
     Write-DzInfo "> render $valConfig (template = $Mission.validation)"
     if (-not $DryRun) {
         if (-not (Test-Path -LiteralPath $srcMission)) { throw "Vanilla mission not found: $srcMission" }
-        if (Test-Path -LiteralPath $valMission) { Remove-Item -LiteralPath $valMission -Recurse -Force }
+        $mpm = [System.IO.Path]::GetFullPath((Join-DzPath $paths.ServerDir 'mpmissions')).TrimEnd('\', '/')
+        if ([System.IO.Path]::GetDirectoryName([System.IO.Path]::GetFullPath($valMission)) -ne $mpm) { throw "Mission copy $valMission is outside $mpm" }
+        if (Test-Path -LiteralPath $valMission) {
+            if ((Get-Item -LiteralPath $valMission -Force).Attributes -band [System.IO.FileAttributes]::ReparsePoint) {
+                throw "$valMission is a junction/symlink - refusing to delete it (5.1 Remove-Item follows junctions)"
+            }
+            Remove-Item -LiteralPath $valMission -Recurse -Force
+        }
         Copy-Item -LiteralPath $srcMission -Destination $valMission -Recurse
         $storage = Join-DzPath $valMission 'storage_1'
         if (Test-Path -LiteralPath $storage) { Remove-Item -LiteralPath $storage -Recurse -Force }
@@ -292,11 +302,27 @@ if ($Layout) {
             }
         }
         $text = Get-Content -Raw -LiteralPath $config
-        $text = [regex]::Replace($text, 'template\s*=\s*"[^"]*"', "template = `"$Mission.validation`"")
+        $text = [regex]::Replace($text, 'template\s*=\s*"[^"]*"', ('template = "' + $Mission + '.validation"').Replace('$', '$$'))
         Set-Content -LiteralPath $valConfig -Value $text -Encoding ASCII
     }
     $config = $valConfig
     Add-Step 'mission copy' 'PASS' "$Mission.validation (loot positions need ExportProxyData, placement\README.md section 3)"
+}
+
+# Release-like settings are mandatory for a validation run (security batch-6 L2): never inherit a relaxed cfg.
+if (-not $DryRun) {
+    $cfgText = Get-Content -Raw -LiteralPath $config
+    $bad = @()
+    foreach ($rule in @('verifySignatures\s*=\s*2\s*;', 'BattlEye\s*=\s*1\s*;', 'allowFilePatching\s*=\s*0\s*;')) {
+        if ($cfgText -notmatch $rule) { $bad += $rule }
+    }
+    if ($bad.Count) {
+        Add-Step 'release settings' 'FAIL' ("$config lacks: " + ($bad -join ', ') + ' - re-render with Initialize-TestServer.ps1 -Force')
+        $st = Write-DzSummary -Summary (Get-DzLogSummary -LogDir $outDir) -Steps $steps -OutDir $outDir -Title "Validation $ModName $stamp"
+        Write-DzFail "Validation $st -> $(Join-DzPath $outDir 'summary.md')"
+        exit 1
+    }
+    Add-Step 'release settings' 'PASS' 'verifySignatures = 2, BattlEye = 1, allowFilePatching = 0'
 }
 
 # 4. start server, wait, stop

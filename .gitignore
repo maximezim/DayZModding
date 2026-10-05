@@ -43,3 +43,8 @@ desktop.ini
 
 # --- batch hand-off bundles/zips (tools/assets/make_handoff.py) ---
 /_handoff/
+
+# server admin logs (player names / IPs) - security batch-6 I3
+*.ADM
+*.RPT
+*.mdmp
