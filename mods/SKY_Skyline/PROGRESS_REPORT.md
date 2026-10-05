@@ -125,3 +125,16 @@ stairs, doors, loot reachable), `test_kit.py`, `check_assets.py` (0 over budget)
 the generated `CITY_PLAN.md` (30 % of the unique models; one variant per started type could already
 fill 40 % of the city's lots). Next waves and the city layout generator: CITY_PLAN.md "Waves".
 
+
+## 9. City buildings wave 2 + city layout generator (D57)
+
+Wave 2 adds villa (3 skins, pitched roof), shop row (4 shop signs), supermarket (2 sizes), clinic,
+fire station, workshop (2 skins), garage block, kiosk (2), shed (2) and 4 rubble lots: **58 new
+P3Ds**, 100 city models in total, all passing `test_city.py` and `check_assets.py`. `CITY_PLAN.md`:
+102 / 156 unique models (65 %); one variant per started type could fill 91 % of the city's lots.
+`placement/city_fill.py` fills street blocks lot by lot (fronts on the street, corner shops on the
+corners, party walls flush, zone weights and ruin mix: downtown / midtown / residential / industrial /
+frontline, rubble lots, deterministic seed). The template quarter (`placement/city_template.yaml`)
+places 117 buildings. Spawner target stays capped (ENTITY_CAP); the terrain target writes
+`city_objects.csv` for Terrain Builder (P11, unverified). Gates PASS (`reviews/city_wave2_gates.md`),
+renders `reviews/img/city2_*.png`, `district_*.png`, in-game rows TESTING §22.

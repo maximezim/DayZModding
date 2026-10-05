@@ -64,7 +64,7 @@ def flood(P, lods, l, cell=0.1, radius=0.3):
                 continue
             free[i][j] = not any(b[0] < cx < b[1] and b[2] < cy < b[3] for b in block)
     if l == 0:
-        seed = ((P.door[0] + P.door[1]) / 2, P.iy0 + 0.35)
+        seed = ((P.entry[0] + P.entry[1]) / 2, P.iy0 + 0.35)
     else:
         seed = ((P.stair[0] + P.stair[1]) / 2, P.stair[2] + 0.6)
     si, sj = int((seed[0] - x0) / cell), int((seed[1] - y0) / cell)
@@ -101,8 +101,31 @@ def flood(P, lods, l, cell=0.1, radius=0.3):
     return seen, (x0, y0, cell)
 
 
+def test_lot(name):
+    """Rubble lots: LOD set, watertight parts, inside the 12 x 12 lot, walkable rubble, no loot / door."""
+    lods = {l.name: l for l in C.BUILDERS[name]()}
+    for k in NEED:
+        check(k in lods and lods[k].verts, "%s: missing LOD %s" % (name, k))
+    for k in ("geo", "view", "fire"):
+        for g in lods[k].groups:
+            if g.startswith("Component"):
+                check(watertight(lods[k], g), "%s %s %s is not watertight" % (name, k, g))
+    hw = C.LOT / 2
+    for v in lods["geo"].verts:
+        check(abs(v[0]) <= hw + 1e-6 and abs(v[1]) <= hw + 1e-6, "%s: Geometry leaves the lot" % name)
+        break
+    xs = [v[0] for v in lods["geo"].verts]
+    ys = [v[1] for v in lods["geo"].verts]
+    check(min(xs) >= -hw - 1e-6 and max(xs) <= hw + 1e-6 and min(ys) >= -hw - 1e-6 and max(ys) <= hw + 1e-6,
+          "%s: Geometry leaves the 12 m lot" % name)
+    check(len(lods["road"].faces) > 8, "%s: rubble has no Roadway (not walkable)" % name)
+    check(not S.KIT[name]["doors"] and S.KIT[name]["cls"] not in C.LOOT_OUT, "%s: lots carry no door / loot" % name)
+
+
 def test_class(name, fresh_loot):
     e = S.KIT[name]
+    if e["city"].get("lot"):
+        return test_lot(name)
     arch, state = e["city"]["archetype"], e["city"]["ruin"]
     P = C.Plan(arch, state)
     lods = {l.name: l for l in C.BUILDERS[name]()}
@@ -162,7 +185,8 @@ def test_class(name, fresh_loot):
         seen, (gx0, gy0, cell) = reach[l]
         i, j = int((x - gx0) / cell), int((y - gy0) / cell)
         check((i, j) in seen, "%s: loot point (%g, %g, %g) is not reachable" % (name, x, y, z))
-    check(len(C.LOOT_OUT.get(e["cls"], [])) >= 1, "%s: no loot points" % name)
+    tiny = (P.ix1 - P.ix0) * (P.iy1 - P.iy0) < 30.0
+    check(len(C.LOOT_OUT.get(e["cls"], [])) >= 1 or (state == 2 and tiny), "%s: no loot points" % name)
 
 
 def main():

@@ -228,11 +228,18 @@ class Plan:
             self.stair = (x0, x0 + sw, self.iy1 - sd, self.iy1)
         # front door (ground level, front side)
         bays = self.bays(-self.hw, self.hw)
-        i = len(bays) // 2 if A["door_bay"] == "center" else A["door_bay"]
-        c = (bays[i][0] + bays[i][1]) / 2
-        dw = ST["door"][0]
-        self.door = (c - dw / 2, c + dw / 2)
-        self.door_bay = i
+        self.door, self.door_bay = None, None
+        if A["door_bay"] is not None:
+            i = len(bays) // 2 if A["door_bay"] == "center" else A["door_bay"]
+            c = (bays[i][0] + bays[i][1]) / 2
+            dw = ST["door"][0]
+            self.door = (c - dw / 2, c + dw / 2)
+            self.door_bay = i
+            self.entry = self.door
+        else:                                                    # garages: enter through an open bay
+            ob = bays[A["open_bays"][0]]
+            self.entry = (ob[0] + 0.3, ob[1] - 0.3)
+        self.roller_h = A.get("roller_h", min(4.5, self.levels[0][1] - SLAB - 0.5))
         # ruin: collapse a front corner away from the stair and the door
         self.ruin = Ruin(self.name, state)
         if state == 2:
@@ -241,10 +248,10 @@ class Plan:
             if len(self.levels) == 1:
                 zc = self.levels[0][1] * 0.45
             self.kc = kc
-            left = (self.stair is not None and self.stair[0] > 0) or (self.stair is None and self.door[0] > 0)
+            left = (self.stair is not None and self.stair[0] > 0) or (self.stair is None and self.entry[0] > 0)
             xa, xb = (-self.hw - 1.0, -self.hw * 0.15) if left else (self.hw * 0.15, self.hw + 1.0)
-            if self.door[1] > xa and self.door[0] < xb:            # keep the entrance standing
-                xa, xb = (max(xa, self.door[1] + 0.6), xb) if not left else (xa, min(xb, self.door[0] - 0.6))
+            if self.entry[1] > xa and self.entry[0] < xb:          # keep the entrance standing
+                xa, xb = (max(xa, self.entry[1] + 0.6), xb) if not left else (xa, min(xb, self.entry[0] - 0.6))
             self.ruin.region = (xa, xb, -self.hd - 1.0, self.hd * 0.35, zc)
         else:
             self.kc = None
@@ -302,11 +309,12 @@ def layout(P, use, l):
                   (sx0, sx1, iy0, sy0, "hall")]
     elif use == "shop":
         sx0, sx1, sy0, sy1 = st
-        walls.append(("x", sy0 - h, ix0, sx0 - PT, [(1.0, 2.0)]))
+        walls.append(("x", sy0 - h, ix0, sx0 - PT, [(sx0 - PT - 1.6, sx0 - PT - 0.6)]))
         rooms += [(ix0, ix1, iy0, sy0 - PT, "shop"), (ix0, sx0 - PT, sy0, iy1, "storage")]
     elif use == "flat":
         sx0, sx1, sy0, sy1 = st
-        walls += [("x", sy0 - h, ix0, sx0 - PT, [(1.6, 2.5)]), ("y", 0.0, iy0, sy0 - PT, [(-1.6, -0.7)])]
+        walls += [("x", sy0 - h, ix0, sx0 - PT, [(sx0 - PT - 1.3, sx0 - PT - 0.4)]),
+                  ("y", 0.0, iy0, sy0 - PT, [(sy0 - PT - 2.0, sy0 - PT - 1.1)])]
         rooms += [(ix0, -h, iy0, sy0 - PT, "living"), (h, ix1, iy0, sy0 - PT, "kitchen"), (ix0, sx0 - PT, sy0, iy1, "bedroom")]
     elif use == "office_lobby":
         rooms += [(ix0, ix1, iy0, st[2] - 0.2, "lobby")]
@@ -334,6 +342,37 @@ def layout(P, use, l):
         rooms += [(ix0, -1.0 - h, iy0, -1.5 - h, "office"), (-1.0 + h, 4.5 - h, iy0, -1.5 - h, "office"),
                   (4.5 + h, ix1, iy0, -1.5 - h, "office"), (sx1 + PT, 1.0 - h, 2.8 + h, iy1, "office"),
                   (1.0 + h, ix1, 2.8 + h, iy1, "office")]
+    elif use in ("corridor", "clinic_ground"):
+        # corridor in front of the stair (landing exits into it), rooms off both sides
+        sx0, sx1, sy0, sy1 = st
+        yc0, yc1 = sy0 - 1.8, sy0
+        front = P.bays(ix0, ix1, 3.6)
+        if use == "clinic_ground":
+            walls.append(("x", yc0 - h, ix0, ix1, [(-1.0, 1.0)]))
+            rooms.append((ix0, ix1, iy0, yc0 - PT, "waiting"))
+        else:
+            walls.append(("x", yc0 - h, ix0, ix1, [((a + b) / 2 - 0.45, (a + b) / 2 + 0.45) for a, b in front]))
+            for a, b in front[1:]:
+                walls.append(("y", a, iy0, yc0 - PT, []))
+            rooms += [(a + (h if i else 0), b - (h if i < len(front) - 1 else 0), iy0, yc0 - PT,
+                       "exam" if P.A["group"] == "civic" and P.arch.startswith("Clinic") else "room")
+                      for i, (a, b) in enumerate(front)]
+        for (a0, a1) in ((ix0, sx0 - (PT if sx0 > ix0 + 1e-6 else 0)), (sx1 + (PT if sx1 < ix1 - 1e-6 else 0), ix1)):
+            if a1 - a0 < 2.4:
+                continue
+            back = P.bays(a0, a1, 3.6)
+            walls.append(("x", yc1 + h, a0, a1, [((a + b) / 2 - 0.45, (a + b) / 2 + 0.45) for a, b in back]))
+            for a, b in back[1:]:
+                walls.append(("y", a, yc1 + PT, iy1, []))
+            kind = "dorm" if P.arch.startswith("Fire") else ("exam" if P.arch.startswith("Clinic") else "room")
+            rooms += [(a + (h if i else 0), b - (h if i < len(back) - 1 else 0), yc1 + PT, iy1, kind)
+                      for i, (a, b) in enumerate(back)]
+    elif use == "market":
+        walls.append(("x", iy1 - 4.5, ix0, ix1, [(ix1 - 3.0, ix1 - 1.8)]))
+        rooms += [(ix0, ix1, iy0, iy1 - 4.5 - h, "market"), (ix0, ix1, iy1 - 4.5 + h, iy1, "storage")]
+    elif use in ("firebays", "workshop", "garage", "kiosk", "shed"):
+        kind = {"firebays": "bay", "workshop": "workshop", "garage": "garage", "kiosk": "kiosk", "shed": "shed"}[use]
+        rooms.append((ix0, ix1, iy0, (st[2] - 0.2) if st else iy1, kind))
     return walls, rooms
 
 
@@ -449,6 +488,12 @@ def rubble_pile(L, x, y, z, rx, ry, h, key, collide=True):
     for k in ("res0", "res1", "res2") + (("geo", "fire", "view") if collide else ()):
         kw = {"mat": "rubble", "uv": UV_RUBBLE} if k.startswith("res") else ({"mat": "pen_concrete"} if k == "fire" else {})
         L[k].solid(base + top, faces, **kw)
+    if collide:                                                         # walkable rubble (Roadway on the slopes)
+        road = L["road"]
+        for k in range(n):
+            road.quad([base[k], base[(k + 1) % n], top[(k + 1) % n], top[k]], (0, 0, 1), "road_ext", UV_TILE)
+        for k in range(1, n - 1):
+            road.quad([top[0], top[k], top[k + 1]], (0, 0, 1), "road_ext", UV_TILE)
     for i in range(6):
         a = 2 * math.pi * h01("chunk", key, i)
         d = 0.5 + 0.6 * h01("chunkd", key, i)
@@ -603,8 +648,8 @@ def facade(L, P, key, lvl):
 
     for i, (b0, b1) in enumerate(bays):
         bkey = (lvl, i)
-        door_here = key == "S" and lvl == 0 and (b0 <= P.door[0] <= b1)
-        roller = key == "S" and lvl == 0 and i in A.get("roller_bays", ())
+        door_here = P.door is not None and key == "S" and lvl == 0 and (b0 <= P.door[0] <= b1)
+        roller = key == "S" and lvl == 0 and i in A.get("roller_bays", ()) + A.get("open_bays", ())
         if blank or shop or roller or door_here or skin in ("curtain", "metal"):
             flush()
         if blank:
@@ -631,20 +676,21 @@ def facade(L, P, key, lvl):
             continue
         if roller:
             w0, w1 = b0 + 0.3, b1 - 0.3
-            dh = 4.5
+            dh = P.roller_h
             wall_piece(L, sd, b0, w0, z0, top, mat, uv, pen, inner)
             wall_piece(L, sd, w1, b1, z0, top, mat, uv, pen, inner)
             wall_piece(L, sd, w0, w1, z0 + dh, top, mat, uv, pen, inner)
             shutter_uv = UVBand(S.MATERIALS["metal"]["bands"]["steel"], 0.5)
-            for k in ("res0", "res1", "res2", "view", "fire"):                          # closed roller shutter
-                kw = kw_for(k, "metal", shutter_uv, "metal")
-                sd.box(L[k], w0, w1, z0, z0 + dh, 0.12, 0.18, **kw)
-            for j in range(int(dh / 0.1)):                                            # slats (Res0)
-                sd.box(L["res0"], w0, w1, z0 + j * 0.1, z0 + j * 0.1 + 0.015, 0.105, 0.12, mat="metal",
-                       uv=DT.UV_STEEL, skip=(sd.in_key,))
-            sd.box(L["res0"], w0 - 0.1, w1 + 0.1, z0 + dh, z0 + dh + 0.45, -0.25, 0.0, mat="metal", uv=DT.UV_PAINT)
-            if P.state == 2 and h01(P.name, "roller", i) < 0.6:
-                pass                                                                    # shutters survive
+            if i in A.get("open_bays", ()):                                          # shutter rolled up: a way in
+                openings.append((w0, w1, z0, z0 + dh))
+            else:
+                for k in ("res0", "res1", "res2", "view", "fire"):                      # closed roller shutter
+                    kw = kw_for(k, "metal", shutter_uv, "metal")
+                    sd.box(L[k], w0, w1, z0, z0 + dh, 0.12, 0.18, **kw)
+                for j in range(int(dh / 0.1)):                                        # slats (Res0)
+                    sd.box(L["res0"], w0, w1, z0 + j * 0.1, z0 + j * 0.1 + 0.015, 0.105, 0.12, mat="metal",
+                           uv=DT.UV_STEEL, skip=(sd.in_key,))
+            sd.box(L["res0"], w0 - 0.1, w1 + 0.1, z0 + dh, z0 + dh + 0.4, -0.25, 0.0, mat="metal", uv=DT.UV_PAINT)
             continue
         if skin == "curtain":
             spand = 0.9
@@ -890,6 +936,8 @@ def stairs(L, P):
 
 def front_door(L, P):
     """Hinged front door leaf (bone door_front), frame; none in the ruined state."""
+    if P.door is None:
+        return
     d0, d1 = P.door
     y = -P.hd + WT / 2
     dh = ST["door"][1]
@@ -932,10 +980,13 @@ def partitions(L, P, walls, z0, top, band):
 
 FLOOR = {"living": "parquet", "bedroom": "parquet", "kitchen": "tile", "hall": "tile", "shop": "tile", "storage": None,
          "lobby": "marble", "open_office": "carpet", "office": "carpet", "site_office": "carpet", "warehouse": None,
-         "police_lobby": "tile", "cell": None}
+         "police_lobby": "tile", "cell": None, "waiting": "tile", "exam": "tile", "room": "carpet", "dorm": "parquet",
+         "market": "tile", "bay": None, "workshop": None, "garage": None, "kiosk": "tile", "shed": None}
 CEIL = {"lobby": "ceiling", "open_office": "ceiling", "office": "ceiling", "shop": "ceiling", "police_lobby": "ceiling"}
 WALL_BAND = {"house": "beige", "flats": "sage", "flat": "white", "shop": "white", "office_lobby": "white",
-             "office": "slate", "warehouse": "white", "police_ground": "slate", "police_upper": "white"}
+             "office": "slate", "warehouse": "white", "police_ground": "slate", "police_upper": "white",
+             "corridor": "white", "clinic_ground": "white", "market": "white", "firebays": "beige", "workshop": "white",
+             "garage": "white", "kiosk": "white", "shed": "white"}
 
 
 def finish_uv(mat):
@@ -950,8 +1001,9 @@ def interior(L, P, l):
     hole_up = [P.stair_hole()] if (P.stair and l + 1 < len(P.levels)) else []
     stair = [P.stair] if P.stair else []
     for (x0, x1, y0, y1) in rects_minus(P.ix0, P.ix1, P.iy0, P.iy1, hole_up):        # ceiling under the next slab
-        cm = "ceiling" if use in ("office_lobby", "office", "shop", "police_ground", "police_upper") else "paint"
-        if use == "warehouse":
+        cm = "ceiling" if use in ("office_lobby", "office", "shop", "police_ground", "police_upper", "corridor",
+                                  "clinic_ground", "market") else "paint"
+        if use in ("warehouse", "firebays", "workshop", "garage", "shed"):
             continue
         for k in ("res0", "res1"):
             L[k].hquad(x0, x1, y0, y1, top - 0.02, mat=cm, uv=DT.UV_CEILING if cm == "ceiling" else DT.paint_uv("white"), up=False)
@@ -977,7 +1029,10 @@ def keep_clear(P, l):
     use, fh, z = P.levels[l]
     zones = []
     if l == 0:
-        zones.append((P.door[0] - 0.3, P.door[1] + 0.3, P.iy0 - 0.1, P.iy0 + 1.6))
+        zones.append((P.entry[0] - 0.3, P.entry[1] + 0.3, P.iy0 - 0.1, P.iy0 + 1.6))
+        bays = P.bays(-P.hw, P.hw, 4.0 if P.A["skin"][0] == "metal" else None)
+        for i in P.A.get("open_bays", ()):
+            zones.append((bays[i][0], bays[i][1], P.iy0 - 0.1, P.iy0 + 3.0))
     for axis, c, _a0, _a1, ops in layout(P, use, l)[0]:
         for (o0, o1) in ops:
             zones.append((o0 - 0.2, o1 + 0.2, c - 1.1, c + 1.1) if axis == "x" else (c - 1.1, c + 1.1, o0 - 0.2, o1 + 0.2))
@@ -1012,10 +1067,15 @@ def furnish(L, P, l, r, kind, z, top):
             L["res0"].prism(cx, cy, 0.22, top - 0.6, top - 0.35, n=12, mat="metal", uv=DT.UV_PAINT)
     if kind == "living" and w > 2.6 and d > 2.6:
         DT.rug(Lz, cx - 1.0, cx + 1.0, cy - 0.7, cy + 0.7, "rug_b" if h01(P.name, l, cx) < 0.5 else "rug_a")
-        if clear(zones, (cx - 1.5, cx + 1.5, cy - 0.5, cy + 0.5)):
+        # lounge set along the axis that leaves a 0.9 m passage on both sides (walkability)
+        if w >= 2.84 + 1.8 and clear(zones, (cx - 1.5, cx + 1.5, cy - 0.5, cy + 0.5)):
             DT.coffee_table(Lz, cx - 0.4, cx + 0.4, cy - 0.3, cy + 0.3)
             DT.lounge_chair(Lz, cx - 1.0, cy, "+x")
             DT.lounge_chair(Lz, cx + 1.0, cy, "-x")
+        elif d >= 2.84 + 1.8 and w >= 0.85 + 1.8 and clear(zones, (cx - 0.5, cx + 0.5, cy - 1.5, cy + 1.5)):
+            DT.coffee_table(Lz, cx - 0.3, cx + 0.3, cy - 0.4, cy + 0.4)
+            DT.lounge_chair(Lz, cx, cy - 1.0, "+y")
+            DT.lounge_chair(Lz, cx, cy + 1.0, "-y")
         corners = sorted([(x0 + 0.45, y0 + 0.45), (x1 - 0.45, y0 + 0.45), (x0 + 0.45, y1 - 0.45), (x1 - 0.45, y1 - 0.45)],
                          key=lambda c: -(abs(c[0]) + abs(c[1])))               # outer corners first
         for (px, py) in corners:
@@ -1098,6 +1158,66 @@ def furnish(L, P, l, r, kind, z, top):
             for gx in [x0 + 3.0 + i * 6.0 for i in range(int((x1 - x0 - 2.0) / 6.0))]:
                 for gy in (y0 + 3.0, y1 - 3.0):
                     L["res0"].prism(gx, gy, 0.3, top - 0.6, top - 0.5, n=12, mat="lamp_cool")
+    elif kind == "waiting":
+        for i in range(3):
+            bx = x0 + 0.4 + i * 2.4
+            if bx + 2.0 < x1 and clear(zones, (bx, bx + 2.0, y0 + 0.2, y0 + 0.65)):
+                DT.bench(Lz, bx, bx + 2.0, y0 + 0.2, y0 + 0.65)
+        if clear(zones, (x1 - 3.4, x1 - 0.6, y1 - 1.2, y1 - 0.6)):
+            kitchen_run(L, x1 - 3.4, x1 - 0.6, y1 - 1.2, y1 - 0.6, z)                  # reception counter
+        DT.potted_plant(Lz, x0 + 0.5, y1 - 0.5) if clear(zones, (x0, x0 + 1.0, y1 - 1.0, y1)) else None
+        if lit:
+            for gx in (x0 + 2.0, cx, x1 - 2.0):
+                L["res0"].hquad(gx - 0.3, gx + 0.3, cy - 0.6, cy + 0.6, top - 0.025, mat="lamp_cool", up=False)
+    elif kind == "exam":
+        if clear(zones, (x0 + 0.1, x0 + 0.85, cy - 1.0, cy + 1.0)):
+            bed(L, x0 + 0.1, x0 + 0.85, cy - 1.0, cy + 1.0, z, fabric="grey")
+        if clear(zones, (x1 - 1.0, x1 - 0.1, y0 + 0.1, y0 + 0.55)):
+            shelf_unit(L, x1 - 1.0, x1 - 0.1, y0 + 0.1, y0 + 0.55, z, h=1.8)
+        if lit:
+            L["res0"].hquad(cx - 0.3, cx + 0.3, cy - 0.6, cy + 0.6, top - 0.025, mat="lamp_cool", up=False)
+    elif kind == "dorm":
+        for bx in (x0 + 0.1, x1 - 0.95):
+            if clear(zones, (bx, bx + 0.85, y1 - 2.05, y1)):
+                bed(L, bx, bx + 0.85, y1 - 2.05, y1 - 0.05, z, fabric="grey")
+        if lamp:
+            DT.pendant(L, cx, cy, top - 0.02, 0.5, r=0.2)
+    elif kind == "room":
+        if clear(zones, (cx - 0.9, cx + 0.9, cy - 0.7, cy + 0.7)):
+            desk(L, cx, cy, z, rot=(w < d))
+        if lit:
+            L["res0"].hquad(cx - 0.3, cx + 0.3, cy - 0.6, cy + 0.6, top - 0.025, mat="lamp_cool", up=False)
+    elif kind == "market":
+        n_aisle = max(1, int((d - 4.0) / 2.6))
+        for i in range(n_aisle):
+            ry = y0 + 3.2 + i * 2.6
+            for (ax0, ax1) in ((x0 + 1.5, cx - 1.2), (cx + 1.2, x1 - 1.5)):
+                if ax1 - ax0 > 1.0 and clear(zones, (ax0, ax1, ry - 0.3, ry + 0.3)):
+                    shelf_unit(L, ax0, ax1, ry - 0.3, ry + 0.3, z, h=1.7)
+        for cxk in (x1 - 4.5, x1 - 2.5):                                           # checkouts
+            if clear(zones, (cxk - 0.35, cxk + 0.35, y0 + 1.0, y0 + 2.4)):
+                kitchen_run(L, cxk - 0.35, cxk + 0.35, y0 + 1.0, y0 + 2.4, z)
+        if lit:
+            for gx in [x0 + 2.0 + i * 3.0 for i in range(int((w - 2.0) / 3.0))]:
+                for gy in (y0 + 2.0, cy, y1 - 2.0):
+                    L["res0"].hquad(gx - 0.3, gx + 0.3, gy - 0.6, gy + 0.6, top - 0.025, mat="lamp_cool", up=False)
+    elif kind in ("bay", "workshop", "garage"):
+        n = max(1, int((w - 1.0) / 2.6))
+        for i in range(n):
+            sx = x0 + 0.4 + i * 2.6
+            if clear(zones, (sx, sx + 2.0, y1 - 0.6, y1 - 0.1)):
+                shelf_unit(L, sx, sx + 2.0, y1 - 0.6, y1 - 0.1, z, h=2.0)
+        if kind == "workshop" and clear(zones, (x0 + 0.1, x0 + 0.8, cy - 1.5, cy + 1.5)):
+            kitchen_run(L, x0 + 0.1, x0 + 0.8, cy - 1.5, cy + 1.5, z)                 # workbench
+        if lit:
+            for gx in [x0 + 2.0 + i * 4.0 for i in range(max(1, int((w - 2.0) / 4.0)))]:
+                L["res0"].prism(gx, cy, 0.25, top - 0.5, top - 0.42, n=12, mat="lamp_cool")
+    elif kind == "kiosk":
+        if clear(zones, (x0 + 0.1, x1 - 0.1, y0 + 0.05, y0 + 0.5)):
+            kitchen_run(L, x0 + 0.1, x1 - 0.1, y0 + 0.05, y0 + 0.5, z)
+    elif kind == "shed":
+        if clear(zones, (x0 + 0.1, x1 - 0.1, y1 - 0.45, y1 - 0.05)):
+            shelf_unit(L, x0 + 0.1, x1 - 0.1, y1 - 0.45, y1 - 0.05, z, h=1.8)
     elif kind == "cell":
         bed(L, x0 + 0.05, x0 + 0.85, y1 - 2.05, y1 - 0.05, z, fabric="grey")
         piece(L, (x1 - 0.5, x1 - 0.05, y1 - 0.55, y1 - 0.05, z, z + 0.45), "metal", DT.UV_STEEL, pen="metal")
@@ -1109,9 +1229,50 @@ def cells_bars(L, P, l):
         bars(L, "x", 2.5, 2.0, P.ix1, z0, z0 + fh - SLAB, openings=[(2.9, 3.7), (5.4, 6.2), (8.0, 8.8)])
 
 
+def pitched_roof(L, P, mat_uv):
+    """Gable roof along X (eaves overhang 0.3 m), cut into ~2.5 m segments so a ruin's collapse
+    removes only the roof over the collapsed corner; brick gable ends; zinc sheet (rust grey)."""
+    hw, hd, top = P.hw, P.hd, P.top
+    ov, th = 0.3, 0.16
+    rise = (hd + ov) * math.tan(math.radians(32))
+    zuv = UVBand(S.MATERIALS["rust"]["bands"]["grey"], 1.0)
+    n = max(1, int(round(2 * (hw + ov) / 2.5)))
+    xs = [-hw - ov + i * 2 * (hw + ov) / n for i in range(n + 1)]
+    for s in (-1, 1):                                                       # front (-Y) / back (+Y) slopes
+        for a, b in zip(xs, xs[1:]):
+            for k in ("res0", "res1", "res2", "geo", "view", "fire", "shadow"):
+                vis = k.startswith("res")
+                # eaves overhang is visual: collision stays inside the footprint (test_city)
+                y_e = s * (hd + ov) if vis else s * hd
+                z_e = top - 0.05 if vis else top - 0.05 + rise * ov / (hd + ov)
+                prof = [(y_e, z_e), (0.0, top + rise - 0.05), (0.0, top + rise + th), (y_e, z_e + th + 0.05)]
+                a2, b2 = (a, b) if vis else (max(a, -hw), min(b, hw))
+                if b2 - a2 < 0.05:
+                    continue
+                kw = kw_for(k, "rust", zuv, "metal")
+                L[k].extrude_x(prof, a2, b2, **kw)
+    for sx in (-1, 1):                                                      # gable walls
+        x0, x1 = sorted((sx * hw, sx * (hw - WT)))
+        for k in ("res0", "res1", "res2", "geo", "view", "fire"):
+            kw = kw_for(k, mat_uv[0], mat_uv[1], "masonry")
+            L[k].extrude_x([(-hd, top), (hd, top), (0.0, top + rise * hd / (hd + ov))], x0, x1, **kw)
+    L["res3"].extrude_x([(-hd - ov, top), (hd + ov, top), (0.0, top + rise)], -hw - ov, hw + ov, mat="rust", uv=zuv)
+    cx = hw * 0.45                                                          # chimney through the back slope
+    for k in ("res0", "res1"):
+        L[k].box(cx - 0.3, cx + 0.3, hd * 0.3, hd * 0.3 + 0.5, top, top + rise + 0.9, mat="brick", uv=DT._brick_uv("bond"),
+                 skip=("-z",))
+    return rise
+
+
 def roof(L, P):
     hw, hd, top = P.hw, P.hd, P.top
-    par = ST["parapet"]
+    par = P.A.get("parapet", ST["parapet"])
+    skin = P.A["skin"][0]
+    if P.A.get("roof") == "pitched":
+        rise = pitched_roof(L, P, (S.CITY_SKINS[skin]["mat"], skin_uv(P, skin)))
+        L["res3"].box(-hw, hw, -hd, hd, -SLAB, top, mat=S.CITY_SKINS[skin]["mat"], uv=skin_uv(P, skin), skip=("-z", "+z"))
+        roof_signs(L, P, skin)
+        return rise
     ring = [(-hw, hw, -hd, -hd + WT), (-hw, hw, hd - WT, hd), (-hw, -hw + WT, -hd + WT, hd - WT), (hw - WT, hw, -hd + WT, hd - WT)]
     skin = P.A["skin"][0]
     mat = S.CITY_SKINS[skin]["mat"] if skin not in ("curtain",) else "concrete"
@@ -1129,7 +1290,9 @@ def roof(L, P):
     L["res3"].hquad(-hw, hw, -hd, hd, top, mat="concrete", uv=UV_CONC)
     Lt = lifted(L, top)
     g = P.A["group"]
-    if g in ("residential", "mixed"):
+    if not P.A.get("roof_gear", True):
+        pass
+    elif g in ("residential", "mixed"):
         for (x, y) in ((-hw * 0.6, hd * 0.55), (hw * 0.5, hd * 0.55)):
             for k in ("res0", "res1", "res2"):
                 L[k].box(x - 0.35, x + 0.35, y - 0.25, y + 0.25, top, top + 1.4, mat="brick", uv=DT._brick_uv("bond"),
@@ -1142,8 +1305,14 @@ def roof(L, P):
             DT.unit(Lt, hw * 0.3, hw * 0.3 + 2.2, -hd * 0.6, -hd * 0.6 + 1.8, 1.3, grille="-x")
         DT.mast(Lt, hw - 1.0, hd - 1.0, 4.0)
         DT.obstruction_light(Lt, hw - 1.0, hd - 1.0, 4.0) if P.state == 0 else None
-    if P.stair:                                                                       # stair bulkhead
+    roof_signs(L, P, skin)
+
+
+def roof_signs(L, P, skin):
+    hw, hd = P.hw, P.hd
+    if P.stair and P.A.get("roof") != "pitched":                                     # stair bulkhead
         x0, x1, y0, y1 = P.stair
+        top = P.top
         for k in ("res0", "res1", "geo", "fire", "view"):
             kw = kw_for(k, "concrete", UV_CONC, "concrete")
             if k.startswith("res"):
@@ -1188,7 +1357,7 @@ def ruin_extras(L, P):
             z = P.levels[lvl][2] + 0.4 + 1.6 * h01(P.name, "crackz", i)
             sd.quad(L["res0"], a - 0.9, a + 0.9, z, z + 1.8, -0.012, mat="decal_cracks",
                     uv=UVRect(0, 2, (a - 0.9, z), (a + 0.9, z + 1.8), (0, 0, 1, 1)))
-        a = P.door[1] + 0.35 if P.door[1] + 1.4 < P.hw else P.door[0] - 1.35
+        a = P.entry[1] + 0.35 if P.entry[1] + 1.4 < P.hw else P.entry[0] - 1.35
         sd.quad(L["res0"], a, a + 1.0, 0.0, 0.85, -0.018, mat="decal_graffiti",       # street level, under the sills
                 uv=UVRect(0, 2, (a, 0.0), (a + 1.0, 0.85), (0, 0, 1, 1)))
     if P.state == 2:
@@ -1197,14 +1366,90 @@ def ruin_extras(L, P):
         x0, x1 = max(r[0], P.ix0 + 0.4), min(r[1], P.ix1 - 0.4)
         y0, y1 = max(r[2], P.iy0 + 0.4), min(r[3], P.iy1 - 0.4)
         cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
-        rubble_pile(L, cx, cy, zf, min(2.0, (x1 - x0) / 2.6), min(1.8, (y1 - y0) / 2.6), 1.1, (P.name, "main"))
-        rubble_pile(L, x0 + 0.6, y0 + 0.6, zf, 0.7, 0.6, 0.5, (P.name, "side"))
+        small = (P.ix1 - P.ix0) * (P.iy1 - P.iy0) < 30.0
+        rx = min(2.0, (x1 - x0) / 2.6, cx - P.ix0 - 0.15, P.ix1 - cx - 0.15)          # stays inside the walls
+        ry = min(1.8, (y1 - y0) / 2.6, cy - P.iy0 - 0.15, P.iy1 - cy - 0.15)
+        rubble_pile(L, cx, cy, zf, rx, ry, 0.6 if small else 1.1, (P.name, "main"))
+        if not small:
+            rubble_pile(L, x0 + 0.6, y0 + 0.6, zf, 0.45, 0.45, 0.5, (P.name, "side"))
         # charred interior walls above the rubble (soot), broken slab edge (rebar) at the cut
         for k in range(4):
             xr = x0 + (x1 - x0) * h01(P.name, "rebar", k)
             zr = P.levels[P.kc][2] if P.kc < len(P.levels) else P.top
             L["res0"].box(xr - 0.01, xr + 0.01, r[3] - 0.01, r[3] + 0.6, zr - 0.2, zr - 0.18, mat="rust",
                           uv=UVBand(S.MATERIALS["rust"]["bands"]["rust"], 1.0))
+
+
+# ================================================================== rubble lots (kit, D57)
+LOT = 12.0
+LOT_SKINS = {"A": ("brick", None), "B": ("render", "ochre"), "C": ("panel", None), "D": ("stone", None)}
+
+
+def build_rubble_lot(v):
+    """12 x 12 m collapsed lot: broken ground slab, jagged wall fragments of the lost building
+    (same ruin layer with the whole lot as collapse zone), rubble mounds you can climb
+    (Geometry + Roadway), loose chunks, charred beams, rebar. No loot, no door."""
+    name = "City_RubbleLot_%s" % v
+    hw = LOT / 2
+    ruin = Ruin(name, 2, (-hw - 1, hw + 1, -hw - 1, hw + 1, 0.0))
+    L = city_lods(ruin)
+    mat = S.CITY_SKINS[LOT_SKINS[v][0]]["mat"]
+    A = {"skin": LOT_SKINS[v]}
+
+    class _P:                                          # minimal plan for skin_uv
+        pass
+    P = _P()
+    P.A = A
+    uv = skin_uv(P, LOT_SKINS[v][0])
+    for k in ("res0", "res1", "res2", "geo", "view", "fire"):                  # cracked slab remnant
+        kw = kw_for(k, "concrete", UV_REVEAL, "concrete")
+        for (x0, x1, y0, y1) in ((-hw + 0.5, -0.4, -hw + 0.5, hw - 0.5), (0.4, hw - 0.5, -hw + 0.5, 1.0)):
+            L[k].lod.box(x0, x1, y0, y1, -0.3, 0.0 + 0.002 * (x0 > 0), **kw)
+    for (x0, x1, y0, y1) in ((-hw + 0.5, -0.4, -hw + 0.5, hw - 0.5), (0.4, hw - 0.5, -hw + 0.5, 1.0)):
+        L["road"].lod.hquad(x0, x1, y0, y1, 0.002 * (x0 > 0), mat="road_ext", uv=UV_TILE)
+    # wall fragments: L-shaped remains along two sides, cut jagged by the ruin layer
+    frags = [("x", hw - 0.8, -hw + 0.5, hw - 0.5), ("y", -hw + 0.8, -hw + 0.5, hw - 2.0)]
+    if v in ("B", "D"):
+        frags.append(("x", -hw + 0.8, -2.0, hw - 0.5))
+    for axis, c, a0, a1 in frags:
+        for k in ("res0", "res1", "res2", "geo", "view", "fire", "shadow"):
+            kw = kw_for(k, mat, uv, "masonry")
+            seg = 1.2
+            a = a0
+            while a < a1 - 1e-6:
+                b = min(a1, a + seg)
+                if axis == "x":
+                    L[k].box(a, b, c - 0.15, c + 0.15, 0.0, 4.0, **kw)
+                else:
+                    L[k].box(c - 0.15, c + 0.15, a, b, 0.0, 4.0, **kw)
+                a = b
+    # mounds + chunks + charred beams + rebar
+    mounds = {"A": [(1.5, -1.5, 2.6, 2.0, 1.4), (-3.0, 3.0, 1.6, 1.4, 0.8)],
+              "B": [(-1.0, -1.0, 2.8, 2.4, 1.6)], "C": [(2.0, 1.0, 2.2, 2.6, 1.2), (-2.5, -3.0, 1.5, 1.2, 0.7)],
+              "D": [(0.0, 0.5, 3.0, 2.2, 1.8), (3.5, -3.5, 1.2, 1.2, 0.6)]}[v]
+    U = {k: x.lod for k, x in L.items()}              # mounds are not subject to the wall cut
+    for i, (x, y, rx, ry, h) in enumerate(mounds):
+        rubble_pile(U, x, y, 0.0, rx, ry, h, (name, i))
+    for i in range(5):
+        x = -hw + 1.5 + (LOT - 3.0) * h01(name, "beam", i)
+        y = -hw + 1.5 + (LOT - 3.0) * h01(name, "beamy", i)
+        ln = 1.5 + 2.0 * h01(name, "beaml", i)
+        L["res0"].lod.box(x, x + ln, y, y + 0.2, 0.0, 0.2, mat="wood", uv=UVBand(S.MATERIALS["rust"]["bands"]["burnt"], 1.0))
+    for i in range(8):
+        x = -hw + 1.0 + (LOT - 2.0) * h01(name, "rebar", i)
+        L["res0"].lod.box(x, x + 0.02, hw - 0.95, hw - 0.65, 0.3, 1.6 + h01(name, "rh", i), mat="rust",
+                          uv=UVBand(S.MATERIALS["rust"]["bands"]["rust"], 1.0))
+    for axis, c, a0, a1 in frags:                                             # far LOD: jagged remains
+        if axis == "x":
+            L["res3"].box(a0, a1, c - 0.15, c + 0.15, 0.0, 4.0, mat=mat, uv=uv, skip=("-z",))
+        else:
+            L["res3"].box(c - 0.15, c + 0.15, a0, a1, 0.0, 4.0, mat=mat, uv=uv, skip=("-z",))
+    U["res3"].hquad(-hw + 0.5, hw - 0.5, -hw + 0.5, hw - 0.5, 0.01, mat="rubble", uv=UV_RUBBLE)
+    L["mem"].lod.point("lot_center", (0.0, 0.0, 0.0))
+    geo = L["geo"].lod
+    geo.props.update({"class": "house", "map": "building", "autocenter": "0"})
+    geo.mass = 20000.0
+    return [x.lod for x in L.values()]
 
 
 # ================================================================== memory, loot, build
@@ -1223,7 +1468,7 @@ def memory(L, P):
         x0, x1, y0, y1, _k = rooms[idx]
         _u, fh, z = P.levels[l]
         m.point(name, ((x0 + x1) / 2, (y0 + y1) / 2, z + fh - SLAB - 0.35))
-    m.point("entrance", ((P.door[0] + P.door[1]) / 2, -P.hd - 1.0, 0.0))
+    m.point("entrance", ((P.entry[0] + P.entry[1]) / 2, -P.hd - 1.0, 0.0))
 
 
 def comp_boxes(lod):
@@ -1295,6 +1540,7 @@ def _builder(arch, state):
 
 
 BUILDERS = {"City_%s_%s" % (a, st): _builder(a, i) for a in S.CITY_ARCHETYPES for i, st in enumerate(S.RUIN_STATES)}
+BUILDERS.update({"City_RubbleLot_%s" % v: (lambda v=v: build_rubble_lot(v)) for v in LOT_SKINS})
 
 
 def modules():

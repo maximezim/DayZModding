@@ -929,22 +929,25 @@ def rubble(size, out):
     save(smdi(size, 0.05, 0.08), out, "sky_rubble_smdi")
 
 
-SIGNS = ["POLICE", "PHARMACY", "MARKET", "CAFE  ROSA", "OFFICES", "DEPOT  3", "BAKERY", "HARDWARE"]
+SIGNS = ["POLICE", "PHARMACY", "MARKET", "CAFE  ROSA", "OFFICES", "DEPOT  3", "BAKERY", "HARDWARE",
+         "CLINIC", "FIRE  STATION", "AUTO  REPAIR", "NEWS"]
 
 
 def signs(size, out):
-    """Building sign strips (1024): 8 horizontal bands, invented names, enamel / backlit
+    """Building sign strips (1024): 12 horizontal bands, invented names, enamel / backlit
     styles; mapped one band per sign (skyspec.SIGN_BAND)."""
     size = min(size, 1024)
     img = Image.new("RGB", (size, size), (30, 30, 34))
     d = ImageDraw.Draw(img)
     styles = [((20, 40, 110), (240, 240, 240)), ((20, 120, 70), (245, 245, 240)), ((170, 40, 35), (250, 240, 220)),
               ((60, 30, 25), (240, 200, 120)), ((40, 44, 50), (230, 230, 225)), ((200, 160, 30), (30, 30, 30)),
-              ((120, 70, 40), (250, 236, 200)), ((30, 60, 90), (250, 200, 60))]
-    bh = size // 8
+              ((120, 70, 40), (250, 236, 200)), ((30, 60, 90), (250, 200, 60)),
+              ((240, 240, 236), (20, 110, 60)), ((170, 25, 25), (250, 250, 245)), ((30, 30, 34), (240, 170, 30)),
+              ((235, 225, 200), (40, 40, 44))]
     for i, txt in enumerate(SIGNS):
         bg, fg = styles[i]
-        y0 = i * bh
+        y0 = int(i * size / len(SIGNS))                       # same band edges as skyspec.SIGN_BAND
+        bh = int((i + 1) * size / len(SIGNS)) - y0
         d.rectangle([0, y0, size, y0 + bh - 1], fill=bg)
         d.rectangle([4, y0 + 4, size - 5, y0 + bh - 5], outline=fg, width=3)
         f = _font(int(bh * 0.55))

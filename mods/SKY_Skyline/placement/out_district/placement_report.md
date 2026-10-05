@@ -24,6 +24,7 @@ map: chernarusplus  site: district-template  status: **PASS (with warnings)**
 
 ## Entity counts (caps: entities + loot 800 per district / 2500 per server, 25 props per floor / 70 per tower)
 - modules: 32
+- buildings: 0
 - tiles: 45
 - lights: 16
 - props: 227

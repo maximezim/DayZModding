@@ -75,3 +75,21 @@ Self-test: `python placement/tests/test_sky_layout.py` (synthetic surveys, no ga
 | `out/` | Generated: `sky_objects.json`, `cfggameplay_snippet.json`, `cfgeventspawns_snippet.xml`, `placement_report.md` |
 
 The committed `out/` uses the **placeholder** site (7500, 7500, Y = 0). Do not deploy it.
+
+## 5. Cities: block fill (D57)
+
+`city_template.yaml` generates a city quarter: `python placement/sky_layout.py --layout placement/city_template.yaml --out placement/out_city`.
+
+* A block with `fill: {zone: downtown | midtown | residential | industrial | frontline, seed: N}` is packed lot
+  by lot along its four street edges by `placement/city_fill.py`: fronts face the street, corner shops on the
+  corners, party-wall buildings flush, detached ones with the zone's gap, kiosks / sheds capped per block,
+  rubble lots by chance; ruin state per building from the zone's (intact, damaged, ruined) mix. The zones live
+  in `skyspec.CITY_ZONES`. The same seed always gives the same city; change the seed to re-roll one block.
+* `buildings: [{type, ruin, at, yaw}]` places landmarks (police, clinic, fire station, supermarket) first.
+* Every building gets its ground height from the survey (1.5 m skirt) or the street plane, and the same
+  overlap / foreign-object checks as towers. The report lists every archetype by intact / damaged / ruined.
+* `site.target: spawner` (default) obeys ENTITY_CAP (every spawned building is a replicated entity);
+  `target: terrain` is for a whole city baked into a custom map: no cap, plus `city_objects.csv`
+  (class, x, y, z, yaw) for the terrain import (P11). Render any layout with
+  `assets/blender/preview_district.py -- --objects <out>/sky_objects.json --out <dir>`.
+

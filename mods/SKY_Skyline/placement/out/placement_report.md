@@ -16,6 +16,7 @@ map: chernarusplus  site: site2-flat-field  status: **PASS**
 
 ## Entity counts (caps: entities + loot 800 per district / 2500 per server, 25 props per floor / 70 per tower)
 - modules: 8
+- buildings: 0
 - tiles: 0
 - lights: 0
 - props: 0

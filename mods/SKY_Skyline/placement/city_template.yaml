@@ -1,0 +1,57 @@
+# SKY_Skyline CITY TEMPLATE -> python placement/sky_layout.py --layout placement/city_template.yaml --out placement/out_city
+#
+# A Chernogorsk-sized quarter generated from the procedural city buildings (D57): a 192 x 192 m street
+# grid (12 m tiles, a street every 4th cell), 16 blocks of 36 x 36 m, each filled lot by lot by
+# placement/city_fill.py from its zone (skyspec.CITY_ZONES: archetype mix, ruin mix, rubble lots).
+# Change a block's zone or seed to re-roll it; the result is deterministic.
+# target: terrain - a whole city is too many replicated entities for objectSpawnersArr (ENTITY_CAP);
+# it is meant to be baked into a custom terrain (MOD_DEVELOPMENT_GUIDE 4.3), city_objects.csv is the
+# object list for that import. Site coordinates are UNFILLED (placeholder), like the district template.
+map: chernarusplus
+mission: dayzOffline.chernarusplus
+
+site:
+  name: city-template
+  placeholder: true
+  target: terrain
+  center: null
+  yaw: null
+  survey: null
+  base_y: null
+  clearance: 0.05
+  max_ground_drop: 2.2
+
+streets:
+  origin: [0.0, 0.0]
+  extent: [-8, 8, -8, 8]
+  ns: [-8, -4, 0, 4, 8]
+  ew: [-8, -4, 0, 4, 8]
+  crossings: [[0, -6], [0, 6], [-6, 0], [6, 0], [-4, 2], [4, -2]]
+  lights_every: 3
+  base_y: null
+
+# zone map (north up):   residential residential residential midtown
+#                        residential downtown    downtown    midtown
+#                        midtown     downtown    downtown    frontline
+#                        industrial  industrial  frontline   frontline
+# Landmarks are placed explicitly (`buildings`); the fill packs around them.
+blocks:
+  - {id: A1, cells: [-7, -7, -5, -5], fill: {zone: industrial, seed: 7}}
+  - {id: B1, cells: [-3, -7, -1, -5], fill: {zone: industrial, seed: 11}}
+  - {id: C1, cells: [1, -7, 3, -5], fill: {zone: frontline, seed: 15}}
+  - {id: D1, cells: [5, -7, 7, -5], fill: {zone: frontline, seed: 19}}
+  - {id: A2, buildings: [{type: SupermarketSmall, ruin: intact, at: [0.0, -10.5], yaw: 0}], cells: [-7, -3, -5, -1], fill: {zone: midtown, seed: 8}}
+  - {id: B2, buildings: [{type: Police, ruin: damaged, at: [0.0, -10.5], yaw: 0}], cells: [-3, -3, -1, -1], fill: {zone: downtown, seed: 12}}
+  - {id: C2, cells: [1, -3, 3, -1], fill: {zone: downtown, seed: 16}}
+  - {id: D2, buildings: [{type: FireStation, ruin: damaged, at: [0.0, -9.5], yaw: 0}], cells: [5, -3, 7, -1], fill: {zone: frontline, seed: 20}}
+  - {id: A3, cells: [-7, 1, -5, 3], fill: {zone: residential, seed: 9}}
+  - {id: B3, cells: [-3, 1, -1, 3], fill: {zone: downtown, seed: 13}}
+  - {id: C3, buildings: [{type: Clinic, ruin: intact, at: [0.0, 10.5], yaw: 180}], cells: [1, 1, 3, 3], fill: {zone: downtown, seed: 17}}
+  - {id: D3, cells: [5, 1, 7, 3], fill: {zone: midtown, seed: 21}}
+  - {id: A4, cells: [-7, 5, -5, 7], fill: {zone: residential, seed: 10}}
+  - {id: B4, cells: [-3, 5, -1, 7], fill: {zone: residential, seed: 14}}
+  - {id: C4, cells: [1, 5, 3, 7], fill: {zone: residential, seed: 18}}
+  - {id: D4, cells: [5, 5, 7, 7], fill: {zone: midtown, seed: 22}}
+
+towers: []
+decals: []

@@ -14,7 +14,11 @@ Layout content (all optional except site):
   streets   12 m street grid: N-S columns `ns`, E-W rows `ew` over `extent`; Street_Intersection
             where they cross, Street_Crossing at `crossings`, Street_Straight elsewhere;
             optional street lights (LIGHT_CAP)
-  blocks    rectangles of grid cells between streets; towers placed block-locally (`at`)
+  blocks    rectangles of grid cells between streets; towers placed block-locally (`at`);
+            `fill: {zone, seed}` packs procedural city buildings along the block's street edges
+            (placement/city_fill.py, skyspec.CITY_ZONES), `buildings:` places explicit ones
+  site.target  spawner (default: objectSpawnersArr, ENTITY_CAP applies) | terrain (a whole city
+            for a custom map: no cap, also writes city_objects.csv for the terrain import)
   towers    site-frame towers (legacy) - same keys as block towers
   tower     {id, type: TowerA, floors: [5 variants], roof: variant, yaw, furnish: {level: set}}
   decals    {tower, face: N|E|S|W, u, z, type}: flush on the facade at DECAL_OFFSET (D16, D19)
@@ -42,6 +46,7 @@ import yaml
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(os.path.dirname(HERE), "assets"))
 import skyspec as S  # noqa: E402
+import city_fill  # noqa: E402
 
 TOWER_TYPES = {"TowerA": S.TOWER_A}
 TILE = S.STREET["tile"]
@@ -120,6 +125,7 @@ class Ctx:
         self.errors, self.warnings, self.notes = [], [], []
         self.objects, self.drops = [], []
         self.counts = {}
+        self.city_stats = {}
 
     def soft(self, msg):
         (self.errors if self.strict else self.warnings).append(msg)
@@ -295,6 +301,52 @@ def place_tower(ctx, lay, t, cx, cz, yaw, survey, site):
             "top": base_y + mods[-1][1], "quad": footprint_corners(cx, cz, hw, hd, yaw)}
 
 
+def place_city(ctx, lay, block_rects, world, site_yaw, survey, site, tile_quads, tower_quads):
+    """Procedural city buildings of every block (`fill`, `buildings`) -> objects. Returns centres."""
+    ctx.city_stats = {}
+    centres, bquads = [], []
+    for b, rect in block_rects:
+        if not (b.get("fill") or b.get("buildings")):
+            continue
+        for cls, arch, state, u, v, yaw_rel, hw, hd in city_fill.fill_block(S, b, rect, S.BLOCK_SETBACK):
+            cx, cz = world(u, v)
+            yaw = (site_yaw + yaw_rel) % 360.0
+            quad = footprint_corners(cx, cz, hw, hd, yaw)
+            what = "%s in block %s" % (cls.replace("Land_SKY_City_", ""), b["id"])
+            for cell, tq in tile_quads:
+                if sat_overlap(quad, tq):
+                    ctx.errors.append("%s overlaps street tile %s" % (what, cell))
+            for tid, tq in tower_quads:
+                if sat_overlap(quad, tq):
+                    ctx.errors.append("%s overlaps tower %s" % (what, tid))
+            for oid, oq in bquads:
+                if sat_overlap(quad, oq):
+                    ctx.errors.append("%s overlaps %s" % (what, oid))
+            bquads.append((what, quad))
+            base_y = None
+            if survey is not None:
+                ys = survey_ground(survey, lambda x, z: inside(x, z, cx, cz, hw, hd, yaw))
+                if not ys:
+                    ctx.errors.append("%s: survey has no samples inside its footprint" % what)
+                else:
+                    base_y = max(ys) + float(site.get("clearance", 0.05))
+                    if base_y - min(ys) > S.CITY_SKIRT_DROP:
+                        ctx.errors.append("%s: ground falls %.2f m below the slab (> skirt %.1f m)" % (
+                            what, base_y - min(ys), S.CITY_SKIRT_DROP))
+                foreign_objects(ctx, survey, what, lambda x, z: inside(x, z, cx, cz, hw, hd, yaw))
+            if base_y is None:
+                base_y = (ctx.street_y + S.STREET["curb_h"]) if ctx.street_y is not None else float(site.get("base_y") or 0.0)
+            if ctx.street_y is not None and abs(base_y - (ctx.street_y + S.STREET["curb_h"])) > 0.5:
+                ctx.soft("%s: ground floor %.2f m off the sidewalk - entrance step too high" % (
+                    what, base_y - ctx.street_y - S.STREET["curb_h"]))
+            ctx.add("buildings", cls, (cx, base_y, cz), yaw)
+            key = arch if arch != "RubbleLot" else "RubbleLot"
+            st = ctx.city_stats.setdefault(key, [0, 0, 0])
+            st[state if arch != "RubbleLot" else 2] += 1
+            centres.append((cx, cz))
+    return centres
+
+
 def place_decals(ctx, lay, towers, site_yaw):
     by_id = {t["id"]: t for t in towers}
     per_tower = {}
@@ -428,6 +480,7 @@ def main():
     # ---- towers (blocks + legacy site-frame towers)
     placed, quads = [], []
     jobs = []
+    block_rects = []
     for b in lay.get("blocks", []) or []:
         bi0, bj0, bi1, bj1 = b["cells"]
         cells = {(i, j) for i in range(bi0, bi1 + 1) for j in range(bj0, bj1 + 1)}
@@ -437,6 +490,7 @@ def main():
         u1, v1 = cell_center(lay, bi1, bj1)
         rect = (u0 - TILE / 2, u1 + TILE / 2, v0 - TILE / 2, v1 + TILE / 2)
         bu, bv = (rect[0] + rect[1]) / 2, (rect[2] + rect[3]) / 2
+        block_rects.append((b, rect))
         for t in b.get("towers", []) or []:
             jobs.append((t, bu + t.get("at", [0, 0])[0], bv + t.get("at", [0, 0])[1], rect, b["id"]))
     for t in lay.get("towers", []) or []:
@@ -471,6 +525,7 @@ def main():
         placed.append(place_tower(ctx, lay, t, cx, cz, yaw, survey, site))
 
     place_decals(ctx, lay, placed, site_yaw)
+    city = place_city(ctx, lay, block_rects, world, site_yaw, survey, site, tile_quads, quads)
     if ctx.street_y is not None:
         for t in placed:
             step = t["base_y"] - (ctx.street_y + S.STREET["curb_h"])
@@ -483,6 +538,10 @@ def main():
     # one InfectedCity zone per district (economy/README.md, perf batch-5 M4), vanilla
     # env/zombie_territories.xml zone format (verified in dayzOffline.chernarusplus)
     zone = None
+    if city and not placed:
+        r = min(150.0, max(50.0, max(math.hypot(c[0] - cx0, c[1] - cz0) for c in city) + 20.0))
+        zone = '<zone name="InfectedCity" smin="0" smax="0" dmin="%d" dmax="%d" x="%.1f" z="%.1f" r="%.0f"/>' % (
+            8, 16, cx0, cz0, r)
     if placed:
         res = sum(1 for t in jobs_res if t)
         dmax = min(15, 10 + res)
@@ -494,14 +553,20 @@ def main():
         return sum(S.LOOT[o["name"]]["lootmax"] for o in objs if o["name"] in S.LOOT)
     loot = loot_of(ctx.objects)
     total = len(ctx.objects)
-    if total + loot > S.ENTITY_CAP["per_district"]:
+    terrain = site.get("target", "spawner") == "terrain"
+    if terrain:
+        ctx.notes.append("target terrain: ENTITY_CAP not applied (%d objects + %d loot would be %s the spawner cap %d); "
+                         "deploy through a custom terrain, city_objects.csv" % (
+                             total, loot, "over" if total + loot > S.ENTITY_CAP["per_district"] else "within",
+                             S.ENTITY_CAP["per_district"]))
+    elif total + loot > S.ENTITY_CAP["per_district"]:
         ctx.errors.append("%d entities + %d loot items > ENTITY_CAP per_district %d" % (total, loot, S.ENTITY_CAP["per_district"]))
     server = total + loot
     for other in [x for x in a.others.split(",") if x]:
         objs = json.load(open(other))["Objects"]
         server += len(objs) + loot_of(objs)
         ctx.notes.append("other district %s: %d entities + %d loot" % (other, len(objs), loot_of(objs)))
-    if server > S.ENTITY_CAP["per_server"]:
+    if server > S.ENTITY_CAP["per_server"] and not terrain:
         ctx.errors.append("server total %d (entities + loot) > ENTITY_CAP per_server %d" % (server, S.ENTITY_CAP["per_server"]))
     # loot export (placement/README.md section 3): ExportProxyData must reach every module/prop
     radius = max([math.hypot(o["pos"][0] - cx0, o["pos"][2] - cz0) for o in ctx.objects] or [0.0]) + 5.0
@@ -531,6 +596,14 @@ def main():
             fh.write(zone + "\n")
     elif os.path.exists(os.path.join(a.out, "zombie_territories_snippet.xml")):
         os.remove(os.path.join(a.out, "zombie_territories_snippet.xml"))
+    csv_path = os.path.join(a.out, "city_objects.csv")
+    if terrain and not ctx.errors:
+        with open(csv_path, "w") as fh:                       # neutral list for the terrain import (TB format: P11)
+            fh.write("class,x,y,z,yaw\n")
+            for o in ctx.objects:
+                fh.write("%s,%.3f,%.3f,%.3f,%.2f\n" % (o["name"], o["pos"][0], o["pos"][1], o["pos"][2], o["ypr"][0]))
+    elif os.path.exists(csv_path):
+        os.remove(csv_path)
     status = "FAIL" if ctx.errors else ("PASS (with warnings)" if ctx.warnings else "PASS")
     with open(os.path.join(a.out, "placement_report.md"), "w") as fh:
         fh.write("# Placement report\n\nmap: %s  site: %s  status: **%s**\n\n" % (lay["map"], site["name"], status))
@@ -538,9 +611,16 @@ def main():
             fh.write("## %s\n" % title + ("".join("- %s\n" % i for i in items) or "- none\n") + "\n")
         fh.write("## Entity counts (caps: entities + loot %d per district / %d per server, %d props per floor / %d per tower)\n"
                  % (S.ENTITY_CAP["per_district"], S.ENTITY_CAP["per_server"], S.PROP_CAPS["per_floor"], S.PROP_CAPS["per_tower"]))
-        for k in ("modules", "tiles", "lights", "props", "decals"):
+        for k in ("modules", "buildings", "tiles", "lights", "props", "decals"):
             fh.write("- %s: %d\n" % (k, ctx.counts.get(k, 0)))
         fh.write("- **total: %d** entities, %d loot items (max), server total %d\n\n" % (total, loot, server))
+        if ctx.city_stats:
+            fh.write("## City buildings by type (intact / damaged / ruined)\n")
+            for arch in sorted(ctx.city_stats):
+                st = ctx.city_stats[arch]
+                fh.write("- %s: %d / %d / %d\n" % (arch, st[0], st[1], st[2]))
+            tot = [sum(v[i] for v in ctx.city_stats.values()) for i in range(3)]
+            fh.write("- **all: %d / %d / %d** (%d buildings)\n\n" % (tot[0], tot[1], tot[2], sum(tot)))
         fh.write("## Objects (%d)\n" % total)
         for o in ctx.objects:
             fh.write("- %s at %s yaw %s\n" % (o["name"], o["pos"], o["ypr"][0]))

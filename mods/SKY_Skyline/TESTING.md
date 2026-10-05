@@ -489,6 +489,19 @@ the street), intact + damaged + ruined of each archetype. When a type passes, ad
 | CB-09 | LOD walk-away 5 -> 300 m | Res1 / Res2 / Res3 switches without holes; ruined silhouettes keep the collapse at Res3 | | |
 | CB-10 | Signs, awnings, sign text | Names read correctly (not mirrored): BAKERY, PHARMACY, HARDWARE, OFFICES, DEPOT 3, POLICE | | |
 
+## 22. City wave 2 and generated districts (D57)
+
+Static results: `reviews/city_wave2_gates.md`; renders `reviews/img/city2_*.png`, `reviews/img/district_*.png`.
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| CD-01 | Spawn each wave-2 archetype (3 states) and run CB-01..CB-10 on it | As section 21; villas: pitched roof collides only inside the walls, eaves are visual; garage block entered through the two open bays | | |
+| CD-02 | Rubble lots A-D | Rubble climbable (Roadway), wall stumps collide, no loot, no floating pieces | | |
+| CD-03 | Generate a small spawner district (2 x 2 blocks, `fill`) on a surveyed flat site, deploy with `Invoke-ModValidation.ps1 -Layout` | Report PASS; buildings sit on the sidewalk level (no step > 0.5 m), fronts face the streets, no overlap with tiles / towers; RPT clean | | |
+| CD-04 | Walk the generated district | Corner shops on corners, terraces flush, detached houses with gaps, small pieces sparse; ruin mix reads per zone (frontline mostly ruined) | | |
+| CD-05 | Night on the generated district | Only intact buildings lit (P10) | | |
+| CD-06 | `city_template.yaml` (target terrain) | `city_objects.csv` written; importing it into a custom terrain is P11 | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -515,4 +528,5 @@ the street), intact + damaged + ruined of each archetype. When a type passes, ad
 | Realism pass §19 | | | |
 | Splendour pass §20 | | | |
 | City buildings §21 | | | |
+| City wave 2 / districts §22 | | | |
 | FPS protocol (`FPS_PROTOCOL.md` §4 thresholds) | | | |

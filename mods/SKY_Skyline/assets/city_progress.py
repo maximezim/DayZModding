@@ -33,6 +33,12 @@ def built_variants():
     return out
 
 
+def kit_built(cid):
+    """Kit pieces registered with KIT[...]["catalog"] = cid (e.g. rubble lots) whose P3D exists."""
+    return sum(1 for e in S.KIT.values() if e.get("catalog") == cid
+               and os.path.exists(os.path.join(MOD, "addons", e["pbo"], e["p3d"])))
+
+
 def modular_built(cid):
     if cid in ("TowerOffice", "TowerResidential"):
         need = [S.P3D[S.CLASS_LOBBY], S.P3D[S.CLASS_FLOOR], S.P3D[S.CLASS_CORE]]
@@ -50,7 +56,7 @@ def render():
                      "inst": 0, "inst_cov": 0}
     for (cid, group, size, floors, kind, variants, inst, wave, note) in S.CITY_CATALOG:
         states = 3 if kind == "proc" else 1
-        nb = len(bv.get(cid, [])) if kind == "proc" else modular_built(cid)
+        nb = len(bv.get(cid, [])) if kind == "proc" else (modular_built(cid) or kit_built(cid))
         nb = min(nb, variants)
         status = ("tested" if cid in tested else "built-unverified") if nb >= variants else ("in progress" if nb else "planned")
         tot["types"] += 1

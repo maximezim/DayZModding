@@ -172,6 +172,100 @@ def district_tests(expect):
     expect("YAW_SIGN flips only ypr (270 vs 90), positions unchanged", base["pos"] == flip["pos"] and base["ypr"][0] == 90.0 and flip["ypr"][0] == 270.0, "%s %s" % (base, flip))
 
 
+def city_tests(expect):
+    """City block fill (D57): template runs, deterministic, inside blocks, no overlaps, fronts on
+    the street, ruin mix follows the zones, caps / streets / skirt enforced."""
+    sys.path.insert(0, os.path.dirname(HERE))
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(HERE)), "assets"))
+    import math
+    import city_fill as CF
+    import skyspec as S
+    tpl = os.path.join(os.path.dirname(HERE), "city_template.yaml")
+    rc, out, od = run_layout(tpl)
+    expect("city template runs (target terrain)", rc == 0 and os.path.exists(os.path.join(od, "city_objects.csv")), out)
+    a = json.load(open(os.path.join(od, "sky_objects.json")))["Objects"]
+    rc2, _out2, od2 = run_layout(tpl)
+    b = json.load(open(os.path.join(od2, "sky_objects.json")))["Objects"]
+    expect("city fill is deterministic", a == b)
+    nb = sum(1 for o in a if o["name"].startswith("Land_SKY_City_"))
+    expect("city template places > 100 buildings", nb > 100, str(nb))
+    lay = yaml.safe_load(open(tpl))
+    tile = S.STREET["tile"]
+    inside_ok, overlap_ok, front_ok = True, True, True
+    ruin_by_zone = {}
+    for blk in lay["blocks"]:
+        i0, j0, i1, j1 = blk["cells"]
+        rect = (i0 * tile - tile / 2, i1 * tile + tile / 2, j0 * tile - tile / 2, j1 * tile + tile / 2)
+        res = CF.fill_block(S, blk, rect, S.BLOCK_SETBACK)
+        quads = []
+        bc = ((rect[0] + rect[1]) / 2, (rect[2] + rect[3]) / 2)
+        for cls, arch, state, u, v, yaw, hw, hd in res:
+            q = CF._corners(u, v, hw, hd, yaw)
+            m = S.BLOCK_SETBACK - 1e-6
+            if any(not (rect[0] + m <= x <= rect[1] - m and rect[2] + m <= z <= rect[3] - m) for x, z in q):
+                inside_ok = False
+            if any(CF._sat(q, o) for o in quads):
+                overlap_ok = False
+            quads.append(q)
+            f = CF._rot(0.0, -1.0, yaw)                       # model front (-Y) in the site frame
+            if arch != "RubbleLot" and (u - bc[0]) * f[0] + (v - bc[1]) * f[1] <= 0:
+                front_ok = False
+            z = blk["fill"]["zone"]
+            ruin_by_zone.setdefault(z, []).append(state)
+    expect("every city building inside its block (setback)", inside_ok)
+    expect("no two city buildings overlap", overlap_ok)
+    expect("every front faces the street (out of the block)", front_ok)
+    share = {z: sum(1 for x in v if x == 2) / float(len(v)) for z, v in ruin_by_zone.items()}
+    expect("frontline is more ruined than residential", share["frontline"] > share["residential"], str(share))
+    small = {}
+    for blk in lay["blocks"]:
+        i0, j0, i1, j1 = blk["cells"]
+        rect = (i0 * tile - tile / 2, i1 * tile + tile / 2, j0 * tile - tile / 2, j1 * tile + tile / 2)
+        n = sum(1 for r in CF.fill_block(S, blk, rect, S.BLOCK_SETBACK)
+                if r[1] != "RubbleLot" and S.CITY_ARCHETYPES[r[1]]["group"] == "small")
+        small[blk["id"]] = n <= S.CITY_ZONES[blk["fill"]["zone"]].get("small_cap", 1)
+    expect("small buildings within small_cap per block", all(small.values()), str(small))
+    # spawner target: the same city exceeds ENTITY_CAP -> fails
+    d = tempfile.mkdtemp()
+    lay2 = dict(lay)
+    lay2["site"] = dict(lay["site"], target="spawner")
+    yaml.safe_dump(lay2, open(os.path.join(d, "c.yaml"), "w"))
+    rc, out, od3 = run_layout(os.path.join(d, "c.yaml"))
+    rep = open(os.path.join(od3, "placement_report.md")).read()
+    import re
+    m = re.search(r"\*\*total: (\d+)\*\* entities, (\d+) loot", rep)
+    over = m and int(m.group(1)) + int(m.group(2)) > S.ENTITY_CAP["per_district"]
+    expect("spawner target enforces ENTITY_CAP (fails exactly when over)", m and ((rc == 1 and "ENTITY_CAP" in out) == bool(over)),
+           out)
+    rep_t = open(os.path.join(od, "placement_report.md")).read()
+    expect("terrain target reports the cap as not applied", "ENTITY_CAP not applied" in rep_t)
+    # explicit building across a street fails; steep survey fails the skirt
+    lay3 = {"map": "chernarusplus", "mission": "m", "towers": [],
+            "site": {"name": "c3", "placeholder": False, "center": [1000.0, 2000.0], "yaw": 0.0, "target": "terrain",
+                     "survey": "s.json", "base_y": None, "clearance": 0.05},
+            "streets": {"origin": [0, 0], "extent": [-2, 2, -2, 2], "ns": [-2, 2], "ew": [-2, 2]},
+            "blocks": [{"id": "X", "cells": [-1, -1, 1, 1],
+                        "buildings": [{"type": "Police", "ruin": "intact", "at": [0.0, -14.0], "yaw": 0}]}]}
+    sv = survey(1000, 2000, lambda i, j: 150.0)
+    sv["samples"] = []
+    for i in range(-30, 31, 2):
+        for j in range(-30, 31, 2):
+            sv["samples"] += [1000 + i, 150.0, 2000 + j]
+    d = tempfile.mkdtemp()
+    json.dump(sv, open(os.path.join(d, "s.json"), "w"))
+    yaml.safe_dump(lay3, open(os.path.join(d, "c.yaml"), "w"))
+    rc, out, _ = run_layout(os.path.join(d, "c.yaml"))
+    expect("city building across a street fails", rc == 1 and "overlaps street tile" in out, out)
+    lay3["blocks"][0]["buildings"][0]["at"] = [0.0, -7.0]
+    for k in range(0, len(sv["samples"]), 3):
+        sv["samples"][k + 1] = 150.0 + 0.25 * (sv["samples"][k] - 1000)
+    json.dump(sv, open(os.path.join(d, "s.json"), "w"))
+    yaml.safe_dump(lay3, open(os.path.join(d, "c.yaml"), "w"))
+    rc, out, _ = run_layout(os.path.join(d, "c.yaml"))
+    expect("city building on a steep slope fails the skirt", rc == 1 and "skirt" in out, out)
+    del math
+
+
 def main():
     fails = 0
 
@@ -203,6 +297,7 @@ def main():
     rc, out, _ = run("nosurvey-strict", {"samples": [], "objects": []})
     expect("survey without samples in footprint fails", rc == 1, out)
     district_tests(expect)
+    city_tests(expect)
     print("%d failed" % fails)
     sys.exit(1 if fails else 0)
 

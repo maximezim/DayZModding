@@ -1,0 +1,361 @@
+# Placement report
+
+map: chernarusplus  site: city-template  status: **PASS (with warnings)**
+
+## Errors
+- none
+
+## Warnings
+- site 'city-template' is a PLACEHOLDER - do not deploy
+- no survey: ground height / overlaps NOT validated
+- site.center is not set (template) - positions are relative to (0, 0)
+
+## Notes
+- street plane y 0.00 (one height for every tile)
+- target terrain: ENTITY_CAP not applied (302 objects + 465 loot would be within the spawner cap 800); deploy through a custom terrain, city_objects.csv
+- loot export: survey request "exportRadius" >= 141 m around site.center
+
+## Entity counts (caps: entities + loot 800 per district / 2500 per server, 25 props per floor / 70 per tower)
+- modules: 0
+- buildings: 117
+- tiles: 145
+- lights: 40
+- props: 0
+- decals: 0
+- **total: 302** entities, 465 loot items (max), server total 767
+
+## City buildings by type (intact / damaged / ruined)
+- AptBlock: 2 / 1 / 1
+- AptBlockBrick: 0 / 2 / 2
+- AptBlockTall: 1 / 0 / 0
+- Clinic: 1 / 0 / 0
+- CornerHardware: 1 / 0 / 3
+- CornerPharmacy: 4 / 2 / 1
+- CornerShop: 4 / 2 / 2
+- FireStation: 0 / 1 / 0
+- GarageBlock: 1 / 2 / 2
+- Kiosk: 3 / 1 / 0
+- KioskCafe: 2 / 3 / 0
+- OfficeMid: 1 / 0 / 0
+- OfficeTall: 0 / 1 / 0
+- Police: 0 / 1 / 0
+- Rowhouse: 2 / 4 / 2
+- RowhousePanel: 2 / 0 / 1
+- RowhouseRender: 7 / 2 / 4
+- RubbleLot: 0 / 0 / 2
+- Shed: 8 / 4 / 0
+- ShedBrick: 0 / 1 / 0
+- ShopRow: 4 / 4 / 4
+- ShopRowHardware: 0 / 1 / 0
+- SupermarketSmall: 1 / 0 / 0
+- Villa: 3 / 0 / 1
+- VillaBrick: 3 / 0 / 0
+- VillaStone: 1 / 2 / 1
+- Warehouse: 1 / 1 / 0
+- WarehouseSmall: 1 / 0 / 0
+- Workshop: 2 / 1 / 0
+- **all: 55 / 36 / 26** (117 buildings)
+
+## Objects (302)
+- Land_SKY_Street_Intersection at [-96.0, 0.0, -96.0] yaw 0.0
+- Land_SKY_Street_Straight at [-96.0, 0.0, -84.0] yaw 0.0
+- Land_SKY_StreetLight at [-100.5, 0.15, -84.0] yaw 0.0
+- Land_SKY_Street_Straight at [-96.0, 0.0, -72.0] yaw 0.0
+- Land_SKY_Street_Straight at [-96.0, 0.0, -60.0] yaw 0.0
+- Land_SKY_Street_Intersection at [-96.0, 0.0, -48.0] yaw 0.0
+- Land_SKY_Street_Straight at [-96.0, 0.0, -36.0] yaw 0.0
+- Land_SKY_StreetLight at [-100.5, 0.15, -36.0] yaw 0.0
+- Land_SKY_Street_Straight at [-96.0, 0.0, -24.0] yaw 0.0
+- Land_SKY_Street_Straight at [-96.0, 0.0, -12.0] yaw 0.0
+- Land_SKY_Street_Intersection at [-96.0, 0.0, 0.0] yaw 0.0
+- Land_SKY_Street_Straight at [-96.0, 0.0, 12.0] yaw 0.0
+- Land_SKY_StreetLight at [-100.5, 0.15, 12.0] yaw 0.0
+- Land_SKY_Street_Straight at [-96.0, 0.0, 24.0] yaw 0.0
+- Land_SKY_Street_Straight at [-96.0, 0.0, 36.0] yaw 0.0
+- Land_SKY_Street_Intersection at [-96.0, 0.0, 48.0] yaw 0.0
+- Land_SKY_Street_Straight at [-96.0, 0.0, 60.0] yaw 0.0
+- Land_SKY_StreetLight at [-100.5, 0.15, 60.0] yaw 0.0
+- Land_SKY_Street_Straight at [-96.0, 0.0, 72.0] yaw 0.0
+- Land_SKY_Street_Straight at [-96.0, 0.0, 84.0] yaw 0.0
+- Land_SKY_Street_Intersection at [-96.0, 0.0, 96.0] yaw 0.0
+- Land_SKY_Street_Straight at [-84.0, 0.0, -96.0] yaw 90.0
+- Land_SKY_StreetLight at [-84.0, 0.15, -91.5] yaw 90.0
+- Land_SKY_Street_Straight at [-84.0, 0.0, -48.0] yaw 90.0
+- Land_SKY_StreetLight at [-84.0, 0.15, -43.5] yaw 90.0
+- Land_SKY_Street_Straight at [-84.0, 0.0, 0.0] yaw 90.0
+- Land_SKY_StreetLight at [-84.0, 0.15, 4.5] yaw 90.0
+- Land_SKY_Street_Straight at [-84.0, 0.0, 48.0] yaw 90.0
+- Land_SKY_StreetLight at [-84.0, 0.15, 52.5] yaw 90.0
+- Land_SKY_Street_Straight at [-84.0, 0.0, 96.0] yaw 90.0
+- Land_SKY_StreetLight at [-84.0, 0.15, 100.5] yaw 90.0
+- Land_SKY_Street_Straight at [-72.0, 0.0, -96.0] yaw 90.0
+- Land_SKY_Street_Straight at [-72.0, 0.0, -48.0] yaw 90.0
+- Land_SKY_Street_Crossing at [-72.0, 0.0, 0.0] yaw 90.0
+- Land_SKY_Street_Straight at [-72.0, 0.0, 48.0] yaw 90.0
+- Land_SKY_Street_Straight at [-72.0, 0.0, 96.0] yaw 90.0
+- Land_SKY_Street_Straight at [-60.0, 0.0, -96.0] yaw 90.0
+- Land_SKY_Street_Straight at [-60.0, 0.0, -48.0] yaw 90.0
+- Land_SKY_Street_Straight at [-60.0, 0.0, 0.0] yaw 90.0
+- Land_SKY_Street_Straight at [-60.0, 0.0, 48.0] yaw 90.0
+- Land_SKY_Street_Straight at [-60.0, 0.0, 96.0] yaw 90.0
+- Land_SKY_Street_Intersection at [-48.0, 0.0, -96.0] yaw 0.0
+- Land_SKY_Street_Straight at [-48.0, 0.0, -84.0] yaw 0.0
+- Land_SKY_StreetLight at [-52.5, 0.15, -84.0] yaw 0.0
+- Land_SKY_Street_Straight at [-48.0, 0.0, -72.0] yaw 0.0
+- Land_SKY_Street_Straight at [-48.0, 0.0, -60.0] yaw 0.0
+- Land_SKY_Street_Intersection at [-48.0, 0.0, -48.0] yaw 0.0
+- Land_SKY_Street_Straight at [-48.0, 0.0, -36.0] yaw 0.0
+- Land_SKY_StreetLight at [-52.5, 0.15, -36.0] yaw 0.0
+- Land_SKY_Street_Straight at [-48.0, 0.0, -24.0] yaw 0.0
+- Land_SKY_Street_Straight at [-48.0, 0.0, -12.0] yaw 0.0
+- Land_SKY_Street_Intersection at [-48.0, 0.0, 0.0] yaw 0.0
+- Land_SKY_Street_Straight at [-48.0, 0.0, 12.0] yaw 0.0
+- Land_SKY_StreetLight at [-52.5, 0.15, 12.0] yaw 0.0
+- Land_SKY_Street_Crossing at [-48.0, 0.0, 24.0] yaw 0.0
+- Land_SKY_Street_Straight at [-48.0, 0.0, 36.0] yaw 0.0
+- Land_SKY_Street_Intersection at [-48.0, 0.0, 48.0] yaw 0.0
+- Land_SKY_Street_Straight at [-48.0, 0.0, 60.0] yaw 0.0
+- Land_SKY_Street_Straight at [-48.0, 0.0, 72.0] yaw 0.0
+- Land_SKY_StreetLight at [-52.5, 0.15, 72.0] yaw 0.0
+- Land_SKY_Street_Straight at [-48.0, 0.0, 84.0] yaw 0.0
+- Land_SKY_Street_Intersection at [-48.0, 0.0, 96.0] yaw 0.0
+- Land_SKY_Street_Straight at [-36.0, 0.0, -96.0] yaw 90.0
+- Land_SKY_StreetLight at [-36.0, 0.15, -91.5] yaw 90.0
+- Land_SKY_Street_Straight at [-36.0, 0.0, -48.0] yaw 90.0
+- Land_SKY_StreetLight at [-36.0, 0.15, -43.5] yaw 90.0
+- Land_SKY_Street_Straight at [-36.0, 0.0, 0.0] yaw 90.0
+- Land_SKY_Street_Straight at [-36.0, 0.0, 48.0] yaw 90.0
+- Land_SKY_StreetLight at [-36.0, 0.15, 52.5] yaw 90.0
+- Land_SKY_Street_Straight at [-36.0, 0.0, 96.0] yaw 90.0
+- Land_SKY_StreetLight at [-36.0, 0.15, 100.5] yaw 90.0
+- Land_SKY_Street_Straight at [-24.0, 0.0, -96.0] yaw 90.0
+- Land_SKY_Street_Straight at [-24.0, 0.0, -48.0] yaw 90.0
+- Land_SKY_Street_Straight at [-24.0, 0.0, 0.0] yaw 90.0
+- Land_SKY_StreetLight at [-24.0, 0.15, 4.5] yaw 90.0
+- Land_SKY_Street_Straight at [-24.0, 0.0, 48.0] yaw 90.0
+- Land_SKY_Street_Straight at [-24.0, 0.0, 96.0] yaw 90.0
+- Land_SKY_Street_Straight at [-12.0, 0.0, -96.0] yaw 90.0
+- Land_SKY_Street_Straight at [-12.0, 0.0, -48.0] yaw 90.0
+- Land_SKY_Street_Straight at [-12.0, 0.0, 0.0] yaw 90.0
+- Land_SKY_Street_Straight at [-12.0, 0.0, 48.0] yaw 90.0
+- Land_SKY_Street_Straight at [-12.0, 0.0, 96.0] yaw 90.0
+- Land_SKY_Street_Intersection at [0.0, 0.0, -96.0] yaw 0.0
+- Land_SKY_Street_Straight at [0.0, 0.0, -84.0] yaw 0.0
+- Land_SKY_StreetLight at [-4.5, 0.15, -84.0] yaw 0.0
+- Land_SKY_Street_Crossing at [0.0, 0.0, -72.0] yaw 0.0
+- Land_SKY_Street_Straight at [0.0, 0.0, -60.0] yaw 0.0
+- Land_SKY_Street_Intersection at [0.0, 0.0, -48.0] yaw 0.0
+- Land_SKY_Street_Straight at [0.0, 0.0, -36.0] yaw 0.0
+- Land_SKY_Street_Straight at [0.0, 0.0, -24.0] yaw 0.0
+- Land_SKY_StreetLight at [-4.5, 0.15, -24.0] yaw 0.0
+- Land_SKY_Street_Straight at [0.0, 0.0, -12.0] yaw 0.0
+- Land_SKY_Street_Intersection at [0.0, 0.0, 0.0] yaw 0.0
+- Land_SKY_Street_Straight at [0.0, 0.0, 12.0] yaw 0.0
+- Land_SKY_Street_Straight at [0.0, 0.0, 24.0] yaw 0.0
+- Land_SKY_StreetLight at [-4.5, 0.15, 24.0] yaw 0.0
+- Land_SKY_Street_Straight at [0.0, 0.0, 36.0] yaw 0.0
+- Land_SKY_Street_Intersection at [0.0, 0.0, 48.0] yaw 0.0
+- Land_SKY_Street_Straight at [0.0, 0.0, 60.0] yaw 0.0
+- Land_SKY_Street_Crossing at [0.0, 0.0, 72.0] yaw 0.0
+- Land_SKY_Street_Straight at [0.0, 0.0, 84.0] yaw 0.0
+- Land_SKY_StreetLight at [-4.5, 0.15, 84.0] yaw 0.0
+- Land_SKY_Street_Intersection at [0.0, 0.0, 96.0] yaw 0.0
+- Land_SKY_Street_Straight at [12.0, 0.0, -96.0] yaw 90.0
+- Land_SKY_StreetLight at [12.0, 0.15, -91.5] yaw 90.0
+- Land_SKY_Street_Straight at [12.0, 0.0, -48.0] yaw 90.0
+- Land_SKY_StreetLight at [12.0, 0.15, -43.5] yaw 90.0
+- Land_SKY_Street_Straight at [12.0, 0.0, 0.0] yaw 90.0
+- Land_SKY_Street_Straight at [12.0, 0.0, 48.0] yaw 90.0
+- Land_SKY_StreetLight at [12.0, 0.15, 52.5] yaw 90.0
+- Land_SKY_Street_Straight at [12.0, 0.0, 96.0] yaw 90.0
+- Land_SKY_StreetLight at [12.0, 0.15, 100.5] yaw 90.0
+- Land_SKY_Street_Straight at [24.0, 0.0, -96.0] yaw 90.0
+- Land_SKY_Street_Straight at [24.0, 0.0, -48.0] yaw 90.0
+- Land_SKY_Street_Straight at [24.0, 0.0, 0.0] yaw 90.0
+- Land_SKY_StreetLight at [24.0, 0.15, 4.5] yaw 90.0
+- Land_SKY_Street_Straight at [24.0, 0.0, 48.0] yaw 90.0
+- Land_SKY_Street_Straight at [24.0, 0.0, 96.0] yaw 90.0
+- Land_SKY_Street_Straight at [36.0, 0.0, -96.0] yaw 90.0
+- Land_SKY_Street_Straight at [36.0, 0.0, -48.0] yaw 90.0
+- Land_SKY_Street_Straight at [36.0, 0.0, 0.0] yaw 90.0
+- Land_SKY_Street_Straight at [36.0, 0.0, 48.0] yaw 90.0
+- Land_SKY_Street_Straight at [36.0, 0.0, 96.0] yaw 90.0
+- Land_SKY_Street_Intersection at [48.0, 0.0, -96.0] yaw 0.0
+- Land_SKY_Street_Straight at [48.0, 0.0, -84.0] yaw 0.0
+- Land_SKY_StreetLight at [43.5, 0.15, -84.0] yaw 0.0
+- Land_SKY_Street_Straight at [48.0, 0.0, -72.0] yaw 0.0
+- Land_SKY_Street_Straight at [48.0, 0.0, -60.0] yaw 0.0
+- Land_SKY_Street_Intersection at [48.0, 0.0, -48.0] yaw 0.0
+- Land_SKY_Street_Straight at [48.0, 0.0, -36.0] yaw 0.0
+- Land_SKY_StreetLight at [43.5, 0.15, -36.0] yaw 0.0
+- Land_SKY_Street_Crossing at [48.0, 0.0, -24.0] yaw 0.0
+- Land_SKY_Street_Straight at [48.0, 0.0, -12.0] yaw 0.0
+- Land_SKY_Street_Intersection at [48.0, 0.0, 0.0] yaw 0.0
+- Land_SKY_Street_Straight at [48.0, 0.0, 12.0] yaw 0.0
+- Land_SKY_Street_Straight at [48.0, 0.0, 24.0] yaw 0.0
+- Land_SKY_StreetLight at [43.5, 0.15, 24.0] yaw 0.0
+- Land_SKY_Street_Straight at [48.0, 0.0, 36.0] yaw 0.0
+- Land_SKY_Street_Intersection at [48.0, 0.0, 48.0] yaw 0.0
+- Land_SKY_Street_Straight at [48.0, 0.0, 60.0] yaw 0.0
+- Land_SKY_Street_Straight at [48.0, 0.0, 72.0] yaw 0.0
+- Land_SKY_StreetLight at [43.5, 0.15, 72.0] yaw 0.0
+- Land_SKY_Street_Straight at [48.0, 0.0, 84.0] yaw 0.0
+- Land_SKY_Street_Intersection at [48.0, 0.0, 96.0] yaw 0.0
+- Land_SKY_Street_Straight at [60.0, 0.0, -96.0] yaw 90.0
+- Land_SKY_StreetLight at [60.0, 0.15, -91.5] yaw 90.0
+- Land_SKY_Street_Straight at [60.0, 0.0, -48.0] yaw 90.0
+- Land_SKY_StreetLight at [60.0, 0.15, -43.5] yaw 90.0
+- Land_SKY_Street_Straight at [60.0, 0.0, 0.0] yaw 90.0
+- Land_SKY_Street_Straight at [60.0, 0.0, 48.0] yaw 90.0
+- Land_SKY_StreetLight at [60.0, 0.15, 52.5] yaw 90.0
+- Land_SKY_Street_Straight at [60.0, 0.0, 96.0] yaw 90.0
+- Land_SKY_StreetLight at [60.0, 0.15, 100.5] yaw 90.0
+- Land_SKY_Street_Straight at [72.0, 0.0, -96.0] yaw 90.0
+- Land_SKY_Street_Straight at [72.0, 0.0, -48.0] yaw 90.0
+- Land_SKY_Street_Crossing at [72.0, 0.0, 0.0] yaw 90.0
+- Land_SKY_Street_Straight at [72.0, 0.0, 48.0] yaw 90.0
+- Land_SKY_Street_Straight at [72.0, 0.0, 96.0] yaw 90.0
+- Land_SKY_Street_Straight at [84.0, 0.0, -96.0] yaw 90.0
+- Land_SKY_Street_Straight at [84.0, 0.0, -48.0] yaw 90.0
+- Land_SKY_Street_Straight at [84.0, 0.0, 0.0] yaw 90.0
+- Land_SKY_StreetLight at [84.0, 0.15, 4.5] yaw 90.0
+- Land_SKY_Street_Straight at [84.0, 0.0, 48.0] yaw 90.0
+- Land_SKY_Street_Straight at [84.0, 0.0, 96.0] yaw 90.0
+- Land_SKY_Street_Intersection at [96.0, 0.0, -96.0] yaw 0.0
+- Land_SKY_Street_Straight at [96.0, 0.0, -84.0] yaw 0.0
+- Land_SKY_StreetLight at [91.5, 0.15, -84.0] yaw 0.0
+- Land_SKY_Street_Straight at [96.0, 0.0, -72.0] yaw 0.0
+- Land_SKY_Street_Straight at [96.0, 0.0, -60.0] yaw 0.0
+- Land_SKY_Street_Intersection at [96.0, 0.0, -48.0] yaw 0.0
+- Land_SKY_Street_Straight at [96.0, 0.0, -36.0] yaw 0.0
+- Land_SKY_StreetLight at [91.5, 0.15, -36.0] yaw 0.0
+- Land_SKY_Street_Straight at [96.0, 0.0, -24.0] yaw 0.0
+- Land_SKY_Street_Straight at [96.0, 0.0, -12.0] yaw 0.0
+- Land_SKY_Street_Intersection at [96.0, 0.0, 0.0] yaw 0.0
+- Land_SKY_Street_Straight at [96.0, 0.0, 12.0] yaw 0.0
+- Land_SKY_StreetLight at [91.5, 0.15, 12.0] yaw 0.0
+- Land_SKY_Street_Straight at [96.0, 0.0, 24.0] yaw 0.0
+- Land_SKY_Street_Straight at [96.0, 0.0, 36.0] yaw 0.0
+- Land_SKY_Street_Intersection at [96.0, 0.0, 48.0] yaw 0.0
+- Land_SKY_Street_Straight at [96.0, 0.0, 60.0] yaw 0.0
+- Land_SKY_StreetLight at [91.5, 0.15, 60.0] yaw 0.0
+- Land_SKY_Street_Straight at [96.0, 0.0, 72.0] yaw 0.0
+- Land_SKY_Street_Straight at [96.0, 0.0, 84.0] yaw 0.0
+- Land_SKY_Street_Intersection at [96.0, 0.0, 96.0] yaw 0.0
+- Land_SKY_City_Warehouse_Intact at [-77.5, 0.15, -80.5] yaw 0.0
+- Land_SKY_City_Shed_Damaged at [-61.0, 0.15, -88.0] yaw 0.0
+- Land_SKY_City_Workshop_Damaged at [-60.5, 0.15, -59.5] yaw 180.0
+- Land_SKY_City_WarehouseSmall_Intact at [-78.0, 0.15, -60.5] yaw 180.0
+- Land_SKY_City_Shed_Damaged at [-88.0, 0.15, -69.0] yaw 90.0
+- Land_SKY_City_GarageBlock_Intact at [-57.5, 0.15, -77.0] yaw 270.0
+- Land_SKY_City_Workshop_Intact at [-35.5, 0.15, -84.5] yaw 0.0
+- Land_SKY_City_GarageBlock_Damaged at [-18.0, 0.15, -86.5] yaw 0.0
+- Land_SKY_City_Warehouse_Damaged at [-18.5, 0.15, -63.5] yaw 180.0
+- Land_SKY_City_Shed_Intact at [-35.0, 0.15, -56.0] yaw 180.0
+- Land_SKY_City_Shed_Intact at [-40.0, 0.15, -56.5] yaw 90.0
+- Land_SKY_City_Workshop_Intact at [-36.5, 0.15, -67.0] yaw 90.0
+- Land_SKY_City_ShopRow_Intact at [11.0, 0.15, -82.5] yaw 0.0
+- Land_SKY_City_AptBlockBrick_Damaged at [26.0, 0.15, -83.5] yaw 0.0
+- Land_SKY_City_CornerShop_Damaged at [35.5, 0.15, -60.5] yaw 180.0
+- Land_SKY_City_AptBlockBrick_Damaged at [19.0, 0.15, -60.5] yaw 180.0
+- Land_SKY_City_RowhouseRender_Ruined at [12.5, 0.15, -70.6] yaw 90.0
+- Land_SKY_City_GarageBlock_Ruined at [38.5, 0.15, -80.5] yaw 270.0
+- Land_SKY_City_CornerShop_Damaged at [60.5, 0.15, -83.5] yaw 0.0
+- Land_SKY_City_AptBlockBrick_Ruined at [77.0, 0.15, -83.5] yaw 0.0
+- Land_SKY_City_CornerHardware_Ruined at [83.5, 0.15, -60.5] yaw 180.0
+- Land_SKY_City_AptBlockBrick_Ruined at [67.0, 0.15, -60.5] yaw 180.0
+- Land_SKY_City_ShopRow_Damaged at [61.5, 0.15, -71.5] yaw 90.0
+- Land_SKY_City_Rowhouse_Damaged at [83.5, 0.15, -73.4] yaw 270.0
+- Land_SKY_City_SupermarketSmall_Intact at [-72.0, 0.15, -34.5] yaw 0.0
+- Land_SKY_City_Rowhouse_Ruined at [-85.9, 0.15, -35.5] yaw 0.0
+- Land_SKY_City_RowhouseRender_Intact at [-59.2, 0.15, -35.5] yaw 0.0
+- Land_SKY_City_AptBlock_Intact at [-63.5, 0.15, -12.5] yaw 180.0
+- Land_SKY_City_RowhouseRender_Intact at [-77.6, 0.15, -12.5] yaw 180.0
+- Land_SKY_City_Rowhouse_Intact at [-84.8, 0.15, -12.5] yaw 180.0
+- Land_SKY_City_RowhouseRender_Ruined at [-83.5, 0.15, -22.6] yaw 90.0
+- Land_SKY_City_Kiosk_Intact at [-55.7, 0.15, -27.5] yaw 270.0
+- Land_SKY_City_Police_Damaged at [-24.0, 0.15, -34.5] yaw 0.0
+- Land_SKY_City_KioskCafe_Damaged at [-40.0, 0.15, -40.3] yaw 0.0
+- Land_SKY_City_CornerShop_Ruined at [-12.5, 0.15, -12.5] yaw 180.0
+- Land_SKY_City_ShopRow_Damaged at [-24.5, 0.15, -13.5] yaw 180.0
+- Land_SKY_City_ShopRow_Intact at [-33.5, 0.15, -13.5] yaw 180.0
+- Land_SKY_City_CornerHardware_Intact at [12.5, 0.15, -35.5] yaw 0.0
+- Land_SKY_City_OfficeTall_Damaged at [29.0, 0.15, -32.5] yaw 0.0
+- Land_SKY_City_CornerPharmacy_Damaged at [35.5, 0.15, -12.5] yaw 180.0
+- Land_SKY_City_AptBlockTall_Intact at [19.0, 0.15, -12.5] yaw 180.0
+- Land_SKY_City_KioskCafe_Damaged at [7.7, 0.15, -8.0] yaw 90.0
+- Land_SKY_City_FireStation_Damaged at [72.0, 0.15, -33.5] yaw 0.0
+- Land_SKY_City_CornerHardware_Ruined at [83.5, 0.15, -12.5] yaw 180.0
+- Land_SKY_City_RubbleLot_C at [70.0, 0.15, -12.5] yaw 180.0
+- Land_SKY_City_ShopRow_Ruined at [59.5, 0.15, -13.5] yaw 180.0
+- Land_SKY_City_GarageBlock_Damaged at [57.5, 0.15, -30.0] yaw 90.0
+- Land_SKY_City_GarageBlock_Ruined at [86.5, 0.15, -32.5] yaw 270.0
+- Land_SKY_City_VillaStone_Damaged at [-84.5, 0.15, 11.5] yaw 0.0
+- Land_SKY_City_Villa_Ruined at [-72.5, 0.15, 11.5] yaw 0.0
+- Land_SKY_City_VillaStone_Damaged at [-60.5, 0.15, 11.5] yaw 0.0
+- Land_SKY_City_CornerShop_Intact at [-60.5, 0.15, 35.5] yaw 180.0
+- Land_SKY_City_RowhouseRender_Intact at [-72.1, 0.15, 35.5] yaw 180.0
+- Land_SKY_City_Shed_Damaged at [-79.7, 0.15, 40.0] yaw 180.0
+- Land_SKY_City_ShedBrick_Damaged at [-85.7, 0.15, 40.0] yaw 180.0
+- Land_SKY_City_RowhousePanel_Intact at [-83.5, 0.15, 34.9] yaw 90.0
+- Land_SKY_City_VillaBrick_Intact at [-84.5, 0.15, 24.3] yaw 90.0
+- Land_SKY_City_VillaStone_Ruined at [-59.5, 0.15, 21.5] yaw 270.0
+- Land_SKY_City_ShopRow_Ruined at [-37.0, 0.15, 13.5] yaw 0.0
+- Land_SKY_City_ShopRow_Damaged at [-28.0, 0.15, 13.5] yaw 0.0
+- Land_SKY_City_ShopRowHardware_Damaged at [-19.0, 0.15, 13.5] yaw 0.0
+- Land_SKY_City_KioskCafe_Damaged at [-11.5, 0.15, 7.7] yaw 0.0
+- Land_SKY_City_CornerPharmacy_Intact at [-12.5, 0.15, 35.5] yaw 180.0
+- Land_SKY_City_ShopRow_Ruined at [-24.5, 0.15, 34.5] yaw 180.0
+- Land_SKY_City_ShopRow_Intact at [-33.5, 0.15, 34.5] yaw 180.0
+- Land_SKY_City_Clinic_Intact at [24.0, 0.15, 34.5] yaw 180.0
+- Land_SKY_City_CornerShop_Ruined at [12.5, 0.15, 12.5] yaw 0.0
+- Land_SKY_City_OfficeMid_Intact at [29.0, 0.15, 15.5] yaw 0.0
+- Land_SKY_City_ShopRow_Intact at [37.0, 0.15, 34.5] yaw 180.0
+- Land_SKY_City_Kiosk_Intact at [14.5, 0.15, 40.3] yaw 180.0
+- Land_SKY_City_CornerPharmacy_Damaged at [60.5, 0.15, 12.5] yaw 0.0
+- Land_SKY_City_AptBlock_Damaged at [77.0, 0.15, 12.5] yaw 0.0
+- Land_SKY_City_CornerHardware_Ruined at [83.5, 0.15, 35.5] yaw 180.0
+- Land_SKY_City_AptBlock_Intact at [67.0, 0.15, 35.5] yaw 180.0
+- Land_SKY_City_Kiosk_Damaged at [55.7, 0.15, 40.0] yaw 90.0
+- Land_SKY_City_Rowhouse_Damaged at [60.5, 0.15, 25.4] yaw 90.0
+- Land_SKY_City_ShopRow_Damaged at [82.5, 0.15, 23.5] yaw 270.0
+- Land_SKY_City_CornerShop_Intact at [-83.5, 0.15, 60.5] yaw 0.0
+- Land_SKY_City_RowhousePanel_Ruined at [-71.9, 0.15, 60.5] yaw 0.0
+- Land_SKY_City_RowhousePanel_Intact at [-64.7, 0.15, 60.5] yaw 0.0
+- Land_SKY_City_KioskCafe_Intact at [-57.6, 0.15, 55.7] yaw 0.0
+- Land_SKY_City_CornerPharmacy_Intact at [-60.5, 0.15, 83.5] yaw 180.0
+- Land_SKY_City_Rowhouse_Intact at [-72.1, 0.15, 83.5] yaw 180.0
+- Land_SKY_City_RowhouseRender_Damaged at [-79.3, 0.15, 83.5] yaw 180.0
+- Land_SKY_City_Shed_Intact at [-86.9, 0.15, 88.0] yaw 180.0
+- Land_SKY_City_Shed_Intact at [-88.0, 0.15, 84.5] yaw 90.0
+- Land_SKY_City_RowhouseRender_Damaged at [-83.5, 0.15, 73.9] yaw 90.0
+- Land_SKY_City_Rowhouse_Damaged at [-60.5, 0.15, 70.1] yaw 270.0
+- Land_SKY_City_CornerPharmacy_Intact at [-35.5, 0.15, 60.5] yaw 0.0
+- Land_SKY_City_RowhouseRender_Ruined at [-23.9, 0.15, 60.5] yaw 0.0
+- Land_SKY_City_Rowhouse_Ruined at [-16.7, 0.15, 60.5] yaw 0.0
+- Land_SKY_City_Shed_Intact at [-9.1, 0.15, 56.0] yaw 0.0
+- Land_SKY_City_CornerPharmacy_Intact at [-12.5, 0.15, 83.5] yaw 180.0
+- Land_SKY_City_RubbleLot_B at [-26.5, 0.15, 83.5] yaw 180.0
+- Land_SKY_City_Shed_Damaged at [-36.5, 0.15, 88.0] yaw 180.0
+- Land_SKY_City_Shed_Intact at [-40.0, 0.15, 87.5] yaw 90.0
+- Land_SKY_City_VillaBrick_Intact at [-36.5, 0.15, 72.5] yaw 90.0
+- Land_SKY_City_VillaStone_Intact at [-11.5, 0.15, 71.5] yaw 270.0
+- Land_SKY_City_CornerShop_Intact at [12.5, 0.15, 60.5] yaw 0.0
+- Land_SKY_City_Villa_Intact at [25.5, 0.15, 59.5] yaw 0.0
+- Land_SKY_City_RowhouseRender_Intact at [36.1, 0.15, 60.5] yaw 0.0
+- Land_SKY_City_CornerPharmacy_Ruined at [35.5, 0.15, 83.5] yaw 180.0
+- Land_SKY_City_VillaBrick_Intact at [22.5, 0.15, 84.5] yaw 180.0
+- Land_SKY_City_Shed_Intact at [13.5, 0.15, 88.0] yaw 180.0
+- Land_SKY_City_KioskCafe_Intact at [8.0, 0.15, 88.3] yaw 180.0
+- Land_SKY_City_Shed_Intact at [8.0, 0.15, 84.5] yaw 90.0
+- Land_SKY_City_Villa_Intact at [11.5, 0.15, 75.5] yaw 90.0
+- Land_SKY_City_Villa_Intact at [36.5, 0.15, 71.5] yaw 270.0
+- Land_SKY_City_CornerShop_Intact at [60.5, 0.15, 60.5] yaw 0.0
+- Land_SKY_City_Kiosk_Intact at [69.5, 0.15, 55.7] yaw 0.0
+- Land_SKY_City_ShopRow_Ruined at [77.0, 0.15, 61.5] yaw 0.0
+- Land_SKY_City_RowhouseRender_Intact at [85.1, 0.15, 60.5] yaw 0.0
+- Land_SKY_City_AptBlock_Ruined at [80.5, 0.15, 83.5] yaw 180.0
+- Land_SKY_City_Rowhouse_Damaged at [66.4, 0.15, 83.5] yaw 180.0
+- Land_SKY_City_RowhouseRender_Intact at [59.2, 0.15, 83.5] yaw 180.0
+- Land_SKY_City_RowhouseRender_Intact at [60.5, 0.15, 73.4] yaw 90.0
+- Land_SKY_City_RowhouseRender_Ruined at [83.5, 0.15, 72.6] yaw 270.0

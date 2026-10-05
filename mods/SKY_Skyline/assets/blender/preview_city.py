@@ -87,7 +87,9 @@ def main():
     PT.NIGHT = "--night" in argv
     os.makedirs(out, exist_ok=True)
     jobs = []
-    if shot == "states":
+    if shot == "lots":
+        jobs = [("RubbleLot", [("City_RubbleLot_%s" % v, i) for i, v in enumerate("ABCD")])]
+    elif shot == "states":
         jobs = [(a, [("City_%s_%s" % (a, st), i) for i, st in enumerate(S.RUIN_STATES)]) for a in only]
     elif shot == "street":
         names, x = [], 0.0
@@ -104,7 +106,8 @@ def main():
         x = 0.0
         spans = []
         for name, _i in items:
-            A = S.CITY_ARCHETYPES[S.KIT[name]["city"]["archetype"]]
+            arch = S.KIT[name]["city"]["archetype"]
+            A = S.CITY_ARCHETYPES[arch] if arch else {"w": 12.0, "d": 12.0, "levels": [("lot", 4.0)], "blank": ()}
             if shot == "street":
                 gap = 0.0 if A["blank"] else 4.0
             else:

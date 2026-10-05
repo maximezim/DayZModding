@@ -527,8 +527,9 @@ MATERIALS.update({
     "rubble": {"rvmat": rvmat("sky_rubble"), "co": tex("sky_rubble_co"), "sheet_m": 3.0},
     "signs":  {"rvmat": rvmat("sky_signs"), "co": tex("sky_signs_co")},
 })
-SIGN_BAND = {k: (i / 8.0, (i + 1) / 8.0) for i, k in enumerate(
-    ["police", "pharmacy", "market", "cafe", "offices", "depot", "bakery", "hardware"])}
+SIGN_NAMES = ["police", "pharmacy", "market", "cafe", "offices", "depot", "bakery", "hardware", "clinic", "fire",
+              "garage", "news"]
+SIGN_BAND = {k: (i / float(len(SIGN_NAMES)), (i + 1) / float(len(SIGN_NAMES))) for i, k in enumerate(SIGN_NAMES)}
 RUIN_STATES = ("Intact", "Damaged", "Ruined")
 CITY_STYLE = {
     "wall_t": 0.3,            # exterior wall thickness
@@ -606,13 +607,70 @@ CITY_ARCHETYPES.update({
                                desc="small steel warehouse, 1 roller door"),
 })
 CITY_TESTED = ()          # catalog ids whose TESTING.md city rows passed in DayZ (city_progress.py)
+
+# ---- wave 2 (D57): new uses (corridor plans, market, engine bays, workshop, garage hall, kiosk, shed),
+# pitched roofs, doorless garage blocks entered through open bays.
+_RES = ["tools", "containers", "clothes", "food", "books"]
+CITY_ARCHETYPES.update({
+    "Villa": {"group": "residential", "w": 10.0, "d": 10.0, "levels": [("house", 3.0)] * 2, "skin": ("render", "white"),
+              "roof": "pitched", "blank": (), "stair": "back_left", "bay": 2.5, "door_bay": 1, "usage": ["Town", "Village"],
+              "cats": _RES, "desc": "detached 2-storey villa, pitched zinc roof"},
+    "ShopRow": {"group": "mixed", "w": 9.0, "d": 14.0, "levels": [("shop", 4.0)] + [("flat", 3.0)] * 3,
+                "skin": ("brick", None), "ground": "shopfront", "shop_sides": ("S",), "blank": ("W", "E"),
+                "stair": "back_right", "bay": 3.0, "door_bay": 1, "sign": "cafe", "usage": ["Town"],
+                "cats": ["food", "containers", "tools", "clothes"], "desc": "4-storey terrace: cafe below, three flats"},
+    "Supermarket": {"group": "commercial", "w": 24.0, "d": 20.0, "levels": [("market", 5.0)], "skin": ("render", "white"),
+                    "ground": "shopfront", "shop_sides": ("S",), "blank": (), "stair": None, "bay": 4.0,
+                    "door_bay": "center", "sign": "market", "usage": ["Town"], "cats": ["food", "containers", "tools"],
+                    "desc": "single-storey supermarket: aisles, checkouts, stock room"},
+    "Clinic": {"group": "civic", "w": 16.0, "d": 14.0, "levels": [("clinic_ground", 3.5), ("corridor", 3.5)],
+               "skin": ("render", "white"), "blank": (), "stair": "back_center", "bay": 2.67, "door_bay": "center",
+               "sign": "clinic", "usage": ["Medic"], "cats": ["tools", "containers", "clothes"],
+               "desc": "2-storey clinic: waiting room, exam rooms off a corridor"},
+    "FireStation": {"group": "civic", "w": 22.0, "d": 16.0, "levels": [("firebays", 4.5), ("corridor", 3.5)],
+                    "skin": ("brick", None), "blank": (), "stair": "back_left", "bay": 3.67, "door_bay": 0,
+                    "roller_bays": (2, 3, 4), "sign": "fire", "usage": ["Firefighter"],
+                    "cats": ["tools", "clothes", "containers"], "desc": "fire station: 3 engine bays, dormitory floor"},
+    "Workshop": {"group": "industrial", "w": 12.0, "d": 10.0, "levels": [("workshop", 4.5)], "skin": ("metal", None),
+                 "blank": (), "stair": None, "bay": 4.0, "door_bay": 0, "roller_bays": (1,), "sign": "garage",
+                 "parapet": 0.5, "usage": ["Industrial"], "cats": ["tools", "containers"],
+                 "desc": "car repair workshop: roller door, workbench, shelving"},
+    "GarageBlock": {"group": "industrial", "w": 18.0, "d": 6.0, "levels": [("garage", 3.0)], "skin": ("brick", None),
+                    "blank": (), "stair": None, "bay": 3.0, "door_bay": None, "roller_bays": (0, 1, 3, 5),
+                    "open_bays": (2, 4), "parapet": 0.4, "roof_gear": False, "usage": ["Industrial", "Town"],
+                    "cats": ["tools", "containers"], "desc": "row of lock-up garages, two shutters open"},
+    "Kiosk": {"group": "small", "w": 3.0, "d": 2.4, "levels": [("kiosk", 2.8)], "skin": ("panel", None), "blank": (),
+              "stair": None, "bay": 3.0, "door_bay": 0, "sign": "news", "parapet": 0.15, "roof_gear": False,
+              "usage": ["Town"], "cats": ["food", "books"], "desc": "news kiosk"},
+    "Shed": {"group": "small", "w": 4.0, "d": 3.0, "levels": [("shed", 2.6)], "skin": ("render", "grey"), "blank": (),
+             "stair": None, "bay": 4.0, "door_bay": 0, "parapet": 0.15, "roof_gear": False,
+             "usage": ["Town", "Village"], "cats": ["tools", "containers"], "desc": "yard shed"},
+})
+CITY_ARCHETYPES.update({
+    "VillaBrick": _variant("Villa", skin=("brick", None), desc="detached 2-storey brick villa"),
+    "VillaStone": _variant("Villa", skin=("stone", None), desc="detached 2-storey stone villa"),
+    "ShopRowMarket": _variant("ShopRow", skin=("render", "cream"), sign="market", desc="4-storey terrace: grocer below"),
+    "ShopRowNews": _variant("ShopRow", skin=("panel", None), sign="news", cats=["books", "food", "containers"],
+                            desc="4-storey terrace: newsagent below"),
+    "ShopRowHardware": _variant("ShopRow", skin=("render", "grey"), sign="hardware", cats=["tools", "containers"],
+                                desc="4-storey terrace: hardware store below"),
+    "SupermarketSmall": _variant("Supermarket", w=18.0, d=14.0, bay=3.6, desc="small supermarket"),
+    "WorkshopBrick": _variant("Workshop", skin=("brick", None), desc="brick car repair workshop"),
+    "KioskCafe": _variant("Kiosk", skin=("render", "ochre"), sign="cafe", cats=["food"], desc="coffee kiosk"),
+    "ShedBrick": _variant("Shed", skin=("brick", None), desc="brick yard shed"),
+})
 for _a, _e in CITY_ARCHETYPES.items():
     for _i, _st in enumerate(RUIN_STATES):
         kit("City_%s_%s" % (_a, _st), "sky_city", "city_tall" if len(_e["levels"]) >= 7 else "city", uses=["PENETRATION"] + (["DOOR_SWING_SIGN"] if _i < 2 else []),
             desc="%s (%s)" % (_e["desc"], _st.lower()))
         # orient -1: city front doors open inward (action point inside), see test_city swing test
-        KIT["City_%s_%s" % (_a, _st)]["doors"] = [door("door_front", "Door", -1)] if _i < 2 else []
+        KIT["City_%s_%s" % (_a, _st)]["doors"] = [door("door_front", "Door", -1)] if (_i < 2 and _e["door_bay"] is not None) else []
         KIT["City_%s_%s" % (_a, _st)]["city"] = {"archetype": _a, "ruin": _i}
+for _v in "ABCD":                                     # standalone collapsed lots (kit, no ruin states)
+    kit("City_RubbleLot_%s" % _v, "sky_city", "city", uses=["PENETRATION"], desc="12 x 12 m collapsed building lot")
+    KIT["City_RubbleLot_%s" % _v]["doors"] = []
+    KIT["City_RubbleLot_%s" % _v]["city"] = {"archetype": None, "ruin": 2, "lot": _v}
+    KIT["City_RubbleLot_%s" % _v]["catalog"] = "RubbleLot"
 # Loot points of the city buildings are computed by build_city.py (on a slab, clear of every solid,
 # outside stair and collapse) and committed in assets/city_loot.json -> CE groups here.
 _CITY_LOOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "city_loot.json")
@@ -661,11 +719,11 @@ CITY_CATALOG = [
     ("ParkingGarage", "industrial", "30x18", 4, "proc", 1, 4, 3, "ramps, cars"),
     ("Substation", "industrial", "10x8", 1, "proc", 1, 6, 2, "fenced, not enterable"),
     ("WaterTower", "industrial", "6x6", 1, "kit", 1, 2, 3, ""),
-    ("Kiosk", "small", "3x2", 1, "kit", 2, 30, 2, "news / snack"),
+    ("Kiosk", "small", "3x2.4", 1, "proc", 2, 30, 2, "news / coffee"),
     ("MetroEntrance", "small", "4x6", 1, "kit", 2, 8, 3, "stairs down (no tunnel)"),
     ("RubbleLot", "ruin", "12x12", 0, "kit", 4, 50, 2, "collapsed lot fillers"),
     ("GarageBlock", "industrial", "18x6", 1, "proc", 1, 40, 2, "row of lock-up garages"),
-    ("Shed", "small", "4x3", 1, "kit", 2, 40, 2, "yard sheds / annexes"),
+    ("Shed", "small", "4x3", 1, "proc", 2, 40, 2, "yard sheds / annexes"),
 ]
 # One object per building (Tower A splits into 7 modules, 77 sections): ~20 sections and ~200
 # convex parts for a 5-6 storey block are in line with large vanilla buildings (hypothesis, D56).
@@ -673,6 +731,39 @@ BUDGETS["city"] = {"res0": 30000, "res1": 9000, "res2": 1500, "res3": 200, "shad
                    "geo_tris": 3000, "sections_res0": 24}
 BUDGETS["city_tall"] = {"res0": 50000, "res1": 15000, "res2": 2000, "res3": 200, "shadow": 800, "geo_comps": 340,
                         "geo_tris": 4200, "sections_res0": 24}            # 7+ storeys (scales per storey)
+
+
+# ---- city layout zones (D57): placement/city_fill.py fills blocks lot by lot along their street
+# edges. weights = archetype mix, ruin = (intact, damaged, ruined) probabilities, lots = chance of
+# a rubble lot per slot, gap = metres between detached buildings (party-wall types sit flush),
+# corner = archetypes preferred on a block corner (shopfront on two streets), small_cap = kiosks / sheds
+# per block (small pieces would otherwise fill every leftover gap; real blocks keep yards and alleys).
+CITY_ZONES = {
+    "downtown": {"weights": {"OfficeMid": 3, "OfficeTall": 2, "AptBlockTall": 2, "ShopRow": 3, "ShopRowMarket": 2,
+                             "ShopRowNews": 1, "ShopRowHardware": 1, "Supermarket": 1, "Clinic": 1, "Police": 1,
+                             "Kiosk": 1, "KioskCafe": 1},
+                 "corner": ["CornerShop", "CornerPharmacy", "CornerHardware"], "ruin": (0.40, 0.40, 0.20),
+                 "lots": 0.04, "gap": 1.5, "small_cap": 1},
+    "midtown": {"weights": {"AptBlock": 3, "AptBlockBrick": 2, "ShopRow": 2, "ShopRowMarket": 1, "Rowhouse": 2,
+                            "RowhouseRender": 2, "SupermarketSmall": 1, "Clinic": 1, "FireStation": 1, "Kiosk": 1},
+                "corner": ["CornerShop", "CornerPharmacy", "CornerHardware"], "ruin": (0.45, 0.35, 0.20),
+                "lots": 0.05, "gap": 1.5, "small_cap": 1},
+    "residential": {"weights": {"Rowhouse": 4, "RowhouseRender": 3, "RowhousePanel": 2, "Villa": 3, "VillaBrick": 2,
+                                "VillaStone": 1, "Shed": 2, "ShedBrick": 1, "KioskCafe": 1},
+                    "corner": ["CornerShop", "CornerPharmacy"], "ruin": (0.55, 0.30, 0.15), "lots": 0.03, "gap": 2.0,
+                    "small_cap": 3},
+    "industrial": {"weights": {"Warehouse": 3, "WarehouseSmall": 3, "Workshop": 3, "WorkshopBrick": 2, "GarageBlock": 3,
+                               "Shed": 1},
+                   "corner": [], "ruin": (0.35, 0.40, 0.25), "lots": 0.08, "gap": 2.5, "small_cap": 2},
+    "frontline": {"weights": {"AptBlock": 2, "AptBlockBrick": 2, "ShopRow": 2, "Rowhouse": 2, "RowhouseRender": 1,
+                              "Police": 1, "WarehouseSmall": 1, "GarageBlock": 1},
+                  "corner": ["CornerShop", "CornerHardware"], "ruin": (0.10, 0.40, 0.50), "lots": 0.20, "gap": 1.5,
+                  "small_cap": 1},
+}
+# Spawned city buildings are replicated entities (objectSpawnersArr): a layout with target
+# "spawner" obeys ENTITY_CAP; target "terrain" (a whole city baked into a custom map, Level 2 in
+# MOD_DEVELOPMENT_GUIDE 4.3) writes an object list instead and is not capped.
+CITY_SKIRT_DROP = 1.5           # ground may fall this far below a city building's ground slab (skirt)
 
 
 # ===================================================================== batch 5: economy + placement prep
