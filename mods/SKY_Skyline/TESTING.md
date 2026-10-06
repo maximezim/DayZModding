@@ -24,7 +24,7 @@ How to use this checklist:
 | ID | Step | Expected | PASS/FAIL |
 |---|---|---|---|
 | S-01 | Run `tools\setup\Get-ToolchainStatus.ps1` (includes Python + Pillow / PyYAML / numpy for the asset tools; `Install-Toolchain.ps1 -Only Pillow` installs all three). If anything is missing, run `tools\setup\Initialize-WorkDrive.ps1` (P: + game data) and `tools\setup\Initialize-TestServer.ps1` | DayZ, DayZ Tools, DayZ Server and P: all found. `server\serverDZ.diag.cfg` and `server\serverDZ.dedicated.cfg` rendered | |
-| S-02 | Run `mods\SKY_Skyline\assets\Build-SkyAssets.ps1` | 41 `.paa` files are written into `addons\sky_textures\data` (36) and `addons\sky_items\data` (5). They include all 40 referenced names (QA-03). Every `dz\` path resolves on P:: `concrete.rvmat`, `glass.rvmat` and `env_land_co.paa` are the unverified ones (QA-08). Ends with `SKY assets ready` | |
+| S-02 | Run `mods\SKY_Skyline\assets\Build-SkyAssets.ps1` | The `.paa` files (41 at batch 6, plus the D60 `sky_hq_facade` co / nohq / smdi) are written into `addons\sky_textures\data` (36) and `addons\sky_items\data` (5). They include all 40 referenced names (QA-03). Every `dz\` path resolves on P:: `concrete.rvmat`, `glass.rvmat` and `env_land_co.paa` are the unverified ones (QA-08). Ends with `SKY assets ready` | |
 | S-03 | Run `tools\build\Build-Mod.ps1 -ModName SKY_Skyline`, then `tools\build\Sign-Mod.ps1 -ModName SKY_Skyline` | 4 PBOs in `build\@SKY_Skyline\addons`. `sky_items` and `sky_towera` are binarized; `sky_scripts` and `sky_textures` are pack-only. Newest `DayZ Tools\Bin\Logs\AddonBuilder*.rpt` has no `non-convex`, `missing`, `Cannot open` or `error` lines for SKY files | |
 | S-04 | Create the test mission. Do **not** edit the vanilla copy (`CLAUDE.md`, QA-10). Copy `server\mpmissions\dayzOffline.chernarusplus` to `server\mpmissions\dayzOffline.chernarusplus_sky`. Run `tools\setup\Initialize-TestServer.ps1 -Mission dayzOffline.chernarusplus_sky -Force`; it skips the copy because the folder exists. For dedicated, put the same folder in `<ServerDir>\mpmissions\` | Both rendered configs show `template = "dayzOffline.chernarusplus_sky"` | |
 | S-05 | **Check cfggameplay is enabled (QA-01).** The templates already contain `enableCfgGameplayFile = 1;`; confirm it is in the rendered `server\serverDZ.diag.cfg` / `server\serverDZ.dedicated.cfg` (re-render with `Initialize-TestServer.ps1 -Force` if not) | Without this line nothing spawns. Vanilla reads the flag in `3_game/cfggameplayhandler.c:53` | |
@@ -263,7 +263,7 @@ Record the results there, or link them from here.
 | PERF-02 | All `FPS_PROTOCOL.md` §4 thresholds are in "Pass" (district: configs A/B/D/D0/D-dec/E; prerequisites §0 done) | |
 | B3-MC | Search `P:\DZ\structures\**\data\*.rvmat` for a Stage3 texture ending in `_mc` (PENDING B3). Expected: found / not found, with one example path | |
 | B9-VAL | First real `Invoke-ModValidation.ps1` run: clean start -> summary 0 SKY FAIL lines; then rename one SKY texture in a scratch build -> summary FAIL naming it (PENDING B9). Expected: both behave as stated | |
-| B10-EXP | On the test machine (Blender 4.2 + Arma Toolbox: set `$env:ARMATOOLBOX_PATH` to the folder containing the ArmaToolbox package) export into a **scratch** folder (never over `addons\`): create `C:\tmp\skyexp\addons` and `C:\tmp\skyexp\assets`, then per builder `blender -b --factory-startup --python-exit-code 1 -P mods\SKY_Skyline\assets\blender\build_kit.py -- --out C:\tmp\skyexp\addons` (same for build_props / build_floors / build_towera); compare with `python tools\assets\p3d_inspect.py` old vs new (PENDING B10). Expected: identical LOD / selection / triangle counts (or byte-identical) | |
+| B10-EXP | Re-export into a **scratch** folder (never over `addons\`): `python mods\SKY_Skyline\assets\blender\build_floors.py -- --out C:\tmp\skyexp\addons --only Floor_HQ` (create `C:\tmp\skyexp\addons` and `C:\tmp\skyexp\assets` first). Open the P3D in Object Builder (DayZ Tools), then compare `python tools\assets\p3d_inspect.py` on old vs new (PENDING B10, D60). | Object Builder opens it with every LOD, selection and named property; p3d_inspect shows identical LOD / selection / triangle counts | | |
 
 ## 14. Interior props (batch 3, `sky_props`)
 
@@ -530,6 +530,22 @@ Static results: `reviews/d59_gates.md`; renders `reviews/img/d59_*.png`.
 | CV-05 | Terrain-aware fill on a surveyed slope | Report lists the skipped lots; every placed building within the 1.5 m skirt, entrances within 0.5 m of the sidewalk | | |
 | CV-06 | FPS walk through a dense overgrown block (FPS_PROTOCOL) | Client cost of grime quads and vegetation cards within the budget notes of `reviews/d59_gates.md` | | |
 
+## 25. Content pass: facade variants, HQ, Lobby_B, skybridge, weathering (D60)
+
+Layout: `placement/skyline_template.yaml` (offline it runs with warnings; fill the site to deploy).
+Packages: `sky_floors` (floors, skybridge), `sky_towera` (Lobby_B), `sky_textures` (`sky_hq_facade`, 4K).
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| CP-01 | Walk each office floor variant (`office_concrete`, `office_brick`, `hq`) | Same plan as the Tower A office (partitions, columns, loot points, furniture fit); no gaps at the corners; night lights on like the office floor | | |
+| CP-02 | HQ facade close up from the plaza and from 300 m | Bronze fins / spandrels / granite read crisply (4K); no shimmering; RPT has no error for `sky_hq_facade` | | |
+| CP-03 | Lobby_B: keycard door, security exit button, loot | Behaves exactly like the lobby (§5): tier-2 swipe, relock 60 s, exit only from inside | | |
+| CP-04 | Lobby_B frontage | Signs readable on S / E / W, awnings over the S shopfronts, nothing blocks the entrance | | |
+| CP-05 | Skybridge: climb the steps from each roof, cross, look down | Steps walkable (Roadway ramp), no fall-through at the parapet, glass walls collide and stop bullets, roof blocks rain/view | | |
+| CP-06 | Skybridge: infected and players at both landings | Nobody stuck on the steps; roof drops / crates on both roofs still clear | | |
+| CP-07 | Weathering: lobby piers, roof parapets, roof weeds | Grime sits on the surface (no z-fighting); weeds alpha-tested, walk-through | | |
+| CP-08 | (optional, P13) set 1-2 `VANILLA_TREES`, regenerate a city layout | Trees visible and solid on a client; if not, empty the list again | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -557,4 +573,7 @@ Static results: `reviews/d59_gates.md`; renders `reviews/img/d59_*.png`.
 | Splendour pass §20 | | | |
 | City buildings §21 | | | |
 | City wave 2 / districts §22 | | | |
+| Wave 3 / tall towers §23 | | | |
+| Ambiance / vegetation §24 | | | |
+| Content pass §25 | | | |
 | FPS protocol (`FPS_PROTOCOL.md` §4 thresholds) | | | |

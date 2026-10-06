@@ -52,7 +52,11 @@ Machine-specific paths go in `workspace.config.json` (git-ignored, copy of
 | Deploy to dedicated server | `tools\build\Deploy-Mod.ps1 -ModName <Mod>[,<Mod2>]` |
 | Build + diag server + client | `tools\build\Build-And-Run.ps1 -ModName <Mod> [-ServerModName <Srv>] -FilePatching` |
 | Build + dedicated (signed) | `tools\build\Build-And-Run.ps1 -ModName <Mod> -Mode Dedicated` |
+| SKY assets (textures -> PAA, optional P3D re-export, configs, checks) | `mods\SKY_Skyline\assets\Build-SkyAssets.ps1 [-Models] [-Blender <exe>] [-Backend native\|atb]` |
 | Launch only | `tools\launch\Start-DiagLocal.ps1 -Mods <Mod>` / `tools\launch\Start-DedicatedServer.ps1 -Mods <Mod> -ServerMods <Srv>` |
+
+P3D export: the SKY generators write MLOD with `assets/blender/p3dwriter.py` (plain Python, no Blender add-on; D60);
+Arma Toolbox stays optional (`-Backend atb`). Geometry tests run with Python.
 
 Install notes: DayZ Server (223350) needs `-SteamUser <login>` (anonymous is refused); `Initialize-WorkDrive.ps1`
 junctions `<Documents>\DayZ Projects` to the work-drive source dir because WorkDrive.exe extracts there; the

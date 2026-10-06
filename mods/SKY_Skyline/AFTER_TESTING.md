@@ -39,7 +39,7 @@ tools\tests\Invoke-ModValidation.ps1 -ModName SKY_Skyline -Layout <layout.yaml> 
 | B7 | L5-01, FPS S8 | no `mapgrouppos` entries / loot on spawned props | delete the prop groups from `skyspec.LOOT` (Locker, Desk, ReceptionDesk, Kitchenette), `gen_economy.py` |
 | B8 | P5-03, P5-05 | street lights block the sidewalk, or decals z-fight | move the light offset in `sky_layout.py` (0.5 m inside the curb) / raise `DECAL_OFFSET` per type |
 | B9 | B9-VAL | a clean run shows FAIL lines, or a broken build shows none | adjust `$FailPatterns` / `$ModScoped` in `tools\tests\Invoke-ModValidation.ps1` (regexes only) |
-| B10 | B10-EXP | you need to re-export P3Ds (P2/P3/P6/P8, B1/B2) | install Blender 4.2 LTS + Arma Toolbox next to Blender 5.2 and pass `-Blender`, or port `skygeo.export_p3d` to the DayZ Object Builder exporter and prove the output identical |
+| B10 | B10-EXP | you need to re-export P3Ds (P2/P3/P6/P8, B1/B2) | nothing to install (D60): `mods\SKY_Skyline\assets\Build-SkyAssets.ps1 -Models` re-exports with plain Python; if Object Builder refuses a file, run `-Models -Backend atb -Blender <4.2 blender.exe>` with `ARMATOOLBOX_PATH` and report the difference |
 | B11 | FPS §0.1 | you want the server-side FPS numbers | ask for the `SKY_PerfProbe` diag server mod (FPS_PROTOCOL §0.1), then run the protocol with `-ServerMods SKY_PerfProbe` |
 | B12 | FPS §0.2/§0.4 | first run shows the real ready/connect/spawn log texts and `-limitFPS` | write them into FPS_PROTOCOL.md §0.2/§0.4 (and the validation script's patterns if useful) |
 

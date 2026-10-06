@@ -6,8 +6,8 @@
 .DESCRIPTION
     Steps (each prints its exact command lines; -DryRun prints and runs nothing):
       1. Static checks (mods with assets\check_assets.py, e.g. SKY_Skyline): Python
-         generators in --check mode, check_assets, the placement self-test; Blender
-         geometry tests when -Blender is given.
+         generators in --check mode, check_assets, the placement self-test and the
+         geometry tests (Python; inside Blender when -Blender is given).
       2. tools\build\Build-Mod.ps1, Sign-Mod.ps1, Deploy-Mod.ps1 (dedicated server).
       3. Optional -Layout <yaml>: placement\sky_layout.py -> objectSpawnersArr JSON, plus the
          mod's economy (sky_ce folder, mapgroupproto groups, roof-drop event positions),
@@ -249,15 +249,19 @@ elseif (Test-Path -LiteralPath (Join-DzPath $modDir 'assets' 'check_assets.py'))
     if (Test-Path -LiteralPath (Join-DzPath $modDir 'assets' 'city_progress.py')) {
         Invoke-DzCheck 'city_progress --check' $Python @((Join-DzPath $modDir 'assets' 'city_progress.py'), '--check')
     }
-    if ($Blender) {
-        Write-DzStep 'Static checks (Blender geometry tests)'
-        # --python-exit-code: a crashing test script must not exit 0 (QA batch-6 M2)
-        Invoke-DzCheck 'test_kit'    $Blender @('-b', '--factory-startup', '--python-exit-code', '1', '-P', (Join-DzPath $modDir 'assets' 'blender' 'test_kit.py'))
-        Invoke-DzCheck 'test_towera' $Blender @('-b', '--factory-startup', '--python-exit-code', '1', '-P', (Join-DzPath $modDir 'assets' 'blender' 'test_towera.py'))
-        if (Test-Path -LiteralPath (Join-DzPath $modDir 'assets' 'blender' 'test_city.py')) {
-            Invoke-DzCheck 'test_city' $Blender @('-b', '--factory-startup', '--python-exit-code', '1', '-P', (Join-DzPath $modDir 'assets' 'blender' 'test_city.py'))
+    # Geometry tests: plain Python since D60 (no add-on); -Blender runs them inside that Blender instead.
+    $geoTests = @('test_kit', 'test_towera', 'test_city')
+    if ($Blender) { Write-DzStep 'Static checks (geometry tests in Blender)' } else { Write-DzStep 'Static checks (geometry tests, Python)' }
+    foreach ($t in $geoTests) {
+        $tp = Join-DzPath $modDir 'assets' 'blender' ($t + '.py')
+        if (-not (Test-Path -LiteralPath $tp)) { continue }
+        if ($Blender) {
+            # --python-exit-code: a crashing test script must not exit 0 (QA batch-6 M2)
+            Invoke-DzCheck $t $Blender @('-b', '--factory-startup', '--python-exit-code', '1', '-P', $tp)
+        } else {
+            Invoke-DzCheck $t $Python @($tp)
         }
-    } else { Add-Step 'Blender geometry tests' 'SKIP' 'pass -Blender <blender.exe> to run test_kit / test_towera' }
+    }
 } else { Add-Step 'static checks' 'SKIP' 'mod has no assets\check_assets.py' }
 
 # 2. build, sign, deploy

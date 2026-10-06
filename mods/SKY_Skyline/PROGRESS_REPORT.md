@@ -164,3 +164,21 @@ including perimeter-block yards. The fill is terrain-aware (it skips or downsize
 cannot take instead of failing), avoids slivers between buildings, and spawner sites get vanilla
 clutter cutters under ground floors (P12). Gates PASS (`reviews/d59_gates.md`), renders
 `reviews/img/d59_*.png`, in-game rows TESTING §24.
+
+## 12. Exporter port, package split, content pass (D60)
+
+The P3D export no longer depends on an add-on. A standalone MLOD writer turns the generators'
+data into the same files Arma Toolbox wrote, so the toolchain works in plain Python, in Blender
+4.2 and in Blender 5.x next to the DayZ Object Builder extension (B10 resolved). The 939 MB
+`sky_city` is split into six packages, the largest about 250 MB. New content:
+- two masonry office floors and the HQ floor (dark curtain wall, bronze fins and spandrels,
+  granite piers, the only 4K atlas);
+- a retail-frontage lobby (Lobby_B), which keeps the keycard door and security room;
+- an enclosed skybridge between two tower roofs, with layout support and lane proofs on every
+  roof variant;
+- Tower A weathering;
+- an optional vanilla-tree hook (P13).
+
+The manifest has no planned buildings left. Tall towers are layouts (`placement/skyline_template.yaml`).
+Gates PASS (`reviews/d60_gates.md`), renders `reviews/img/d60_*.png`, in-game rows TESTING §25,
+session plan `TEST_SESSION.md`.
