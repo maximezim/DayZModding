@@ -9,6 +9,6 @@
 | Scripts | none changed | enscript_xref not affected; no security review needed (no code) |
 
 Renders (Blender preview; the props float because the preview ground sits 0.31 m low):
-- `img/d66_props_before.png`, `img/d66_props_after.png`: bin, hydrants, dumpster.
+- `img/d66_props_before.png`, `img/d66_props_after.png`, `img/d66_bin_dumpster.png`: bin, hydrants, dumpster.
 - `img/d66_metro_signs.png`: station name boards on both walls (no mirroring), graffiti, cables.
 - `img/d66_sewer.png`.
