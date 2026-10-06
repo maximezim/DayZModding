@@ -1,0 +1,69 @@
+# SKY_Skyline SKYLINE TEMPLATE (D60) -> python placement/sky_layout.py --layout placement/skyline_template.yaml
+#
+# Site coordinates are deliberately UNFILLED: `sky_layout.py` runs on it offline (positions
+# relative to (0, 0), warnings) and `--strict` refuses it until a surveyed site is filled in:
+#   1. survey a candidate site (placement/README.md section 1) with halfW/halfD covering the
+#      whole district (here 9 x 9 cells of 12 m = 108 m -> halfW = halfD = 56, step 2-4 m)
+#   2. set site.center, site.yaw, site.survey and placeholder: false
+#   3. python placement/sky_layout.py --layout placement/skyline_template.yaml --strict -> PASS
+# Tall towers on the T15 / T23 / T33 cores, the HQ (Floor_HQ + crown), Lobby_B and a skybridge.
+# Same street grid as district_template.yaml; keep both under ENTITY_CAP (report: per-district count).
+map: chernarusplus
+mission: dayzOffline.chernarusplus
+
+site:
+  name: skyline-template
+  placeholder: true             # set false once the survey for this site passes
+  center: null                  # world [X, Z] - UNFILLED
+  yaw: null                     # degrees, DayZ yaw - UNFILLED (null = 0)
+  survey: null                  # e.g. surveys/district1.json - UNFILLED
+  base_y: null                  # null = from survey (max ground + clearance)
+  clearance: 0.05
+  max_ground_drop: 2.2          # tower foundation skirt (street tiles use STREET slab + skirt)
+
+# 12 m street grid in the site frame: N-S streets on columns `ns`, E-W streets on rows `ew`,
+# cells i0..i1 x j0..j1 (cell (0, 0) centred on `origin`). Intersections are automatic.
+streets:
+  origin: [0.0, 0.0]
+  extent: [-4, 4, -4, 4]
+  ns: [-4, 0, 4]
+  ew: [-4, 0, 4]
+  crossings: [[0, -2], [0, 2], [-2, 0], [2, 0]]   # zebra crossings mid-block
+  lights_every: 2               # a street light on every 2nd straight tile (LIGHT_CAP 0.5/tile)
+  base_y: null                  # null = ONE street plane: max surveyed ground under any tile + clearance
+
+# Blocks = grid cells between streets ([i0, j0, i1, j1]); a tower needs 3 x 3 cells (36 m)
+# for its 24 m footprint + BLOCK_SETBACK. Towers sit block-locally (`at` from the block centre).
+# floors: exactly 5 (the unchanged Tower A core's stops): office | apartments | hotel | mechanical
+# roof: helipad | garden | mechanical. furnish: {level 1..5: set} with sets from skyspec.FURNISH.
+blocks:
+  - id: NW
+    cells: [-3, 1, -1, 3]
+    towers:
+      - {id: OT, type: TowerA, core: T15, lobby: B, at: [0.0, 0.0], yaw: 0, roof: helipad,
+         floors: [office_concrete, office_concrete, office_concrete, office_concrete, office_concrete,
+                  office, office, office, office, office, office_brick, office_brick, office_brick, office_brick, mechanical]}
+  - id: NE
+    cells: [1, 1, 3, 3]
+    towers:
+      - {id: RT, type: TowerA, core: T15, at: [0.0, 0.0], yaw: 0, roof: garden,
+         floors: [apartments, apartments, apartments, apartments, apartments, apartments, apartments, apartments,
+                  apartments, apartments, apartments, apartments, apartments, apartments, apartments]}
+  - id: SW
+    cells: [-3, -3, -1, -1]
+    towers:
+      - {id: HQ, type: TowerA, core: T33, at: [0.0, 0.0], yaw: 0, roof: crown,
+         floors: [hq, hq, hq, hq, hq, hq, hq, hq, hq, hq, hq, hq, hq, hq, hq, hq, mechanical,
+                  hq, hq, hq, hq, hq, hq, hq, hq, hq, hq, hq, hq, hq, hq, hq, hq]}
+  - id: SE
+    cells: [1, -3, 3, -1]
+    towers:
+      - {id: HO, type: TowerA, core: T15, lobby: B, at: [0.0, 0.0], yaw: 0, roof: mechanical,
+         floors: [hotel, hotel, hotel, hotel, hotel, hotel, hotel, hotel, hotel, hotel, hotel, hotel, hotel, hotel, hotel]}
+
+towers: []
+
+# Skybridge between the two T15 roofs (NW -> NE, across the N-S street):
+# same yaw, same roof height, facade gap 24 m (towers centred in 36 m blocks, 12 m street).
+skybridges:
+  - {from: OT, to: RT}

@@ -246,6 +246,7 @@ def roof_base(L, top_mat, top_uv, road):
     # hollow look from above (perf batch-4 M2); 10 tris, 1 section.
     L["res3"].box(-HW, HW, -HD, HD, -S.SLAB_T, 1.1, mat="concrete", uv=T.UV_CONC_REVEAL, skip=("+z", "-z"))
     L["res3"].hquad(-HW, HW, -HD, HD, 0.0, mat="concrete", uv=T.UV_CONC_REVEAL)
+    DT.roof_weathering(L)                                                       # D60
 
 
 def garden_pergola(L, x0, x1, y0, y1, h=2.5):
@@ -391,10 +392,102 @@ def build_roof_crown():
     return list(L.values())
 
 
+def build_skybridge():
+    """Enclosed glazed skybridge (D60, skyspec.SKYBRIDGE): steel box girders under a 0.15 m deck,
+    glass walls between steel posts every 3 m, a metal roof, downlights; open landings with
+    balustrades and 5 steps down onto each roof. Collides: deck, girders, glass walls, roof,
+    balustrades, steps (Roadway: deck + one ramp per end)."""
+    B = S.SKYBRIDGE
+    L = T.std_lods()
+    W, G, dz, dt, ch = B["half_w"], B["gap"] / 2, B["deck_z"], B["deck_t"], B["clear_h"]
+    end = G + B["landing"]                      # steps end on the roof
+    run = 0.3 * B["steps"]
+    land = end - run                            # deck end (top step edge)
+    rise = dz / (B["steps"] + 1)
+    steel, conc = T.UV_STEEL, T.UV_CONC_REVEAL
+
+    def solid_box(keys, x0, x1, y0, y1, z0, z1, mat, uv, pen, skip=()):
+        for k in keys:
+            if k.startswith("res"):
+                L[k].box(x0, x1, y0, y1, z0, z1, mat=mat, uv=uv, skip=skip if k in ("res0", "res1") else ())
+            elif k == "fire":
+                L[k].box(x0, x1, y0, y1, z0, z1, mat="pen_" + pen)
+            else:
+                L[k].box(x0, x1, y0, y1, z0, z1)
+
+    ALL = ("res0", "res1", "res2", "geo", "view", "fire", "shadow")
+    # deck (on the parapets at both ends) + tile walking surface
+    solid_box(ALL, -W, W, -land, land, dz - dt, dz, "concrete", conc, "concrete", skip=("+z",))
+    for k in ("res0", "res1"):
+        L[k].hquad(-W, W, -land, land, dz, mat="tile", uv=T.UV_TILE)
+    L["res3"].box(-W, W, -land, land, dz - dt, dz, mat="concrete", uv=conc, skip=("+z",))
+    # box girders under the span (bear on the parapets at the facades)
+    for x0, x1 in ((-W, -W + 0.25), (W - 0.25, W)):
+        solid_box(("res0", "res1", "res2", "geo", "view", "fire", "shadow"), x0, x1, -G - 0.25, G + 0.25, 0.45,
+                  dz - dt, "metal", steel, "metal")
+    # glass walls over the span, posts every 3 m (Res0 / Res1), top + bottom rails
+    for sx in (-1, 1):
+        xo, xi = sx * W, sx * (W - 0.05)
+        gx = sx * (W - 0.025)
+        x0, x1 = sorted((xo, xi))
+        q = [(gx, -G, dz), (gx, G, dz), (gx, G, dz + ch), (gx, -G, dz + ch)]
+        n_out = (sx, 0, 0)
+        L["res0"].quad(q, n_out, "glass", T.UV_GLASS, double=True)
+        L["res1"].quad(q, n_out, "glass", T.UV_GLASS, double=True)
+        L["res2"].quad(q, n_out, "glassfar", T.UV_GLASS)
+        L["res3"].quad(q, n_out, "glassfar", T.UV_GLASS)
+        L["geo"].box(x0, x1, -G, G, dz, dz + ch)
+        L["fire"].box(x0, x1, -G, G, dz, dz + ch, mat="pen_glass")
+        xp0, xp1 = sorted((sx * (W + 0.04), sx * (W - 0.1)))
+        for lod_key, step in (("res0", 3.0), ("res1", 6.0)):
+            y = -G
+            while y <= G + 1e-6:
+                L[lod_key].box(xp0, xp1, y - 0.06, y + 0.06, dz, dz + ch, mat="metal", uv=T.UV_PAINT, skip=("-z", "+z"))
+                y += step
+        for zz in (dz, dz + ch - 0.1):
+            L["res0"].box(xp0, xp1, -G, G, zz, zz + 0.1, mat="metal", uv=T.UV_PAINT, skip=("-y", "+y"))
+    # roof (slight overhang) + downlights
+    solid_box(ALL, -W - 0.1, W + 0.1, -G - 0.1, G + 0.1, dz + ch, dz + ch + 0.15, "metal", T.UV_PAINT, "metal")
+    L["res3"].box(-W - 0.1, W + 0.1, -G - 0.1, G + 0.1, dz + ch, dz + ch + 0.15, mat="metal", uv=T.UV_PAINT, skip=("-z",))
+    y = -G + 1.5
+    while y < G:
+        DT.downlight(L, 0.0, y, dz + ch - 0.001)
+        y += 3.0
+    # landings: balustrades (deck part + sloped stair part, one convex solid each) and steps
+    for sy in (-1, 1):
+        for sx in (-1, 1):
+            x0, x1 = sorted((sx * W, sx * (W - 0.06)))
+            a, b = sorted((sy * G, sy * land))
+            solid_box(("res0", "res1", "geo", "fire", "view"), x0, x1, a, b, dz, dz + 1.0, "metal", T.UV_PAINT, "metal")
+            ya, yb = sy * land, sy * end
+            verts = [(x0, ya, dz - dt), (x1, ya, dz - dt), (x1, yb, 0.0), (x0, yb, 0.0),
+                     (x0, ya, dz + 1.0), (x1, ya, dz + 1.0), (x1, yb, 1.0), (x0, yb, 1.0)]
+            faces = [(0, 3, 2, 1), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)]
+            for k in ("res0", "res1", "geo", "view", "fire"):
+                kw = {"mat": "metal", "uv": T.UV_PAINT} if k.startswith("res") else ({"mat": "pen_metal"} if k == "fire" else {})
+                L[k].solid(verts, faces, **kw)
+        for i in range(B["steps"]):
+            a, b = sorted((sy * (land + 0.3 * i), sy * (land + 0.3 * (i + 1))))
+            top = dz - (i + 1) * rise
+            solid_box(("res0", "res1", "geo", "fire"), -W + 0.06, W - 0.06, a, b, 0.0, top, "concrete", conc,
+                      "concrete", skip=("-z",))
+        # Roadway ramp over the steps
+        L["road"].ramp(-W + 0.06, W - 0.06, sy * end, sy * land, 0.0, dz, mat="road_ext", uv=T.UV_TILE)
+    L["road"].hquad(-W + 0.06, W - 0.06, -land, land, dz, mat="road_ext", uv=T.UV_TILE)
+    L["mem"].point("bridge_center", (0.0, 0.0, dz + 0.05))
+    T.building_props(L, 30000.0)
+    return list(L.values())
+
+
 BUILDERS = {
     "Floor_Apartments": build_floor_apartments, "Floor_Hotel": build_floor_hotel,
     "Floor_Mechanical": build_floor_mechanical, "Roof_Garden": build_roof_garden,
     "Roof_Mechanical": build_roof_mechanical, "Roof_Crown": build_roof_crown,
+    # office plan with another facade skin (D60)
+    "Floor_Office_Concrete": lambda: T.build_floor_office("panel"),
+    "Floor_Office_Brick": lambda: T.build_floor_office("brick"),
+    "Floor_HQ": lambda: T.build_floor_office("hq"),
+    "Skybridge": build_skybridge,
 }
 
 

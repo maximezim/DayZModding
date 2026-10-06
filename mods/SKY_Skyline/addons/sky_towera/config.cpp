@@ -79,6 +79,10 @@ class CfgVehicles
 			};
 		};
 	};
+	class Land_SKY_TowerA_Lobby_B: Land_SKY_TowerA_Lobby
+	{
+		model = "SKY_Skyline\sky_towera\sky_towera_lobby_b.p3d";
+	};
 	class Land_SKY_TowerA_Core: Land_SKY_TowerA_Base
 	{
 		scope = 1;

@@ -1121,3 +1121,59 @@ CITY_SKINS["brick"]["wall"] = "wall_brick"
 CITY_SKINS["panel"]["wall"] = "wall_panel"
 CITY_SKINS["stone"]["wall"] = "wall_limestone"
 CITY_SKINS["render"]["wall"] = "wall_render_%s"          # + skin band (cream / ochre / grey / white)
+
+
+# ===================================================================== content pass (D60)
+# Office floor facade variants on the unchanged office plan (same slab, partitions, loot points,
+# furniture and light points as Tower A's Floor_Office): precast-panel and brick ribbon windows,
+# and the HQ landmark floor (dark curtain wall, deep bronze fins, ribbed bronze spandrels, granite
+# piers) on its own 4K atlas - the skyline landmark is seen up close from the plaza.
+MATERIALS.update({
+    "hqfacade": {"rvmat": rvmat("sky_hq_facade"), "co": tex("sky_hq_facade_co"), "sheet_m": 6.0,
+                 "bands": {"bronze": (0.0, 0.25), "spandrel": (0.25, 0.5), "granite": (0.5, 0.75),
+                           "louvre": (0.75, 1.0)}},
+})
+for _n, _d in [
+    ("Floor_Office_Concrete", "typical office floor: precast concrete panels with ribbon windows"),
+    ("Floor_Office_Brick", "typical office floor: brick facade with ribbon windows"),
+    ("Floor_HQ", "HQ office floor: dark curtain wall, bronze fins and ribbed spandrels, granite piers (4K atlas)"),
+]:
+    kit(_n, "sky_floors", "floor", uses=["PENETRATION"], desc=_d)
+FACADE.update({KIT["Floor_Office_Concrete"]["cls"]: "ribbon_panel", KIT["Floor_Office_Brick"]["cls"]: "ribbon_brick",
+               KIT["Floor_HQ"]["cls"]: "hq"})
+FLOOR_VARIANTS.update({"office_concrete": KIT["Floor_Office_Concrete"]["cls"],
+                       "office_brick": KIT["Floor_Office_Brick"]["cls"], "hq": KIT["Floor_HQ"]["cls"]})
+OFFICE_FLOORS = [CLASS_FLOOR] + [KIT[_n]["cls"] for _n in ("Floor_Office_Concrete", "Floor_Office_Brick", "Floor_HQ")]
+FURNISH["office_open"]["for"] = list(OFFICE_FLOORS)
+for _c in OFFICE_FLOORS[1:]:
+    LOOT[_c] = LOOT[CLASS_FLOOR]
+# Lobby_B: Tower A's lobby plan with a street-retail frontage (shop fascias, signs, awnings,
+# limestone piers). Same keycard door, security room, loot and light points; config class
+# inherits Land_SKY_TowerA_Lobby (script class generated as its subclass).
+CLASS_LOBBY_B = cls("Lobby_B")
+P3D[CLASS_LOBBY_B] = "sky_towera_lobby_b.p3d"
+TOWER_A_BUDGETS[CLASS_LOBBY_B] = dict(TOWER_A_BUDGETS[CLASS_LOBBY])
+LOOT[CLASS_LOBBY_B] = LOOT[CLASS_LOBBY]
+LOBBY_VARIANTS = {"A": CLASS_LOBBY, "B": CLASS_LOBBY_B}
+
+# Skybridge: enclosed glazed walkway between the roofs of two towers in facing blocks (12 m street,
+# towers centred in 36 m blocks -> facade gap 24 m). Model frame: bridge along Y, origin = gap
+# centre at roof slab top (z 0 = roof slab top of both towers). It lands LANDING m onto each roof
+# over the 1.1 m parapet: deck DECK_Z above the roof, steps down onto the roof at both ends.
+# Lateral position on the roofs (tower frame): bridges leaving an N / S side run at x = 0, E / W at
+# y = +4.7 - free on every roof variant (no parapet-interior Geometry, roof drops, planters, plant,
+# crown fins in the 3 m landing lane; checked by test_kit.py on all roofs and sides).
+SKYBRIDGE = {"gap": 24.0, "gap_tol": 0.5, "half_w": 1.2, "landing": 3.0, "deck_z": 1.25, "deck_t": 0.15,
+             "clear_h": 2.5, "steps": 5, "lateral": {"NS": 0.0, "EW": 4.7}}
+BUDGETS["skybridge"] = {"res0": 1500, "res1": 600, "res2": 120, "res3": 40, "shadow": 60, "geo_comps": 40,
+                        "geo_tris": 400, "sections_res0": 6}
+kit("Skybridge", "sky_floors", "skybridge", uses=["PENETRATION"],
+    desc="enclosed glazed walkway, 24 m span between two tower roofs, landings with steps over the parapets")
+
+# Vanilla trees (P13): objectSpawnersArr spawns a .p3d path under DZ\plants* as a static object
+# (3_game/objectspawner.c:44 CreateStaticObjectUsingP3D, path check :3-8 / :81). Empty = off: the
+# paths are not verified from this container and client visibility of these server-side static
+# objects is untested. Fill with paths checked on P:\DZ\plants\tree\ to replace VANILLA_TREE_SHARE
+# of the Veg_Birch picks (same 4 m footprint, same clearances) with real DayZ trees.
+VANILLA_TREES = []
+VANILLA_TREE_SHARE = 0.5

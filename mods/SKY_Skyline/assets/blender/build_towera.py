@@ -165,12 +165,21 @@ def office_decor(L, wt):
     DT.wall_art(L, -6.0 - t, -9.0, 1.6, 1.0, 1.0, "-x", "art_b")
 
 
-def build_floor_office():
+def build_floor_office(skin="curtain"):
+    """Typical office floor. skin (skyspec.FACADE, D60): curtain = Tower A glass curtain wall,
+    panel / brick = ribbon windows in precast panels / brick, hq = HQ landmark curtain wall.
+    The plan (slab, partitions, loot / light points, furniture fit) is identical for every skin."""
     L = std_lods()
     wt = S.FLOOR_H - S.SLAB_T
     floor_slab(L, "carpet", UV_CARPET, "road_int")
-    facade(L, 0.0, wt)
-    DT.curtain_details(L, 0.0, wt)                                   # spandrels, fins, cornice, corner piers (D53)
+    if skin in ("panel", "brick"):
+        DT.ribbon_facade(L, 0.0, wt, skin, dress=False, inner_mat="paint", inner_uv=DT.paint_uv("white"))
+    else:
+        facade(L, 0.0, wt)
+        if skin == "hq":
+            DT.hq_details(L, 0.0, wt)                                # bronze fins / spandrels, granite piers (D60)
+        else:
+            DT.curtain_details(L, 0.0, wt)                           # spandrels, fins, cornice, corner piers (D53)
     # One enclosed office in the SW quadrant (partitions, door opening on its north wall).
     t = S.WALL_T / 2
     for k in ("res0", "res1", "geo", "view", "fire"):
@@ -187,7 +196,12 @@ def build_floor_office():
     L["mem"].point("floor_center", (0.0, -8.0, 0.05))
     building_props(L, 40000.0)
     # Res3 caps: slab edge band so the far LOD reads as a stack of floors.
-    L["res3"].box(-HW, HW, -HD, HD, -S.SLAB_T, 0.0, mat="concrete", uv=UV_CONC_REVEAL, skip=("+z", "-z"))
+    if skin in ("panel", "brick"):
+        DT.ribbon_far(L, 0.0, wt, skin)
+    elif skin == "hq":
+        L["res3"].box(-HW, HW, -HD, HD, -S.SLAB_T, 0.0, mat="hqfacade", uv=DT.UV_HQ_SPANDREL, skip=("+z", "-z"))
+    else:
+        L["res3"].box(-HW, HW, -HD, HD, -S.SLAB_T, 0.0, mat="concrete", uv=UV_CONC_REVEAL, skip=("+z", "-z"))
     return list(L.values())
 
 
@@ -273,7 +287,50 @@ def lobby_decor(L, wt):
         DT.downlight(L, x, -HD - 1.1, 3.35)
 
 
-def build_lobby():
+def retail_frontage(L, wt):
+    """Lobby_B (D60): the podium reads as street retail - shop fascias with signs over the glazing
+    (S front either side of the entrance, E and W sides), striped awnings on the S front at the
+    transom line, a fascia cap. Visual only (Res0-Res2); the plan, door and loot are Lobby A's."""
+    from skygeo import UVRect
+    fab = {k: UVBand(S.MATERIALS["fabric"]["bands"][k], 1.0) for k in ("blue", "beige")}
+    z0, z1 = 3.15, 3.65                                               # fascia over the 3.0 m transom
+    fronts = {"S": [(-11.4, -3.7, "cafe"), (3.7, 11.4, "pharmacy")],         # clear of the entrance canopy
+              "E": [(-10.0, -1.0, "market"), (1.0, 10.0, "news")],
+              "W": [(-10.0, -1.0, "bank"), (1.0, 10.0, "store")]}
+    for key, shops in fronts.items():
+        sd = DT.Side(key)
+        for a0, a1, sign in shops:
+            for k in ("res0", "res1", "res2"):
+                sd.box(L[k], a0, a1, z0, z1, -0.12, -0.04, mat="metal", uv=UV_PAINT, skip=(sd.in_key,))
+            v0, v1 = S.SIGN_BAND[sign]
+            w = min(a1 - a0 - 0.6, 5.0)
+            m = (a0 + a1) / 2
+            for k in ("res0", "res1"):
+                q = sd.rect(m - w / 2, m + w / 2, z0 + 0.04, z1 - 0.04, -0.123)
+                ua = 0 if sd.axis == "x" else 1
+                lo, hi = (m - w / 2, z0 + 0.04), (m + w / 2, z1 - 0.04)
+                if sd.sgn > 0:                                        # N / E faces: keep the text readable
+                    lo, hi = (m + w / 2, z0 + 0.04), (m - w / 2, z1 - 0.04)
+                if sd.axis == "y":
+                    lo, hi = (hi[0], lo[1]), (lo[0], hi[1])
+                L[k].quad(q, sd.out, "signs", UVRect(ua, 2, lo, hi, (0, 1 - v1, 1, 1 - v0)))
+            if key != "S":
+                continue
+            for i in range(int(round((a1 - a0) / 3.0))):              # one awning per 3 m bay
+                b0 = a0 + i * (a1 - a0) / int(round((a1 - a0) / 3.0))
+                b1 = b0 + (a1 - a0) / int(round((a1 - a0) / 3.0))
+                y, zt = -HD, z0 - 0.05
+                verts = [(b0 + 0.05, y, zt), (b1 - 0.05, y, zt), (b1 - 0.05, y - 1.4, zt - 0.6), (b0 + 0.05, y - 1.4, zt - 0.6),
+                         (b0 + 0.05, y, zt + 0.04), (b1 - 0.05, y, zt + 0.04), (b1 - 0.05, y - 1.4, zt - 0.56),
+                         (b0 + 0.05, y - 1.4, zt - 0.56)]
+                for k in ("res0", "res1"):
+                    L[k].solid(verts, [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)],
+                               mat="fabric", uv=fab["blue" if i % 2 else "beige"])
+
+
+def build_lobby(variant="A"):
+    """Tower lobby. variant B (D60) = retail frontage: limestone piers / plinth, shop fascias,
+    signs and awnings; identical plan, keycard door, loot and light points."""
     L = std_lods()
     h = S.TOWER_A["lobby_h"]
     wt = h - S.SLAB_T
@@ -294,9 +351,12 @@ def build_lobby():
         for (x0, x1, y0, y1) in skirt:
             L[k].box(x0, x1, y0, y1, -2.5, -S.SLAB_T, **kw)
     facade(L, 0.0, wt, entrances=[("S", -1.5, 1.5, 3.0)], transom=3.0)
+    stone = DT.stone_uv("limestone" if variant == "B" else "granite")
     DT.curtain_details(L, 0.0, wt, side_entrances={"S": [(-1.5, 1.5, 3.0)]}, spandrel=0.0, cornice=False, plinth=0.3,
-                       pier_mat="stone", pier_uv=DT.stone_uv("granite"), plinth_mat="stone",
-                       plinth_uv=DT.stone_uv("granite"))
+                       pier_mat="stone", pier_uv=stone, plinth_mat="stone", plinth_uv=stone)
+    if variant == "B":
+        retail_frontage(L, wt)
+    DT.lobby_weathering(L)                                           # D60
     L["res3"].box(-HW, HW, -HD, HD, -S.SLAB_T, 0.0, mat="concrete", uv=UV_CONC_REVEAL, skip=("+z", "-z"))
     lobby_details(L, wt)
     lobby_decor(L, wt)
@@ -352,6 +412,7 @@ def build_roof_helipad():
                                  (-HW, -HW + 0.25, -HD + 0.25, HD - 0.25), (HW - 0.25, HW, -HD + 0.25, HD - 0.25)]:
             L[k].box(x0, x1, y0, y1, 0.0, par, **kw)
     DT.coping(L, par, 0.25)
+    DT.roof_weathering(L, par)                                       # D60
     # Plant on the open east / west strips (clear of the roof drops at (+-8, +-8)) + antenna mast.
     DT.unit(L, 9.4, 11.2, -1.6, 1.6, 1.6, grille="-x")
     DT.unit(L, -11.2, -9.4, -1.6, 1.6, 1.6, grille="+x")
@@ -560,6 +621,7 @@ def build_keycard():
 
 MODULES = {
     "lobby": (build_lobby, "sky_towera", S.P3D[S.CLASS_LOBBY]),
+    "lobby_b": (lambda: build_lobby("B"), "sky_towera", S.P3D[S.CLASS_LOBBY_B]),
     "floor": (build_floor_office, "sky_towera", S.P3D[S.CLASS_FLOOR]),
     "roof": (build_roof_helipad, "sky_towera", S.P3D[S.CLASS_ROOF]),
     "core": (build_core, "sky_towera", S.P3D[S.CLASS_CORE]),

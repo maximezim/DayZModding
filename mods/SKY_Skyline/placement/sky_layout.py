@@ -20,8 +20,10 @@ Layout content (all optional except site):
   site.target  spawner (default: objectSpawnersArr, ENTITY_CAP applies) | terrain (a whole city
             for a custom map: no cap, also writes city_objects.csv for the terrain import)
   towers    site-frame towers (legacy) - same keys as block towers
-  tower     {id, type: TowerA, floors: [5 variants], roof: variant, yaw, furnish: {level: set}}
+  tower     {id, type: TowerA, floors: [5 variants], roof: variant, lobby: A|B, yaw, furnish: {level: set}}
   decals    {tower, face: N|E|S|W, u, z, type}: flush on the facade at DECAL_OFFSET (D16, D19)
+  skybridges {from: <tower id>, to: <tower id>}: Land_SKY_Skybridge between the two roofs (D60) -
+            same yaw, same roof height, facing sides aligned, facade gap SKYBRIDGE["gap"]
 
 Validation
   * every tower module stacks at base_y + skyspec offsets (floor-to-floor 3.5 m); exactly
@@ -217,7 +219,11 @@ def tower_modules(ctx, t):
     mods = []
     for kind, _suffix, z in S.tower_levels(spec):
         if kind == "lobby":
-            mods.append((S.CLASS_LOBBY, z))
+            lobby = t.get("lobby", "A")                       # A = Tower A lobby, B = retail frontage (D60)
+            if lobby not in S.LOBBY_VARIANTS:
+                ctx.errors.append("tower %s: unknown lobby '%s' (%s)" % (t["id"], lobby, ", ".join(S.LOBBY_VARIANTS)))
+                lobby = "A"
+            mods.append((S.LOBBY_VARIANTS[lobby], z))
         elif kind == "floor":
             v = floors[len(mods) - 1]
             if v not in S.FLOOR_VARIANTS:
@@ -458,6 +464,44 @@ def place_decals(ctx, lay, towers, site_yaw):
             ctx.errors.append("tower %s: %d decals > DECAL_CAPS per_tower %d" % (tid, n, S.DECAL_CAPS["per_tower"]))
 
 
+def place_skybridges(ctx, lay, towers):
+    """Skybridges (D60): the bridge model runs along its Y axis, origin = gap centre at roof slab
+    top. Both towers need the same yaw and roof height and must face each other squarely with the
+    designed facade gap; the lateral offset puts both landings in the lane test_kit.py proves free
+    on every roof variant."""
+    B = S.SKYBRIDGE
+    by_id = {t["id"]: t for t in towers}
+    for sb in lay.get("skybridges", []) or []:
+        a, b = by_id.get(sb.get("from")), by_id.get(sb.get("to"))
+        if a is None or b is None or a is b:
+            ctx.errors.append("skybridge %s: needs two different existing towers (from / to)" % sb)
+            continue
+        name = "skybridge %s-%s" % (a["id"], b["id"])
+        if abs((a["yaw"] - b["yaw"] + 180.0) % 360.0 - 180.0) > 1e-3:
+            ctx.errors.append("%s: towers have different yaw (%.1f / %.1f)" % (name, a["yaw"], b["yaw"]))
+            continue
+        if abs(a["top"] - b["top"]) > 0.01:
+            ctx.errors.append("%s: roofs at different heights (%.2f / %.2f) - same core and base height needed"
+                              % (name, a["top"], b["top"]))
+            continue
+        du, dv = rot(b["c"][0] - a["c"][0], b["c"][1] - a["c"][1], -a["yaw"])      # B in A's frame
+        if abs(du) > abs(dv):
+            off, along, half, lat, yaw = abs(dv), abs(du), a["hw"] + b["hw"], (0.0, B["lateral"]["EW"]), a["yaw"] + 90.0
+        else:
+            off, along, half, lat, yaw = abs(du), abs(dv), a["hd"] + b["hd"], (B["lateral"]["NS"], 0.0), a["yaw"]
+        if off > 0.05:
+            ctx.errors.append("%s: towers are offset %.2f m sideways - their facing sides must line up" % (name, off))
+            continue
+        gap = along - half
+        if abs(gap - B["gap"]) > B["gap_tol"]:
+            ctx.errors.append("%s: facade gap %.2f m, the bridge spans %.1f +- %.1f m" % (name, gap, B["gap"], B["gap_tol"]))
+            continue
+        lx, lz = rot(lat[0], lat[1], a["yaw"])
+        mx, mz = (a["c"][0] + b["c"][0]) / 2 + lx, (a["c"][1] + b["c"][1]) / 2 + lz
+        ctx.add("skybridges", S.KIT["Skybridge"]["cls"], (mx, a["top"], mz), yaw % 360.0)
+        ctx.notes.append("%s: span %.2f m at y %.2f" % (name, gap, a["top"]))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--layout", default=os.path.join(HERE, "layout.yaml"))
@@ -604,6 +648,7 @@ def main():
                     placed[-1]["base_y"] - float(site.get("clearance", 0.05)))
 
     place_decals(ctx, lay, placed, site_yaw)
+    place_skybridges(ctx, lay, placed)
     city = place_city(ctx, lay, block_rects, world, site_yaw, survey, site, tile_quads, quads)
     if ctx.street_y is not None:
         for t in placed:

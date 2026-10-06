@@ -1309,6 +1309,54 @@ def vegetation(size, out):
     img.save(os.path.join(out, "sky_vegetation_ca.png"))
 
 
+def hq_facade(size, out):
+    """HQ landmark facade atlas (4096, D60): V 0-0.25 brushed bronze (fins, mullions, cornice),
+    0.25-0.5 ribbed bronze spandrel panels (4 x 1.5 m modules, seams, weathered patina at the
+    bottom edge), 0.5-0.75 flamed dark granite (piers, plinth), 0.75-1 bronze louvre grille.
+    Sheet = 6 m across. 4K: the HQ is the skyline landmark seen up close from the plaza."""
+    size = 4096
+    n = tfbm(size, 1201, octaves=5, base=16)
+    streak = np.repeat(value_noise(size, 1024, 1203)[:, :1], size, 1)
+    col = np.zeros((size, size, 3), np.float32)
+    h = np.zeros((size, size), np.float32)
+    spec = np.zeros((size, size), np.float32)
+    gloss = np.zeros((size, size), np.float32)
+    bronze = np.array([0.42, 0.30, 0.18], np.float32)
+    yy, xx = np.mgrid[0:size, 0:size]
+    r0, r1 = band_rows(size, 0.0, 0.25)                 # brushed bronze
+    col[r0:r1] = bronze * (0.9 + 0.2 * (streak[r0:r1, :, None] - 0.5)) + 0.03 * gray(n[r0:r1] - 0.5)
+    spec[r0:r1], gloss[r0:r1] = 0.75, 0.55
+    h[r0:r1] = 0.05 * streak[r0:r1]
+    r0, r1 = band_rows(size, 0.25, 0.5)                 # ribbed spandrel panels
+    rib = ((xx[r0:r1] % (size // 64)) < (size // 128)).astype(np.float32)
+    seam = ((xx[r0:r1] % (size // 4)) < 6) | ((yy[r0:r1] - r0) < 6) | ((r1 - yy[r0:r1]) < 6)
+    col[r0:r1] = bronze * (0.8 + 0.15 * rib[..., None]) + 0.03 * gray(n[r0:r1] - 0.5)
+    col[r0:r1][seam] *= 0.45
+    h[r0:r1] = 0.4 * rib - 1.0 * seam
+    pat = np.clip(((yy[r0:r1] - r0) / float(r1 - r0) - 0.6) * 2.5, 0, 1) * np.clip(tfbm(size, 1207, 4, 8)[r0:r1] * 1.4 - 0.3, 0, 1)
+    col[r0:r1] = col[r0:r1] * (1 - pat[..., None] * 0.5) + np.array([0.28, 0.40, 0.33], np.float32) * pat[..., None] * 0.5
+    spec[r0:r1], gloss[r0:r1] = 0.6 - 0.3 * pat, 0.45 - 0.2 * pat
+    r0, r1 = band_rows(size, 0.5, 0.75)                 # flamed dark granite, 1.5 x 0.75 m slabs
+    g = tfbm(size, 1211, octaves=6, base=48)[r0:r1]
+    speck = (value_noise(size, 1024, 1213)[r0:r1] > 0.82).astype(np.float32)
+    col[r0:r1] = gray(0.16 + 0.08 * (g - 0.5)) + 0.18 * gray(speck)
+    joint = ((xx[r0:r1] % (size // 4)) < 4) | (((yy[r0:r1] - r0) % ((r1 - r0) // 2)) < 4)
+    col[r0:r1][joint] = 0.35
+    h[r0:r1] = 0.2 * g - 0.8 * joint
+    spec[r0:r1], gloss[r0:r1] = 0.35, 0.5
+    r0, r1 = band_rows(size, 0.75, 1.0)                 # louvre grille: blades every 1/32 of the band
+    blade = (((yy[r0:r1] - r0) % ((r1 - r0) // 16)) / float((r1 - r0) // 16)).astype(np.float32)
+    col[r0:r1] = bronze[None, None] * (0.35 + 0.65 * (1 - blade[..., None]))
+    h[r0:r1] = 1 - blade
+    spec[r0:r1], gloss[r0:r1] = 0.5, 0.4
+    col = weather(col, 1217, dirt=0.12, desat=0.1, moss=0.0, streaks=0.1, spots=0.06)
+    save(to_rgb(col), out, "sky_hq_facade_co")
+    nh = normal_from_height(h, 2.0)
+    save(nh.resize((size // 2,) * 2, Image.BILINEAR), out, "sky_hq_facade_nohq")
+    sm = smdi(size, spec, gloss)
+    save(sm.resize((size // 4,) * 2, Image.BILINEAR), out, "sky_hq_facade_smdi")
+
+
 GENERATORS = {
     "concrete": concrete, "metal": metal, "glass": glass, "glassfar": glassfar,
     "tile": lambda s, o: tiled(s, o, "sky_tile", 5, (0.72, 0.71, 0.68), (0.45, 0.45, 0.43), max(3, s // 400), 41, 0.3, 0.5),
@@ -1320,6 +1368,7 @@ GENERATORS = {
     "marble": marble, "parquet": parquet, "paint": paint, "stone": stone, "textile": textile,
     "render": render, "rubble": rubble, "signs": signs, "grime": grime, "vegetation": vegetation,
     "wall_brick": wall_brick, "wall_panel": wall_panel, "wall_limestone": wall_limestone, "wall_render": wall_render,
+    "hq_facade": hq_facade,
 }
 
 

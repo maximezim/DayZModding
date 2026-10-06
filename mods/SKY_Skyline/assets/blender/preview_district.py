@@ -20,7 +20,7 @@ import bpy  # noqa: E402
 import preview_towera as PT  # noqa: E402
 import skyspec as S  # noqa: E402
 from build_kit import KIT_MATS  # noqa: E402
-from skygeo import build_object, load_arma_toolbox  # noqa: E402
+from skygeo import build_object, optional_arma_toolbox  # noqa: E402
 
 
 def builders():
@@ -95,7 +95,7 @@ def main():
     for shot in shots:
         PT.NIGHT = shot == "night" or shot.endswith("_night")
         bpy.ops.wm.read_factory_settings(use_empty=True)
-        load_arma_toolbox()
+        optional_arma_toolbox()
         cache, protos, mems = {}, {}, {}
         for o in objs:
             cls = o["name"]

@@ -12,3 +12,8 @@ class Land_SKY_TowerA_Core23 extends Land_SKY_TowerA_Core
 class Land_SKY_TowerA_Core33 extends Land_SKY_TowerA_Core
 {
 }
+
+// Lobby_B (D60): retail-frontage lobby, same keycard door and security room as the lobby.
+class Land_SKY_TowerA_Lobby_B extends Land_SKY_TowerA_Lobby
+{
+}

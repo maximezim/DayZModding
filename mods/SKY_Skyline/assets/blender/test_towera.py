@@ -113,14 +113,18 @@ def main():
     check(geo.mass > 0, "core Geometry has no mass")
 
     lobby = T.build_lobby()
-    lb = solids(get(lobby, "geo"))
+    builders = {S.CLASS_LOBBY: lobby, S.CLASS_FLOOR: T.build_floor_office(), S.CLASS_ROOF: T.build_roof_helipad(),
+                S.CLASS_LOBBY_B: T.build_lobby("B")}
     d = S.KEYCARD_DOOR
-    p = (d["hinge"][0], d["hinge"][1] + d["width"] / 2, 1.0)
-    check(blocked(lb, p), "keycard door opening is not blocked by the door leaf")
-    check(not blocked(lb, p, ignore_tag=d["name"]), "keycard door opening blocked by something other than the leaf")
-    check(not blocked(lb, (0.0, -S.TOWER_A["footprint"][1] / 2 + 0.05, 1.0)), "lobby entrance blocked")
-
-    builders = {S.CLASS_LOBBY: lobby, S.CLASS_FLOOR: T.build_floor_office(), S.CLASS_ROOF: T.build_roof_helipad()}
+    for lcls in (S.CLASS_LOBBY, S.CLASS_LOBBY_B):                     # Lobby_B keeps Lobby A's door (D60)
+        lb = solids(get(builders[lcls], "geo"))
+        p = (d["hinge"][0], d["hinge"][1] + d["width"] / 2, 1.0)
+        check(blocked(lb, p), "%s: keycard door opening is not blocked by the door leaf" % lcls)
+        check(not blocked(lb, p, ignore_tag=d["name"]), "%s: keycard door opening blocked by something other than the leaf" % lcls)
+        check(not blocked(lb, (0.0, -S.TOWER_A["footprint"][1] / 2 + 0.05, 1.0)), "%s: entrance blocked" % lcls)
+        mem = get(builders[lcls], "mem")
+        names = set(mem.groups) if hasattr(mem, "groups") else set()
+        check(not names or d["name"] + "_axis" in names, "%s: door axis memory point missing" % lcls)
     for cls, lods in builders.items():
         g = solids(get(lods, "geo"))
         for c in S.LOOT[cls]["containers"]:

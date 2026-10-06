@@ -192,6 +192,41 @@ def curtain_details(L, z0, z1, side_entrances=None, spandrel=None, fins=True, co
     corner_piers(L, z0, z1, mat=pier_mat, uv=pier_uv)
 
 
+UV_HQ_BRONZE = UVBand(S.MATERIALS["hqfacade"]["bands"]["bronze"], 3.0)
+UV_HQ_SPANDREL = UVBand(S.MATERIALS["hqfacade"]["bands"]["spandrel"], 6.0)
+UV_HQ_LOUVRE = UVBand(S.MATERIALS["hqfacade"]["bands"]["louvre"], 3.0)
+UV_HQ_GRANITE = UVBand(S.MATERIALS["hqfacade"]["bands"]["granite"], 6.0)
+
+
+def hq_details(L, z0, z1, spandrel=0.6):
+    """HQ landmark curtain wall (D60) on top of build_towera.facade(): a ribbed bronze spandrel
+    band over each slab (slab nose + the top `spandrel` m of the storey, read as one 0.9 m band
+    across two floors), louvred spandrels in the end bays (plant intakes), bronze fins on every
+    1.5 m mullion (Res0; every 3 m in Res1), granite corner piers. All visual except the piers
+    (collide, like curtain_details); projections <= DETAIL["fin_d"] outside the footprint."""
+    fd = D["fin_d"]
+    for key in SIDES:
+        sd = Side(key)
+        n = int(round((sd.a1 - sd.a0) / 1.5))
+        bays = [(sd.a0 + i * (sd.a1 - sd.a0) / n, sd.a0 + (i + 1) * (sd.a1 - sd.a0) / n) for i in range(n)]
+        for i, (a0, a1) in enumerate(bays):
+            uv = UV_HQ_LOUVRE if i in (1, n - 2) else UV_HQ_SPANDREL
+            for k in ("res0", "res1", "res2"):
+                sd.quad(L[k], a0, a1, z1 - spandrel, z1, -0.045, mat="hqfacade", uv=uv)
+                sd.quad(L[k], a0, a1, z0 - S.SLAB_T, z0, -0.045, mat="hqfacade", uv=UV_HQ_SPANDREL)
+            sd.quad(L["res0"], a0, a1, z1 - spandrel, z1, CT / 2 + 0.03, inward=True, mat="metal", uv=UV_PAINT)
+        for lod_key, step in (("res0", 1), ("res1", 2)):
+            for i in range(step, n, step):
+                a = sd.a0 + i * (sd.a1 - sd.a0) / n
+                sd.box(L[lod_key], a - 0.04, a + 0.04, z0 - S.SLAB_T, z1, -fd, -0.045, mat="hqfacade", uv=UV_HQ_BRONZE,
+                       skip=("-z", "+z", sd.in_key))
+        # spandrel edges: thin bronze reveal lines top / bottom of the band (Res0)
+        for zz in (z1 - spandrel, z0 - S.SLAB_T):
+            sd.box(L["res0"], sd.a0, sd.a1, zz - 0.02, zz + 0.02, -0.07, -0.045, mat="hqfacade", uv=UV_HQ_BRONZE,
+                   skip=sd.end_keys + (sd.in_key,))
+    corner_piers(L, z0, z1, mat="hqfacade", uv=UV_HQ_GRANITE)
+
+
 def corner_piers(L, z0, z1, size=None, mat="concrete", uv=None):
     s = size or D["corner_pier"]
     uv = uv or UV_CONC_PANEL
@@ -667,3 +702,56 @@ def coffee_table(L, x0, x1, y0, y1, collide=True):
 def obstruction_light(L, x, y, z):
     """Small lamp head on top of a mast / corner (emissive, Res0)."""
     L["res0"].prism(x, y, 0.07, z, z + 0.12, n=8, mat="lamp")
+
+
+# ------------------------------------------------------------------ weathering (D60)
+_GRIME = ["damp", "runoff", "streak", "moss"]
+
+
+def grime(L, sd, a0, a1, z0, z1, depth, band, tile=4.0, inward=False, lods=("res0",)):
+    """Weathering overlay (decal_grime, alpha-blended, Res0) on one facade side: the band's
+    height over z0..z1, tiling every `tile` m along the side. depth as Side (< 0 = outside)."""
+    from skygeo import UVRect
+    k = _GRIME.index(band)
+    v0, v1 = 1.0 - (k + 1) / 4.0 + 0.004, 1.0 - k / 4.0 - 0.004
+    uv = UVRect(0 if sd.axis == "x" else 1, 2, (a0, z0), (a1, z1), (a0 / tile, v0, a1 / tile, v1))
+    for lod in lods:
+        sd.quad(L[lod], a0, a1, z0, z1, depth, inward=inward, mat="decal_grime", uv=uv)
+
+
+def weed_tuft(L, x, y, z, size, cell="weeds"):
+    """Two crossed double-sided vegetation cards (alpha-tested, Res0 only, no collision)."""
+    from skygeo import UVRect
+    u0, v0, u1, v1 = S.veg_uv(cell)
+    h = size / 2
+    box = (u0 + 0.004, v0 + 0.004, u1 - 0.004, v1 - 0.004)
+    L["res0"].quad([(x - h, y, z), (x + h, y, z), (x + h, y, z + size), (x - h, y, z + size)], (0, -1, 0),
+                   "vegetation", UVRect(0, 2, (x - h, z), (x + h, z + size), box), double=True)
+    L["res0"].quad([(x, y - h, z), (x, y + h, z), (x, y + h, z + size), (x, y - h, z + size)], (1, 0, 0),
+                   "vegetation", UVRect(1, 2, (y - h, z), (y + h, z + size), box), double=True)
+
+
+def roof_weathering(L, par_h=1.1, par_t=0.25):
+    """Tower roofs (D60): run-off streaks down the outer parapet face, moss along the foot of the
+    inner face, weed tufts in the four corners (cracks where water stands). Visual only."""
+    for key in SIDES:
+        sd = Side(key)
+        grime(L, sd, sd.a0, sd.a1, -S.SLAB_T, par_h, -0.004, "runoff", tile=3.0)
+        a0, a1 = sd.a0 + par_t, sd.a1 - par_t
+        grime(L, sd, a0, a1, 0.0, 0.35, par_t + 0.004, "moss", tile=3.0, inward=True)
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            weed_tuft(L, sx * (HW - par_t - 0.35), sy * (HD - par_t - 0.35), 0.0, 0.6)
+            weed_tuft(L, sx * (HW - par_t - 1.3), sy * (HD - par_t - 0.3), 0.0, 0.4, "dry_grass")
+
+
+def lobby_weathering(L, plinth=0.3):
+    """Tower lobby (D60): rising damp on the corner piers and the plinth, splash-back grime on the
+    exposed foundation skirt (sloped sites). Visual only, Res0."""
+    w = D["cornice_d"] - 0.01
+    s = D["corner_pier"]
+    for key in SIDES:
+        sd = Side(key)
+        grime(L, sd, sd.a0, sd.a1, -2.5, -S.SLAB_T, -0.004, "streak", tile=4.0)
+        for a0, a1 in ((sd.a0 - w, sd.a0 + s), (sd.a1 - s, sd.a1 + w)):
+            grime(L, sd, a0, a1, 0.0, 0.9, -w - 0.004, "damp", tile=2.0)

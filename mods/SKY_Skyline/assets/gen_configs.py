@@ -56,6 +56,7 @@ PROCEDURAL_MAPS = {
     "sky_wall_brick": ("as", "smdi"), "sky_wall_panel": ("as", "smdi"), "sky_wall_limestone": ("as", "smdi"),
     "sky_wall_render_cream": ("nohq", "as", "smdi"), "sky_wall_render_ochre": ("nohq", "as", "smdi"),
     "sky_wall_render_grey": ("nohq", "as", "smdi"), "sky_wall_render_white": ("nohq", "as", "smdi"),
+    "sky_hq_facade": ("as",),                                                  # D60: 4K co, 2K nohq, 1K smdi
 }
 # Constant specular/gloss for procedural _smdi stages (default PROC["smdi"] otherwise).
 PROC_SMDI = {"sky_wall_brick": (0.08, 0.15), "sky_wall_panel": (0.1, 0.2), "sky_wall_limestone": (0.12, 0.2),
@@ -133,6 +134,8 @@ RVMATS = {
     # DayZ ambiance (D59)
     "sky_decal_grime": ("sky_decal_grime", 5), "sky_vegetation": ("sky_vegetation", 5),
     "sky_wall_brick": ("sky_wall_brick", 10), "sky_wall_panel": ("sky_wall_panel", 15),
+    # content pass (D60)
+    "sky_hq_facade": ("sky_hq_facade", 60),
     "sky_wall_limestone": ("sky_wall_limestone", 20),
     "sky_wall_render_cream": ("sky_wall_render_cream", 8), "sky_wall_render_ochre": ("sky_wall_render_ochre", 8),
     "sky_wall_render_grey": ("sky_wall_render_grey", 8), "sky_wall_render_white": ("sky_wall_render_white", 8),
@@ -323,6 +326,8 @@ def tower_config():
 """ % (S.CLASS_LOBBY, model(S.CLASS_LOBBY), d["name"], d["name"], d["name"], d["name"], d["required_tier"],
        d["relock_ms"], S.SECURITY_ROOM["x"][0] + S.WALL_T / 2, S.SECURITY_ROOM["x"][1],
        S.SECURITY_ROOM["y"][0] + S.WALL_T / 2, S.SECURITY_ROOM["y"][1], damage_system_static([d["name"]]))
+    # Lobby_B (D60): same door, security room and damage as the lobby, other model.
+    out += "\tclass %s: %s\n\t{\n\t\tmodel = \"%s\";\n\t};\n" % (S.CLASS_LOBBY_B, S.CLASS_LOBBY, model(S.CLASS_LOBBY_B))
     # Cores: elevator (user animation sources, script-driven); tall cores D58 = same parameters, more stops.
     for _k, (ccls, spec) in S.CORE_VARIANTS.items():
         stops = S.elevator_stops(spec)
@@ -445,9 +450,10 @@ def tower_model_cfg():
 \t\t\t};
 \t\t};
 \t};
+\tclass %s: %s {};
 %s};
 """ % (stem(S.CLASS_FLOOR), stem(S.CLASS_ROOF), stem(S.CLASS_LOBBY), d["name"], d["name"], d["name"],
-       S.DOOR_SWING_SIGN * S.DOOR_OPEN_ANGLE, models)
+       S.DOOR_SWING_SIGN * S.DOOR_OPEN_ANGLE, stem(S.CLASS_LOBBY_B), stem(S.CLASS_LOBBY), models)
     return out
 
 
@@ -458,6 +464,8 @@ def tower_cores_script():
     for k, (ccls, _spec) in sorted(S.CORE_VARIANTS.items()):
         if k != "A":
             out += "\nclass %s extends Land_SKY_TowerA_Core\n{\n}\n" % ccls
+    out += ("\n// Lobby_B (D60): retail-frontage lobby, same keycard door and security room as the lobby.\n"
+            "class %s extends %s\n{\n}\n" % (S.CLASS_LOBBY_B, S.CLASS_LOBBY))
     return out
 
 

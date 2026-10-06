@@ -358,11 +358,22 @@ def load_arma_toolbox():
     return _ATB
 
 
+def optional_arma_toolbox():
+    """Previews: register Arma Toolbox when ARMATOOLBOX_PATH is set (Arma properties on the
+    objects), otherwise build plain Blender objects - rendering needs no add-on (D60)."""
+    if os.environ.get("ARMATOOLBOX_PATH"):
+        return load_arma_toolbox()
+    return None
+
+
 def _material(key, materials, cache):
     if key in cache:
         return cache[key]
     m = bpy.data.materials.new(key)
     info = materials[key]
+    cache[key] = m
+    if not hasattr(m, "armaMatProps"):        # preview without Arma Toolbox (D60): plain material
+        return m
     m.armaMatProps.texType = "Texture"
     m.armaMatProps.texture = info.get("co", "")
     m.armaMatProps.rvMat = info.get("rvmat", "")
@@ -404,6 +415,8 @@ def build_object(lod, materials, cache):
     for name, vs in lod.groups.items():
         vg = obj.vertex_groups.new(name=name)
         vg.add(sorted(vs), 1.0, "REPLACE")
+    if not hasattr(obj, "armaObjProps"):      # preview without Arma Toolbox (D60)
+        return obj
     p = obj.armaObjProps
     p.isArmaObject = True
     p.lod = lod.lod

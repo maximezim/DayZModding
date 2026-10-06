@@ -137,6 +137,31 @@ class Land_SKY_Floor_Apartments extends SKY_LitBuilding {}
 
 class Land_SKY_Floor_Hotel extends SKY_LitBuilding {}
 
+// Office plan with another facade skin (D60): same light_N points as the Tower A office floor.
+class Land_SKY_Floor_Office_Concrete extends SKY_LitBuilding
+{
+	override protected typename SkyLightType()
+	{
+		return SKY_OfficeLight;
+	}
+}
+
+class Land_SKY_Floor_Office_Brick extends SKY_LitBuilding
+{
+	override protected typename SkyLightType()
+	{
+		return SKY_OfficeLight;
+	}
+}
+
+class Land_SKY_Floor_HQ extends SKY_LitBuilding
+{
+	override protected typename SkyLightType()
+	{
+		return SKY_OfficeLight;
+	}
+}
+
 class Land_SKY_Floor_Mechanical extends SKY_LitBuilding
 {
 	override protected typename SkyLightType()

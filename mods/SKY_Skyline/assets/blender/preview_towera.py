@@ -27,6 +27,7 @@ FLAT = {"concrete": (0.55, 0.55, 0.53, 1), "glass": (0.3, 0.4, 0.45, 0.35), "met
         "roofmark": (0.85, 0.7, 0.2, 1), "glassfar": (0.18, 0.22, 0.26, 1), "ceiling": (0.86, 0.86, 0.84, 1),
         "wood": (0.45, 0.32, 0.2, 1), "atlas": (0.4, 0.4, 0.4, 1), "foliage": (0.2, 0.35, 0.15, 1),
         "brick": (0.45, 0.25, 0.18, 1), "concpanel": (0.65, 0.65, 0.63, 1), "paver": (0.5, 0.48, 0.45, 1),
+        "hqfacade": (0.42, 0.30, 0.18, 1),
         "marble": (0.9, 0.89, 0.86, 1), "parquet": (0.55, 0.4, 0.25, 1), "paint": (0.9, 0.9, 0.88, 1),
         "stone": (0.5, 0.48, 0.44, 1), "textile": (0.5, 0.3, 0.25, 1), "fabric": (0.4, 0.4, 0.42, 1),
         "lamp": (1, 0.92, 0.75, 1), "lamp_cool": (0.9, 0.95, 1, 1), "windows": (0.3, 0.3, 0.3, 1)}
@@ -242,8 +243,8 @@ def main():
         if only and name not in only:
             continue
         bpy.ops.wm.read_factory_settings(use_empty=True)
-        from skygeo import load_arma_toolbox
-        load_arma_toolbox()
+        from skygeo import optional_arma_toolbox
+        optional_arma_toolbox()
         stack(cut, floor, roof)
         shade(tex)
         scene_setup()

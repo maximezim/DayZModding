@@ -72,6 +72,13 @@ def district_tests(expect):
            'x="22.000" z="32.000"' in ev and 'x="26.000" z="16.000"' in ev, ev[:600])
     rc, out, _ = run_layout(tpl, strict=True)
     expect("district template refused by --strict", rc == 1 and "PLACEHOLDER" in out, out)
+    sky = os.path.join(os.path.dirname(HERE), "skyline_template.yaml")
+    rc, out, od = run_layout(sky)
+    objs = json.load(open(os.path.join(od, "sky_objects.json")))["Objects"] if rc == 0 else []
+    names = [o["name"] for o in objs]
+    expect("skyline template (D60) runs offline: HQ, tall cores, lobby B, one skybridge, under ENTITY_CAP",
+           rc == 0 and names.count("Land_SKY_Skybridge") == 1 and "Land_SKY_TowerA_Core33" in names
+           and names.count("Land_SKY_Floor_HQ") == 32 and "Land_SKY_TowerA_Lobby_B" in names, out)
 
     flat = survey(1000, 2000, lambda i, j: 150.0)
     # districts: the survey must cover the street tiles too (tiles without samples fail)
@@ -345,6 +352,29 @@ def main():
                      towers=[{"id": "T1", "type": "TowerA", "offset": [0, 0], "yaw": 0, "core": "T15",
                               "floors": ["office"] * 5}])
     expect("floors list must match the core's stops", rc == 1 and "core T15 has exactly 15" in out, out)
+    # D60: skybridge between two roofs, Lobby_B, office facade variants
+    wide = survey(1000, 2000, lambda i, j: 150.0)
+    wide["samples"] += [v for x in range(-40, 41, 2) for z in range(-14, 15, 2) for v in (1000 + x, 150.0, 2000 + z)]
+    pair = [{"id": "A1", "type": "TowerA", "offset": [-24, 0], "yaw": 0, "lobby": "B",
+             "floors": ["office_concrete", "office_brick", "hq", "office", "office"]},
+            {"id": "A2", "type": "TowerA", "offset": [24, 0], "yaw": 0, "roof": "garden"}]
+    rc, out, objs = run("skybridge", wide, towers=pair, extra={"skybridges": [{"from": "A1", "to": "A2"}]})
+    br = [o for o in objs if o["name"] == "Land_SKY_Skybridge"]
+    roof_y = [o["pos"][1] for o in objs if o["name"] == "Land_SKY_Roof_Garden"]
+    expect("skybridge placed once between the roofs (gap centre, lateral EW offset, roof height)",
+           rc == 0 and len(br) == 1 and abs(br[0]["pos"][0] - 1000.0) < 1e-3
+           and abs(br[0]["pos"][2] - (2000.0 + S.SKYBRIDGE["lateral"]["EW"])) < 1e-3
+           and roof_y and abs(br[0]["pos"][1] - roof_y[0]) < 1e-3, out + str(br))
+    names = {o["name"] for o in objs}
+    expect("lobby B and office facade variants spawn their classes",
+           {"Land_SKY_TowerA_Lobby_B", "Land_SKY_Floor_Office_Concrete", "Land_SKY_Floor_Office_Brick",
+            "Land_SKY_Floor_HQ"} <= names, str(sorted(names)))
+    near = [dict(pair[0], offset=[-20, 0]), dict(pair[1], offset=[20, 0])]
+    rc, out, _ = run("skybridge-gap", wide, towers=near, extra={"skybridges": [{"from": "A1", "to": "A2"}]})
+    expect("skybridge with the wrong facade gap fails", rc == 1 and "facade gap" in out, out)
+    turned = [pair[0], dict(pair[1], yaw=90)]
+    rc, out, _ = run("skybridge-yaw", wide, towers=turned, extra={"skybridges": [{"from": "A1", "to": "A2"}]})
+    expect("skybridge between towers of different yaw fails", rc == 1 and "different yaw" in out, out)
     district_tests(expect)
     city_tests(expect)
     print("%d failed" % fails)

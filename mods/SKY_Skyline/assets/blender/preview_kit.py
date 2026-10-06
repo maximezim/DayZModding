@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.dirname(HERE))
 import bpy  # noqa: E402
 import preview_towera as PT  # noqa: E402
 import skyspec as S  # noqa: E402
-from skygeo import build_object, load_arma_toolbox  # noqa: E402
+from skygeo import build_object, optional_arma_toolbox  # noqa: E402
 
 KIT_BUILDERS = {}
 
@@ -32,7 +32,7 @@ def main():
     out = argv[argv.index("--out") + 1]
     tex = argv[argv.index("--tex") + 1] if "--tex" in argv else None
     cols = int(argv[argv.index("--cols") + 1]) if "--cols" in argv else 6
-    load_arma_toolbox()
+    optional_arma_toolbox()
     import build_kit
     register(build_kit)
     for extra in ("build_props", "build_floors"):

@@ -259,6 +259,11 @@ def scatter_vegetation(S, zone, rng, box, placed, quads, ground, stats):
             continue
         yaw = round(rng.random() * 3) * 90.0
         occupied.append(q)
-        out.append((S.KIT[piece]["cls"], piece, 0, pu, pv, yaw, w / 2, w / 2, pu, pv))
+        name = S.KIT[piece]["cls"]
+        vanilla = getattr(S, "VANILLA_TREES", [])
+        if piece == "Veg_Birch" and vanilla and rng.random() < S.VANILLA_TREE_SHARE:    # P13 (off while empty)
+            name = vanilla[int(rng.random() * len(vanilla)) % len(vanilla)]
+            yaw = rng.random() * 360.0
+        out.append((name, piece, 0, pu, pv, yaw, w / 2, w / 2, pu, pv))
     stats["vegetation"] = stats.get("vegetation", 0) + len(out)
     return out

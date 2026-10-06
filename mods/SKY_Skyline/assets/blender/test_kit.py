@@ -221,7 +221,8 @@ def placed_box(box, x, y, yaw_deg):
 def module_builders():
     """{floor/roof class: builder} incl. Tower A's (read-only use of build_towera)."""
     import build_towera as T
-    out = {S.CLASS_FLOOR: T.build_floor_office, S.CLASS_ROOF: T.build_roof_helipad, S.CLASS_LOBBY: T.build_lobby}
+    out = {S.CLASS_FLOOR: T.build_floor_office, S.CLASS_ROOF: T.build_roof_helipad, S.CLASS_LOBBY: T.build_lobby,
+           S.CLASS_LOBBY_B: lambda: T.build_lobby("B")}
     try:
         import build_floors as F
         for n, (fn, _p, _f) in F.modules().items():
@@ -317,6 +318,35 @@ def convention_check():
     check(c1[0] - c0[0] > 0.3, "P1 convention: lobby door would not open into the room (+X)")
 
 
+def skybridge_lanes():
+    """Skybridge (D60): on every roof variant and every side, the landing lane (bridge width x
+    SKYBRIDGE["landing"] m from the facade, at the lateral offset skyspec gives) holds no roof
+    Geometry above the slab except the parapet, no roof-drop crate, and the deck clears the parapet."""
+    B = S.SKYBRIDGE
+    hw, hd = S.TOWER_A["footprint"][0] / 2, S.TOWER_A["footprint"][1] / 2
+    w, d = B["half_w"], B["landing"]
+    mods = module_builders()
+    for rcls in S.ROOF_VARIANTS.values():
+        lods = {l.name: l for l in mods[rcls]()}
+        boxes = [b for _c, b in comp_boxes(lods["geo"]) if b[5] > 0.05]
+        parapet = [b for b in boxes if b[1] - b[0] > 2 * hw - 1 or b[3] - b[2] > 2 * hd - 1]
+        check(parapet and max(b[5] for b in parapet) <= B["deck_z"] - B["deck_t"] + 1e-6,
+              "%s: parapet higher than the skybridge deck underside" % rcls)
+        lanes = {"S": (B["lateral"]["NS"] - w, B["lateral"]["NS"] + w, -hd, -hd + d),
+                 "N": (B["lateral"]["NS"] - w, B["lateral"]["NS"] + w, hd - d, hd),
+                 "W": (-hw, -hw + d, B["lateral"]["EW"] - w, B["lateral"]["EW"] + w),
+                 "E": (hw - d, hw, B["lateral"]["EW"] - w, B["lateral"]["EW"] + w)}
+        for side, (x0, x1, y0, y1) in lanes.items():
+            lane = (x0, x1, y0, y1, 0.05, B["deck_z"] + B["clear_h"])
+            for b in boxes:
+                if b in parapet:
+                    continue
+                check(not overlaps(lane, b), "%s: skybridge landing lane %s blocked by roof Geometry %s" % (rcls, side, b))
+            for (px, py) in S.ROOF_DROP_POINTS[rcls]:
+                crate = (px - 0.75, px + 0.75, py - 0.75, py + 0.75, 0.05, 1.55)
+                check(not overlaps(lane, crate), "%s: skybridge landing lane %s over roof drop (%s, %s)" % (rcls, side, px, py))
+
+
 def main():
     self_check()
     builders = {}
@@ -332,6 +362,7 @@ def main():
     convention_check()
     if "--only" not in argv:
         batch5_checks(builders)
+        skybridge_lanes()
     missing = [n for n in S.KIT if n not in builders]
     check(not missing, "KIT entries without a builder: %s" % missing)
     for n in names:

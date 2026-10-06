@@ -34,9 +34,12 @@ kit:
     budget: {res0: 20000, res1: 8000, res2: 700, res3: 60, shadow: 120, geo_comps: 72, geo_tris: 900, sections_res0: 16}
     textures: [concrete, glass, metal, tile, glassfar, ceiling, wood, atlas, foliage]
     status: built-unverified
-  - name: Land_SKY_Lobby_B
-    type: lobby/podium variant 2 (retail frontage)
-    status: planned
+  - name: Land_SKY_TowerA_Lobby_B
+    type: lobby/podium variant B (retail frontage - shop fascias, signs, awnings, limestone piers; same plan, keycard door, loot as the lobby; D60)
+    p3d: addons/sky_towera/sky_towera_lobby_b.p3d
+    budget: {res0: 20000, res1: 8000, res2: 700, res3: 60, shadow: 120, geo_comps: 72, geo_tris: 900, sections_res0: 16}
+    textures: [concrete, glass, metal, tile, glassfar, ceiling, wood, atlas, foliage, stone, signs, fabric, decal_grime]
+    status: built-unverified
   - name: Land_SKY_TowerA_Floor_Office
     type: typical floor (office)
     p3d: addons/sky_towera/sky_towera_floor_office.p3d
@@ -61,23 +64,28 @@ kit:
     status: built-unverified
   - {name: Land_SKY_Roof_Mechanical, type: roof (mechanical), status: built-unverified, note: batch 4 - see generated_kit (sky_floors)}
   - {name: Land_SKY_Roof_Garden, type: roof (garden), status: built-unverified, note: batch 4 - see generated_kit (sky_floors)}
-  - {name: Land_SKY_Skybridge, type: skybridge, status: planned}
+  - {name: Land_SKY_Skybridge, type: skybridge, status: built-unverified, note: "D60 - see generated_kit (sky_floors); layout key skybridges"}
   - {name: SKY_Facade_Glass, type: facade variant, status: built-unverified, note: built into floor/lobby generators (facade())}
-  - {name: SKY_Facade_Concrete, type: facade variant, status: planned}
-  - {name: SKY_Facade_Brick, type: facade variant, status: planned}
+  - {name: SKY_Facade_Concrete, type: facade variant, status: built-unverified, note: "D60 - Land_SKY_Floor_Office_Concrete (+ Floor_Hotel), see generated_kit"}
+  - {name: SKY_Facade_Brick, type: facade variant, status: built-unverified, note: "D60 - Land_SKY_Floor_Office_Brick (+ Floor_Apartments), see generated_kit"}
+  - {name: SKY_Facade_HQ, type: facade variant, status: built-unverified, note: "D60 - Land_SKY_Floor_HQ, 4K atlas sky_hq_facade"}
 
 # ---------------------------------------------------------------- B. assembled buildings
 buildings:
   - {name: TowerA, type: vertical slice (lobby + 5 office floors + core + helipad roof), floors: 5, status: built-unverified,
      placement: placement/out/sky_objects.json, budget_total: {res0: 60000, sections: 120, alpha_sections_far: 0}}
-  - {name: Office Tower, floors: 25, status: planned}
-  - {name: Residential Tower, floors: 20, status: planned}
-  - {name: Hotel, floors: 18, status: planned}
-  - {name: HQ landmark, floors: 35, status: planned, note: only asset allowed a 4K facade atlas}
-  - {name: Parking garage, levels: 6, status: planned}
-  - {name: Low-rise shops, status: planned}
-  - {name: Low-rise bank, status: planned}
-  - {name: Gas station, status: planned}
+  # Tall towers are layouts of the modular kit (placement/sky_layout.py), not single models (D58, D60).
+  - {name: Office Tower, floors: "17 / 25 storeys", status: built-unverified,
+     note: "core T15 / T23 + office / office_concrete / office_brick floors (layout towers: core, floors)"}
+  - {name: Residential Tower, floors: "17 / 25 storeys", status: built-unverified,
+     note: "core T15 / T23 + apartments floors, roof garden (layout); no separate model"}
+  - {name: Hotel, floors: "17 / 25 storeys", status: built-unverified, note: "core T15 / T23 + hotel floors, lobby B (layout); no separate model"}
+  - {name: HQ landmark, floors: 35, status: built-unverified,
+     note: "core T33 + Floor_HQ (4K sky_hq_facade atlas, the only 4K asset) + Roof_Crown (layout)"}
+  - {name: Parking garage, levels: 4, status: built-unverified, note: "city archetype ParkingGarage (sky_city_ind), 3 ruin states"}
+  - {name: Low-rise shops, status: built-unverified, note: "city archetypes CornerShop*, ShopRow*, DepartmentStore (sky_city_com)"}
+  - {name: Low-rise bank, status: built-unverified, note: "city archetype Bank (sky_city_com)"}
+  - {name: Gas station, status: built-unverified, note: "city archetype GasStation (sky_city_com)"}
 
 # ---------------------------------------------------------------- C. street kit
 street: {status: built-unverified, note: "all street-kit assets are listed under generated_kit (batch 1); prefer the combined Street_* tiles for districts"}
@@ -118,9 +126,9 @@ textures:
   - {name: sky_decal_dirt, maps: [ca], size: 512x1024, use: run-off grime decal (alpha-blended, edges fade to 0), status: built-unverified}
   - {name: sky_decal_cracks, maps: [ca], size: 1024, use: crack decal (alpha-tested), status: built-unverified}
   - {name: sky_decal_graffiti_a..d, maps: [ca], size: 512, use: 4 original graffiti designs via hiddenSelections (alpha-tested), status: built-unverified}
-  - {name: sky_windows, maps: [co], size: 1024, use: window sets atlas 4x4 (unlit rvmat sky_windows, emissive rvmat sky_windows_lit; never both in one LOD, D23), status: built-unverified, note: no model uses it yet (facade models planned)}
-  - {name: sky_brick, maps: [co, nohq], size: 2048, use: brick facade trim (bond / soldier / sill), mapped at 3.44 m per U (D20), status: built-unverified, note: no model uses it yet}
-  - {name: sky_concpanel, maps: [co, nohq(1024)], size: 2048, use: precast panel facade trim (reveal / panel), status: built-unverified, note: no model uses it yet}
+  - {name: sky_windows, maps: [co], size: 1024, use: window sets atlas 4x4 (unlit rvmat sky_windows, emissive rvmat sky_windows_lit; never both in one LOD, D23), status: built-unverified, note: no model uses it (city and tower facades use real glazing instead); kept for lit window sets}
+  - {name: sky_brick, maps: [co, nohq], size: 2048, use: brick facade trim (bond / soldier / sill), mapped at 3.44 m per U (D20), status: built-unverified, note: Floor_Apartments, Floor_Office_Brick, city sills / soldier courses}
+  - {name: sky_concpanel, maps: [co, nohq(1024)], size: 2048, use: precast panel facade trim (reveal / panel), status: built-unverified, note: Floor_Hotel, Floor_Office_Concrete}
   - {name: sky_wood, maps: [co], size: 1024, use: furniture trim (oak / walnut / laminate / monitor screen band); nohq/smdi/as procedural, status: built-unverified}
   - {name: sky_fabric, maps: [co, nohq], size: 512, use: upholstery trim (grey / blue / beige), 8 px weave, status: built-unverified}
   - {name: sky_decal_grime, maps: [ca], size: 1024, use: facade weathering overlay - rising damp / run-off / window streaks / moss bands, tileable along U (alpha-blended), status: built-unverified}
@@ -129,7 +137,7 @@ textures:
   - {name: sky_wall_panel, maps: [co, nohq(1024)], size: 2048, use: tileable precast panel wall (3 m sheet), status: built-unverified}
   - {name: sky_wall_limestone, maps: [co, nohq], size: 2048, use: tileable limestone ashlar wall (3 m sheet), status: built-unverified}
   - {name: sky_wall_render_cream|ochre|grey|white, maps: [co], size: 2048, use: tileable stucco walls in the 4 city colours (4 m sheet), status: built-unverified}
-  - {name: HQ 4K facade atlas, status: planned}
+  - {name: sky_hq_facade, maps: [co, nohq(2048), smdi(1024)], size: 4096, use: "HQ facade atlas (D60) - brushed bronze / ribbed bronze spandrel / flamed granite / bronze louvre bands, 6 m sheet; the only 4K texture", status: built-unverified}
 
 # ---------------------------------------------------------------- G. sounds (optional)
 sounds: {status: planned, items: [elevator hum, elevator ding]}
@@ -1475,6 +1483,34 @@ generated_kit:
     p3d: addons/sky_city_env/sky_veg_treedead.p3d
     category: tree
     budget: {res0: 500, res1: 200, res2: 60, res3: 12, shadow: 40, geo_comps: 2, geo_tris: 40, sections_res0: 1}
+    status: built-unverified
+  - name: Land_SKY_Floor_Office_Concrete
+    type: "typical office floor: precast concrete panels with ribbon windows"
+    p3d: addons/sky_floors/sky_floor_office_concrete.p3d
+    category: floor
+    budget: {res0: 16000, res1: 6000, res2: 500, res3: 48, shadow: 100, geo_comps: 56, geo_tris: 700, sections_res0: 14}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_Floor_Office_Brick
+    type: "typical office floor: brick facade with ribbon windows"
+    p3d: addons/sky_floors/sky_floor_office_brick.p3d
+    category: floor
+    budget: {res0: 16000, res1: 6000, res2: 500, res3: 48, shadow: 100, geo_comps: 56, geo_tris: 700, sections_res0: 14}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_Floor_HQ
+    type: "HQ office floor: dark curtain wall, bronze fins and ribbed spandrels, granite piers (4K atlas)"
+    p3d: addons/sky_floors/sky_floor_hq.p3d
+    category: floor
+    budget: {res0: 16000, res1: 6000, res2: 500, res3: 48, shadow: 100, geo_comps: 56, geo_tris: 700, sections_res0: 14}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_Skybridge
+    type: "enclosed glazed walkway, 24 m span between two tower roofs, landings with steps over the parapets"
+    p3d: addons/sky_floors/sky_skybridge.p3d
+    category: skybridge
+    budget: {res0: 1500, res1: 600, res2: 120, res3: 40, shadow: 60, geo_comps: 40, geo_tris: 400, sections_res0: 6}
+    uses: [PENETRATION]
     status: built-unverified
   - name: Land_SKY_TowerA_Core15
     type: "stair + elevator core, 17 stops (lobby, 15 floors, roof), script Land_SKY_TowerA_Core subclass"

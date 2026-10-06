@@ -120,6 +120,18 @@
   "shadow": 48,
   "view": 944
  },
+ "sky_floor_hq.p3d": {
+  "fire": 352,
+  "geo": 288,
+  "mem": 0,
+  "res0": 2412,
+  "res1": 1280,
+  "res2": 344,
+  "res3": 16,
+  "road": 8,
+  "shadow": 48,
+  "view": 200
+ },
  "sky_floor_mechanical.p3d": {
   "fire": 168,
   "geo": 168,
@@ -131,6 +143,30 @@
   "road": 8,
   "shadow": 48,
   "view": 152
+ },
+ "sky_floor_office_brick.p3d": {
+  "fire": 1168,
+  "geo": 240,
+  "mem": 0,
+  "res0": 2660,
+  "res1": 816,
+  "res2": 200,
+  "res3": 24,
+  "road": 8,
+  "shadow": 48,
+  "view": 680
+ },
+ "sky_floor_office_concrete.p3d": {
+  "fire": 1168,
+  "geo": 240,
+  "mem": 0,
+  "res0": 2596,
+  "res1": 816,
+  "res2": 200,
+  "res3": 24,
+  "road": 8,
+  "shadow": 48,
+  "view": 680
  },
  "sky_intersection_4way.p3d": {
   "fire": 48,
@@ -210,7 +246,7 @@
   "fire": 192,
   "geo": 144,
   "mem": 0,
-  "res0": 884,
+  "res0": 964,
   "res1": 536,
   "res2": 184,
   "res3": 22,
@@ -222,7 +258,7 @@
   "fire": 240,
   "geo": 240,
   "mem": 0,
-  "res0": 1210,
+  "res0": 1290,
   "res1": 314,
   "res2": 88,
   "res3": 10,
@@ -234,7 +270,7 @@
   "fire": 184,
   "geo": 172,
   "mem": 0,
-  "res0": 840,
+  "res0": 920,
   "res1": 288,
   "res2": 88,
   "res3": 10,
@@ -266,6 +302,18 @@
   "res1": 18,
   "res2": 2,
   "road": 2
+ },
+ "sky_skybridge.p3d": {
+  "fire": 288,
+  "geo": 288,
+  "mem": 0,
+  "res0": 716,
+  "res1": 332,
+  "res2": 52,
+  "res3": 24,
+  "road": 6,
+  "shadow": 48,
+  "view": 144
  },
  "sky_sofa.p3d": {
   "fire": 48,

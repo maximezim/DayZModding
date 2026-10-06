@@ -53,4 +53,28 @@ class CfgVehicles
 		scope = 1;
 		model = "SKY_Skyline\sky_floors\sky_roof_crown.p3d";
 	};
+	class Land_SKY_Floor_Office_Concrete: Land_SKY_Floors_Base
+	{
+		// typical office floor: precast concrete panels with ribbon windows
+		scope = 1;
+		model = "SKY_Skyline\sky_floors\sky_floor_office_concrete.p3d";
+	};
+	class Land_SKY_Floor_Office_Brick: Land_SKY_Floors_Base
+	{
+		// typical office floor: brick facade with ribbon windows
+		scope = 1;
+		model = "SKY_Skyline\sky_floors\sky_floor_office_brick.p3d";
+	};
+	class Land_SKY_Floor_HQ: Land_SKY_Floors_Base
+	{
+		// HQ office floor: dark curtain wall, bronze fins and ribbed spandrels, granite piers (4K atlas)
+		scope = 1;
+		model = "SKY_Skyline\sky_floors\sky_floor_hq.p3d";
+	};
+	class Land_SKY_Skybridge: Land_SKY_Floors_Base
+	{
+		// enclosed glazed walkway, 24 m span between two tower roofs, landings with steps over the parapets
+		scope = 1;
+		model = "SKY_Skyline\sky_floors\sky_skybridge.p3d";
+	};
 };
