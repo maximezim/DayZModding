@@ -2732,6 +2732,18 @@ def bottles(L, x0, x1, y, z, depth=0.2, key=(), ruin=False):
         L["res0"].prism(cx, y, 0.012, z + hb, z + hb + 0.08, n=4, mat=mat, uv=uv)
 
 
+SEARCH_MAX = 8                                                                   # SKY_Search reads search_1..search_8
+
+
+def search_point(L, x, y, z):
+    """Searchable spot (D61, ActionSKY_Search): memory point search_N where the player stands
+    (floor level); the server picks the loot table from the building class (SKY_SearchTable)."""
+    lod = L["mem"].lod
+    n = sum(1 for g in lod.groups if g.startswith("search_"))
+    if n < SEARCH_MAX:
+        lod.point("search_%d" % (n + 1), (x, y, z))
+
+
 def mannequin(L, x, y, z, key):
     """Shop mannequin (Res0): stand, legs, torso with a garment, head - pale paint."""
     pale = DT.paint_uv("white")
@@ -2860,6 +2872,7 @@ def furnish_venue(L, P, l, r, kind, z, top, zones):
                 sx = cnt[0] + 0.4 + i * 0.75
                 L["res0"].prism(sx, cnt[2] - 0.45, 0.03, z, z + 0.72, n=6, mat="metal", uv=DT.UV_STEEL)
                 L["res0"].prism(sx, cnt[2] - 0.45, 0.2, z + 0.72, z + 0.78, n=10, mat="fabric", uv=UV_FAB["grey"])
+            search_point(L, (cnt[0] + cnt[1]) / 2, cnt[2] - 0.7, z)                # behind-the-bar stock (idea 10)
         bb = (x0 + 0.8, x1 - 2.6, ys - 0.4, ys)                                  # back bar: shelves of bottles
         piece(L, bb + (z, z + 0.9), "wood", UV_WALNUT)
         for j, zz in enumerate((z + 1.2, z + 1.6, z + 2.0)):
@@ -2940,6 +2953,13 @@ def cinema_hall(L, P, r, z, top, lit):
     for k in ("res0", "res1", "geo", "view", "fire"):
         L[k].box(*stage, z, z + 0.6, **kw_for(k, "wood", UV_WALNUT, "wood"))
     L["road"].hquad(*stage, z + 0.6, mat="road_int", uv=UV_TILE)
+    for tx in (t0 + 0.7, t1 - 0.7):                                              # costume trunks (idea 19)
+        for k in ("res0", "res1", "geo", "fire"):
+            L[k].box(tx - 0.45, tx + 0.45, y0 + 0.6, y0 + 1.15, z + 0.6, z + 1.12, **kw_for(k, "wood", UV_WALNUT, "wood"))
+        L["res0"].box(tx - 0.47, tx + 0.47, y0 + 0.58, y0 + 1.17, z + 1.12, z + 1.16, mat="metal", uv=DT.UV_STEEL)
+        L["res0"].quad([(tx - 0.3, y0 + 1.155, z + 0.62), (tx + 0.3, y0 + 1.155, z + 0.62), (tx + 0.3, y0 + 1.155, z + 1.0),
+                        (tx - 0.3, y0 + 1.155, z + 1.0)], (0, 1, 0), "textile", DT.band_fit("textile", "curtain", 0, 1, 0, 1))
+        search_point(L, tx, y0 + 1.75, z + 0.6)
     ws = y0 - 0.02                                                               # screen on the partition
     sx0, sx1, sz0, sz1 = t0 + 0.8, t1 - 0.8, z + 2.0, z + 7.4
     for k in ("res0", "res1"):
@@ -3083,6 +3103,8 @@ def mall_unit(L, P, l, r, kind, z, top, zones, lit):
         while ry < y1 - 1.0 and rails_ < 4:
             if clear(zones, (x0 + 0.8, x1 - 0.8, ry - 0.3, ry + 0.3)) and x1 - x0 > 3.0:
                 garment_rail(L, x0 + 1.0, min(x1 - 1.0, x0 + 3.4), ry, z, key + (ry,))
+                if rails_ == 0 and ry + 0.9 < y1 - 0.3:
+                    search_point(L, x0 + 2.0, ry + 0.8, z)                       # costume rail (idea 19)
                 rails_ += 1
             ry += 1.6
         tb = (cx - 0.5, cx + 0.5, cy - 0.35, cy + 0.35)

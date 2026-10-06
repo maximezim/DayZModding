@@ -546,6 +546,30 @@ Packages: `sky_floors` (floors, skybridge), `sky_towera` (Lobby_B), `sky_texture
 | CP-07 | Weathering: lobby piers, roof parapets, roof weeds | Grime sits on the surface (no z-fighting); weeds alpha-tested, walk-through | | |
 | CP-08 | (optional, P13) set 1-2 `VANILLA_TREES`, regenerate a city layout | Trees visible and solid on a client; if not, empty the list again | | |
 
+## 26. City life: venues, roads, search, alcohol, hordes, alarm (D61)
+
+Layout: `placement/citylife_template.yaml` (target terrain; fill the site, or spawn single pieces with the diag
+console). Packages: `sky_city_venue`, `sky_landmarks`, `sky_roads`, `sky_street`, `sky_sounds`, `sky_items`, `sky_scripts`.
+For the alarm rows, temporarily set `ALARM_MIN_MS` / `ALARM_MAX_MS` to 60000 on the diag build only.
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| CL-01 | Walk the hypermarket, mall (3 levels, escalators), cinema, bar, kindergarten, clubhouse, hanged church | No fall-through, escalators walkable, atrium skylight blocks rain, doors open, loot on floors | | |
+| CL-02 | Hypermarket at night | Cold over-bright light, visible in daylight too (SetVisibleDuringDaylight); no FPS drop beyond FPS_PROTOCOL | | |
+| CL-03 | Funfair: climb round the Ferris wheel, carousel, bumper cars | Collision on frames and gondolas; birch through the platform; no floating parts | | |
+| CL-04 | Stadium, landfill, car parks (A, B, Metro hatch sealed) | Pitch flat (no clutter grass through), stand walkable, floodlight masts solid | | |
+| CL-05 | Drive into a jam line, then walk through it (P19) | Vehicle stopped; player passes through the 1 m gap | | |
+| CL-06 | Drive the viaduct end to end, and through the tunnel | Ramps drivable, barriers hold a car, no gap at segment joints | | |
+| CL-07 | Cross the bridge | Deck drivable, checkpoint blocks cars, loot on the deck and in the two sniper nests (Military) | | |
+| CL-08 | Search a bin, a dumpster, the garbage truck, each landfill mound (P17) | 6 s action, item at your feet or "Nothing useful"; same spot again -> "Someone has already been through this" for 30 min; bare hands sometimes cut | | |
+| CL-09 | Search mall rails and cinema trunks; bar stock | Suits / dresses / masks; vodka or beer | | |
+| CL-10 | Security: spam the search action, search from 4 m (cheat / lag), search with a desync | Server gives nothing out of reach or within 4 s of the last search; no script errors | | |
+| CL-11 | Drink and fill a bottle at a wet hydrant; try a dry one (P18) | Wet behaves like a well; dry has no action | | |
+| CL-12 | Drink vodka: 1 sip, 5 sips, half the bottle (P16) | Tipsy (slow heal), drunk (blur), wasted (strong blur, vomiting); sober again after ~15-20 min; relog resets | | |
+| CL-13 | Walk to a siren tower downtown (P15) | Groups of infected appear out of sight within 20 s; never more than 18 per tower; they vanish when everyone leaves 550 m | | |
+| CL-14 | Wait for the alarm (shortened timer) at 100 m, 1 km, 2 km (P14, P20) | Siren heard and fades with distance; infected within a few hundred metres converge; 3 extra groups arrive | | |
+| CL-15 | FPS: run S-rows of FPS_PROTOCOL with 2 towers awake and one alarm | Server frame time within budget; no per-frame script cost in the profiler | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -558,6 +582,7 @@ Packages: `sky_floors` (floors, skybridge), `sky_towera` (Lobby_B), `sky_texture
 | Elevator §6 | | | |
 | AI §7 | | | |
 | Loot §8 | | | |
+| City life §26 | | | |
 | Placement §9 | | | |
 | Roof drop §10 | | | |
 | Clean logs §11 | | | |

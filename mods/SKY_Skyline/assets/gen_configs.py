@@ -479,7 +479,7 @@ def tower_cores_script():
 # ------------------------------------------------------------------ items
 def items_config():
     dpath = S.PREFIX_ITEMS + "\\data\\"
-    out = HEADER + patches("SKY_Skyline_Items", ["DZ_Data", "SKY_Skyline_Scripts"])
+    out = HEADER + patches("SKY_Skyline_Items", ["DZ_Data", "DZ_Gear_Drinks", "SKY_Skyline_Scripts"])
     out += """
 class CfgVehicles
 {
@@ -524,6 +524,20 @@ class CfgVehicles
 \t\tskyTier = %d;
 \t};
 """ % (name, tier, dpath, tier, tier)
+    # D61 bar alcohol (ROADMAP idea 10): vanilla glass bottle model with the vanilla liquids
+    # LIQUID_VODKA / LIQUID_BEER (3_game/constants.c:546-547; varLiquidTypeInit read at itembase.c:3901).
+    # Dose effects: modded PlayerBase.Consume (SKY_PlayerLife.c).
+    out += "\tclass GlassBottle;\n"
+    for cls, (disp, desc, liquid, qty) in sorted(S.ALCOHOL_ITEMS.items()):
+        out += """\tclass %s: GlassBottle
+\t{
+\t\tscope = 2;
+\t\tdisplayName = "%s";
+\t\tdescriptionShort = "%s";
+\t\tvarLiquidTypeInit = %d;
+\t\tvarQuantityInit = %d;
+\t};
+""" % (cls, disp, desc, liquid, qty)
     out += "};\n"
     return out
 

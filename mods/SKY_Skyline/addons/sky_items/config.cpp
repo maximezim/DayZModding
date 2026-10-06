@@ -6,7 +6,7 @@ class CfgPatches
 		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data", "SKY_Skyline_Scripts"};
+		requiredAddons[] = {"DZ_Data", "DZ_Gear_Drinks", "SKY_Skyline_Scripts"};
 	};
 };
 
@@ -63,5 +63,22 @@ class CfgVehicles
 		displayName = "Access keycard (level 3)";
 		hiddenSelectionsTextures[] = {"SKY_Skyline\sky_items\data\sky_keycard_t3_co.paa"};
 		skyTier = 3;
+	};
+	class GlassBottle;
+	class SKY_Bottle_Beer: GlassBottle
+	{
+		scope = 2;
+		displayName = "Bottle of beer";
+		descriptionShort = "Warm, flat lager from a looted bar. Mild.";
+		varLiquidTypeInit = 4096;
+		varQuantityInit = 500;
+	};
+	class SKY_Bottle_Vodka: GlassBottle
+	{
+		scope = 2;
+		displayName = "Bottle of vodka";
+		descriptionShort = "Cheap Chernarussian vodka. A shot dulls pain; half a bottle and the street starts to spin.";
+		varLiquidTypeInit = 2048;
+		varQuantityInit = 500;
 	};
 };

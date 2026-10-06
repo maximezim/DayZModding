@@ -118,6 +118,7 @@ class CfgVehicles
 		// 1.8 m waste container
 		scope = 1;
 		model = "SKY_Skyline\sky_street\sky_dumpster.p3d";
+		skySearch = "trash";
 	};
 	class Land_SKY_Planter: Land_SKY_Street_Base
 	{
@@ -202,6 +203,7 @@ class CfgVehicles
 		// street litter bin with lid (searchable)
 		scope = 1;
 		model = "SKY_Skyline\sky_street\sky_trashbin.p3d";
+		skySearch = "trash";
 	};
 	class Land_SKY_Hydrant_Wet: Land_SKY_Street_Base
 	{
@@ -226,5 +228,6 @@ class CfgVehicles
 		// abandoned garbage truck (rear hopper searchable)
 		scope = 1;
 		model = "SKY_Skyline\sky_street\sky_wreck_garbagetruck.p3d";
+		skySearch = "trash";
 	};
 };

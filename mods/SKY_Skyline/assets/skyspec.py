@@ -186,6 +186,13 @@ KEYCARD_DOOR = {
 }
 
 KEYCARD_TIERS = {1: "SKY_Keycard_T1", 2: "SKY_Keycard_T2", 3: "SKY_Keycard_T3"}
+# D61 alcohol items (sky_items config; CE in economy/gen_economy.py; doses in SKY_PlayerLife.c).
+# class: (display name, description, vanilla liquid id, initial ml)
+ALCOHOL_ITEMS = {
+    "SKY_Bottle_Vodka": ("Bottle of vodka", "Cheap Chernarussian vodka. A shot dulls pain; half a bottle and the street starts to spin.",
+                         2048, 500),
+    "SKY_Bottle_Beer": ("Bottle of beer", "Warm, flat lager from a looted bar. Mild.", 4096, 500),
+}
 
 # --------------------------------------------------------------------- loot (model-space Blender frame, Z = height above slab)
 # Hand-placed points per module; the generator converts to mapgroupproto (x, y_up, z).
@@ -268,8 +275,8 @@ PREFIX_FLOORS = MOD + "\\sky_floors"
 # Budget hypotheses per category (same method as reviews/perf_review.md; confirm by FPS test).
 BUDGETS = {
     "road":   {"res0": 300, "res1": 150, "res2": 40, "geo_comps": 4, "geo_tris": 60, "sections_res0": 3},
-    "small":  {"res0": 600, "res1": 300, "res2": 100, "geo_comps": 8, "geo_tris": 120, "sections_res0": 3},
-    "medium": {"res0": 1200, "res1": 600, "res2": 150, "geo_comps": 12, "geo_tris": 200, "sections_res0": 4},
+    "small":  {"res0": 600, "res1": 300, "res2": 100, "geo_comps": 8, "geo_tris": 120, "sections_res0": 4},  # D61: +1 (rust/paint/glass trims)
+    "medium": {"res0": 1200, "res1": 600, "res2": 150, "geo_comps": 12, "geo_tris": 200, "sections_res0": 5},  # D61: +1
     # one object = road + sidewalks (+ corners): asphalt, paint, paver, curb concrete (perf batch-1 M1/L1)
     "road_combined": {"res0": 400, "res1": 200, "res2": 40, "geo_comps": 10, "geo_tris": 140, "sections_res0": 4},
     # walk-on decals: no Geometry/Fire (no wheel snag), Roadway only
@@ -1278,9 +1285,38 @@ for _p in ("ParkingLot", "ParkingLotSmall"):
     CITY_ZONES["downtown"]["weights"][_p] = 1
     CITY_ZONES["midtown"]["weights"][_p] = 2
     CITY_ZONES["industrial"]["weights"][_p] = 1
+# CE loot of the two loot destinations (ROADMAP ideas 13, 23): the landfill has a bit of everything at the foot of
+# each rubbish mound; the bridge is the high-risk military drop (deck points + the two sniper nests).
+_LF_MOUNDS = [(-11.0, 8.0, 5.5), (2.0, 11.0, 5.0), (12.0, 6.0, 6.5), (-12.0, -6.0, 4.0), (9.5, -8.0, 4.5), (-2.0, 1.5, 3.5),
+              (-4.0, -12.5, 3.0)]
+LOOT.update({
+    "Land_SKY_Landfill": {"usages": ["Industrial", "Farm", "Village"], "lootmax": 8, "containers": [
+        {"name": "lootFloor", "lootmax": 8, "categories": ["tools", "containers", "clothes", "food", "books"],
+         "tags": ["ground"],
+         "points": [(x, y - ry - 1.2) for (x, y, ry) in _LF_MOUNDS] + [(6.0, -14.0), (-8.0, 15.0), (16.0, -2.0),
+                                                                        (-16.5, 4.0), (0.0, -6.5)]}]},
+    "Land_SKY_Bridge_Long": {"usages": ["Military"], "lootmax": 4, "containers": [
+        {"name": "lootFloor", "lootmax": 4, "categories": ["weapons", "tools", "containers"],
+         "tags": ["ground"],
+         "points": [(-2.0, 0.0), (2.0, 0.0), (-6.5, -3.0), (6.5, 3.0), (-12.0, 0.0), (12.0, 0.0),
+                    (-45.0, 0.0, 6.45, 0.6, 1.5), (45.0, 0.0, 6.45, 0.6, 1.5)]}]},
+})
 # Searchable objects (ActionSKY_SearchTrash): memory point "search" (or search_N) marks where the player
 # stands; the server loot table lives in SKY_SearchTable (scripts), not in config.
 SEARCHABLE = ["Dumpster", "TrashBin", "Wreck_GarbageTruck", "Landfill"]
+# config value skySearch = <table> (read by SKY_SearchService; the tables themselves are server script)
+SEARCH_TABLES = ["trash", "landfill", "costume", "alcohol"]
+SEARCH_TABLE = {"Dumpster": "trash", "TrashBin": "trash", "Wreck_GarbageTruck": "trash", "Landfill": "landfill"}
+for _n, _e in KIT.items():
+    _c = _e.get("city") or {}
+    _arch = CITY_ARCHETYPES.get(_c.get("archetype")) if _c.get("archetype") else None
+    if _arch and _arch.get("costume"):
+        SEARCH_TABLE[_n] = "costume"                     # mall rails, cinema costume trunks (idea 19)
+    elif _arch and _arch.get("alcohol"):
+        SEARCH_TABLE[_n] = "alcohol"                     # behind-the-bar stock (idea 10)
+for _n, _t in SEARCH_TABLE.items():
+    assert _t in SEARCH_TABLES, (_n, _t)
+    KIT[_n]["config_extra"] = KIT[_n].get("config_extra", "") + '\t\tskySearch = "%s";\n' % _t
 # Parks: fixed arrangements placed in a whole block (layout `blocks: [{park: <kind>}]`) instead of the fill.
 # (piece | archetype@state, u, v, yaw) relative to the block centre; min = block size needed (m).
 PARKS = {

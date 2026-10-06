@@ -33,6 +33,12 @@ KEYCARDS = {
     3: {"nominal": 1, "min": 0, "lifetime": 28800, "usages": ["Military"], "values": ["Tier4"]},
 }
 
+# Alcohol (D61): vanilla reference SodaCan_Cola is Town/Village food; vodka rarer than beer.
+ALCOHOL = {
+    "SKY_Bottle_Beer": {"nominal": 20, "min": 10, "usages": ["Town", "Village"]},
+    "SKY_Bottle_Vodka": {"nominal": 12, "min": 6, "usages": ["Town", "Village", "Farm"]},
+}
+
 
 def types_xml():
     out = HEAD + "<types>\n"
@@ -45,6 +51,17 @@ def types_xml():
         out += '        <category name="tools"/>\n'
         out += "".join('        <usage name="%s"/>\n' % u for u in k["usages"])
         out += "".join('        <value name="%s"/>\n' % v for v in k["values"])
+        out += "    </type>\n"
+    # D61 alcohol: CE floor loot in towns (category food like vanilla SodaCan_*); bars also hand
+    # them out through the server search table (SKY_Search.c "alcohol").
+    for name in sorted(S.ALCOHOL_ITEMS):
+        k = ALCOHOL[name]
+        out += '    <type name="%s">\n' % name
+        out += "        <nominal>%d</nominal>\n        <lifetime>14400</lifetime>\n        <restock>0</restock>\n" % k["nominal"]
+        out += "        <min>%d</min>\n        <quantmin>40</quantmin>\n        <quantmax>100</quantmax>\n        <cost>100</cost>\n" % k["min"]
+        out += '        <flags count_in_cargo="0" count_in_hoarder="0" count_in_map="1" count_in_player="0" crafted="0" deloot="0"/>\n'
+        out += '        <category name="food"/>\n'
+        out += "".join('        <usage name="%s"/>\n' % u for u in k["usages"])
         out += "    </type>\n"
     # The tower modules are spawned by objectSpawnersArr, not by CE: no types entries for them.
     return out + "</types>\n"

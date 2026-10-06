@@ -141,6 +141,8 @@ textures:
 
 # ---------------------------------------------------------------- G. sounds (optional)
 sounds: {status: planned, items: [elevator hum, elevator ding]}
+sounds_built:
+  - {name: sky_siren, file: addons/sky_sounds/data/sky_siren.ogg, generator: assets/sounds/gen_siren.py, use: "city alarm (D61): two-rotor civil-defence siren, 60 s mono, procedural", status: built-unverified}
 
 # >>> GENERATED KIT (assets/gen_manifest.py)
 generated_kit:
@@ -221,62 +223,62 @@ generated_kit:
     type: "8 m pole street light (emissive head)"
     p3d: addons/sky_street/sky_streetlight.p3d
     category: small
-    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 3, shadow: 60}
+    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 4, shadow: 60}
     uses: [EMISSIVE_LAMP]
     status: built-unverified
   - name: Land_SKY_TrafficLight
     type: "traffic light with 5 m arm (static atlas face, no emissive)"
     p3d: addons/sky_street/sky_trafficlight.p3d
     category: small
-    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 3, shadow: 60}
+    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 4, shadow: 60}
     status: built-unverified
   - name: Land_SKY_Barrier_Concrete
     type: "3 m jersey barrier"
     p3d: addons/sky_street/sky_barrier_concrete.p3d
     category: small
-    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 3, shadow: 60}
+    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 4, shadow: 60}
     status: built-unverified
   - name: Land_SKY_Barrier_Steel
     type: "2.4 m crowd barrier"
     p3d: addons/sky_street/sky_barrier_steel.p3d
     category: small
-    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 3, shadow: 60}
+    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 4, shadow: 60}
     status: built-unverified
   - name: Land_SKY_BusStop
     type: "4 m shelter with bench and timetable"
     p3d: addons/sky_street/sky_busstop.p3d
     category: medium
-    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 4, shadow: 100}
+    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 5, shadow: 100}
     status: built-unverified
   - name: Land_SKY_Dumpster
     type: "1.8 m waste container"
     p3d: addons/sky_street/sky_dumpster.p3d
     category: small
-    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 3, shadow: 60}
+    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 4, shadow: 60}
     status: built-unverified
   - name: Land_SKY_Planter
     type: "1.5 m concrete planter with shrub"
     p3d: addons/sky_street/sky_planter.p3d
     category: small
-    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 3, shadow: 60}
+    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 4, shadow: 60}
     status: built-unverified
   - name: Land_SKY_Wreck_Sedan
     type: "generic rusted sedan hulk (original shape)"
     p3d: addons/sky_street/sky_wreck_sedan.p3d
     category: medium
-    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 4, shadow: 100}
+    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 5, shadow: 100}
     status: built-unverified
   - name: Land_SKY_Wreck_Van
     type: "generic burnt box van hulk (original shape)"
     p3d: addons/sky_street/sky_wreck_van.p3d
     category: medium
-    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 4, shadow: 100}
+    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 5, shadow: 100}
     status: built-unverified
   - name: Land_SKY_Billboard
     type: "6 x 3 m billboard, poster via hiddenSelections"
     p3d: addons/sky_street/sky_billboard.p3d
     category: medium
-    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 4, shadow: 100}
+    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 5, shadow: 100}
     variants: [Land_SKY_Billboard_A, Land_SKY_Billboard_B, Land_SKY_Billboard_C, Land_SKY_Billboard_D]
     status: built-unverified
   - name: Land_SKY_Decal_Dirt
@@ -302,63 +304,63 @@ generated_kit:
     type: "3 m lobby counter with return and monitor"
     p3d: addons/sky_props/sky_receptiondesk.p3d
     category: medium
-    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 4, shadow: 100}
+    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 5, shadow: 100}
     status: built-unverified
   - name: Land_SKY_Desk
     type: "1.6 m office desk with monitor"
     p3d: addons/sky_props/sky_desk.p3d
     category: interior_small
-    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 3}
+    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 4}
     status: built-unverified
   - name: Land_SKY_Cubicle
     type: "2 x 2 m workstation: 3 fabric screens + L desk"
     p3d: addons/sky_props/sky_cubicle.p3d
     category: medium
-    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 4, shadow: 100}
+    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 5, shadow: 100}
     status: built-unverified
   - name: Land_SKY_ServerRack
     type: "42U server rack (closed, atlas front)"
     p3d: addons/sky_props/sky_serverrack.p3d
     category: small
-    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 3, shadow: 60}
+    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 4, shadow: 60}
     status: built-unverified
   - name: Land_SKY_VendingMachine
     type: "drinks vending machine with openable pickup flap"
     p3d: addons/sky_props/sky_vendingmachine.p3d
     category: small
-    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 3, shadow: 60}
+    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 4, shadow: 60}
     uses: [DOOR_SWING_SIGN, DOOR_OPEN_ANGLE]
     status: built-unverified
   - name: Land_SKY_Locker
     type: "bank of 3 steel lockers, each door openable"
     p3d: addons/sky_props/sky_locker.p3d
     category: medium
-    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 4, shadow: 100}
+    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 5, shadow: 100}
     uses: [DOOR_SWING_SIGN, DOOR_OPEN_ANGLE]
     status: built-unverified
   - name: Land_SKY_Sofa
     type: "2-seat fabric sofa"
     p3d: addons/sky_props/sky_sofa.p3d
     category: interior_small
-    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 3}
+    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 4}
     status: built-unverified
   - name: Land_SKY_Bed
     type: "single bed with headboard"
     p3d: addons/sky_props/sky_bed.p3d
     category: interior_small
-    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 3}
+    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 4}
     status: built-unverified
   - name: Land_SKY_Kitchenette
     type: "1.8 m counter, sink, upper cabinets, fridge"
     p3d: addons/sky_props/sky_kitchenette.p3d
     category: medium
-    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 4, shadow: 100}
+    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 5, shadow: 100}
     status: built-unverified
   - name: Land_SKY_ExtinguisherCabinet
     type: "wall cabinet with extinguisher, openable glass door"
     p3d: addons/sky_props/sky_extinguishercabinet.p3d
     category: interior_small
-    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 3}
+    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 4}
     uses: [DOOR_SWING_SIGN, DOOR_OPEN_ANGLE, PENETRATION]
     status: built-unverified
   - name: Land_SKY_Floor_Apartments
@@ -1684,7 +1686,7 @@ generated_kit:
     type: "ticket / shooting-gallery booth with striped awning"
     p3d: addons/sky_landmarks/sky_fair_booth.p3d
     category: medium
-    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 4, shadow: 100}
+    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 5, shadow: 100}
     uses: [PENETRATION]
     status: built-unverified
   - name: Land_SKY_Fair_Gate
@@ -1719,7 +1721,7 @@ generated_kit:
     type: "18 m lattice floodlight mast"
     p3d: addons/sky_landmarks/sky_stadium_floodlight.p3d
     category: medium
-    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 4, shadow: 100}
+    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 5, shadow: 100}
     uses: [PENETRATION]
     status: built-unverified
   - name: Land_SKY_ParkingLot_A
@@ -1747,35 +1749,35 @@ generated_kit:
     type: "street litter bin with lid (searchable)"
     p3d: addons/sky_street/sky_trashbin.p3d
     category: small
-    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 3, shadow: 60}
+    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 4, shadow: 60}
     uses: [PENETRATION]
     status: built-unverified
   - name: Land_SKY_Hydrant_Wet
     type: "fire hydrant that still gives water (vanilla well behaviour)"
     p3d: addons/sky_street/sky_hydrant_wet.p3d
     category: small
-    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 3, shadow: 60}
+    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 4, shadow: 60}
     uses: [PENETRATION]
     status: built-unverified
   - name: Land_SKY_Hydrant_Dry
     type: "dry fire hydrant (decoration)"
     p3d: addons/sky_street/sky_hydrant_dry.p3d
     category: small
-    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 3, shadow: 60}
+    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 4, shadow: 60}
     uses: [PENETRATION]
     status: built-unverified
   - name: Land_SKY_SirenTower
     type: "civil-defence siren on a 10 m pole (city alarm event)"
     p3d: addons/sky_street/sky_sirentower.p3d
     category: medium
-    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 4, shadow: 100}
+    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 5, shadow: 100}
     uses: [PENETRATION]
     status: built-unverified
   - name: Land_SKY_Wreck_GarbageTruck
     type: "abandoned garbage truck (rear hopper searchable)"
     p3d: addons/sky_street/sky_wreck_garbagetruck.p3d
     category: medium
-    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 4, shadow: 100}
+    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 5, shadow: 100}
     uses: [PENETRATION]
     status: built-unverified
   - name: Land_SKY_Viaduct_Straight

@@ -52,6 +52,7 @@ class CfgVehicles
 		// municipal landfill: rubbish mounds, crushed cars, compactor shed, fence
 		scope = 1;
 		model = "SKY_Skyline\sky_landmarks\sky_landfill.p3d";
+		skySearch = "landfill";
 	};
 	class Land_SKY_Stadium_Pitch: Land_SKY_Landmarks_Base
 	{

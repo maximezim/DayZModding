@@ -182,3 +182,28 @@ data into the same files Arma Toolbox wrote, so the toolchain works in plain Pyt
 The manifest has no planned buildings left. Tall towers are layouts (`placement/skyline_template.yaml`).
 Gates PASS (`reviews/d60_gates.md`), renders `reviews/img/d60_*.png`, in-game rows TESTING §25,
 session plan `TEST_SESSION.md`.
+
+## 13. City life: the 23 brainstorm ideas (D61)
+
+The friend's 23 ideas are on `ROADMAP.md`, each with its feature, phase and status. D61 builds everything
+that does not need new animation, terrain or vehicle simulation:
+- **Venues**: hypermarket under harsh cold light, a 3-level Dead Island mall round a glass atrium, the KINO
+  cinema, a bar, a kindergarten with a rusty playground, a football clubhouse, and a church with shrouded
+  hanged figures.
+- **Specials**: the Pripyat funfair, the landfill, the football ground, car parks (one with a sealed metro
+  hatch), bins, hydrants, siren towers and a garbage-truck wreck.
+- **Roads**: streets jammed with vanilla wrecks (walkable gaps only), an elevated viaduct as the drivable
+  bypass, a road tunnel, and the deadly bridge (military loot, sniper nests).
+- **Gameplay**:
+  - search bins, dumpsters, the garbage truck and landfill mounds; the mall rails and cinema trunks give
+    costumes and evening dresses;
+  - bar stock and vodka/beer with a dose model: heals, blur, vomiting;
+  - wet hydrants work as wells;
+  - hordes downtown;
+  - a city alarm every 45-90 minutes with a procedural siren that pulls infected in.
+All decisions are server-side and every collection is bounded.
+
+Creatures (dogs, rats, horses) wait on a decision: the public mods need the author's authorisation, or we
+build our own. Sewers and the metro need a custom terrain. Drivable buses and trucks need a vehicle
+simulation. Gates PASS (`reviews/d61_gates.md`), renders `reviews/img/d61_*.png`, in-game rows TESTING §26,
+new pending checks P14-P20.

@@ -122,6 +122,7 @@ class CfgVehicles
 		// 3-level mall round a glass-roofed atrium: shop units, galleries, escalators, fountain, food court (intact)
 		scope = 1;
 		model = "SKY_Skyline\sky_city_venue\sky_city_mall_intact.p3d";
+		skySearch = "costume";
 		class Doors
 		{
 			class door_front
@@ -169,6 +170,7 @@ class CfgVehicles
 		// 3-level mall round a glass-roofed atrium: shop units, galleries, escalators, fountain, food court (damaged)
 		scope = 1;
 		model = "SKY_Skyline\sky_city_venue\sky_city_mall_damaged.p3d";
+		skySearch = "costume";
 		class Doors
 		{
 			class door_front
@@ -216,12 +218,14 @@ class CfgVehicles
 		// 3-level mall round a glass-roofed atrium: shop units, galleries, escalators, fountain, food court (ruined)
 		scope = 1;
 		model = "SKY_Skyline\sky_city_venue\sky_city_mall_ruined.p3d";
+		skySearch = "costume";
 	};
 	class Land_SKY_City_Cinema_Intact: Land_SKY_CityVenue_Base
 	{
 		// cinema KINO: marquee, foyer with ticket and snack counters, raked auditorium, screen (intact)
 		scope = 1;
 		model = "SKY_Skyline\sky_city_venue\sky_city_cinema_intact.p3d";
+		skySearch = "costume";
 		class Doors
 		{
 			class door_front
@@ -269,6 +273,7 @@ class CfgVehicles
 		// cinema KINO: marquee, foyer with ticket and snack counters, raked auditorium, screen (damaged)
 		scope = 1;
 		model = "SKY_Skyline\sky_city_venue\sky_city_cinema_damaged.p3d";
+		skySearch = "costume";
 		class Doors
 		{
 			class door_front
@@ -316,5 +321,6 @@ class CfgVehicles
 		// cinema KINO: marquee, foyer with ticket and snack counters, raked auditorium, screen (ruined)
 		scope = 1;
 		model = "SKY_Skyline\sky_city_venue\sky_city_cinema_ruined.p3d";
+		skySearch = "costume";
 	};
 };

@@ -11,5 +11,6 @@ modded class ActionConstructor
 		actions.Insert(ActionSKY_ElevatorRoof);
 		actions.Insert(ActionSKY_ElevatorOpen);
 		actions.Insert(ActionSKY_SecurityExit);
+		actions.Insert(ActionSKY_Search);
 	}
 }

@@ -104,3 +104,12 @@ size it from the table; never place zones on upper floors by hand-editing height
   street level; if only street level, upper-floor targets are reached solely by followers and the
   table above is a ceiling, not a target.
 
+
+## City life (D61)
+- `sky_ce/types.xml`: `SKY_Bottle_Beer` 20/10 (Town, Village) and `SKY_Bottle_Vodka` 12/6 (Town, Village, Farm),
+  category food like vanilla soda cans, spawned 40-100 % full.
+- `mapgroupproto_sky.xml`: `Land_SKY_Landfill` (Industrial / Farm / Village, 8 of 12 points at the foot of the
+  mounds, every category) and `Land_SKY_Bridge_Long` (Military, 4 of 8: deck and the two sniper nests).
+- Search loot (bins, dumpsters, garbage truck, landfill mounds, mall / cinema costumes, bar stock) is **not** CE:
+  the server spawns it from fixed lists in `sky_scripts/.../SKY_Search.c` (30 min per spot, P17). Costumes reuse
+  the vanilla suit / dress / mask classes, so no vanilla types entry is overridden.

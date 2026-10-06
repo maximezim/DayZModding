@@ -1622,6 +1622,7 @@ class CfgVehicles
 		// corner bar: long counter, bottle wall, booths, pool table (intact)
 		scope = 1;
 		model = "SKY_Skyline\sky_city_com\sky_city_bar_intact.p3d";
+		skySearch = "alcohol";
 		class Doors
 		{
 			class door_front
@@ -1669,6 +1670,7 @@ class CfgVehicles
 		// corner bar: long counter, bottle wall, booths, pool table (damaged)
 		scope = 1;
 		model = "SKY_Skyline\sky_city_com\sky_city_bar_damaged.p3d";
+		skySearch = "alcohol";
 		class Doors
 		{
 			class door_front
@@ -1716,5 +1718,6 @@ class CfgVehicles
 		// corner bar: long counter, bottle wall, booths, pool table (ruined)
 		scope = 1;
 		model = "SKY_Skyline\sky_city_com\sky_city_bar_ruined.p3d";
+		skySearch = "alcohol";
 	};
 };

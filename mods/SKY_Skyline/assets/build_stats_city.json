@@ -324,11 +324,11 @@
   "view": 810
  },
  "sky_city_cinema_damaged.p3d": {
-  "fire": 1728,
-  "geo": 864,
+  "fire": 1752,
+  "geo": 888,
   "mem": 0,
-  "res0": 27568,
-  "res1": 2692,
+  "res0": 27620,
+  "res1": 2716,
   "res2": 220,
   "res3": 10,
   "road": 48,
@@ -336,11 +336,11 @@
   "view": 996
  },
  "sky_city_cinema_intact.p3d": {
-  "fire": 1728,
-  "geo": 864,
+  "fire": 1752,
+  "geo": 888,
   "mem": 0,
-  "res0": 29374,
-  "res1": 2660,
+  "res0": 29426,
+  "res1": 2684,
   "res2": 164,
   "res3": 10,
   "road": 48,
@@ -348,11 +348,11 @@
   "view": 996
  },
  "sky_city_cinema_ruined.p3d": {
-  "fire": 1616,
-  "geo": 968,
+  "fire": 1640,
+  "geo": 992,
   "mem": 0,
-  "res0": 26212,
-  "res1": 2706,
+  "res0": 26264,
+  "res1": 2730,
   "res2": 252,
   "res3": 38,
   "road": 92,
