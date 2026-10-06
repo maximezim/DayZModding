@@ -1,3 +1,3 @@
 <!-- MERGE this <zone> into an existing <territory> of the mission's env/zombie_territories.xml.
      One zone per district; dmin/dmax from the floor mix (economy/README.md, tune after B6). -->
-<zone name="InfectedCity" smin="0" smax="0" dmin="8" dmax="16" x="0.0" z="0.0" r="138"/>
+<zone name="InfectedCity" smin="0" smax="0" dmin="5" dmax="10" x="1610.0" z="4350.0" r="50"/>

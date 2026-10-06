@@ -48,3 +48,6 @@ desktop.ini
 *.ADM
 *.RPT
 *.mdmp
+
+# failed layout runs (sky_layout.py writes *.FAILED.* next to the outputs)
+mods/*/placement/out*/*.FAILED.*
