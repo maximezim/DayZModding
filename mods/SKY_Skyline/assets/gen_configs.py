@@ -153,7 +153,8 @@ KIT_PATCH = {"sky_street": "SKY_Skyline_Street", "sky_props": "SKY_Skyline_Props
              "sky_city_com": "SKY_Skyline_CityCom", "sky_city_civic": "SKY_Skyline_CityCivic",
              "sky_city_ind": "SKY_Skyline_CityInd", "sky_city_env": "SKY_Skyline_CityEnv",
              "sky_city_venue": "SKY_Skyline_CityVenue",   # D60 split, D61 venues
-             "sky_landmarks": "SKY_Skyline_Landmarks", "sky_roads": "SKY_Skyline_Roads"}   # D61
+             "sky_landmarks": "SKY_Skyline_Landmarks", "sky_roads": "SKY_Skyline_Roads",   # D61
+             "sky_underground": "SKY_Skyline_Underground"}   # D63
 
 
 def kit_entries(pbo):
@@ -175,6 +176,8 @@ def kit_config(pbo):
             first = sorted(e["variants"])[0]
             body += '\t\thiddenSelectionsTextures[] = {"%s"};\n' % e["variants"][first]
         body += e.get("config_extra", "")
+        if e.get("flood"):
+            body += FLOOD_SOURCES
         if e.get("doors"):
             body += kit_doors_config(e["doors"])
         out += "\tclass %s: %s\n\t{\n%s\t};\n" % (e["cls"], base, body)
@@ -226,6 +229,38 @@ def kit_door_anims(name, doors):
     return {"skeleton": skel, "skeleton_name": "SKY_Skeleton_%s" % name, "animations": anims}
 
 
+def flood_anims(name):
+    """D63 sewer water: selection `flood` moves up along `flood_axis` (1 m long) by FLOOD_RISE m at phase 1;
+    user animation source `flood` (config AnimationSources), set by SKY_Underground.c."""
+    skel = "\tclass SKY_Skeleton_%s: Default\n\t{\n\t\tskeletonInherit = \"Default\";\n\t\tskeletonBones[] = {\"flood\",\"\"};\n\t};\n" % name
+    anims = """\t\t\tclass flood_move
+\t\t\t{
+\t\t\t\ttype = "translation";
+\t\t\t\tselection = "flood";
+\t\t\t\tsource = "flood";
+\t\t\t\taxis = "flood_axis";
+\t\t\t\tmemory = 1;
+\t\t\t\tminValue = 0;
+\t\t\t\tmaxValue = 1;
+\t\t\t\toffset0 = 0;
+\t\t\t\toffset1 = %g;
+\t\t\t};
+""" % S.UNDERGROUND["flood_rise"]
+    return {"skeleton": skel, "skeleton_name": "SKY_Skeleton_%s" % name, "animations": anims}
+
+
+FLOOD_SOURCES = """\t\tclass AnimationSources
+\t\t{
+\t\t\tclass flood
+\t\t\t{
+\t\t\t\tsource = "user";
+\t\t\t\tanimPeriod = 20;
+\t\t\t\tinitPhase = 0;
+\t\t\t};
+\t\t};
+"""
+
+
 def kit_model_cfg(pbo):
     out = HEADER + """class CfgSkeletons
 {
@@ -251,7 +286,8 @@ class CfgModels
         body = ""
         if e["variants"]:
             body += '\t\tsections[] = {"camo"};\n'
-        anim = e.get("model_anims") or (kit_door_anims(name, e["doors"]) if e.get("doors") else None)
+        anim = e.get("model_anims") or (kit_door_anims(name, e["doors"]) if e.get("doors") else None) \
+            or (flood_anims(name) if e.get("flood") else None)
         if anim:
             skel += anim["skeleton"]
             body += '\t\tskeletonName = "%s";\n\t\tclass Animations\n\t\t{\n%s\t\t};\n' % (anim["skeleton_name"], anim["animations"])

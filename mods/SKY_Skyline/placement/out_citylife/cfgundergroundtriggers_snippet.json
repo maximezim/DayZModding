@@ -1,0 +1,671 @@
+{
+ "Triggers": [
+  {
+   "CustomSpawn": false,
+   "Tag": "",
+   "ParentNetworkId": [],
+   "Position": [
+    -48.0,
+    -3.05,
+    -60.0
+   ],
+   "Orientation": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "Size": [
+    4.8,
+    5.9,
+    12.0
+   ],
+   "EyeAccommodation": 0.15,
+   "InterpolationSpeed": 1.0,
+   "UseLinePointFade": false,
+   "AmbientSoundType": "",
+   "AmbientSoundSet": "",
+   "Breadcrumbs": []
+  },
+  {
+   "CustomSpawn": false,
+   "Tag": "",
+   "ParentNetworkId": [],
+   "Position": [
+    -48.0,
+    -3.05,
+    -48.0
+   ],
+   "Orientation": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "Size": [
+    4.8,
+    5.9,
+    12.0
+   ],
+   "EyeAccommodation": 0.15,
+   "InterpolationSpeed": 1.0,
+   "UseLinePointFade": false,
+   "AmbientSoundType": "",
+   "AmbientSoundSet": "",
+   "Breadcrumbs": []
+  },
+  {
+   "CustomSpawn": false,
+   "Tag": "",
+   "ParentNetworkId": [],
+   "Position": [
+    -48.0,
+    -3.05,
+    -36.0
+   ],
+   "Orientation": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "Size": [
+    4.8,
+    5.9,
+    12.0
+   ],
+   "EyeAccommodation": 0.15,
+   "InterpolationSpeed": 1.0,
+   "UseLinePointFade": false,
+   "AmbientSoundType": "",
+   "AmbientSoundSet": "",
+   "Breadcrumbs": []
+  },
+  {
+   "CustomSpawn": false,
+   "Tag": "",
+   "ParentNetworkId": [],
+   "Position": [
+    -48.0,
+    -3.05,
+    -24.0
+   ],
+   "Orientation": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "Size": [
+    4.8,
+    5.9,
+    12.0
+   ],
+   "EyeAccommodation": 0.15,
+   "InterpolationSpeed": 1.0,
+   "UseLinePointFade": false,
+   "AmbientSoundType": "",
+   "AmbientSoundSet": "",
+   "Breadcrumbs": []
+  },
+  {
+   "CustomSpawn": false,
+   "Tag": "",
+   "ParentNetworkId": [],
+   "Position": [
+    -44.2,
+    -3.05,
+    -24.0
+   ],
+   "Orientation": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "Size": [
+    2.8,
+    5.9,
+    12.0
+   ],
+   "EyeAccommodation": 0.15,
+   "InterpolationSpeed": 1.0,
+   "UseLinePointFade": true,
+   "AmbientSoundType": "",
+   "AmbientSoundSet": "",
+   "Breadcrumbs": [
+    {
+     "Position": [
+      -44.2,
+      1.4,
+      -29.0
+     ],
+     "EyeAccommodation": 1.0,
+     "UseRaycast": false,
+     "Radius": -1.0,
+     "LightLerp": false
+    },
+    {
+     "Position": [
+      -44.2,
+      -4.5,
+      -20.0
+     ],
+     "EyeAccommodation": 0.15,
+     "UseRaycast": false,
+     "Radius": -1.0,
+     "LightLerp": false
+    }
+   ]
+  },
+  {
+   "CustomSpawn": false,
+   "Tag": "",
+   "ParentNetworkId": [],
+   "Position": [
+    -48.0,
+    -3.05,
+    -12.0
+   ],
+   "Orientation": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "Size": [
+    4.8,
+    5.9,
+    12.0
+   ],
+   "EyeAccommodation": 0.15,
+   "InterpolationSpeed": 1.0,
+   "UseLinePointFade": false,
+   "AmbientSoundType": "",
+   "AmbientSoundSet": "",
+   "Breadcrumbs": []
+  },
+  {
+   "CustomSpawn": false,
+   "Tag": "",
+   "ParentNetworkId": [],
+   "Position": [
+    -48.0,
+    -3.05,
+    0.0
+   ],
+   "Orientation": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "Size": [
+    4.8,
+    5.9,
+    12.0
+   ],
+   "EyeAccommodation": 0.15,
+   "InterpolationSpeed": 1.0,
+   "UseLinePointFade": false,
+   "AmbientSoundType": "",
+   "AmbientSoundSet": "",
+   "Breadcrumbs": []
+  },
+  {
+   "CustomSpawn": false,
+   "Tag": "",
+   "ParentNetworkId": [],
+   "Position": [
+    -48.0,
+    -3.05,
+    12.0
+   ],
+   "Orientation": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "Size": [
+    4.8,
+    5.9,
+    12.0
+   ],
+   "EyeAccommodation": 0.15,
+   "InterpolationSpeed": 1.0,
+   "UseLinePointFade": false,
+   "AmbientSoundType": "",
+   "AmbientSoundSet": "",
+   "Breadcrumbs": []
+  },
+  {
+   "CustomSpawn": false,
+   "Tag": "",
+   "ParentNetworkId": [],
+   "Position": [
+    -48.0,
+    -3.05,
+    24.0
+   ],
+   "Orientation": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "Size": [
+    4.8,
+    5.9,
+    12.0
+   ],
+   "EyeAccommodation": 0.15,
+   "InterpolationSpeed": 1.0,
+   "UseLinePointFade": false,
+   "AmbientSoundType": "",
+   "AmbientSoundSet": "",
+   "Breadcrumbs": []
+  },
+  {
+   "CustomSpawn": false,
+   "Tag": "",
+   "ParentNetworkId": [],
+   "Position": [
+    -48.0,
+    -3.05,
+    36.0
+   ],
+   "Orientation": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "Size": [
+    4.8,
+    5.9,
+    12.0
+   ],
+   "EyeAccommodation": 0.15,
+   "InterpolationSpeed": 1.0,
+   "UseLinePointFade": false,
+   "AmbientSoundType": "",
+   "AmbientSoundSet": "",
+   "Breadcrumbs": []
+  },
+  {
+   "CustomSpawn": false,
+   "Tag": "",
+   "ParentNetworkId": [],
+   "Position": [
+    -44.2,
+    -3.05,
+    36.0
+   ],
+   "Orientation": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "Size": [
+    2.8,
+    5.9,
+    12.0
+   ],
+   "EyeAccommodation": 0.15,
+   "InterpolationSpeed": 1.0,
+   "UseLinePointFade": true,
+   "AmbientSoundType": "",
+   "AmbientSoundSet": "",
+   "Breadcrumbs": [
+    {
+     "Position": [
+      -44.2,
+      1.4,
+      31.0
+     ],
+     "EyeAccommodation": 1.0,
+     "UseRaycast": false,
+     "Radius": -1.0,
+     "LightLerp": false
+    },
+    {
+     "Position": [
+      -44.2,
+      -4.5,
+      40.0
+     ],
+     "EyeAccommodation": 0.15,
+     "UseRaycast": false,
+     "Radius": -1.0,
+     "LightLerp": false
+    }
+   ]
+  },
+  {
+   "CustomSpawn": false,
+   "Tag": "",
+   "ParentNetworkId": [],
+   "Position": [
+    -48.0,
+    -3.05,
+    48.0
+   ],
+   "Orientation": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "Size": [
+    4.8,
+    5.9,
+    12.0
+   ],
+   "EyeAccommodation": 0.15,
+   "InterpolationSpeed": 1.0,
+   "UseLinePointFade": false,
+   "AmbientSoundType": "",
+   "AmbientSoundSet": "",
+   "Breadcrumbs": []
+  },
+  {
+   "CustomSpawn": false,
+   "Tag": "",
+   "ParentNetworkId": [],
+   "Position": [
+    -48.0,
+    -3.05,
+    60.0
+   ],
+   "Orientation": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "Size": [
+    4.8,
+    5.9,
+    12.0
+   ],
+   "EyeAccommodation": 0.15,
+   "InterpolationSpeed": 1.0,
+   "UseLinePointFade": false,
+   "AmbientSoundType": "",
+   "AmbientSoundSet": "",
+   "Breadcrumbs": []
+  },
+  {
+   "CustomSpawn": false,
+   "Tag": "",
+   "ParentNetworkId": [],
+   "Position": [
+    96.0,
+    -4.05,
+    -60.0
+   ],
+   "Orientation": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "Size": [
+    13.0,
+    7.9,
+    12.0
+   ],
+   "EyeAccommodation": 0.15,
+   "InterpolationSpeed": 1.0,
+   "UseLinePointFade": false,
+   "AmbientSoundType": "",
+   "AmbientSoundSet": "",
+   "Breadcrumbs": []
+  },
+  {
+   "CustomSpawn": false,
+   "Tag": "",
+   "ParentNetworkId": [],
+   "Position": [
+    96.0,
+    -4.05,
+    -48.0
+   ],
+   "Orientation": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "Size": [
+    13.0,
+    7.9,
+    12.0
+   ],
+   "EyeAccommodation": 0.15,
+   "InterpolationSpeed": 1.0,
+   "UseLinePointFade": false,
+   "AmbientSoundType": "",
+   "AmbientSoundSet": "",
+   "Breadcrumbs": []
+  },
+  {
+   "CustomSpawn": false,
+   "Tag": "",
+   "ParentNetworkId": [],
+   "Position": [
+    96.0,
+    -4.05,
+    -36.0
+   ],
+   "Orientation": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "Size": [
+    13.0,
+    7.9,
+    12.0
+   ],
+   "EyeAccommodation": 0.15,
+   "InterpolationSpeed": 1.0,
+   "UseLinePointFade": false,
+   "AmbientSoundType": "",
+   "AmbientSoundSet": "",
+   "Breadcrumbs": []
+  },
+  {
+   "CustomSpawn": false,
+   "Tag": "",
+   "ParentNetworkId": [],
+   "Position": [
+    96.0,
+    -4.05,
+    -24.0
+   ],
+   "Orientation": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "Size": [
+    13.0,
+    7.9,
+    12.0
+   ],
+   "EyeAccommodation": 0.15,
+   "InterpolationSpeed": 1.0,
+   "UseLinePointFade": false,
+   "AmbientSoundType": "",
+   "AmbientSoundSet": "",
+   "Breadcrumbs": []
+  },
+  {
+   "CustomSpawn": false,
+   "Tag": "",
+   "ParentNetworkId": [],
+   "Position": [
+    96.0,
+    -4.05,
+    -12.0
+   ],
+   "Orientation": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "Size": [
+    13.0,
+    7.9,
+    12.0
+   ],
+   "EyeAccommodation": 0.15,
+   "InterpolationSpeed": 1.0,
+   "UseLinePointFade": false,
+   "AmbientSoundType": "",
+   "AmbientSoundSet": "",
+   "Breadcrumbs": []
+  },
+  {
+   "CustomSpawn": false,
+   "Tag": "",
+   "ParentNetworkId": [],
+   "Position": [
+    96.0,
+    -4.05,
+    6.0
+   ],
+   "Orientation": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "Size": [
+    17.0,
+    7.9,
+    24.0
+   ],
+   "EyeAccommodation": 0.15,
+   "InterpolationSpeed": 1.0,
+   "UseLinePointFade": true,
+   "AmbientSoundType": "",
+   "AmbientSoundSet": "",
+   "Breadcrumbs": [
+    {
+     "Position": [
+      96.0,
+      1.4,
+      17.5
+     ],
+     "EyeAccommodation": 1.0,
+     "UseRaycast": false,
+     "Radius": -1.0,
+     "LightLerp": false
+    },
+    {
+     "Position": [
+      96.0,
+      -5.5,
+      6.0
+     ],
+     "EyeAccommodation": 0.15,
+     "UseRaycast": false,
+     "Radius": -1.0,
+     "LightLerp": false
+    }
+   ]
+  },
+  {
+   "CustomSpawn": false,
+   "Tag": "",
+   "ParentNetworkId": [],
+   "Position": [
+    96.0,
+    -4.05,
+    24.0
+   ],
+   "Orientation": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "Size": [
+    13.0,
+    7.9,
+    12.0
+   ],
+   "EyeAccommodation": 0.15,
+   "InterpolationSpeed": 1.0,
+   "UseLinePointFade": false,
+   "AmbientSoundType": "",
+   "AmbientSoundSet": "",
+   "Breadcrumbs": []
+  },
+  {
+   "CustomSpawn": false,
+   "Tag": "",
+   "ParentNetworkId": [],
+   "Position": [
+    96.0,
+    -4.05,
+    36.0
+   ],
+   "Orientation": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "Size": [
+    13.0,
+    7.9,
+    12.0
+   ],
+   "EyeAccommodation": 0.15,
+   "InterpolationSpeed": 1.0,
+   "UseLinePointFade": false,
+   "AmbientSoundType": "",
+   "AmbientSoundSet": "",
+   "Breadcrumbs": []
+  },
+  {
+   "CustomSpawn": false,
+   "Tag": "",
+   "ParentNetworkId": [],
+   "Position": [
+    96.0,
+    -4.05,
+    48.0
+   ],
+   "Orientation": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "Size": [
+    13.0,
+    7.9,
+    12.0
+   ],
+   "EyeAccommodation": 0.15,
+   "InterpolationSpeed": 1.0,
+   "UseLinePointFade": false,
+   "AmbientSoundType": "",
+   "AmbientSoundSet": "",
+   "Breadcrumbs": []
+  },
+  {
+   "CustomSpawn": false,
+   "Tag": "",
+   "ParentNetworkId": [],
+   "Position": [
+    96.0,
+    -4.05,
+    60.0
+   ],
+   "Orientation": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "Size": [
+    13.0,
+    7.9,
+    12.0
+   ],
+   "EyeAccommodation": 0.15,
+   "InterpolationSpeed": 1.0,
+   "UseLinePointFade": false,
+   "AmbientSoundType": "",
+   "AmbientSoundSet": "",
+   "Breadcrumbs": []
+  }
+ ]
+}

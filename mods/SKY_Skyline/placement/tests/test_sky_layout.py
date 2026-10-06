@@ -104,6 +104,29 @@ def district_tests(expect):
     yaml.safe_dump(bad, open(os.path.join(d, "l2.yaml"), "w"))
     rc, out, _ = run_layout(os.path.join(d, "l2.yaml"))
     expect("funfair in a too small block fails", rc == 1 and "funfair needs" in out, out[-400:])
+    # D63: underground under the city life template (terrain target)
+    rc, out, od = run_layout(life)
+    names = [o["name"] for o in json.load(open(os.path.join(od, "sky_objects.json")))["Objects"]] if rc == 0 else []
+    for cls, n in (("Land_SKY_Sewer_Access", 2), ("Land_SKY_Sewer_Stair", 2), ("Land_SKY_Sewer_End", 2),
+                   ("Land_SKY_Metro_Station", 1), ("Land_SKY_Metro_End", 2)):
+        expect("underground: %d x %s" % (n, cls), names.count(cls) == n, str(names.count(cls)))
+    trig = json.load(open(os.path.join(od, "cfgundergroundtriggers_snippet.json")))["Triggers"] if rc == 0 else []
+    expect("underground: one darkness trigger per piece, stairs fade with breadcrumbs",
+           len(trig) == sum(nm.startswith(("Land_SKY_Sewer_", "Land_SKY_Metro_")) for nm in names)
+           and any(len(t["Breadcrumbs"]) == 2 for t in trig) and os.path.exists(os.path.join(od, "underground_trenches.json")))
+    bad = dict(lay)
+    bad["site"] = dict(lay["site"], target="spawner")
+    bad["underground"] = lay["underground"]
+    for k in ("blocks", "jams", "viaducts", "tunnels", "bridges", "props"):
+        bad.pop(k, None)
+    yaml.safe_dump(bad, open(os.path.join(d, "l3.yaml"), "w"))
+    rc, out, _ = run_layout(os.path.join(d, "l3.yaml"))
+    expect("underground on a vanilla map (spawner) fails", rc == 1 and "underground needs site.target: terrain" in out, out[-400:])
+    bad = dict(lay)
+    bad["underground"] = lay["underground"] + [{"kind": "sewer", "axis": "ns", "index": 8, "from": -5, "to": 5}]
+    yaml.safe_dump(bad, open(os.path.join(d, "l4.yaml"), "w"))
+    rc, out, _ = run_layout(os.path.join(d, "l4.yaml"))
+    expect("a sewer through the metro fails (overlap)", rc == 1 and "overlaps" in out, out[-400:])
     sky = os.path.join(os.path.dirname(HERE), "skyline_template.yaml")
     rc, out, od = run_layout(sky)
     objs = json.load(open(os.path.join(od, "sky_objects.json")))["Objects"] if rc == 0 else []

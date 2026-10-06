@@ -586,6 +586,22 @@ landfill park of `placement/citylife_template.yaml`.
 | CR-07 | Fence + tent within 25 m of a nest, 1 h; then with a burning fireplace by the nest, and with a kennel by the fence | ~3 % health lost per hour without protection; none with the fire or the kennel | | |
 | CR-08 | Horse carcass and nests in the landfill | Collision as cover, no floating parts | | |
 
+## 28. Underground and terrain (D63)
+
+This needs the custom test terrain built from `terrain/out` (P28) with `placement/out_citylife/objects`. Before that,
+you can spawn single pieces in the air on the diag server (`Land_SKY_Sewer_Straight` at y + 20) to check
+collision and looks.
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| UG-01 | Import heightmap / masks / layers in Terrain Builder, build the .wrp (P28) | Flat plateau at 120 m, trenches where the layout puts sewer and metro, river valley under the bridge | | |
+| UG-02 | Walk down a Sewer_Stair from the street, along the walkways, through the junction, to an end (P25) | No snags, door aligned with the access piece, rails at the street opening, no gaps between pieces | | |
+| UG-03 | Walk down the metro station stair, platform, tunnels to both ends | Stair headroom, platform edges, buffer stops; tracks continuous across station/tunnel joints | | |
+| UG-04 | Merge `cfgundergroundtriggers_snippet.json`, walk down (P27) | Eye adaptation darkens underground, fades along the stairs; lamps read as dead fittings (P26) | | |
+| UG-05 | `#weather` heavy rain (> 0.6) for 10 min, then stop (P29) | Water rises to ~1.6 m over 10 min, visible from two clients; drains in 30 min; boots/trousers soaked; damage when submerged | | |
+| UG-06 | Drive over the roof slabs (streets above sewer/metro) | No bumps, no fall-through; station stair opening has rails | | |
+| UG-07 | Vanilla map: try a layout with `underground` and target spawner | Refused (hatches stay sealed) | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -600,6 +616,7 @@ landfill park of `placement/citylife_template.yaml`.
 | Loot §8 | | | |
 | City life §26 | | | |
 | Creatures §27 | | | |
+| Underground §28 | | | |
 | Placement §9 | | | |
 | Roof drop §10 | | | |
 | Clean logs §11 | | | |

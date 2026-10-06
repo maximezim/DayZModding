@@ -1294,6 +1294,26 @@ LANDMARK_SIZE["HorseCarcass"] = (2.4, 2.8)
 KENNEL = {"cls": "SKY_Kennel", "p3d": "sky_kennel.p3d", "base": "SeaChest",
           "display": "Dog kennel", "desc": "A doghouse and its old guard dog. Place it by your stash: while you are away the "
           "dog keeps everyone out of it and barks at anyone who comes close."}
+# D63 underground kit (build_underground.py): cut-and-cover boxes under street level (custom terrain only).
+UNDERGROUND = {"roof_top": -0.1, "sewer_floor": -6.0, "sewer_height": 2.6, "metro_floor": -8.0, "metro_height": 5.0,
+               "flood_rise": 1.6}
+# Underground darkness (cfgundergroundtriggers EyeAccommodation 0..1, InterpolationSpeed) - P27 hypotheses.
+UNDERGROUND_LIGHT = {"eye_inside": 0.15, "speed": 1.0}
+BUDGETS["underground"] = {"res0": 9000, "res1": 3000, "res2": 200, "geo_comps": 40, "geo_tris": 600, "sections_res0": 10}
+for _n, _fp, _d in [
+        ("Sewer_Straight", (4.8, 12.0), "brick sewer, 12 m: channel, two walkways, pipes, lamps; flooding water"),
+        ("Sewer_Access", (4.8, 12.0), "sewer straight with a side door (+X wall, y 4.0..5.2) to a Sewer_Stair"),
+        ("Sewer_End", (4.8, 12.0), "sewer straight closed at +Y: brick end wall, outfall grating"),
+        ("Sewer_Junction", (12.0, 12.0), "sewer crossing, plank bridges over the channels; flooding water"),
+        ("Sewer_Stair", (2.8, 12.0), "stair beside a Sewer_Access (+X, same yaw): street opening at -Y, door in its -X wall"),
+        ("Metro_Tunnel", (13.0, 12.0), "double-track metro box tunnel, 12 m: ballast, sleepers, rails, ledges, cables"),
+        ("Metro_End", (13.0, 12.0), "metro tunnel closed at +Y: end wall, buffer stops"),
+        ("Metro_Station", (17.0, 24.0), "metro station: island platform, columns, tiles, benches, kiosk, stair to the street (+Y)")]:
+    kit(_n, "sky_underground", "underground", uses=["P25", "P26"], desc=_d)
+    KIT[_n]["doors"] = []
+    LANDMARK_SIZE[_n] = _fp
+for _n in ("Sewer_Straight", "Sewer_Access", "Sewer_End", "Sewer_Junction"):
+    KIT[_n]["flood"] = True
 # CE loot of the two loot destinations (ROADMAP ideas 13, 23): the landfill has a bit of everything at the foot of
 # each rubbish mound; the bridge is the high-risk military drop (deck points + the two sniper nests).
 _LF_MOUNDS = [(-11.0, 8.0, 5.5), (2.0, 11.0, 5.0), (12.0, 6.0, 6.5), (-12.0, -6.0, 4.0), (9.5, -8.0, 4.5), (-2.0, 1.5, 3.5),

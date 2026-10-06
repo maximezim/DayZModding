@@ -223,3 +223,19 @@ static models driven by server rules:
 Security and performance reviews ran on all D61-D62 scripts and every finding was fixed (`reviews/d62_gates.md`).
 In-game rows: TESTING §27; pending checks: P21-P24.
 
+## 15. Underground and terrain (D63)
+
+The underground is cut-and-cover, so it works only on a custom terrain: a DayZ terrain cannot have holes, and
+a vanilla map cannot be dug.
+- **Kit**: brick sewers with walkways, pipes and a channel whose water rises with heavy rain, a junction, end
+  caps and stairs to street openings. The metro has tunnels, buffer-stop ends and a tiled station with an
+  island platform and a stair to the street.
+- **Layout**: the layout generator lays both networks under the streets. It also writes the vanilla
+  underground darkness triggers and a list of trenches.
+- **Terrain**: the new `terrain/gen_terrain.py` builds Terrain Builder inputs in Bohemia's sample format: a
+  1 m heightmap with the city plateau, trenches and a river valley, the surface mask, the colour map and the layers.
+- **Flooding**: rain floods the sewers over 10 minutes and drains them over 30. Clothes get soaked, and
+  players take damage when the water is over their head.
+Building the .wrp itself needs Terrain Builder on Windows and a map name (TESTING §28, P25-P29,
+`reviews/d63_gates.md`).
+

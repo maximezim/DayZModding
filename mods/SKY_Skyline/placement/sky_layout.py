@@ -593,6 +593,134 @@ def place_tunnels(ctx, lay, world, site_yaw, street_y):
     return quads
 
 
+def place_underground(ctx, lay, world, site_yaw, street_y, terrain):
+    """Sewers and metro under street lines (D63, ROADMAP ideas 18, 22): cut-and-cover pieces whose roof is
+    just under street level, so they need a trench in the terrain: custom terrain only (MOD_DEVELOPMENT_GUIDE
+    4.3; terrain/gen_terrain.py trenches them). On a vanilla map the ParkingLot_Metro hatches stay sealed.
+    underground: [{kind: sewer|metro, axis, index, from, to, access: [c...], stations: [c...]}]
+    - sewer: Sewer_Straight per cell, Sewer_Junction where two sewer runs cross, Sewer_End at open ends,
+      at an `access` cell a Sewer_Access + a parallel Sewer_Stair on its +X side (under the sidewalk);
+    - metro: Metro_Tunnel per cell, Metro_End at both ends, a 24 m Metro_Station over cells c and c+1.
+    Returns obstacle quads (stations) and records ctx.underground (pieces with their
+    world footprint and floor depth) for the darkness triggers and the terrain trenches."""
+    runs = lay.get("underground") or []
+    ctx.underground = []
+    if not runs:
+        return []
+    if not terrain:
+        ctx.errors.append("underground needs site.target: terrain (cut-and-cover under the street; a vanilla map "
+                          "cannot be trenched - D63); the metro hatches stay sealed on vanilla maps")
+        return []
+    quads = []
+    sewer_cells = {}
+    for r in runs:
+        if r.get("kind") == "sewer":
+            for c in line_cells(ctx, r, "underground"):
+                sewer_cells[c] = sewer_cells.get(c, 0) + 1
+    done_junctions = set()
+    UG = S.UNDERGROUND
+
+    def put(cls, x, z, yaw, floor):
+        yaw = yaw % 360.0
+        ctx.add("underground", S.KIT[cls]["cls"], (x, street_y, z), yaw)
+        w, d = S.LANDMARK_SIZE[cls]
+        ctx.underground.append({"cls": cls, "pos": (x, street_y, z), "yaw": yaw, "size": (w, d),
+                                "floor": street_y + floor, "roof": street_y + UG["roof_top"]})
+        return footprint_corners(x, z, w / 2, d / 2, yaw)
+
+    for r in runs:
+        kind = r.get("kind")
+        if kind not in ("sewer", "metro"):
+            ctx.errors.append("underground %s: kind must be sewer or metro" % r)
+            continue
+        cells = line_cells(ctx, r, "underground")
+        if len(cells) < 2:
+            continue
+        fwd = _line_yaw(r)
+        along = [c[1] if r["axis"] == "ns" else c[0] for c in cells]
+        stations = set(r.get("stations") or [])
+        access = set(r.get("access") or [])
+        skip = set()
+        for n, c in enumerate(cells):
+            if n in skip:
+                continue
+            wx, wz = world(*cell_center(lay, *c))
+            yaw = site_yaw + fwd
+            if kind == "metro":
+                if along[n] in stations:
+                    if n + 1 >= len(cells) - 1 or n == 0:
+                        ctx.errors.append("underground metro %s: station at %s needs a tunnel cell before and after it" % (r.get("index"), along[n]))
+                        continue
+                    nx, nz = world(*cell_center(lay, *cells[n + 1]))
+                    quads.append(("metro station %s" % (c,), put("Metro_Station", (wx + nx) / 2, (wz + nz) / 2, yaw, UG["metro_floor"])))
+                    skip.add(n + 1)
+                    continue
+                if n == 0:
+                    put("Metro_End", wx, wz, yaw + 180.0, UG["metro_floor"])
+                elif n == len(cells) - 1:
+                    put("Metro_End", wx, wz, yaw, UG["metro_floor"])
+                else:
+                    put("Metro_Tunnel", wx, wz, yaw, UG["metro_floor"])
+                continue
+            if sewer_cells.get(c, 0) > 1:                                       # crossing of two sewer runs
+                if c not in done_junctions:
+                    done_junctions.add(c)
+                    put("Sewer_Junction", wx, wz, site_yaw, UG["sewer_floor"])
+                continue
+            if along[n] in access:
+                put("Sewer_Access", wx, wz, yaw, UG["sewer_floor"])
+                ox, oz = rot(1.0, 0.0, yaw)                                      # piece +X (the door side)
+                off = S.LANDMARK_SIZE["Sewer_Access"][0] / 2 + S.LANDMARK_SIZE["Sewer_Stair"][0] / 2
+                put("Sewer_Stair", wx + ox * off, wz + oz * off, yaw, UG["sewer_floor"])   # parallel, under the sidewalk
+            elif n == 0:
+                put("Sewer_End", wx, wz, yaw + 180.0, UG["sewer_floor"])
+            elif n == len(cells) - 1:
+                put("Sewer_End", wx, wz, yaw, UG["sewer_floor"])
+            else:
+                put("Sewer_Straight", wx, wz, yaw, UG["sewer_floor"])
+        bad = [a for a in access if a not in along] + [s_ for s_ in stations if s_ not in along]
+        if bad:
+            ctx.errors.append("underground %s %s: access/station positions %s are not on the run" % (kind, r.get("index"), bad))
+    ug = ctx.underground
+    polys = [footprint_corners(p["pos"][0], p["pos"][2], p["size"][0] / 2 - 0.05, p["size"][1] / 2 - 0.05, p["yaw"]) for p in ug]
+    for i in range(len(ug)):
+        for j in range(i + 1, len(ug)):
+            if sat_overlap(polys[i], polys[j]):
+                ctx.errors.append("underground %s at %s overlaps %s at %s" % (ug[i]["cls"], tuple(round(v, 1) for v in ug[i]["pos"]),
+                                                                          ug[j]["cls"], tuple(round(v, 1) for v in ug[j]["pos"])))
+    return quads
+
+
+def underground_triggers(ctx):
+    """cfgundergroundtriggers.json entries (vanilla schema: 3_game/undergroundarealoader.c JsonUndergroundTriggers):
+    one dark box per piece interior, plus a breadcrumb fade down each stair (P27: EyeAccommodation values)."""
+    out = []
+    UG = S.UNDERGROUND
+    for p in ctx.underground:
+        x, y, z = p["pos"]
+        w, d = p["size"]
+        h = p["roof"] - p["floor"]
+        trig = {"CustomSpawn": False, "Tag": "", "ParentNetworkId": [],
+                "Position": [round(x, 3), round((p["floor"] + p["roof"]) / 2, 3), round(z, 3)],
+                "Orientation": [round(p["yaw"], 2), 0.0, 0.0], "Size": [round(w, 2), round(h, 2), round(d, 2)],
+                "EyeAccommodation": S.UNDERGROUND_LIGHT["eye_inside"], "InterpolationSpeed": S.UNDERGROUND_LIGHT["speed"],
+                "UseLinePointFade": False, "AmbientSoundType": "", "AmbientSoundSet": "", "Breadcrumbs": []}
+        if p["cls"] in ("Sewer_Stair", "Metro_Station"):
+            # fade along the stair: street end bright -> bottom dark (local +-Y ends)
+            ends = [(0.0, -d / 2 + 1.0, y + UG["roof_top"]), (0.0, d / 2 - 2.0, p["floor"])] if p["cls"] == "Sewer_Stair" else \
+                   [(0.0, d / 2 - 0.5, y + UG["roof_top"]), (0.0, 0.0, p["floor"] + 1.0)]
+            crumbs = []
+            for i, (u, v, yy) in enumerate(ends):
+                dx, dz = rot(u, v, p["yaw"])
+                crumbs.append({"Position": [round(x + dx, 3), round(yy + 1.5, 3), round(z + dz, 3)],
+                               "EyeAccommodation": 1.0 if i == 0 else S.UNDERGROUND_LIGHT["eye_inside"],
+                               "UseRaycast": False, "Radius": -1.0, "LightLerp": False})
+            trig["Breadcrumbs"] = crumbs
+            trig["UseLinePointFade"] = True
+        out.append(trig)
+    return out
+
+
 def place_street_furniture(ctx, lay, tiles, world, site_yaw, street_y):
     """Bins and hydrants on the +X sidewalk of straight tiles (ideas 16, 17): a bin every
     `bins_every`, a hydrant every `hydrants_every` tile per street line; `wet` = share of hydrants
@@ -950,6 +1078,7 @@ def main():
     kinds = {(i, j): k for k, i, j, _y in tiles}
     ramp_cells = place_viaducts(ctx, lay, kinds, world, site_yaw, sy_)
     tq = place_tunnels(ctx, lay, world, site_yaw, sy_)
+    tq += place_underground(ctx, lay, world, site_yaw, sy_, site.get("target", "spawner") == "terrain")   # D63
     for oid, oq in tq:
         for tid, tq2 in quads:
             if sat_overlap(oq, tq2):
@@ -1038,6 +1167,19 @@ def main():
                 fh.write("%s,%.3f,%.3f,%.3f,%.2f\n" % (o["name"], o["pos"][0], o["pos"][1], o["pos"][2], o["ypr"][0]))
     elif os.path.exists(csv_path):
         os.remove(csv_path)
+    ug_path = os.path.join(a.out, "cfgundergroundtriggers_snippet.json")
+    tr_path = os.path.join(a.out, "underground_trenches.json")
+    if getattr(ctx, "underground", None) and not ctx.errors:
+        with open(ug_path, "w") as fh:                          # MERGE into <mission>/cfgundergroundtriggers.json "Triggers"
+            json.dump({"Triggers": underground_triggers(ctx)}, fh, indent=1)
+        with open(tr_path, "w") as fh:                          # terrain/gen_terrain.py trenches the heightmap under these
+            json.dump({"pieces": [{"cls": p["cls"], "corners": [[round(c[0], 3), round(c[1], 3)] for c in footprint_corners(
+                p["pos"][0], p["pos"][2], p["size"][0] / 2 + 0.5, p["size"][1] / 2 + 0.5, p["yaw"])],
+                "bottom": round(p["floor"] - 1.5, 3)} for p in ctx.underground]}, fh, indent=1)
+    else:
+        for pth in (ug_path, tr_path):
+            if os.path.exists(pth):
+                os.remove(pth)
     status = "FAIL" if ctx.errors else ("PASS (with warnings)" if ctx.warnings else "PASS")
     with open(os.path.join(a.out, "placement_report.md"), "w") as fh:
         fh.write("# Placement report\n\nmap: %s  site: %s  status: **%s**\n\n" % (lay["map"], site["name"], status))

@@ -177,3 +177,24 @@ class SKY_Time
 	}
 }
 
+//! D63 underground (ROADMAP idea 18; DECISIONS D63). Hypotheses: PENDING_VERIFICATION P25-P29.
+class SKY_Under
+{
+	static const int TICK_MS = 10000;				//!< flood director period (server)
+	static const float RAIN_START = 0.6;			//!< rain above this starts flooding (ROADMAP: clamp(rain - 0.6, 0, 0.4) / 0.4)
+	static const float RAIN_SPAN = 0.4;
+	static const float RISE_PER_S = 0.00167;		//!< 0 -> 1 in 10 min
+	static const float DRAIN_PER_S = 0.00056;		//!< 1 -> 0 in 30 min
+	static const float PHASE_STEP = 0.02;			//!< push a new animation phase only when it moved this much
+	static const float WATER_BASE = -0.45;			//!< water plane above the walkway floor at phase 0 (m, model)
+	static const float WATER_RISE = 1.6;			//!< = skyspec UNDERGROUND flood_rise
+	static const float HALF_WIDTH = 2.4;			//!< sewer piece half width (model X)
+	static const float HALF_LENGTH = 6.0;			//!< sewer piece half length (model Y; junction = square)
+	static const float WALKWAY = -6.0;				//!< = skyspec UNDERGROUND sewer_floor (model)
+	static const float WET_DEPTH = 0.3;				//!< water this deep over the feet soaks legs and feet
+	static const float BODY_DEPTH = 1.0;			//!< ... and the body
+	static const float DROWN_DEPTH = 1.55;			//!< over the head: damage
+	static const float DROWN_DMG = 4.0;				//!< health per tick under water
+	static const int MAX_PIECES = 512;
+}
+
