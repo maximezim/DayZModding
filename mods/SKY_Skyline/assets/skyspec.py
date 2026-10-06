@@ -753,6 +753,11 @@ SIGN2_NAMES = ["hyper", "kino", "mall", "bar", "creche", "club", "fair", "parkin
 SIGN_MAT = {k: "signs" for k in SIGN_NAMES}
 SIGN_MAT.update({k: "signs2" for k in SIGN2_NAMES})
 SIGN_BAND.update({k: (i / float(len(SIGN2_NAMES)), (i + 1) / float(len(SIGN2_NAMES))) for i, k in enumerate(SIGN2_NAMES)})
+# D66 underground sign sheet (gen_textures.signs3; band order = SIGNS3 there)
+MATERIALS.update({"signs3": {"rvmat": rvmat("sky_signs3"), "co": tex("sky_signs3_co")}})
+SIGN3_NAMES = ["st_pobedy", "st_vokzal", "st_stadion", "st_teatr", "exit_r", "exit_l", "line1", "sewer_warn"]
+SIGN_MAT.update({k: "signs3" for k in SIGN3_NAMES})
+SIGN_BAND.update({k: (i / float(len(SIGN3_NAMES)), (i + 1) / float(len(SIGN3_NAMES))) for i, k in enumerate(SIGN3_NAMES)})
 # Night light per archetype ("light"): hyper = cold, over-bright, also on by day (idea 4: "une lumiere
 # blanche qui fait mal aux yeux"); warm = interior light; default by group (gen_configs.city_lit_script).
 CITY_LIGHT = {"hyper": "SKY_HyperLight", "warm": "SKY_InteriorLight", "cool": "SKY_OfficeLight"}
@@ -1264,9 +1269,9 @@ LANDMARKS = [
     ("ParkingLot_A", "sky_landmarks", "lot", (24.0, 24.0), "surface car park: bays, lamp posts, barrier booth, wrecks"),
     ("ParkingLot_B", "sky_landmarks", "lot", (24.0, 12.0), "small surface car park: one row of bays, wrecks"),
     ("ParkingLot_Metro", "sky_landmarks", "lot", (24.0, 24.0), "car park hiding a sealed metro service hatch behind a van wreck"),
-    ("TrashBin", "sky_street", "small", (0.7, 0.7), "street litter bin with lid (searchable)"),
-    ("Hydrant_Wet", "sky_street", "small", (0.6, 0.6), "fire hydrant that still gives water (vanilla well behaviour)"),
-    ("Hydrant_Dry", "sky_street", "small", (0.6, 0.6), "dry fire hydrant (decoration)"),
+    ("TrashBin", "sky_street", "small", (0.9, 0.7), "Soviet tipping street urn on two posts (searchable)"),
+    ("Hydrant_Wet", "sky_street", "medium", (0.6, 0.6), "fire hydrant that still gives water (vanilla well behaviour)"),
+    ("Hydrant_Dry", "sky_street", "medium", (0.6, 0.6), "dry fire hydrant (decoration)"),
     ("SirenTower", "sky_street", "medium", (2.0, 2.0), "civil-defence siren on a 10 m pole (city alarm event)"),
     ("Wreck_GarbageTruck", "sky_street", "vehicle", (2.6, 9.0), "abandoned rear-loader garbage truck: ZiL-like cab, compactor body, spilled bags (hopper searchable)"),
     ("Wreck_CityBus", "sky_street", "vehicle", (2.6, 11.6), "abandoned LiAZ-style city bus: faded yellow, broken windows, flat tyres, seats inside"),
@@ -1303,7 +1308,7 @@ UNDERGROUND = {"roof_top": -0.1, "sewer_floor": -6.0, "sewer_height": 2.6, "metr
                "flood_rise": 1.6}
 # Underground darkness (cfgundergroundtriggers EyeAccommodation 0..1, InterpolationSpeed) - P27 hypotheses.
 UNDERGROUND_LIGHT = {"eye_inside": 0.15, "speed": 1.0}
-BUDGETS["underground"] = {"res0": 9000, "res1": 3000, "res2": 200, "geo_comps": 40, "geo_tris": 600, "sections_res0": 10}
+BUDGETS["underground"] = {"res0": 9000, "res1": 3000, "res2": 200, "geo_comps": 40, "geo_tris": 600, "sections_res0": 12}   # D66: +signs3 +graffiti
 for _n, _fp, _d in [
         ("Sewer_Straight", (4.8, 12.0), "brick sewer, 12 m: channel, two walkways, pipes, lamps; flooding water"),
         ("Sewer_Access", (4.8, 12.0), "sewer straight with a side door (+X wall, y 4.0..5.2) to a Sewer_Stair"),

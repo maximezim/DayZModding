@@ -28,7 +28,7 @@ import build_city as C  # noqa: E402
 import detail as DT  # noqa: E402
 import skyspec as S  # noqa: E402
 from build_kit import KIT_MATS  # noqa: E402
-from skygeo import UVBand, UVWorld, run_cli  # noqa: E402
+from skygeo import UVBand, UVRect, UVWorld, run_cli  # noqa: E402
 
 kw_for, h01 = C.kw_for, C.h01
 UG = S.UNDERGROUND
@@ -101,6 +101,53 @@ def pipe_run(L, x, y0, y1, z, r, mat="rust", uv=UV_RUST):
         L["res0"].box(x - r - 0.02, x + r + 0.02, yy - 0.04, yy + 0.04, z - r - 0.05, z + r, mat="metal", uv=DT.UV_STEEL)
 
 
+def sign_quad(L, sign, x, y0, y1, z0, z1, facing_x):
+    """Sign board on a wall at x (faces +X or -X): a thin steel frame + the sign sheet band (signs3)."""
+    xo = x + 0.025 * facing_x
+    L["res0"].box(min(x, xo), max(x, xo), y0 - 0.04, y1 + 0.04, z0 - 0.04, z1 + 0.04, mat="metal", uv=DT.UV_STEEL)
+    xf = xo + 0.003 * facing_x
+    pts = [(xf, y0, z0), (xf, y1, z0), (xf, y1, z1), (xf, y0, z1)]
+    lo, hi = (y0, z0), (y1, z1)
+    # looking at a +X-facing wall (from +X) text runs +Y; on a -X-facing wall it runs -Y (mirror U)
+    v0, v1 = S.SIGN_BAND[sign]
+    uvb = (0, 1 - v1, 1, 1 - v0) if facing_x > 0 else (1, 1 - v1, 0, 1 - v0)
+    L["res0"].lod.quad(pts, (facing_x, 0, 0), S.SIGN_MAT[sign], UVRect(1, 2, lo, hi, uvb))
+
+
+def sign_hung(L, sign, x0, x1, y, z0, z1, top):
+    """Double-sided sign hung across a space (faces +-Y), on two rods from the ceiling."""
+    for f in (-1, 1):
+        yy = y + 0.02 * f
+        pts = [(x0, yy, z0), (x1, yy, z0), (x1, yy, z1), (x0, yy, z1)]
+        v0, v1 = S.SIGN_BAND[sign]                                                 # -Y face reads +X, +Y face mirrors
+        uvb = (0, 1 - v1, 1, 1 - v0) if f < 0 else (1, 1 - v1, 0, 1 - v0)
+        L["res0"].lod.quad(pts, (0, f, 0), S.SIGN_MAT[sign], UVRect(0, 2, (x0, z0), (x1, z1), uvb))
+    L["res0"].box(x0 - 0.03, x1 + 0.03, y - 0.018, y + 0.018, z0 - 0.03, z1 + 0.03, mat="metal", uv=DT.UV_STEEL)
+    for xx in (x0 + 0.2, x1 - 0.2):
+        L["res0"].prism(xx, y, 0.008, z1, top, n=4, mat="metal", uv=DT.UV_STEEL)
+
+
+def graffiti(L, name, x, y0, y1, z0, z1, facing_x, k):
+    """Graffiti tag on a wall (decal_graffiti, alpha-blended, design A of the decal sheet) - D66."""
+    if h01(name, "gf", k) > 0.55:
+        return
+    xf = x + 0.006 * facing_x
+    uv = UVRect(1, 2, (y0, z0), (y1, z1), (0.0, 0.0, 1.0, 1.0) if facing_x > 0 else (1.0, 0.0, 0.0, 1.0))
+    pts = [(xf, y0, z0), (xf, y1, z0), (xf, y1, z1), (xf, y0, z1)]
+    L["res0"].quad(pts, (facing_x, 0, 0), "decal_graffiti", uv)
+
+
+def cable_run(L, x, y0, y1, z, sag=0.12, n_brackets=4):
+    """Two cables sagging between wall brackets (Res0)."""
+    pts = [y0 + (y1 - y0) * i / n_brackets for i in range(n_brackets + 1)]
+    for a, b in zip(pts, pts[1:]):
+        m = (a + b) / 2
+        for dz, r in ((0.0, 0.02), (-0.06, 0.014)):
+            C.bar(L["res0"].lod, (x, a, z + dz), (x, m, z + dz - sag), r, "rubble", UV_RUBBLE)
+            C.bar(L["res0"].lod, (x, m, z + dz - sag), (x, b, z + dz), r, "rubble", UV_RUBBLE)
+        L["res0"].box(x - 0.04, x + 0.04, a - 0.03, a + 0.03, z - 0.1, z + 0.03, mat="metal", uv=DT.UV_STEEL)
+
+
 # ================================================================== sewer
 SW_IN, SW_CH = 1.9, 0.5                       # interior half width, channel half width
 DOOR_Y = (4.0, 5.2)                           # access door span along Y (Sewer_Access +X wall = Sewer_Stair -X wall)
@@ -132,6 +179,9 @@ def sewer_section(L, name, y0, y1, side_door=None, open_x=False):
     L["res0"].box(SW_IN - 0.35, SW_IN - 0.05, y0, y1, zc - 0.25, zc - 0.2, mat="metal", uv=DT.UV_STEEL)
     for yy in [y0 + 3.0 + 6.0 * i for i in range(int((y1 - y0) / 6.0))]:
         lamp(L, 0.0, yy, zc, True)
+    cable_run(L, SW_IN - 0.08, y0, y1, zc - 0.45, sag=0.1, n_brackets=3)          # D66 detail
+    for i, sx in enumerate((-1, 1)):
+        graffiti(L, name, sx * SW_IN - 0.001 * sx, y0 + 2.0 + 5.0 * i, y0 + 3.6 + 5.0 * i, zf + 0.4, zf + 1.5, -sx, i)
     # handrail along one walkway edge
     for k in ("res0",):
         L[k].lod.box(-SW_CH - 0.05, -SW_CH - 0.02, y0, y1, zf + 0.92, zf + 0.96, mat="metal", uv=DT.UV_STEEL)
@@ -292,6 +342,8 @@ def build_sewer_stair():
     L["road"].hquad(-hx - w, -hx, -hy, roof_from, zt, mat="road_ext", uv=UV_TILE)
     L["road"].hquad(hx, hx + w, -hy, roof_from, zt, mat="road_ext", uv=UV_TILE)
     street_opening_rails(L, -hx, hx, -hy + w, roof_from, zt, open_side="-y")
+    sign_quad(L, "sewer_warn", hx, -hy + 1.4, -hy + 2.6, zt - 0.9, zt - 0.6, -1)    # D66: warning inside the shaft
+    sign_quad(L, "exit_l", hx, DOOR_Y[1] + 0.2, DOOR_Y[1] + 1.4, zf + 2.0, zf + 2.3, -1)
     lamp(L, 0.0, 3.5, zc, True)
     pipe_run(L, hx - 0.12, roof_from, hy - w, zc - 0.3, 0.05, "metal", DT.UV_STEEL)
     L["res2"].box(-hx - w, hx + w, -hy, hy, zf - 0.6, zt, mat="concrete", uv=UV_CONC)
@@ -303,6 +355,7 @@ def build_sewer_stair():
 
 
 # ================================================================== metro
+STATION_SIGN = "st_pobedy"                    # D66 name board (signs3); D67 variants pick other names
 MT_IN = 6.0                                   # box tunnel interior half width (tracks at +-TRACK_X like the station)
 TRACK_X = 4.6
 
@@ -341,6 +394,9 @@ def build_metro_tunnel(end=False):
                   UV_RUBBLE if i else DT.UV_STEEL)
     for yy in (-3.0, 3.0):
         lamp(L, -MT_IN + 0.2, yy, zf + 3.6, True)
+    for i, sx in enumerate((-1, 1)):                                              # D66 detail
+        graffiti(L, name, sx * MT_IN - 0.001 * sx, -3.0 + 4.0 * i, -0.6 + 4.0 * i, zf + 1.0, zf + 2.0, -sx, i)
+        cable_run(L, sx * (MT_IN - 0.08), -hy, hy, zf + 3.2, sag=0.15, n_brackets=4)
     L["res0"].box(-0.1, 0.1, -hy, hy, zc - 0.3, zc, mat="metal", uv=DT.UV_STEEL)                    # catenary beam
     if end:                                                                                       # end wall + buffer stops
         box_all(L, SOLID, (-MT_IN, MT_IN, hy - 0.5, hy, zf, zc), "concrete", UV_CONC)
@@ -404,11 +460,15 @@ def build_metro_station():
     for k in ("res0", "res1", "geo", "fire"):                                                      # ticket kiosk
         L[k].box(-1.2, 1.2, -11.6, -10.0, zp, zp + 2.4, **kw_for(k, "paint", DT.paint_uv("sage"), "wood"))
     L["res0"].box(-1.0, 1.0, -10.02, -10.0, zp + 1.0, zp + 1.8, mat="glass", uv=C.UV_GLASS)
-    sign = DT.paint_uv("slate")
-    for sx in (-1, 1):
+    for sx in (-1, 1):                                                            # station name boards (D66)
         for yy in (-6.0, 6.0):
-            L["res0"].box(sx * hx - 0.02 * (sx > 0), sx * hx + 0.02 * (sx < 0), yy - 2.0, yy + 2.0, zf + 2.8, zf + 3.4,
-                          mat="paint", uv=sign)
+            sign_quad(L, STATION_SIGN, sx * hx, yy - 2.0, yy + 2.0, zf + 2.8, zf + 3.3, -sx)
+        for i, yy in enumerate((-9.5, -2.0, 3.0, 9.0)):
+            graffiti(L, name, sx * hx - 0.001 * sx, yy - 1.0, yy + 1.0, zf + 0.6, zf + 2.4, -sx, i + (10 if sx > 0 else 0))
+        cable_run(L, sx * (hx - 0.05), -hy + 0.6, hy - 0.6, zf + 4.4, n_brackets=6)
+    sign_hung(L, "exit_r", -1.4, 1.4, 3.6, zp + 2.5, zp + 2.85, zc)               # over the stair foot
+    for xx in (-1.8, 1.8):                                                        # line boards on the columns
+        sign_quad(L, "line1", xx - 0.3 if xx < 0 else xx + 0.3, -9.35, -8.65, zp + 1.9, zp + 2.15, -1 if xx < 0 else 1)
     L["shadow"].lod.box(-hx - 0.5, hx + 0.5, -hy, hy, zf - 0.8, zt)
     L["mem"].lod.point("center", (0.0, 0.0, zp))
     L["mem"].lod.point("street", (0.0, hy - 0.5, zt))

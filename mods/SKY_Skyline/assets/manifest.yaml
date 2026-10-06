@@ -145,6 +145,7 @@ textures:
   - {name: sky_wall_render_cream|ochre|grey|white, maps: [co], size: 2048, use: tileable stucco walls in the 4 city colours (4 m sheet), status: built-unverified}
   - {name: sky_hq_facade, maps: [co, nohq(2048), smdi(1024)], size: 4096, use: "HQ facade atlas (D60) - brushed bronze / ribbed bronze spandrel / flamed granite / bronze louvre bands, 6 m sheet; the only 4K texture", status: built-unverified}
 
+  - {name: sky_signs3, maps: [co], size: 1024, use: "underground signs (D66): 4 station names, exits, line board, sewer warning", status: built-unverified}
   - {name: sky_fur, maps: [co, nohq], size: 1024, use: "creature fur (D65): tan / black saddle / rat grey / chestnut bands", status: built-unverified}
 
 # ---------------------------------------------------------------- G. sounds (optional)
@@ -1754,7 +1755,7 @@ generated_kit:
     uses: [PENETRATION]
     status: built-unverified
   - name: Land_SKY_TrashBin
-    type: "street litter bin with lid (searchable)"
+    type: "Soviet tipping street urn on two posts (searchable)"
     p3d: addons/sky_street/sky_trashbin.p3d
     category: small
     budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 4, shadow: 60}
@@ -1763,15 +1764,15 @@ generated_kit:
   - name: Land_SKY_Hydrant_Wet
     type: "fire hydrant that still gives water (vanilla well behaviour)"
     p3d: addons/sky_street/sky_hydrant_wet.p3d
-    category: small
-    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 4, shadow: 60}
+    category: medium
+    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 5, shadow: 100}
     uses: [PENETRATION]
     status: built-unverified
   - name: Land_SKY_Hydrant_Dry
     type: "dry fire hydrant (decoration)"
     p3d: addons/sky_street/sky_hydrant_dry.p3d
-    category: small
-    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 4, shadow: 60}
+    category: medium
+    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 5, shadow: 100}
     uses: [PENETRATION]
     status: built-unverified
   - name: Land_SKY_SirenTower
@@ -1847,56 +1848,56 @@ generated_kit:
     type: "brick sewer, 12 m: channel, two walkways, pipes, lamps; flooding water"
     p3d: addons/sky_underground/sky_sewer_straight.p3d
     category: underground
-    budget: {res0: 9000, res1: 3000, res2: 200, geo_comps: 40, geo_tris: 600, sections_res0: 10}
+    budget: {res0: 9000, res1: 3000, res2: 200, geo_comps: 40, geo_tris: 600, sections_res0: 12}
     uses: [P25, P26]
     status: built-unverified
   - name: Land_SKY_Sewer_Access
     type: "sewer straight with a side door (+X wall, y 4.0..5.2) to a Sewer_Stair"
     p3d: addons/sky_underground/sky_sewer_access.p3d
     category: underground
-    budget: {res0: 9000, res1: 3000, res2: 200, geo_comps: 40, geo_tris: 600, sections_res0: 10}
+    budget: {res0: 9000, res1: 3000, res2: 200, geo_comps: 40, geo_tris: 600, sections_res0: 12}
     uses: [P25, P26]
     status: built-unverified
   - name: Land_SKY_Sewer_End
     type: "sewer straight closed at +Y: brick end wall, outfall grating"
     p3d: addons/sky_underground/sky_sewer_end.p3d
     category: underground
-    budget: {res0: 9000, res1: 3000, res2: 200, geo_comps: 40, geo_tris: 600, sections_res0: 10}
+    budget: {res0: 9000, res1: 3000, res2: 200, geo_comps: 40, geo_tris: 600, sections_res0: 12}
     uses: [P25, P26]
     status: built-unverified
   - name: Land_SKY_Sewer_Junction
     type: "sewer crossing, plank bridges over the channels; flooding water"
     p3d: addons/sky_underground/sky_sewer_junction.p3d
     category: underground
-    budget: {res0: 9000, res1: 3000, res2: 200, geo_comps: 40, geo_tris: 600, sections_res0: 10}
+    budget: {res0: 9000, res1: 3000, res2: 200, geo_comps: 40, geo_tris: 600, sections_res0: 12}
     uses: [P25, P26]
     status: built-unverified
   - name: Land_SKY_Sewer_Stair
     type: "stair beside a Sewer_Access (+X, same yaw): street opening at -Y, door in its -X wall"
     p3d: addons/sky_underground/sky_sewer_stair.p3d
     category: underground
-    budget: {res0: 9000, res1: 3000, res2: 200, geo_comps: 40, geo_tris: 600, sections_res0: 10}
+    budget: {res0: 9000, res1: 3000, res2: 200, geo_comps: 40, geo_tris: 600, sections_res0: 12}
     uses: [P25, P26]
     status: built-unverified
   - name: Land_SKY_Metro_Tunnel
     type: "double-track metro box tunnel, 12 m: ballast, sleepers, rails, ledges, cables"
     p3d: addons/sky_underground/sky_metro_tunnel.p3d
     category: underground
-    budget: {res0: 9000, res1: 3000, res2: 200, geo_comps: 40, geo_tris: 600, sections_res0: 10}
+    budget: {res0: 9000, res1: 3000, res2: 200, geo_comps: 40, geo_tris: 600, sections_res0: 12}
     uses: [P25, P26]
     status: built-unverified
   - name: Land_SKY_Metro_End
     type: "metro tunnel closed at +Y: end wall, buffer stops"
     p3d: addons/sky_underground/sky_metro_end.p3d
     category: underground
-    budget: {res0: 9000, res1: 3000, res2: 200, geo_comps: 40, geo_tris: 600, sections_res0: 10}
+    budget: {res0: 9000, res1: 3000, res2: 200, geo_comps: 40, geo_tris: 600, sections_res0: 12}
     uses: [P25, P26]
     status: built-unverified
   - name: Land_SKY_Metro_Station
     type: "metro station: island platform, columns, tiles, benches, kiosk, stair to the street (+Y)"
     p3d: addons/sky_underground/sky_metro_station.p3d
     category: underground
-    budget: {res0: 9000, res1: 3000, res2: 200, geo_comps: 40, geo_tris: 600, sections_res0: 10}
+    budget: {res0: 9000, res1: 3000, res2: 200, geo_comps: 40, geo_tris: 600, sections_res0: 12}
     uses: [P25, P26]
     status: built-unverified
   - name: Land_SKY_TowerA_Core15

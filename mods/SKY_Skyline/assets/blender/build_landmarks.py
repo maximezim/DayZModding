@@ -740,42 +740,111 @@ def prop_lods(name):
     return lods(name)
 
 
+def _bin_bucket(lod, cx, cy, z0, z1, r, n, mat, uv):
+    """Tipping bucket of the Soviet street urn: tapered body (narrower at the bottom) + rolled rim."""
+    ring0 = [(cx + 0.82 * r * math.cos(2 * math.pi * k / n), cy + 0.82 * r * math.sin(2 * math.pi * k / n), z0) for k in range(n)]
+    ring1 = [(cx + r * math.cos(2 * math.pi * k / n), cy + r * math.sin(2 * math.pi * k / n), z1) for k in range(n)]
+    faces = [tuple(range(n)), tuple(range(n, 2 * n))] + [(k, (k + 1) % n, n + (k + 1) % n, n + k) for k in range(n)]
+    lod.solid(ring0 + ring1, faces, mat, uv)
+
+
 def build_trash_bin():
+    """Soviet street urn (D66 upgrade): a tapered steel bucket that tips on an axle between two square
+    posts set in a concrete foot; rolled rim, two stiffening ribs, a hinged rain flap, bags overflowing,
+    rust where the paint flaked. Search point in front (ActionSKY_Search)."""
     name = "TrashBin"
     L = prop_lods(name)
     green = UVBand(S.MATERIALS["rust"]["bands"]["green"], 1.0)
-    for k in ("res0", "res1", "res2", "geo", "fire", "view", "shadow"):
-        nn = 12 if k == "res0" else (8 if k in ("res1", "geo") else 6)
-        L[k].prism(0.0, 0.0, 0.3, 0.0, 0.95, n=nn, **(kw_for(k, "rust", green, "metal") if k != "shadow" else {}))
-    L["res0"].prism(0.0, 0.0, 0.33, 0.95, 1.02, n=12, mat="metal", uv=DT.UV_STEEL)
-    L["res0"].box(-0.12, 0.12, -0.34, -0.3, 0.7, 0.85, mat="rubble", uv=UV_RUBBLE)            # flap
-    L["res0"].prism(0.0, 0.0, 0.26, 1.02, 1.08, n=10, mat="trash", uv=UV_TRASH)               # overflowing
-    L["res3"].prism(0.0, 0.0, 0.3, 0.0, 1.0, n=4, mat="rust", uv=green)
+    z0, z1, r = 0.28, 0.92, 0.27
+    for k in ("res0", "res1", "res2", "geo", "fire", "view"):                     # concrete foot
+        L[k].box(-0.42, 0.42, -0.16, 0.16, 0.0, 0.08, **kw_for(k, "concrete", UV_CONC, "concrete"))
+    L["shadow"].box(-0.4, 0.4, -0.28, 0.28, 0.08, 1.0)                             # one hull (perf budget)
+    for sx in (-1, 1):                                                           # posts
+        for k in ("res0", "res1", "res2", "geo", "fire", "view"):
+            L[k].box(sx * 0.36 - 0.03, sx * 0.36 + 0.03, -0.03, 0.03, 0.08, 1.0, **(kw_for(k, "rust", RUST_GREY, "metal") if k != "shadow" else {}))
+        L["res0"].box(sx * 0.36 - 0.04, sx * 0.36 + 0.04, -0.04, 0.04, 1.0, 1.02, mat="metal", uv=DT.UV_STEEL)          # caps
+        L["res0"].prism(sx * 0.31, 0.0, 0.035, z1 - 0.12, z1 - 0.06, n=8, mat="metal", uv=DT.UV_STEEL, rot=0.0)       # pivot boss
+    _bin_bucket(L["res0"].lod, 0.0, 0.0, z0, z1, r, 16, "rust", green)
+    _bin_bucket(L["res1"].lod, 0.0, 0.0, z0, z1, r, 8, "rust", green)
+    L["res2"].prism(0.0, 0.0, r, z0, z1, n=6, mat="rust", uv=green)
+    for k in ("geo", "fire", "view"):
+        L[k].prism(0.0, 0.0, r, z0, z1, n=8, **kw_for(k, "rust", green, "metal"))
+    for zz in (z1 - 0.03, z0 + 0.2, z0 + 0.42):                                  # rim + ribs
+        rr = r + 0.012 if zz > z1 - 0.1 else 0.82 * r + (r - 0.82 * r) * (zz - z0) / (z1 - z0) + 0.008
+        L["res0"].prism(0.0, 0.0, rr, zz - 0.015, zz + 0.015, n=16, mat="metal", uv=DT.UV_STEEL)
+    L["res0"].prism(0.0, 0.0, r - 0.02, z1 - 0.06, z1 + 0.05, n=12, mat="trash", uv=UV_TRASH)                  # overflow
+    for i in range(3):
+        a = 2 * math.pi * h01(name, "bag", i)
+        L["res0"].prism(0.18 * math.cos(a), 0.18 * math.sin(a), 0.1 + 0.03 * i, z1, z1 + 0.12 + 0.03 * i, n=7, mat="trash", uv=UV_TRASH)
+    L["res0"].solid([(-0.2, r - 0.02, z1 + 0.02), (0.2, r - 0.02, z1 + 0.02), (-0.2, r + 0.1, z1 + 0.32), (0.2, r + 0.1, z1 + 0.32),
+                     (-0.2, r - 0.005, z1 + 0.02), (0.2, r - 0.005, z1 + 0.02), (-0.2, r + 0.115, z1 + 0.32), (0.2, r + 0.115, z1 + 0.32)],
+                    [(0, 1, 3, 2), (4, 5, 7, 6), (0, 1, 5, 4), (2, 3, 7, 6), (0, 2, 6, 4), (1, 3, 7, 5)], "rust", green)   # rain flap, open
+    for i in range(4):                                                           # flaked paint -> rust
+        a = -math.pi / 2 + (h01(name, "rust", i) - 0.5) * 2.2
+        zz = z0 + 0.05 + 0.45 * h01(name, "rz", i)
+        cx, cy = (r + 0.004) * math.cos(a), (r + 0.004) * math.sin(a)
+        tx, ty = -math.sin(a) * 0.06, math.cos(a) * 0.06
+        L["res0"].quad([(cx - tx, cy - ty, zz), (cx + tx, cy + ty, zz), (cx + tx, cy + ty, zz + 0.1), (cx - tx, cy - ty, zz + 0.1)],
+                       (math.cos(a), math.sin(a), 0), "rust", RUST)
+    L["res3"].box(-0.4, 0.4, -0.27, 0.27, 0.0, 1.0, mat="rust", uv=green)
     L["mem"].lod.point("search", (0.0, -0.7, 0.0))
     return finish(L, 60.0)
 
 
 def build_hydrant(wet):
+    """Fire hydrant (D66 upgrade): bolted base flange on a concrete collar, fluted barrel, domed bonnet
+    with a pentagon operating nut, two hose outlets and a pumper outlet with caps on chains, peeling red
+    paint over rust; the wet one still has pressure: a dark wet stain round it."""
     name = "Hydrant_Wet" if wet else "Hydrant_Dry"
     L = prop_lods(name)
     red = fair_uv("red")
     for k in ("res0", "res1", "res2", "geo", "fire", "view", "shadow"):
-        nn = 12 if k == "res0" else 6
+        L[k].box(-0.3, 0.3, -0.3, 0.3, 0.0, 0.05, **(kw_for(k, "concrete", UV_CONC, "concrete") if k != "shadow" else {}))
+        nn = 16 if k == "res0" else 6
         kw = kw_for(k, "fair", red, "metal") if k != "shadow" else {}
-        L[k].prism(0.0, 0.0, 0.17, 0.0, 0.08, n=nn, **kw)
-        L[k].prism(0.0, 0.0, 0.12, 0.08, 0.68, n=nn, **kw)
-    L["res0"].prism(0.0, 0.0, 0.14, 0.68, 0.74, n=12, mat="fair", uv=red)
-    L["res0"].prism(0.0, 0.0, 0.08, 0.74, 0.82, n=10, mat="fair", uv=red)
-    L["res0"].prism(0.0, 0.0, 0.025, 0.82, 0.86, n=5, mat="metal", uv=DT.UV_STEEL)
-    for (dx, dy) in ((0.17, 0.0), (-0.17, 0.0), (0.0, -0.17)):                    # outlets
-        L["res0"].box(dx - 0.06, dx + 0.06, dy - 0.06, dy + 0.06, 0.42, 0.54, mat="fair", uv=red)
-        if (dx, dy) == (0.0, -0.17):                                            # pumper cap
-            L["res0"].box(dx - 0.075, dx + 0.075, dy - 0.075, dy + 0.075, 0.44, 0.52, mat="metal", uv=DT.UV_STEEL)
+        L[k].prism(0.0, 0.0, 0.19, 0.05, 0.11, n=nn, **kw)
+        L[k].prism(0.0, 0.0, 0.125, 0.11, 0.66, n=nn, **kw)
+    for i in range(8):                                                           # flange bolts
+        a = 2 * math.pi * i / 8
+        L["res0"].prism(0.165 * math.cos(a), 0.165 * math.sin(a), 0.014, 0.11, 0.13, n=4, mat="metal", uv=DT.UV_STEEL)
+    for i in range(8):                                                           # barrel flutes
+        a = 2 * math.pi * (i + 0.5) / 8
+        L["res0"].box(0.126 * math.cos(a) - 0.012, 0.126 * math.cos(a) + 0.012, 0.126 * math.sin(a) - 0.012,
+                      0.126 * math.sin(a) + 0.012, 0.16, 0.6, mat="fair", uv=red)
+    L["res0"].prism(0.0, 0.0, 0.145, 0.66, 0.71, n=16, mat="fair", uv=red)                                      # bonnet flange
+    for (r_, z0, z1) in ((0.13, 0.71, 0.76), (0.1, 0.76, 0.81), (0.06, 0.81, 0.84)):                           # dome
+        L["res0"].prism(0.0, 0.0, r_, z0, z1, n=14, mat="fair", uv=red)
+    L["res0"].prism(0.0, 0.0, 0.026, 0.84, 0.88, n=5, mat="metal", uv=DT.UV_STEEL)                             # operating nut
+    L["res1"].prism(0.0, 0.0, 0.12, 0.66, 0.84, n=6, mat="fair", uv=red)
+    for (dx, dy, big) in ((0.15, 0.0, False), (-0.15, 0.0, False), (0.0, -0.15, True)):                          # outlets
+        ln, rr = (0.09, 0.07) if big else (0.07, 0.045)
+        zc = 0.46
+        if dx:
+            x0, x1 = sorted((dx * 0.8, dx * 0.8 + (ln if dx > 0 else -ln)))
+            prof = [(rr * math.cos(2 * math.pi * k / 10), zc + rr * math.sin(2 * math.pi * k / 10)) for k in range(10)]
+            L["res0"].extrude_x(prof, x0, x1, mat="fair", uv=red)
+            cap = [(1.15 * rr * math.cos(2 * math.pi * k / 6), zc + 1.15 * rr * math.sin(2 * math.pi * k / 6)) for k in range(6)]
+            c0 = x1 if dx > 0 else x0 - 0.03
+            L["res0"].extrude_x(cap, c0, c0 + 0.03, mat="metal", uv=DT.UV_STEEL)
+            C.bar(L["res0"].lod, (dx * 0.8, -0.02, zc - rr), ((x1 if dx > 0 else x0), -0.03, zc - rr - 0.06), 0.004, "metal", DT.UV_STEEL)
+        else:
+            y0, y1 = -0.12 - ln, -0.12
+            prof = [(rr * math.cos(2 * math.pi * k / 12), zc + rr * math.sin(2 * math.pi * k / 12)) for k in range(12)]
+            L["res0"].extrude_y(prof, y0, y1, mat="fair", uv=red)
+            cap = [(1.15 * rr * math.cos(2 * math.pi * k / 6), zc + 1.15 * rr * math.sin(2 * math.pi * k / 6)) for k in range(6)]
+            L["res0"].extrude_y(cap, y0 - 0.035, y0, mat="metal", uv=DT.UV_STEEL)
+            C.bar(L["res0"].lod, (0.06, -0.12, zc - 0.05), (0.07, y0 - 0.02, zc - rr - 0.08), 0.004, "metal", DT.UV_STEEL)
+    for i in range(5):                                                           # peeling paint -> rust
+        a = 2 * math.pi * h01(name, "pr", i)
+        zz = 0.15 + 0.4 * h01(name, "pz", i)
+        cx, cy = 0.1265 * math.cos(a), 0.1265 * math.sin(a)
+        tx, ty = -math.sin(a) * 0.03, math.cos(a) * 0.03
+        L["res0"].quad([(cx - tx, cy - ty, zz), (cx + tx, cy + ty, zz), (cx + tx, cy + ty, zz + 0.07), (cx - tx, cy - ty, zz + 0.07)],
+                       (math.cos(a), math.sin(a), 0), "rust", RUST)
     if wet:                                                                      # wet stain + drip (it still has pressure)
-        L["res0"].hquad(-0.5, 0.5, -0.8, 0.2, 0.004, mat="decal_grime",
+        L["res0"].hquad(-0.5, 0.5, -0.8, 0.2, 0.052, mat="decal_grime",
                         uv=UVRect(0, 1, (-0.5, -0.8), (0.5, 0.2), (0.0, 0.754, 1.0, 0.996)))
-        L["res0"].box(-0.02, 0.02, -0.24, -0.2, 0.0, 0.44, mat="glassfar", uv=UV_GLASS)
-    L["res3"].prism(0.0, 0.0, 0.12, 0.0, 0.82, n=4, mat="fair", uv=red)
+    L["res3"].prism(0.0, 0.0, 0.13, 0.0, 0.84, n=4, mat="fair", uv=red)
     L["mem"].lod.point("water", (0.0, -0.6, 0.0))
     return finish(L, 300.0)
 

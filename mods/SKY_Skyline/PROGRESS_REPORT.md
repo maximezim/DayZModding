@@ -257,3 +257,13 @@ Driving waits on a modeller (`vehicles/VEHICLE_SPEC.md`, TESTING §29, P30-P31).
   dying ballast, the sewers drip with a tunnel echo, and the Ferris wheel creaks in the wind. A client-only
   director plays at most three of the nearest loops (TESTING §30, P32).
 
+## 18. Asset quality (D66)
+
+The weakest street props were rebuilt from boxes into real objects:
+- a Soviet tipping street urn;
+- a wheeled 1100 L dumpster;
+- detailed fire hydrants with flanges, flutes, a bonnet, and caps on chains.
+
+The underground got its identity: station name boards with the M roundel, exit and line boards, a sewer
+warning, graffiti and sagging cables. Before/after renders: `reviews/d66_gates.md`.
+

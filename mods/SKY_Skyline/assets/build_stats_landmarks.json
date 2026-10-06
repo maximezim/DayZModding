@@ -72,28 +72,28 @@
   "view": 48
  },
  "sky_hydrant_dry.p3d": {
-  "fire": 40,
-  "geo": 40,
+  "fire": 52,
+  "geo": 52,
   "mem": 0,
-  "res0": 232,
-  "res1": 40,
-  "res2": 40,
+  "res0": 778,
+  "res1": 72,
+  "res2": 52,
   "res3": 12,
   "road": 0,
-  "shadow": 40,
-  "view": 40
+  "shadow": 52,
+  "view": 52
  },
  "sky_hydrant_wet.p3d": {
-  "fire": 40,
-  "geo": 40,
+  "fire": 52,
+  "geo": 52,
   "mem": 0,
-  "res0": 246,
-  "res1": 40,
-  "res2": 40,
+  "res0": 780,
+  "res1": 72,
+  "res2": 52,
   "res3": 12,
   "road": 0,
-  "shadow": 40,
-  "view": 40
+  "shadow": 52,
+  "view": 52
  },
  "sky_landfill.p3d": {
   "fire": 1032,
@@ -192,16 +192,16 @@
   "view": 168
  },
  "sky_trashbin.p3d": {
-  "fire": 20,
-  "geo": 28,
+  "fire": 64,
+  "geo": 64,
   "mem": 0,
-  "res0": 136,
-  "res1": 28,
-  "res2": 20,
+  "res0": 492,
+  "res1": 64,
+  "res2": 56,
   "res3": 12,
   "road": 0,
-  "shadow": 20,
-  "view": 20
+  "shadow": 12,
+  "view": 64
  },
  "sky_tunnel_portal.p3d": {
   "fire": 112,

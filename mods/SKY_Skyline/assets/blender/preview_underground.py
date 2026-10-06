@@ -57,6 +57,12 @@ def shoot(out, tex, pieces, cam, target, light_pts, energy, fname):
                 img = nt.nodes.new("ShaderNodeTexImage")
                 img.image = bpy.data.images.load(png)
                 nt.links.new(img.outputs["Color"], bsdf.inputs["Base Color"])
+        if m.name == "decal_graffiti" and m.use_nodes:                     # alpha-blended decal
+            nt = m.node_tree
+            img = [n for n in nt.nodes if n.type == "TEX_IMAGE"]
+            if img:
+                nt.links.new(img[0].outputs["Alpha"], nt.nodes.get("Principled BSDF").inputs["Alpha"])
+                m.blend_method = "BLEND"
         if m.name in ("lamp_cool", "lamp"):
             m.use_nodes = True
             b = m.node_tree.nodes.get("Principled BSDF")

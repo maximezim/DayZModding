@@ -616,6 +616,13 @@ collision and looks.
 | RF-01 | Search hypermarket shelf ends and clubhouse lockers | Food / drinks; sportswear; cooldown as §26 | | |
 | RF-02 | Walk into the hypermarket, down a sewer, past the Ferris wheel (P32) | Hum / drips / creak fade in within ~2 s, never more than 3 loops, stop when you leave | | |
 
+## 31. Asset quality: street props, underground signage (D66)
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| AQ-01 | Look at the bin, dumpster and hydrants from 1 m and 30 m | Clean silhouettes, no floating parts, LOD switch without popping; bin and dumpster searchable as before | | |
+| AQ-02 | Metro station and sewers with a flashlight (P33) | Station names and exit boards readable (not mirrored); graffiti and signs without flicker | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -633,6 +640,7 @@ collision and looks.
 | Underground §28 | | | |
 | Vehicles §29 | | | |
 | Refinement §30 | | | |
+| Asset quality §31 | | | |
 | Placement §9 | | | |
 | Roof drop §10 | | | |
 | Clean logs §11 | | | |

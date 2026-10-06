@@ -7,6 +7,7 @@ is registered in skyspec.KIT (class, p3d, PBO, budget category). Builders return
 Res0/Res1/Res2 + Geometry + Fire Geometry (+ View / Roadway / Memory where useful).
 Requires ARMATOOLBOX_PATH.
 """
+import math
 import os
 import sys
 
@@ -14,6 +15,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.dirname(HERE))
 
+import detail as DT  # noqa: E402
 import skyspec as S  # noqa: E402
 from build_towera import MATS, UV_ALU, UV_CONC_PANEL, UV_CONC_REVEAL, UV_GLASS, UV_STEEL  # noqa: E402
 from skygeo import (LOD_FIREGEO, LOD_GEOMETRY, LOD_MEMORY, LOD_RES, LOD_ROADWAY, LOD_SHADOW, LOD_VIEWGEO,  # noqa: E402
@@ -372,15 +374,38 @@ def build_busstop():
 
 
 def build_dumpster():
+    """1100 L wheeled waste container (D66 upgrade): body tapering to the base, rolled top lip, two lid
+    halves (one thrown open over the back), side lifting trunnions, front push handles, four castors,
+    a bag poking out (the rust sheet carries the wear)."""
     L = props_lods()
-    for k in ("res0", "res1", "res2"):
-        L[k].box(-0.9, 0.9, -0.5, 0.5, 0.15, 1.1, mat="rust", uv=UV_GREEN)
-    for k in ("res0", "res1"):
-        L[k].box(-0.95, 0.95, -0.55, 0.55, 1.1, 1.16, mat="rust", uv=UV_GREEN)
-    for (x, y) in ((-0.75, -0.4), (0.75, -0.4), (-0.75, 0.4), (0.75, 0.4)):
-        L["res0"].prism(x, y, 0.07, 0.0, 0.15, n=6, mat="rust", uv=UV_BURNT)
-    L["geo"].box(-0.95, 0.95, -0.55, 0.55, 0.0, 1.16)
-    L["fire"].box(-0.95, 0.95, -0.55, 0.55, 0.0, 1.16, mat="pen_metal")
+    L["shadow"] = Lod("shadow", LOD_SHADOW)
+    body = [(-0.8, -0.45, 0.24), (0.8, -0.45, 0.24), (0.8, 0.45, 0.24), (-0.8, 0.45, 0.24),
+            (-0.9, -0.55, 1.12), (0.9, -0.55, 1.12), (0.9, 0.55, 1.12), (-0.9, 0.55, 1.12)]
+    faces = [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)]
+    for k in ("res0", "res1", "res2", "geo", "fire", "shadow"):
+        kw = {"mat": "rust", "uv": UV_GREEN} if k.startswith("res") else ({"mat": "pen_metal"} if k == "fire" else {})
+        L[k].solid(body, faces, **kw)
+    L["res0"].box(-0.93, 0.93, -0.58, 0.58, 1.12, 1.17, mat="metal", uv=DT.UV_STEEL)                            # top lip
+    L["res0"].box(-0.92, 0.0, -0.57, 0.57, 1.17, 1.21, mat="rust", uv=UV_GREEN)                                 # closed lid half
+    L["res0"].solid([(0.0, 0.57, 1.17), (0.92, 0.57, 1.17), (0.0, 0.62, 1.2), (0.92, 0.62, 1.2),
+                     (0.0, 0.84, 0.13 + 1.17 - 0.1), (0.92, 0.84, 0.13 + 1.17 - 0.1), (0.0, 0.9, 1.2 - 0.05), (0.92, 0.9, 1.2 - 0.05)],
+                    faces, "rust", UV_GREEN)                                                                      # open lid (hangs back)
+    L["res1"].box(-0.92, 0.92, -0.57, 0.57, 1.12, 1.2, mat="rust", uv=UV_GREEN)
+    for sx in (-1, 1):                                                           # lifting trunnions
+        L["res0"].extrude_x([(0.06 * math.cos(2 * math.pi * k / 8), 0.95 + 0.06 * math.sin(2 * math.pi * k / 8)) for k in range(8)],
+                            *sorted((sx * 0.9, sx * 1.0)), mat="metal", uv=DT.UV_STEEL)
+    for sx in (-0.45, 0.45):                                                     # push handles (front)
+        L["res0"].box(sx - 0.15, sx + 0.15, -0.66, -0.62, 1.0, 1.04, mat="metal", uv=DT.UV_STEEL)
+        for ex in (-0.15, 0.15):
+            L["res0"].box(sx + ex - 0.015, sx + ex + 0.015, -0.66, -0.55, 0.98, 1.04, mat="metal", uv=DT.UV_STEEL)
+    for (x, y) in ((-0.68, -0.34), (0.68, -0.34), (-0.68, 0.34), (0.68, 0.34)):  # castors: fork + wheel
+        L["res0"].box(x - 0.05, x + 0.05, y - 0.05, y + 0.05, 0.16, 0.24, mat="metal", uv=DT.UV_STEEL)
+        L["res0"].extrude_x([(y + 0.08 * math.cos(2 * math.pi * k / 10), 0.08 + 0.08 * math.sin(2 * math.pi * k / 10)) for k in range(10)],
+                            x - 0.025, x + 0.025, mat="paint", uv=DT.paint_uv("slate"))
+    L["res1"].box(-0.75, 0.75, -0.4, 0.4, 0.0, 0.24, mat="metal", uv=DT.UV_STEEL)
+    L["res0"].prism(0.3, 0.1, 0.22, 1.12, 1.36, n=8, mat="trash", uv=UVWorld(S.MATERIALS["trash"]["sheet_m"]))  # bag
+    L["geo"].box(-0.95, 0.95, -0.6, 0.6, 1.12, 1.22)
+    L["fire"].box(-0.95, 0.95, -0.6, 0.6, 1.12, 1.22, mat="pen_metal")
     return finish(L, 400.0)
 
 

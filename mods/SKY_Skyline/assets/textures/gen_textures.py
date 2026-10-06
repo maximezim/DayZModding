@@ -1065,6 +1065,44 @@ def signs2(size, out):
     img.save(os.path.join(out, "sky_signs2_co.png"))
 
 
+SIGNS3 = ["PLOSHCHAD  POBEDY", "VOKZALNAYA", "STADION", "TEATRALNAYA", "EXIT  >>", "<<  EXIT", "M   LINE  1",
+          "SEWER  -  NO  ENTRY"]
+
+
+def signs3(size, out):
+    """Underground sign sheet (1024, D66): 8 bands = skyspec.SIGN3_NAMES. Station name boards white on
+    metro blue with a red M roundel, exit boards green, line board, a yellow/black sewer warning."""
+    size = min(size, 1024)
+    img = Image.new("RGB", (size, size), (20, 22, 28))
+    d = ImageDraw.Draw(img)
+    styles = [((25, 60, 140), (245, 245, 240))] * 4 + [((20, 110, 60), (245, 245, 240))] * 2 + \
+             [((240, 240, 236), (25, 60, 140)), ((230, 190, 20), (20, 20, 20))]
+    n = len(SIGNS3)
+    for i, txt in enumerate(SIGNS3):
+        bg, fg = styles[i]
+        y0 = int(i * size / n)
+        bh = int((i + 1) * size / n) - y0
+        d.rectangle([0, y0, size, y0 + bh - 1], fill=bg)
+        d.rectangle([4, y0 + 4, size - 5, y0 + bh - 5], outline=fg, width=3)
+        if i < 4 or i == 6:                                   # red M roundel at the left
+            cx, cy, r = int(bh * 0.6), y0 + bh // 2, int(bh * 0.36)
+            d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=(200, 30, 35))
+            fm = _font(int(r * 1.3))
+            tb = d.textbbox((0, 0), "M", font=fm)
+            d.text((cx - (tb[2] - tb[0]) // 2 - tb[0], cy - (tb[3] - tb[1]) // 2 - tb[1]), "M", fill=(250, 250, 250), font=fm)
+        if i == 7:
+            for x in range(-bh, size, 60):
+                d.polygon([(x, y0 + bh - 1), (x + 30, y0 + bh - 1), (x + 30 + bh // 4, y0 + bh - 1 - bh // 4),
+                           (x + bh // 4, y0 + bh - 1 - bh // 4)], fill=(20, 20, 20))
+        f = _font(int(bh * 0.42))
+        tb = d.textbbox((0, 0), txt, font=f)
+        x = (size - (tb[2] - tb[0])) // 2 - tb[0] + (int(bh * 0.5) if i < 4 else 0)
+        d.text((x, y0 + (bh - (tb[3] - tb[1])) // 2 - tb[1] - (4 if i == 7 else 0)), txt, fill=fg, font=f)
+    arr = np.asarray(img).astype(np.float32) / 255.0
+    arr = weather(arr, 1701, dirt=0.3, desat=0.2, moss=0.0, streaks=0.25, spots=0.2)          # grime from the tunnels
+    save(to_rgb(np.clip(arr, 0, 1)), out, "sky_signs3_co")
+
+
 def fair(size, out):
     """Fairground paint trim (1024, D61): V 0-0.25 Pripyat yellow, 0.25-0.5 signal red, 0.5-0.75 fair
     blue, 0.75-1 cream white. Chalked, flaking to grey primer and rust, rust runs from the top."""
@@ -1506,6 +1544,7 @@ GENERATORS = {
     "wall_brick": wall_brick, "wall_panel": wall_panel, "wall_limestone": wall_limestone, "wall_render": wall_render,
     "hq_facade": hq_facade, "signs2": signs2, "fair": fair, "trash": trash, "turf": turf,
     "fur": lambda s, o: fur(min(s, 1024), o),                                  # D65 creatures
+    "signs3": signs3,                                                          # D66 underground signs
 }
 
 

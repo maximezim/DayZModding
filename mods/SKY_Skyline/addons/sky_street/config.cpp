@@ -200,7 +200,7 @@ class CfgVehicles
 	};
 	class Land_SKY_TrashBin: Land_SKY_Street_Base
 	{
-		// street litter bin with lid (searchable)
+		// Soviet tipping street urn on two posts (searchable)
 		scope = 1;
 		model = "SKY_Skyline\sky_street\sky_trashbin.p3d";
 		skySearch = "trash";

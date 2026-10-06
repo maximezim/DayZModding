@@ -81,10 +81,10 @@
   "res2": 12
  },
  "sky_dumpster.p3d": {
-  "fire": 12,
-  "geo": 12,
-  "res0": 104,
-  "res1": 24,
+  "fire": 24,
+  "geo": 24,
+  "res0": 396,
+  "res1": 36,
   "res2": 12,
   "shadow": 12
  },
