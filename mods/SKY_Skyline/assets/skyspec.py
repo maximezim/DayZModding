@@ -748,6 +748,28 @@ def city_footprint(A):
     return (-fw, fw, -hd - fc[1], hd)
 
 
+# City packages (D60): one PBO per group keeps every package well under ~300 MB of source models
+# (the single sky_city was 939 MB). Class names and .p3d names do not change, only the folder.
+CITY_PBOS = {
+    "sky_city_res": "rowhouses, apartment blocks, villas",
+    "sky_city_block": "perimeter (courtyard) blocks",
+    "sky_city_com": "shops, shop rows, offices, supermarkets, cafes, gas station, bank, department store",
+    "sky_city_civic": "police, fire station, clinic, hospital, school, town hall, church, post office",
+    "sky_city_ind": "warehouses, workshops, garages, factory, parking garage, substation, kiosks, sheds",
+    "sky_city_env": "rubble lots, vegetation, water tower, metro entrances",
+}
+
+
+def city_pbo(arch=None):
+    """Package of a city archetype (None: lots, vegetation and kit pieces)."""
+    if arch is None:
+        return "sky_city_env"
+    if arch.startswith("CourtyardBlock"):
+        return "sky_city_block"
+    return {"residential": "sky_city_res", "mixed": "sky_city_com", "commercial": "sky_city_com",
+            "civic": "sky_city_civic", "industrial": "sky_city_ind", "small": "sky_city_ind"}[CITY_ARCHETYPES[arch]["group"]]
+
+
 def _city_category(e):
     if len(e["levels"]) >= 7:
         return "city_tall"
@@ -756,13 +778,13 @@ def _city_category(e):
 
 for _a, _e in CITY_ARCHETYPES.items():
     for _i, _st in enumerate(RUIN_STATES):
-        kit("City_%s_%s" % (_a, _st), "sky_city", _city_category(_e), uses=["PENETRATION"] + (["DOOR_SWING_SIGN"] if _i < 2 else []),
+        kit("City_%s_%s" % (_a, _st), city_pbo(_a), _city_category(_e), uses=["PENETRATION"] + (["DOOR_SWING_SIGN"] if _i < 2 else []),
             desc="%s (%s)" % (_e["desc"], _st.lower()))
         # orient -1: city front doors open inward (action point inside), see test_city swing test
         KIT["City_%s_%s" % (_a, _st)]["doors"] = [door("door_front", "Door", -1)] if (_i < 2 and _e["door_bay"] is not None) else []
         KIT["City_%s_%s" % (_a, _st)]["city"] = {"archetype": _a, "ruin": _i}
 for _v in "ABCD":                                     # standalone collapsed lots (kit, no ruin states)
-    kit("City_RubbleLot_%s" % _v, "sky_city", "city", uses=["PENETRATION"], desc="12 x 12 m collapsed building lot")
+    kit("City_RubbleLot_%s" % _v, city_pbo(), "city", uses=["PENETRATION"], desc="12 x 12 m collapsed building lot")
     KIT["City_RubbleLot_%s" % _v]["doors"] = []
     KIT["City_RubbleLot_%s" % _v]["city"] = {"archetype": None, "ruin": 2, "lot": _v}
     KIT["City_RubbleLot_%s" % _v]["catalog"] = "RubbleLot"
@@ -772,7 +794,7 @@ for _v in "ABCD":                                     # standalone collapsed lot
 for _n, _cid, _d in [("City_WaterTower", "WaterTower", "18 m steel water tower on a lattice frame"),
                      ("City_MetroEntrance_A", "MetroEntrance", "metro stair head sealed with steel plates, railings, sign"),
                      ("City_MetroEntrance_B", "MetroEntrance", "glazed metro entrance pavilion, doors chained shut")]:
-    kit(_n, "sky_city", "city", uses=["PENETRATION"], desc=_d)
+    kit(_n, city_pbo(), "city", uses=["PENETRATION"], desc=_d)
     KIT[_n]["doors"] = []
     KIT[_n]["city"] = {"archetype": None, "ruin": 0, "piece": _cid}
     KIT[_n]["catalog"] = _cid
@@ -1056,7 +1078,7 @@ for _n, _c, _w, _d in [("Veg_Weeds", "veg", 3.0, "3 x 3 m patch of grass, weeds,
                        ("Veg_Bush", "veg", 2.6, "2.5 m wild shrub with bramble skirt (no collision)"),
                        ("Veg_Birch", "tree", 3.2, "9 m self-seeded birch: trunk collides, crown cards"),
                        ("Veg_TreeDead", "tree", 3.2, "6 m dead tree: trunk collides, bare branch cards")]:
-    kit(_n, "sky_city", _c, desc=_d)
+    kit(_n, city_pbo(), _c, desc=_d)
     KIT[_n]["doors"] = []
     KIT[_n]["city"] = {"archetype": None, "ruin": 0, "piece": _n, "veg": True}
     KIT[_n]["catalog"] = "Vegetation"

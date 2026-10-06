@@ -469,7 +469,7 @@ Gameplay rows §1-§15 and §19 must still pass unchanged.
 | SP-08 | Roofs | Pad edge lights, obstruction lights on masts, garden trees / loungers (collide) / string and bollard lights, ladder on the tall unit; roof drops land clear (§10). | | |
 | SP-09 | FPS_PROTOCOL 4.1 | Within the thresholds. | | |
 
-## 21. City buildings (D56, pbo `sky_city`)
+## 21. City buildings (D56; packages `sky_city_res|block|com|civic|ind|env` since D60)
 
 Static results: `reviews/city_wave1_gates.md`; renders `reviews/img/city_*.png`; estimate and progress
 `CITY_PLAN.md`. Spawn single buildings with the admin tools / objectSpawnersArr (front = -Y faces

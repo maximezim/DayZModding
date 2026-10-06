@@ -5,8 +5,10 @@
 .DESCRIPTION
     1. python assets/textures/gen_textures.py -> build\sky_tex_png (deterministic)
     2. ImageToPAA -> addons\sky_textures\data (trims) and addons\sky_items\data (keycards)
-    3. -Models: re-export P3Ds with Blender + Arma Toolbox (needs -Blender and
-       ARMATOOLBOX_PATH = folder containing the ArmaToolbox package)
+    3. -Models: re-export P3Ds. The generators are plain Python and write MLOD .p3d with the
+       standalone writer (assets\blender\p3dwriter.py, D60): no Blender needed. -Blender <exe>
+       runs them inside any Blender instead (4.2 LTS or 5.x; the "DayZ Object Builder" extension
+       is not used). -Backend atb uses Arma Toolbox (Blender 4.2 + ARMATOOLBOX_PATH) - same files.
     4. gen_configs.py, economy/gen_economy.py, check_assets.py, layout self-test
     5. Verifies that every vanilla dz\ path referenced by models/rvmats exists on P:
        (penetration rvmats, env map, roadway surfaces - see skyspec.PENETRATION)
@@ -14,12 +16,14 @@
 
 .EXAMPLE
     .\mods\SKY_Skyline\assets\Build-SkyAssets.ps1
-    .\mods\SKY_Skyline\assets\Build-SkyAssets.ps1 -Models -Blender "C:\Program Files\Blender Foundation\Blender 4.2\blender.exe"
+    .\mods\SKY_Skyline\assets\Build-SkyAssets.ps1 -Models
+    .\mods\SKY_Skyline\assets\Build-SkyAssets.ps1 -Models -Blender "C:\Program Files\Blender Foundation\Blender 5.2\blender.exe"
 #>
 [CmdletBinding()]
 param(
     [switch]$Models,
-    [string]$Blender = 'blender',
+    [string]$Blender = '',
+    [ValidateSet('native', 'atb')][string]$Backend = 'native',
     [string]$Python = 'python',
     [switch]$SkipPChecks
 )
@@ -43,23 +47,31 @@ $conv = Join-Path $repo 'tools\assets\Convert-Textures.ps1'
 & $conv -SourceDir $png -DestDir (Join-Path $mod 'addons\sky_items\data') -Filter 'sky_keycard*'
 
 if ($Models) {
-    Write-DzStep 'Export P3D models (Blender + Arma Toolbox)'
-    if (-not $env:ARMATOOLBOX_PATH) { throw 'Set ARMATOOLBOX_PATH to the folder containing the ArmaToolbox package.' }
-    & $Blender -b --factory-startup --python-exit-code 1 -P (Join-Path $mod 'assets\blender\build_towera.py') -- --out (Join-Path $mod 'addons')
-    if ($LASTEXITCODE -ne 0) { throw 'Blender export failed' }
-    & $Blender -b --factory-startup --python-exit-code 1 -P (Join-Path $mod 'assets\blender\test_towera.py')
-    if ($LASTEXITCODE -ne 0) { throw 'Tower A geometry tests failed' }
-    foreach ($gen in 'build_kit.py', 'build_props.py', 'build_floors.py', 'build_city.py') {
-        $g = Join-Path $mod "assets\blender\$gen"
-        if (Test-Path $g) {
-            & $Blender -b --factory-startup --python-exit-code 1 -P $g -- --out (Join-Path $mod 'addons')
-            if ($LASTEXITCODE -ne 0) { throw "$gen export failed" }
-        }
+    $env:SKY_P3D_BACKEND = $Backend
+    if ($Backend -eq 'atb') {
+        if (-not $Blender) { throw '-Backend atb needs -Blender (Blender 4.2 LTS with Arma Toolbox).' }
+        if (-not $env:ARMATOOLBOX_PATH) { throw 'Set ARMATOOLBOX_PATH to the folder containing the ArmaToolbox package.' }
     }
-    & $Blender -b --factory-startup --python-exit-code 1 -P (Join-Path $mod 'assets\blender\test_kit.py')
-    if ($LASTEXITCODE -ne 0) { throw 'Kit geometry tests failed' }
-    & $Blender -b --factory-startup --python-exit-code 1 -P (Join-Path $mod 'assets\blender\test_city.py')
-    if ($LASTEXITCODE -ne 0) { throw 'City geometry tests failed' }
+    $how = 'plain Python'
+    if ($Blender) { $how = "Blender ($Blender)" }
+    Write-DzStep "Export P3D models ($how, $Backend writer)"
+    function Run-Gen([string]$script, [string[]]$extra) {
+        $path = Join-Path $mod "assets\blender\$script"
+        if ($Blender) {
+            & $Blender -b --factory-startup --python-exit-code 1 -P $path -- @extra
+        } else {
+            & $Python $path -- @extra
+        }
+        if ($LASTEXITCODE -ne 0) { throw "$script failed ($LASTEXITCODE)" }
+    }
+    $addons = Join-Path $mod 'addons'
+    Run-Gen 'build_towera.py' @('--out', $addons)
+    Run-Gen 'test_towera.py' @()
+    foreach ($gen in 'build_kit.py', 'build_props.py', 'build_floors.py', 'build_city.py') {
+        if (Test-Path (Join-Path $mod "assets\blender\$gen")) { Run-Gen $gen @('--out', $addons) }
+    }
+    Run-Gen 'test_kit.py' @()
+    Run-Gen 'test_city.py' @()
     Run-Py @((Join-Path $mod 'assets\city_progress.py'))
 }
 

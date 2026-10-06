@@ -141,7 +141,9 @@ RVMATS = {
 
 # ------------------------------------------------------------------ kit (skyspec.KIT)
 KIT_PATCH = {"sky_street": "SKY_Skyline_Street", "sky_props": "SKY_Skyline_Props", "sky_floors": "SKY_Skyline_Floors",
-             "sky_city": "SKY_Skyline_City"}
+             "sky_city_res": "SKY_Skyline_CityRes", "sky_city_block": "SKY_Skyline_CityBlock",
+             "sky_city_com": "SKY_Skyline_CityCom", "sky_city_civic": "SKY_Skyline_CityCivic",
+             "sky_city_ind": "SKY_Skyline_CityInd", "sky_city_env": "SKY_Skyline_CityEnv"}   # D60 split
 
 
 def kit_entries(pbo):
@@ -152,7 +154,7 @@ def kit_config(pbo):
     prefix = S.MOD + "\\" + pbo
     out = HEADER + patches(KIT_PATCH[pbo], ["DZ_Data", "SKY_Skyline_Textures", "SKY_Skyline_Scripts"])
     out += "\nclass CfgVehicles\n{\n\tclass HouseNoDestruct;\n"
-    base = "Land_SKY_%s_Base" % pbo.split("_")[1].capitalize()
+    base = "Land_SKY_%s_Base" % "".join(w.capitalize() for w in pbo.split("_")[1:])
     out += "\tclass %s: HouseNoDestruct\n\t{\n\t\tscope = 0;\n\t};\n" % base
     for name, e in kit_entries(pbo):
         body = '\t\tscope = 1;\n\t\tmodel = "%s\\%s";\n' % (prefix, e["p3d"])

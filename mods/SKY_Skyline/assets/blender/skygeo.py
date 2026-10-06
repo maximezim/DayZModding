@@ -12,8 +12,11 @@ import math
 import os
 import sys
 
-import bmesh
-import bpy
+try:                       # Blender is optional (D60): only the preview renderers and the Arma Toolbox
+    import bmesh           # backend need bpy; generation, tests and the native P3D writer are plain Python
+    import bpy
+except ImportError:
+    bmesh = bpy = None
 
 # LOD codes - exact strings from ArmaToolbox/properties.py lodPresets.
 LOD_RES = "-1.0"            # graphical LOD, resolution = Lod.distance
@@ -438,6 +441,15 @@ def run_cli(modules, materials, stats_name):
 
 
 def export_p3d(lods, materials, path):
+    """Write an MLOD .p3d. Default: the standalone writer (p3dwriter, no add-on, any Blender or plain
+    Python - D60). SKY_P3D_BACKEND=atb uses Arma Toolbox (Blender 4.2 + ARMATOOLBOX_PATH) instead."""
+    if os.environ.get("SKY_P3D_BACKEND", "native").lower() == "atb":
+        return export_p3d_atb(lods, materials, path)
+    import p3dwriter
+    return p3dwriter.write_mlod(lods, materials, path)
+
+
+def export_p3d_atb(lods, materials, path):
     exporter = load_arma_toolbox()
     bpy.ops.wm.read_factory_settings(use_empty=True)
     cache = {}
