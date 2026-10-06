@@ -609,6 +609,13 @@ collision and looks.
 | VH-01 | Spawn `Land_SKY_Wreck_CityBus` and `Land_SKY_Wreck_GarbageTruck` | Collision on body and wheels, cover from fire, no floating parts, garbage truck hopper searchable | | |
 | VH-02 | (when a modeller delivers, VEHICLE_SPEC.md) spawn `SKY_CityBus` / `SKY_GarbageTruck` with all parts | Drives, steers, brakes, 4 + passengers seats, lights, doors; no fall-through (P30, P31) | | |
 
+## 30. Refinement: search tables, ambience (D65)
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| RF-01 | Search hypermarket shelf ends and clubhouse lockers | Food / drinks; sportswear; cooldown as §26 | | |
+| RF-02 | Walk into the hypermarket, down a sewer, past the Ferris wheel (P32) | Hum / drips / creak fade in within ~2 s, never more than 3 loops, stop when you leave | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -625,6 +632,7 @@ collision and looks.
 | Creatures §27 | | | |
 | Underground §28 | | | |
 | Vehicles §29 | | | |
+| Refinement §30 | | | |
 | Placement §9 | | | |
 | Roof drop §10 | | | |
 | Clean logs §11 | | | |

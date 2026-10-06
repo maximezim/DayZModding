@@ -141,6 +141,16 @@ class Land_SKY_City_Hypermarket_Intact extends SKY_LitBuilding
 	{
 		return 4;
 	}
+
+	void Land_SKY_City_Hypermarket_Intact()
+	{
+		SKY_Ambience.Register(this, "SKY_Hum_SoundSet", 30.0);
+	}
+
+	void ~Land_SKY_City_Hypermarket_Intact()
+	{
+		SKY_Ambience.Unregister(this);
+	}
 }
 
 class Land_SKY_City_Kindergarten_Intact extends SKY_LitBuilding

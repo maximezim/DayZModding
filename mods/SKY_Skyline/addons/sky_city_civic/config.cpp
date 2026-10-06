@@ -922,6 +922,7 @@ class CfgVehicles
 		// football clubhouse: home and away changing rooms with benches, lockers and showers (intact)
 		scope = 1;
 		model = "SKY_Skyline\sky_city_civic\sky_city_clubhouse_intact.p3d";
+		skySearch = "sport";
 		class Doors
 		{
 			class door_front
@@ -969,6 +970,7 @@ class CfgVehicles
 		// football clubhouse: home and away changing rooms with benches, lockers and showers (damaged)
 		scope = 1;
 		model = "SKY_Skyline\sky_city_civic\sky_city_clubhouse_damaged.p3d";
+		skySearch = "sport";
 		class Doors
 		{
 			class door_front
@@ -1016,6 +1018,7 @@ class CfgVehicles
 		// football clubhouse: home and away changing rooms with benches, lockers and showers (ruined)
 		scope = 1;
 		model = "SKY_Skyline\sky_city_civic\sky_city_clubhouse_ruined.p3d";
+		skySearch = "sport";
 	};
 	class Land_SKY_City_ChurchHanged_Intact: Land_SKY_CityCivic_Base
 	{

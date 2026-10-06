@@ -22,6 +22,7 @@ class CfgVehicles
 		// hypermarket: 44 x 32 m hall, tall racks, checkout lines, harsh fluorescent light (intact)
 		scope = 1;
 		model = "SKY_Skyline\sky_city_venue\sky_city_hypermarket_intact.p3d";
+		skySearch = "grocery";
 		class Doors
 		{
 			class door_front
@@ -69,6 +70,7 @@ class CfgVehicles
 		// hypermarket: 44 x 32 m hall, tall racks, checkout lines, harsh fluorescent light (damaged)
 		scope = 1;
 		model = "SKY_Skyline\sky_city_venue\sky_city_hypermarket_damaged.p3d";
+		skySearch = "grocery";
 		class Doors
 		{
 			class door_front
@@ -116,6 +118,7 @@ class CfgVehicles
 		// hypermarket: 44 x 32 m hall, tall racks, checkout lines, harsh fluorescent light (ruined)
 		scope = 1;
 		model = "SKY_Skyline\sky_city_venue\sky_city_hypermarket_ruined.p3d";
+		skySearch = "grocery";
 	};
 	class Land_SKY_City_Mall_Intact: Land_SKY_CityVenue_Base
 	{

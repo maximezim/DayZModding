@@ -2800,6 +2800,8 @@ def furnish_venue(L, P, l, r, kind, z, top, zones):
                     box = (b0, b1, ry, ry + 0.9)
                     if b1 - b0 > 2.0 and clear(zones, box):
                         shelf_unit(L, *box, z, h=3.4)
+                        if h01(P.name, "srch", round(b0, 1), round(ry, 1)) < 0.35:        # stockroom-ish search (D65)
+                            search_point(L, (b0 + b1) / 2, ry - 0.7, z)
             ry += 3.4
         for (px, py) in ((-6.0, y0 + 5.6), (0.0, y0 + 5.6), (6.0, y0 + 5.6)):    # promotion pallets
             box = (px - 0.6, px + 0.6, py - 0.4, py + 0.4)
@@ -2915,6 +2917,7 @@ def furnish_venue(L, P, l, r, kind, z, top, zones):
             if clear(zones, (a0, a1, b0, b1)):
                 DT.bench(lifted(L, z), a0, a1, b0, b1)
                 along_x = (a1 - a0) > (b1 - b0)
+                search_point(L, (a0 + a1) / 2 if along_x else a1 + 0.8, b0 - 0.8 if along_x else (b0 + b1) / 2, z)   # lockers (D65)
                 for i in range(int(((a1 - a0) if along_x else (b1 - b0)) / 0.5)):   # coat hooks + kit
                     t = (a0 if along_x else b0) + 0.25 + i * 0.5
                     hx, hy = (t, b1 - 0.02) if along_x else (a0 + 0.02, t)

@@ -18,11 +18,13 @@ class Land_SKY_Sewer_Base extends House
 	{
 		if (g_Game.IsServer())
 			SKY_Underground.Register(this);
+		SKY_Ambience.Register(this, "SKY_Drips_SoundSet", 25.0);			// client only (D65)
 	}
 
 	void ~Land_SKY_Sewer_Base()
 	{
 		SKY_Underground.Unregister(this);
+		SKY_Ambience.Unregister(this);
 	}
 
 	//! Square pieces (junction) are as long as they are wide.

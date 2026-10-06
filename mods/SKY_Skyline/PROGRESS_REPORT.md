@@ -249,3 +249,11 @@ delivers:
 - a full pipeline spec (V3S donor) and config/script templates.
 Driving waits on a modeller (`vehicles/VEHICLE_SPEC.md`, TESTING §29, P30-P31).
 
+## 17. Refinement (D65)
+
+- **Search**: hypermarket shelf ends give food and drinks, and the clubhouse lockers give sportswear. Both use
+  server tables of verified vanilla items.
+- **Ambience**: the city got a sound layer, made procedurally like the siren: the hypermarket tubes hum with a
+  dying ballast, the sewers drip with a tunnel echo, and the Ferris wheel creaks in the wind. A client-only
+  director plays at most three of the nearest loops (TESTING §30, P32).
+

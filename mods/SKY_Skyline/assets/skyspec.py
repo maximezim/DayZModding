@@ -1336,7 +1336,7 @@ LOOT.update({
 # stands; the server loot table lives in SKY_SearchTable (scripts), not in config.
 SEARCHABLE = ["Dumpster", "TrashBin", "Wreck_GarbageTruck", "Landfill"]
 # config value skySearch = <table> (read by SKY_SearchService; the tables themselves are server script)
-SEARCH_TABLES = ["trash", "landfill", "costume", "alcohol"]
+SEARCH_TABLES = ["trash", "landfill", "costume", "alcohol", "grocery", "sport"]
 SEARCH_TABLE = {"Dumpster": "trash", "TrashBin": "trash", "Wreck_GarbageTruck": "trash", "Landfill": "landfill"}
 for _n, _e in KIT.items():
     _c = _e.get("city") or {}
@@ -1345,6 +1345,10 @@ for _n, _e in KIT.items():
         SEARCH_TABLE[_n] = "costume"                     # mall rails, cinema costume trunks (idea 19)
     elif _arch and _arch.get("alcohol"):
         SEARCH_TABLE[_n] = "alcohol"                     # behind-the-bar stock (idea 10)
+    elif _c.get("archetype") == "Hypermarket":
+        SEARCH_TABLE[_n] = "grocery"                     # shelf ends (D65)
+    elif _c.get("archetype") == "Clubhouse":
+        SEARCH_TABLE[_n] = "sport"                       # changing-room lockers (D65)
 for _n, _t in SEARCH_TABLE.items():
     assert _t in SEARCH_TABLES, (_n, _t)
     KIT[_n]["config_extra"] = KIT[_n].get("config_extra", "") + '\t\tskySearch = "%s";\n' % _t

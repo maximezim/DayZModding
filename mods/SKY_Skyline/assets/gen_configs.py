@@ -629,6 +629,9 @@ def city_lit_script():
             body = "\n\toverride protected typename SkyLightType()\n\t{\n\t\treturn %s;\n\t}\n" % light
         if A.get("light") == "hyper":                            # the hall is lit by all four points
             body += "\n\toverride protected int SkyLightCount()\n\t{\n\t\treturn 4;\n\t}\n"
+            # D65 ambience: tube hum loop (client director, SKY_Ambience.c)
+            body += ("\n\tvoid %s()\n\t{\n\t\tSKY_Ambience.Register(this, \"SKY_Hum_SoundSet\", 30.0);\n\t}\n"
+                     "\n\tvoid ~%s()\n\t{\n\t\tSKY_Ambience.Unregister(this);\n\t}\n") % (e["cls"], e["cls"])
         out += "\nclass %s extends SKY_LitBuilding\n{%s}\n" % (e["cls"], body)
     return out
 

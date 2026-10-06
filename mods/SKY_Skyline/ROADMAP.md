@@ -20,6 +20,7 @@ Rules that do not change (CLAUDE.md):
 | **D61** (now) | venues, fair, landfill, stadium, parking lots, street props, viaducts, road tunnel, deadly bridge, car jams; gameplay: bin search, hydrants, alcohol, costumes, hordes, alarm | nothing new (vanilla APIs verified below) |
 | **D62** creatures (built) | dogs (guard + logout), rats (bites, disease, base damage, dog repels), horses | decision below: external mod (licence) or own animated creatures (needs an animator, skeleton + animation graph) |
 | **D63** underground (built) | sewers that flood in heavy rain, metro tunnels and a station; terrain generator (heightmap, masks, trenches) | custom terrain (MOD_DEVELOPMENT_GUIDE 4.3 Level 2); objectSpawnersArr cannot cut the terrain |
+| **D65** refinement (built) | grocery and sportswear search, procedural ambience (hum, drips, creak) | nothing new |
 | **D64** vehicles (wrecks built, drivable blocked) | drivable bus and garbage truck | a vehicle model with a working `CarScript` simulation (model.cfg, physics, damage zones) made on a V3S donor by a modeller: `vehicles/VEHICLE_SPEC.md` |
 
 ## The 23 ideas
