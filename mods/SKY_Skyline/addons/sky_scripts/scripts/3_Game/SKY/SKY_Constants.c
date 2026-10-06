@@ -185,7 +185,7 @@ class SKY_Under
 	static const float RAIN_SPAN = 0.4;
 	static const float RISE_PER_S = 0.00167;		//!< 0 -> 1 in 10 min
 	static const float DRAIN_PER_S = 0.00056;		//!< 1 -> 0 in 30 min
-	static const float PHASE_STEP = 0.02;			//!< push a new animation phase only when it moved this much
+	static const float PHASE_STEP = 0.05;			//!< push a new animation phase only when it moved this much (animPeriod 20 s smooths it)
 	static const float WATER_BASE = -0.45;			//!< water plane above the walkway floor at phase 0 (m, model)
 	static const float WATER_RISE = 1.6;			//!< = skyspec UNDERGROUND flood_rise
 	static const float HALF_WIDTH = 2.4;			//!< sewer piece half width (model X)
@@ -196,5 +196,7 @@ class SKY_Under
 	static const float DROWN_DEPTH = 1.55;			//!< over the head: damage
 	static const float DROWN_DMG = 4.0;				//!< health per tick under water
 	static const int MAX_PIECES = 512;
+	static const float REACH_H = 9.0;				//!< horizontal radius round a piece centre (junction corner 8.5 m)
+	static const int DROWN_GRACE_MS = 60000;		//!< no drowning damage in the first minute after a player is seen
 }
 

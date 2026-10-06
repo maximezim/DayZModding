@@ -53,16 +53,27 @@ class Land_SKY_Sewer_Junction extends Land_SKY_Sewer_Base
 class SKY_Underground
 {
 	protected static ref array<Land_SKY_Sewer_Base> s_Pieces = new array<Land_SKY_Sewer_Base>();
+	protected static bool s_CapWarned;
 	protected static ref SKY_Underground s_Instance;
 
 	protected ref array<Man> m_Players = new array<Man>();
 	protected float m_Level;			//!< 0..1
-	protected float m_Applied = -1.0;	//!< last phase pushed to the pieces
+	protected float m_Applied;			//!< last phase pushed to the pieces (pieces start at initPhase 0)
+	protected ref map<string, int> m_FirstSeen = new map<string, int>();	//!< identity -> first tick seen (grace)
+	protected ref map<string, bool> m_Under = new map<string, bool>();		//!< identity -> was under water last tick
 
 	static void Register(Land_SKY_Sewer_Base p)
 	{
-		if (s_Pieces && s_Pieces.Count() < SKY_Under.MAX_PIECES && s_Pieces.Find(p) == -1)
-			s_Pieces.Insert(p);
+		if (!s_Pieces)
+			return;
+		if (s_Pieces.Count() >= SKY_Under.MAX_PIECES)
+		{
+			if (!s_CapWarned)
+				SKY_Log.Warn("sewer piece cap " + SKY_Under.MAX_PIECES.ToString() + " reached: extra pieces will not flood");
+			s_CapWarned = true;
+			return;
+		}
+		s_Pieces.Insert(p);					// constructors register each piece once
 	}
 
 	static void Unregister(Land_SKY_Sewer_Base p)
@@ -101,7 +112,7 @@ class SKY_Underground
 			m_Level = Math.Min(target, m_Level + SKY_Under.RISE_PER_S * dt);
 		else
 			m_Level = Math.Max(target, m_Level - SKY_Under.DRAIN_PER_S * dt);
-		if (Math.AbsFloat(m_Level - m_Applied) >= SKY_Under.PHASE_STEP || (m_Level == 0 && m_Applied != 0))
+		if (Math.AbsFloat(m_Level - m_Applied) >= SKY_Under.PHASE_STEP || (m_Level == 0 && m_Applied > 0))
 		{
 			m_Applied = m_Level;
 			foreach (Land_SKY_Sewer_Base p : s_Pieces)
@@ -113,16 +124,35 @@ class SKY_Underground
 		if (m_Level <= 0)
 			return;
 		float water = SKY_Under.WALKWAY + SKY_Under.WATER_BASE + m_Level * SKY_Under.WATER_RISE;	// model z of the surface
+		int now = g_Game.GetTime();
+		float reach2 = SKY_Under.REACH_H * SKY_Under.REACH_H;
 		g_Game.GetPlayers(m_Players);
+		if (m_FirstSeen.Count() > 4 * m_Players.Count() + 64)		// bounded: forget players who left
+			m_FirstSeen.Clear();
 		foreach (Man m : m_Players)
 		{
 			PlayerBase pb = PlayerBase.Cast(m);
-			if (!pb || !pb.IsAlive())
+			if (!pb || !pb.IsAlive() || !pb.GetIdentity())
 				continue;
+			string id = pb.GetIdentity().GetId();
+			int first;
+			if (!m_FirstSeen.Find(id, first))
+			{
+				first = now;
+				m_FirstSeen.Set(id, now);
+			}
 			vector pp = pb.GetPosition();
+			if (pp[1] > g_Game.SurfaceY(pp[0], pp[2]) - 1.5)		// on the surface: nothing to do (perf review D65)
+				continue;
+			bool under = false;
 			foreach (Land_SKY_Sewer_Base piece : s_Pieces)
 			{
-				if (!piece || vector.DistanceSq(piece.GetPosition(), pp) > 100.0)
+				if (!piece)
+					continue;
+				vector cp = piece.GetPosition();
+				float dx = cp[0] - pp[0];
+				float dz = cp[2] - pp[2];
+				if (dx * dx + dz * dz > reach2)
 					continue;
 				vector lp = piece.WorldToModel(pp);
 				if (Math.AbsFloat(lp[0]) > piece.SkyHalfWidth() || Math.AbsFloat(lp[2]) > piece.SkyHalfLength() || lp[1] > -2.0)
@@ -130,13 +160,23 @@ class SKY_Underground
 				float depth = water - lp[1];
 				if (depth > SKY_Under.WET_DEPTH)
 					Soak(pb, depth);
-				if (depth > SKY_Under.DROWN_DEPTH)
+				// no damage right after connecting, nor to players who cannot get out (security review D65)
+				if (depth > SKY_Under.DROWN_DEPTH && now - first > SKY_Under.DROWN_GRACE_MS && !pb.IsUnconscious() && !pb.IsRestrained())
 				{
+					under = true;
 					pb.AddHealth("GlobalHealth", "Health", -SKY_Under.DROWN_DMG);
-					pb.MessageImportant("The sewer water is over your head.");
 				}
 				break;
 			}
+			bool was = m_Under.Contains(id);
+			if (under && !was)
+			{
+				m_Under.Set(id, true);
+				pb.MessageImportant("The sewer water is over your head.");
+				SKY_Log.Info("sewer drowning damage: " + id);
+			}
+			else if (!under && was)
+				m_Under.Remove(id);
 		}
 	}
 

@@ -1126,6 +1126,27 @@ def trash(size, out):
     save(nh.resize((size // 2,) * 2, Image.BILINEAR), out, "sky_trash_nohq")
 
 
+def fur(size, out):
+    """Short animal fur (1024, D65), 4 horizontal bands = skyspec MATERIALS["fur"]: shepherd tan, black
+    saddle, rat grey-brown, horse chestnut. Hair = streaky noise stretched along U, a darker undercoat,
+    tip highlights; tileable along U (each band is used with a band UV)."""
+    rng = np.random.default_rng(1601)
+    bands = [((0.62, 0.47, 0.30), (0.40, 0.28, 0.17)), ((0.10, 0.09, 0.08), (0.20, 0.17, 0.14)),
+             ((0.36, 0.33, 0.30), (0.22, 0.20, 0.18)), ((0.45, 0.25, 0.13), (0.28, 0.15, 0.08))]
+    hb = size // 4
+    arr = np.zeros((size, size, 3), np.float32)
+    for i, (tip, under) in enumerate(bands):
+        n = rng.random((hb, size // 8)).astype(np.float32)
+        streak = np.asarray(Image.fromarray((n * 255).astype(np.uint8)).resize((size, hb), Image.BILINEAR), np.float32) / 255.0
+        fine = rng.random((hb, size)).astype(np.float32)
+        t = np.clip(0.55 * streak + 0.45 * fine, 0, 1)[..., None]
+        arr[i * hb:(i + 1) * hb] = np.array(under, np.float32) * (1 - t) + np.array(tip, np.float32) * t
+    arr *= (0.85 + 0.3 * tfbm(size, 1603, octaves=4, base=6))[..., None]
+    save(to_rgb(np.clip(arr, 0, 1)), out, "sky_fur_co")
+    nh = normal_from_height(arr.mean(-1), 1.5)
+    save(nh.resize((size // 2,) * 2, Image.BILINEAR), out, "sky_fur_nohq")
+
+
 def turf(size, out):
     """Worn football turf (2048, tileable 8 m, D61): mown stripes, bald mud patches, weeds."""
     n = tfbm(size, 1501, octaves=6, base=16)
@@ -1484,6 +1505,7 @@ GENERATORS = {
     "render": render, "rubble": rubble, "signs": signs, "grime": grime, "vegetation": vegetation,
     "wall_brick": wall_brick, "wall_panel": wall_panel, "wall_limestone": wall_limestone, "wall_render": wall_render,
     "hq_facade": hq_facade, "signs2": signs2, "fair": fair, "trash": trash, "turf": turf,
+    "fur": lambda s, o: fur(min(s, 1024), o),                                  # D65 creatures
 }
 
 

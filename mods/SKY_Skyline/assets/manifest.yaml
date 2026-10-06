@@ -145,6 +145,8 @@ textures:
   - {name: sky_wall_render_cream|ochre|grey|white, maps: [co], size: 2048, use: tileable stucco walls in the 4 city colours (4 m sheet), status: built-unverified}
   - {name: sky_hq_facade, maps: [co, nohq(2048), smdi(1024)], size: 4096, use: "HQ facade atlas (D60) - brushed bronze / ribbed bronze spandrel / flamed granite / bronze louvre bands, 6 m sheet; the only 4K texture", status: built-unverified}
 
+  - {name: sky_fur, maps: [co, nohq], size: 1024, use: "creature fur (D65): tan / black saddle / rat grey / chestnut bands", status: built-unverified}
+
 # ---------------------------------------------------------------- G. sounds (optional)
 sounds: {status: planned, items: [elevator hum, elevator ding]}
 sounds_built:

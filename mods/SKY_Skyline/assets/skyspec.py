@@ -1241,6 +1241,8 @@ MATERIALS.update({
              "bands": {"yellow": (0.0, 0.25), "red": (0.25, 0.5), "blue": (0.5, 0.75), "white": (0.75, 1.0)}},
     "trash": {"rvmat": rvmat("sky_trash"), "co": tex("sky_trash_co"), "sheet_m": 4.0},
     "turf": {"rvmat": rvmat("sky_turf"), "co": tex("sky_turf_co"), "sheet_m": 8.0},
+    "fur": {"rvmat": rvmat("sky_fur"), "co": tex("sky_fur_co"),                                    # D65 creatures
+            "bands": {"tan": (0.0, 0.25), "saddle": (0.25, 0.5), "rat": (0.5, 0.75), "chestnut": (0.75, 1.0)}},
 })
 BUDGETS["landmark"] = {"res0": 60000, "res1": 15000, "res2": 2500, "res3": 300, "shadow": 600, "geo_comps": 400,
                        "geo_tris": 6000, "sections_res0": 16}           # Ferris wheel, bridge, stadium stand (hypothesis)

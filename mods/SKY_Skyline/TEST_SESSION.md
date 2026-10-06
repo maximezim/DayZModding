@@ -54,6 +54,21 @@ strength, P9 yaw sign, P10 script lights, P12 clutter cutter size. Each has a on
 - Skyline: `placement\skyline_template.yaml` needs a surveyed site first (placement/README §1).
   It is 778 entities + loot of the 800 cap, so pick a flat spot.
 
+## 5. City life, creatures, underground, vehicles (D61-D65): second session
+
+These rows need two players and a shortened alarm timer on the diag build. Spawn single pieces with
+the diag console: the city life template is a terrain layout.
+1. §26 city life: search (CL-08 to CL-10, including the security spam test), hydrant, alcohol, hordes, and the
+   alarm (shortened timer).
+2. §27 creatures: kennel guard with 2 players (CR-01 to CR-04 first, they are the security-critical rows), then
+   the rat nest.
+3. §30 refinement: the new search spots and the ambience loops.
+4. §29 vehicles: the wrecks only.
+5. §28 underground needs the custom test terrain (Terrain Builder import of `terrain/out`, P28): plan it as its
+   own session.
+Parameters to read off: P14 alarm reach, P15 horde caps / FPS, P16 drunk levels, P17 search points, P18 hydrant,
+P19 jams, P20/P23/P32 sound ranges, P21 kennel guard, P22 rat bites.
+
 ## What I need back, in one message
 
 `summary.md`, the RPT and script log of the diag run, TESTING IDs with FAIL plus a screenshot,

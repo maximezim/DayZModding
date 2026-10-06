@@ -4,14 +4,16 @@
 	Sources register on clients only (static, bounded MAX_SOURCES). One 2 s timer (CallLater, removed in
 	StopClient) picks the MAX_ACTIVE nearest sources within their range of the camera
 	(CGame.GetCurrentCameraPosition game.c:730), starts looped EffectSounds for new ones
-	(SEffectManager.PlaySound effectmanager.c:169, loop = true) and destroys the ones that left
+	(SEffectManager.PlaySoundCachedParams effectmanager.c:207, loop = true) and destroys the ones that left
 	(SEffectManager.DestroySound effectmanager.c:432). No per-frame work, no network.
 */
 class SKY_AmbientSource
 {
 	Object m_Obj;
 	string m_SoundSet;
-	float m_Range;
+	vector m_Pos;			//!< cached on the first tick after the object got its position (static map objects)
+	bool m_PosSet;
+	float m_Range2;			//!< range squared
 	EffectSound m_Sound;
 }
 
@@ -22,6 +24,8 @@ class SKY_Ambience
 	static const int TICK_MS = 2000;
 	protected static ref array<ref SKY_AmbientSource> s_Sources = new array<ref SKY_AmbientSource>();
 	protected static bool s_Running;
+	protected static ref array<int> s_Best = new array<int>();		//!< reused per tick (perf review D65)
+	protected static ref array<float> s_BestD = new array<float>();
 
 	static void Register(Object obj, string soundSet, float range)
 	{
@@ -30,7 +34,7 @@ class SKY_Ambience
 		SKY_AmbientSource s = new SKY_AmbientSource();
 		s.m_Obj = obj;
 		s.m_SoundSet = soundSet;
-		s.m_Range = range;
+		s.m_Range2 = range * range;					// position: lazily, constructors run before placement
 		s_Sources.Insert(s);
 	}
 
@@ -73,15 +77,24 @@ class SKY_Ambience
 	{
 		vector cam = g_Game.GetCurrentCameraPosition();
 		// pick the MAX_ACTIVE nearest sources in range (simple insertion into a tiny sorted list)
-		array<int> best = new array<int>();
-		array<float> bestD = new array<float>();
+		array<int> best = s_Best;
+		array<float> bestD = s_BestD;
+		best.Clear();
+		bestD.Clear();
 		for (int i = 0; i < s_Sources.Count(); i++)
 		{
 			SKY_AmbientSource s = s_Sources[i];
 			if (!s.m_Obj)
 				continue;
-			float d = vector.DistanceSq(s.m_Obj.GetPosition(), cam);
-			if (d > s.m_Range * s.m_Range)
+			if (!s.m_PosSet)
+			{
+				s.m_Pos = s.m_Obj.GetPosition();
+				s.m_PosSet = s.m_Pos != vector.Zero;
+				if (!s.m_PosSet)
+					continue;
+			}
+			float d = vector.DistanceSq(s.m_Pos, cam);
+			if (d > s.m_Range2)
 				continue;
 			int at = bestD.Count();
 			while (at > 0 && bestD[at - 1] > d)
@@ -102,7 +115,7 @@ class SKY_Ambience
 			bool want = best.Find(k) != -1;
 			if (want && !src.m_Sound)
 			{
-				src.m_Sound = SEffectManager.PlaySound(src.m_SoundSet, src.m_Obj.GetPosition(), 1.0, 1.0, true);
+				src.m_Sound = SEffectManager.PlaySoundCachedParams(src.m_SoundSet, src.m_Pos, 1.0, 1.0, true);
 			}
 			else if (!want && src.m_Sound)
 			{

@@ -682,6 +682,12 @@ def place_underground(ctx, lay, world, site_yaw, street_y, terrain):
         if bad:
             ctx.errors.append("underground %s %s: access/station positions %s are not on the run" % (kind, r.get("index"), bad))
     ug = ctx.underground
+    for p in ug:
+        if not all(v > 0 for v in p["size"]) or any(v != v for v in p["pos"]):
+            ctx.errors.append("underground %s: bad size / position %s %s" % (p["cls"], p["size"], p["pos"]))
+    sewers = sum(1 for p in ug if p["cls"].startswith("Sewer_") and p["cls"] != "Sewer_Stair")
+    if sewers > 512:
+        ctx.errors.append("underground: %d flooding sewer pieces > SKY_Under.MAX_PIECES 512" % sewers)
     polys = [footprint_corners(p["pos"][0], p["pos"][2], p["size"][0] / 2 - 0.05, p["size"][1] / 2 - 0.05, p["yaw"]) for p in ug]
     for i in range(len(ug)):
         for j in range(i + 1, len(ug)):
@@ -1171,7 +1177,7 @@ def main():
     tr_path = os.path.join(a.out, "underground_trenches.json")
     if getattr(ctx, "underground", None) and not ctx.errors:
         with open(ug_path, "w") as fh:                          # MERGE into <mission>/cfgundergroundtriggers.json "Triggers"
-            json.dump({"Triggers": underground_triggers(ctx)}, fh, indent=1)
+            json.dump({"Triggers": underground_triggers(ctx)}, fh, indent=1, allow_nan=False)   # invalid JSON drops every trigger
         with open(tr_path, "w") as fh:                          # terrain/gen_terrain.py trenches the heightmap under these
             json.dump({"pieces": [{"cls": p["cls"], "corners": [[round(c[0], 3), round(c[1], 3)] for c in footprint_corners(
                 p["pos"][0], p["pos"][2], p["size"][0] / 2 + 0.5, p["size"][1] / 2 + 0.5, p["yaw"])],

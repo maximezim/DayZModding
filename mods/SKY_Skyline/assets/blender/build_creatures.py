@@ -29,8 +29,10 @@ from skygeo import (LOD_FIREGEO, LOD_GEOMETRY, LOD_MEMORY, LOD_RES, LOD_SHADOW, 
 
 kw_for, h01 = C.kw_for, C.h01
 UV_WALNUT, UV_RUBBLE = C.UV_WALNUT, C.UV_RUBBLE
-FUR = UVBand(S.MATERIALS["fabric"]["bands"]["beige"], 1.0)
-FUR_GREY = UVBand(S.MATERIALS["fabric"]["bands"]["grey"], 1.0)
+FUR = UVBand(S.MATERIALS["fur"]["bands"]["tan"], 0.5)                 # D65: procedural fur sheet (gen_textures.fur)
+FUR_SADDLE = UVBand(S.MATERIALS["fur"]["bands"]["saddle"], 0.5)
+FUR_GREY = UVBand(S.MATERIALS["fur"]["bands"]["rat"], 0.25)
+FUR_HORSE = UVBand(S.MATERIALS["fur"]["bands"]["chestnut"], 1.0)
 UV_TRASH = UVWorld(S.MATERIALS["trash"]["sheet_m"])
 DARK = DT.paint_uv("slate")
 BONE = DT.paint_uv("white")
@@ -73,7 +75,7 @@ def blob(lod, c, rx, ry, rz, n=8, mat=None, uv=None):
     lod.solid(verts, faces, mat, uv)
 
 
-def dog(lod, x, y, z, yaw=0.0, detail=True, mat="fabric", uv=FUR):
+def dog(lod, x, y, z, yaw=0.0, detail=True, mat="fur", uv=FUR):
     """German-shepherd-sized dog lying on its belly, head up, facing -Y (rotated by yaw)."""
     ca, sa = math.cos(yaw), math.sin(yaw)
 
@@ -83,7 +85,7 @@ def dog(lod, x, y, z, yaw=0.0, detail=True, mat="fabric", uv=FUR):
     limb(lod, P(0, 0.42, 0.2), P(0, -0.12, 0.24), 0.17, 0.19, n, mat, uv)          # torso
     blob(lod, P(0, 0.42, 0.18), 0.18, 0.16, 0.16, n, mat, uv)                       # haunch
     if detail:                                                                       # dark saddle (shepherd)
-        limb(lod, P(0, 0.35, 0.31), P(0, -0.05, 0.36), 0.1, 0.11, n, "paint", DARK)
+        limb(lod, P(0, 0.35, 0.31), P(0, -0.05, 0.36), 0.1, 0.11, n, "fur", FUR_SADDLE)
     limb(lod, P(0, -0.12, 0.3), P(0, -0.3, 0.48), 0.1, 0.075, n, mat, uv)           # neck
     blob(lod, P(0, -0.34, 0.5), 0.09, 0.11, 0.08, n, mat, uv)                       # skull
     if not detail:
@@ -103,9 +105,9 @@ def rat(lod, x, y, z, yaw, detail=True):
 
     def P(px, py, pz):
         return (x + px * ca - py * sa, y + px * sa + py * ca, z + pz)
-    blob(lod, P(0, 0.0, 0.04), 0.035, 0.08, 0.035, 6 if detail else 4, "fabric", FUR_GREY)
+    blob(lod, P(0, 0.0, 0.04), 0.035, 0.08, 0.035, 6 if detail else 4, "fur", FUR_GREY)
     if detail:
-        limb(lod, P(0, -0.07, 0.045), P(0, -0.13, 0.035), 0.025, 0.008, 5, "fabric", FUR_GREY)
+        limb(lod, P(0, -0.07, 0.045), P(0, -0.13, 0.035), 0.025, 0.008, 5, "fur", FUR_GREY)
         limb(lod, P(0, 0.07, 0.03), P(0.05, 0.22, 0.005), 0.008, 0.003, 4, "paint", DT.paint_uv("terracotta"))
 
 
@@ -159,7 +161,7 @@ def build_kennel():
     r2.box(-hx, hx, y0, y1, 0.0, zw, mat="wood", uv=wood)
     r2.solid([(-hx, y0, zw), (hx, y0, zw), (0, y0, zr), (-hx, y1, zw), (hx, y1, zw), (0, y1, zr)],
              [(0, 1, 2), (3, 4, 5), (0, 1, 4, 3), (1, 2, 5, 4), (2, 0, 3, 5)], "paint", DARK)
-    blob(r2, (0.0, -0.75, 0.2), 0.2, 0.45, 0.2, 4, "fabric", FUR)
+    blob(r2, (0.0, -0.75, 0.2), 0.2, 0.45, 0.2, 4, "fur", FUR)
     for L in (geo, fire, view, shadow):                                              # simple convex hulls
         kw = {"mat": "pen_wood"} if L is fire else {}
         L.box(-hx, hx, y0, y1, 0.0, zw, **kw)
@@ -221,11 +223,11 @@ def build_horse_carcass():
     skull, legs stiff out. Geometry = torso + neck (cover to crouch behind)."""
     name = "HorseCarcass"
     L = C.city_lods(C.Ruin(name, 0))
-    hide = UVBand(S.MATERIALS["fabric"]["bands"]["beige"], 1.0)
+    hide = FUR_HORSE
     for k in ("res0", "res1", "res2"):
         lod, n = L[k].lod, (10 if k == "res0" else 6 if k == "res1" else 4)
-        blob(lod, (0.0, 0.55, 0.3), 0.32, 0.45, 0.3, n, "fabric", hide)               # hindquarters
-        limb(lod, (0.0, -0.45, 0.3), (0.0, -0.95, 0.42), 0.22, 0.16, n, "fabric", hide)   # neck
+        blob(lod, (0.0, 0.55, 0.3), 0.32, 0.45, 0.3, n, "fur", hide)               # hindquarters
+        limb(lod, (0.0, -0.45, 0.3), (0.0, -0.95, 0.42), 0.22, 0.16, n, "fur", hide)   # neck
         blob(lod, (0.05, -1.15, 0.24), 0.12, 0.26, 0.11, n, "paint", BONE)            # skull
         if k == "res2":
             limb(lod, (0.0, 0.3, 0.3), (0.0, -0.45, 0.3), 0.3, 0.26, 4, "paint", BONE)
@@ -237,14 +239,14 @@ def build_horse_carcass():
             for a, b in zip(pts, pts[1:]):
                 limb(lod, a, b, 0.018, 0.018, 4, "paint", BONE)
         for (y0, y1) in ((0.6, 0.5), (0.5, 0.3), (-0.4, -0.5), (-0.5, -0.3)):          # legs out to +X
-            limb(lod, (0.15, y0, 0.25), (1.1, y1, 0.08), 0.07, 0.04, 6 if k == "res0" else 4, "fabric", hide)
+            limb(lod, (0.15, y0, 0.25), (1.1, y1, 0.08), 0.07, 0.04, 6 if k == "res0" else 4, "fur", hide)
             if k == "res0":
                 blob(lod, (1.14, y1, 0.07), 0.05, 0.05, 0.06, 6, "paint", DARK)        # hooves
     limb(L["res0"].lod, (0.0, 0.95, 0.35), (-0.15, 1.35, 0.1), 0.05, 0.02, 6, "paint", DARK)   # tail
     for k in ("geo", "fire", "view", "shadow"):
         kw = {"mat": "pen_wood"} if k == "fire" else {}
         L[k].lod.solid(*_hull(), **kw)
-    L["res3"].lod.box(-0.3, 0.3, -1.2, 1.0, 0.0, 0.55, mat="fabric", uv=hide)
+    L["res3"].lod.box(-0.3, 0.3, -1.2, 1.0, 0.0, 0.55, mat="fur", uv=hide)
     L["mem"].lod.point("center", (0.0, 0.0, 0.0))
     return C._finish(L, 400.0)
 

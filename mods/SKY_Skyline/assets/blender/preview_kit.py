@@ -59,7 +59,7 @@ def main():
     for m in bpy.data.materials:
         if m.name in ("rust", "asphalt", "paver", "atlas", "billboard", "foliage", "roadmark", "lamp", "wood", "fabric",
                       "brick", "concpanel", "windows", "rubble", "vegetation", "decal_grime", "fair", "trash", "turf",
-                      "signs2") and tex:
+                      "signs2", "fur") and tex:
             m.use_nodes = True
             nt = m.node_tree
             bsdf = nt.nodes.get("Principled BSDF")
