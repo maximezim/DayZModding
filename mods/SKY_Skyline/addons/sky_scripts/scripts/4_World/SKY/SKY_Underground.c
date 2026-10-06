@@ -42,6 +42,8 @@ class Land_SKY_Sewer_Base extends House
 class Land_SKY_Sewer_Straight extends Land_SKY_Sewer_Base {}
 class Land_SKY_Sewer_Access extends Land_SKY_Sewer_Base {}
 class Land_SKY_Sewer_End extends Land_SKY_Sewer_Base {}
+class Land_SKY_Sewer_Collapsed extends Land_SKY_Sewer_Base {}		// D67
+class Land_SKY_Sewer_FloodedEnd extends Land_SKY_Sewer_Base {}		// D67: the modelled water is decor; flooding/drowning still follow the server flood level
 class Land_SKY_Sewer_Junction extends Land_SKY_Sewer_Base
 {
 	override float SkyHalfWidth()

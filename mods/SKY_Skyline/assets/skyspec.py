@@ -316,7 +316,7 @@ for _n, _c, _d, _u in [
     ("TrafficLight", "small", "traffic light with 5 m arm (static atlas face, no emissive)", []),
     ("Barrier_Concrete", "small", "3 m jersey barrier", []),
     ("Barrier_Steel", "small", "2.4 m crowd barrier", []),
-    ("BusStop", "medium", "4 m shelter with bench and timetable", []),
+    # BusStop moved to build_streetprops.py (D67)
     ("Dumpster", "small", "1.8 m waste container", []),
     ("Planter", "small", "1.5 m concrete planter with shrub", []),
     ("Wreck_Sedan", "medium", "generic rusted sedan hulk (original shape)", []),
@@ -1299,6 +1299,11 @@ kit("RatNest", "sky_street", "medium", uses=["P22"], desc="rat nest: rubbish hea
 kit("HorseCarcass", "sky_street", "medium", desc="dead horse on its side, half hide half bone (horses are blocked, D62)")
 LANDMARK_SIZE["RatNest"] = (2.6, 2.6)
 LANDMARK_SIZE["HorseCarcass"] = (2.4, 2.8)
+# D67 street props (build_streetprops.py), placed by streets.furniture on the -X sidewalk.
+kit("BusStop", "sky_street", "medium", desc="Soviet bus shelter: sloped corrugated roof, smashed glass back wall, bench, route sign")
+kit("AdColumn", "sky_street", "medium", desc="Morris advertising column wrapped in torn posters, domed cap")
+kit("PhoneBooth", "sky_street", "medium", desc="Soviet street phone booth (taxofon), a pane gone, handset hanging")
+LANDMARK_SIZE.update({"BusStop": (4.4, 1.9), "AdColumn": (1.4, 1.4), "PhoneBooth": (1.0, 1.0)})
 # The guard kennel is an item (sky_items/sky_kennel.p3d), config in gen_configs.items_config.
 KENNEL = {"cls": "SKY_Kennel", "p3d": "sky_kennel.p3d", "base": "SeaChest",
           "display": "Dog kennel", "desc": "A doghouse and its old guard dog. Place it by your stash: while you are away the "
@@ -1317,11 +1322,18 @@ for _n, _fp, _d in [
         ("Sewer_Stair", (2.8, 12.0), "stair beside a Sewer_Access (+X, same yaw): street opening at -Y, door in its -X wall"),
         ("Metro_Tunnel", (13.0, 12.0), "double-track metro box tunnel, 12 m: ballast, sleepers, rails, ledges, cables"),
         ("Metro_End", (13.0, 12.0), "metro tunnel closed at +Y: end wall, buffer stops"),
-        ("Metro_Station", (17.0, 24.0), "metro station: island platform, columns, tiles, benches, kiosk, stair to the street (+Y)")]:
+        ("Metro_Station", (17.0, 24.0), "metro station PLOSHCHAD POBEDY: island platform, columns, tiles, benches, kiosk, stair to the street (+Y)"),
+        ("Metro_Station_B", (17.0, 24.0), "metro station VOKZALNAYA (same plan)"),
+        ("Metro_Station_C", (17.0, 24.0), "metro station STADION (same plan)"),
+        ("Metro_Station_D", (17.0, 24.0), "metro station TEATRALNAYA (same plan)"),
+        ("Sewer_Collapsed", (4.8, 12.0), "sewer straight with a collapsed vault: walkable rubble heap over the +X walkway, hanging lamp"),
+        ("Sewer_FloodedEnd", (4.8, 12.0), "sewer dead end with knee-deep standing water and floating junk"),
+        ("Metro_Collapsed", (13.0, 12.0), "metro tunnel with a collapse burying the +X track, fallen catenary beam; -X track passable")]:
     kit(_n, "sky_underground", "underground", uses=["P25", "P26"], desc=_d)
     KIT[_n]["doors"] = []
     LANDMARK_SIZE[_n] = _fp
-for _n in ("Sewer_Straight", "Sewer_Access", "Sewer_End", "Sewer_Junction"):
+METRO_STATIONS = ["Metro_Station", "Metro_Station_B", "Metro_Station_C", "Metro_Station_D"]   # D67: layout cycles the names
+for _n in ("Sewer_Straight", "Sewer_Access", "Sewer_End", "Sewer_Junction", "Sewer_Collapsed", "Sewer_FloodedEnd"):
     KIT[_n]["flood"] = True
 # CE loot of the two loot destinations (ROADMAP ideas 13, 23): the landfill has a bit of everything at the foot of
 # each rubbish mound; the bridge is the high-risk military drop (deck points + the two sniper nests).

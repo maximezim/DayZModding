@@ -31,7 +31,7 @@ streets:
   crossings: [[-2, 0], [-6, -6]]
   lights_every: 3
   base_y: null
-  furniture: {bins_every: 2, hydrants_every: 3, wet: 0.35, seed: 61}
+  furniture: {bins_every: 2, hydrants_every: 3, wet: 0.35, seed: 61, bus_stops_every: 5, ads_every: 4, phones_every: 6}
 
 # north (j > 0): venues + fill; south (j < 0): funfair, landfill, stadium
 blocks:
@@ -80,5 +80,5 @@ props:
 # D63 underground (custom terrain only): a sewer under the west street with two stairs, the metro under
 # the east street with a station; terrain/gen_terrain.py trenches the heightmap under them
 underground:
-  - {kind: sewer, axis: ns, index: -4, from: -5, to: 5, access: [-2, 3]}
-  - {kind: metro, axis: ns, index: 8, from: -5, to: 5, stations: [0]}
+  - {kind: sewer, axis: ns, index: -4, from: -5, to: 5, access: [-2, 3], collapse: 0.25, flooded_ends: true, seed: 67}
+  - {kind: metro, axis: ns, index: 8, from: -5, to: 5, stations: [0, 3], collapse: 0.2, seed: 67}

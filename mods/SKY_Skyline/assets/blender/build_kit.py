@@ -330,49 +330,6 @@ def build_barrier_steel():
     return finish(L, 60.0)
 
 
-def build_busstop():
-    L = props_lods(view=True)
-    met = {"mat": "metal", "uv": UV_ALU}
-    posts = [(-1.95, -0.75), (1.87, -0.75), (-1.95, 0.67), (1.87, 0.67)]
-    for k in ("res0", "res1", "geo", "fire"):
-        kw = met if k.startswith("res") else ({"mat": "pen_metal"} if k == "fire" else {})
-        for (x, y) in posts:
-            L[k].box(x, x + 0.08, y, y + 0.08, 0.0, 2.5, **kw)
-        L[k].box(-2.1, 2.1, -0.9, 0.9, 2.5, 2.6, **kw)
-    L["res2"].box(-2.1, 2.1, -0.9, 0.9, 2.5, 2.6, mat="metal", uv=UV_ALU, skip=("-z",))
-    for x in (-1.95, 1.87):
-        L["res2"].box(x, x + 0.08, -0.75, -0.67, 0.0, 2.5, mat="metal", uv=UV_ALU, skip=("-z", "+z", "+y"))
-    L["res2"].quad([(-1.9, 0.72, 0.3), (1.85, 0.72, 0.3), (1.85, 0.72, 2.4), (-1.9, 0.72, 2.4)], (0, -1, 0), "glassfar", UV_GLASS)
-    L["view"].box(-2.1, 2.1, -0.9, 0.9, 2.5, 2.6)
-    # Glass: back + one side (double-sided in res0, single in res1); collision + fire as thin boxes.
-    panes = [("y", 0.72, (-1.9, 1.85), (0.3, 2.4)), ("x", -1.9, (-0.6, 0.7), (0.3, 2.4))]
-    for axis, c, (a0, a1), (z0, z1) in panes:
-        if axis == "y":
-            q = [(a0, c, z0), (a1, c, z0), (a1, c, z1), (a0, c, z1)]
-            box = (a0, a1, c - 0.01, c + 0.01, z0, z1)
-            facing = (0, 1, 0)
-        else:
-            q = [(c, a0, z0), (c, a1, z0), (c, a1, z1), (c, a0, z1)]
-            box = (c - 0.01, c + 0.01, a0, a1, z0, z1)
-            facing = (-1, 0, 0)
-        L["res0"].quad(q, facing, "glass", UV_GLASS, double=True)
-        L["res1"].quad(q, facing, "glass", UV_GLASS)
-        g = list(box)
-        if axis == "y":
-            g[2], g[3] = c - 0.04, c + 0.04          # Geometry >= 8 cm (security L3); Fire stays 2 cm
-        else:
-            g[0], g[1] = c - 0.04, c + 0.04
-        L["geo"].box(*g)
-        L["fire"].box(*box, mat="pen_glass")
-    for k in ("res0", "res1", "geo", "fire"):
-        kw = met if k.startswith("res") else ({"mat": "pen_metal"} if k == "fire" else {})
-        L[k].box(-1.5, 1.5, 0.3, 0.7, 0.42, 0.47, **kw)                       # bench
-    tt = UVRect(0, 2, (1.2, 1.0), (1.8, 2.0), S.atlas_uv("timetable"))
-    L["res0"].box(1.2, 1.8, 0.68, 0.7, 1.0, 2.0, **met)
-    L["res0"].quad([(1.2, 0.679, 1.0), (1.8, 0.679, 1.0), (1.8, 0.679, 2.0), (1.2, 0.679, 2.0)], (0, -1, 0), "atlas", tt)
-    return finish(L, 800.0)
-
-
 def build_dumpster():
     """1100 L wheeled waste container (D66 upgrade): body tapering to the base, rolled top lip, two lid
     halves (one thrown open over the back), side lifting trunnions, front push handles, four castors,
@@ -510,7 +467,7 @@ BUILDERS = {
     "Intersection_4Way": build_intersection, "Intersection_T": lambda: build_intersection(t_junction=True),
     "Sidewalk": build_sidewalk, "Sidewalk_Corner": build_sidewalk_corner, "Curb": build_curb, "Manhole": build_manhole,
     "StreetLight": build_streetlight, "TrafficLight": build_trafficlight,
-    "Barrier_Concrete": build_barrier_concrete, "Barrier_Steel": build_barrier_steel, "BusStop": build_busstop,
+    "Barrier_Concrete": build_barrier_concrete, "Barrier_Steel": build_barrier_steel,
     "Dumpster": build_dumpster, "Planter": build_planter, "Wreck_Sedan": build_wreck_sedan,
     "Wreck_Van": build_wreck_van, "Billboard": build_billboard,
     "Decal_Dirt": lambda: build_decal("decal_dirt", *S.DECAL_SIZE["Decal_Dirt"]),

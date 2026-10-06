@@ -107,9 +107,20 @@ def district_tests(expect):
     # D63: underground under the city life template (terrain target)
     rc, out, od = run_layout(life)
     names = [o["name"] for o in json.load(open(os.path.join(od, "sky_objects.json")))["Objects"]] if rc == 0 else []
-    for cls, n in (("Land_SKY_Sewer_Access", 2), ("Land_SKY_Sewer_Stair", 2), ("Land_SKY_Sewer_End", 2),
-                   ("Land_SKY_Metro_Station", 1), ("Land_SKY_Metro_End", 2)):
+    for cls, n in (("Land_SKY_Sewer_Access", 2), ("Land_SKY_Sewer_Stair", 2), ("Land_SKY_Sewer_FloodedEnd", 2),
+                   ("Land_SKY_Metro_Station", 1), ("Land_SKY_Metro_Station_B", 1), ("Land_SKY_Metro_End", 2)):
         expect("underground: %d x %s" % (n, cls), names.count(cls) == n, str(names.count(cls)))
+    expect("underground D67: collapsed variants mixed in (collapse share)", "Land_SKY_Sewer_Collapsed" in names
+           and "Land_SKY_Metro_Collapsed" in names, str([nm for nm in names if "Collapsed" in nm]))
+    objs_l = json.load(open(os.path.join(od, "sky_objects.json")))["Objects"] if rc == 0 else []
+    stops = [o for o in objs_l if o["name"] == "Land_SKY_BusStop"]
+    lamps = [o for o in objs_l if o["name"] == "Land_SKY_StreetLight"]
+    jams = [o for o in objs_l if o["name"] in ("Land_SKY_Barrier_Concrete", "Land_SKY_Wreck_Sedan", "Land_SKY_Wreck_Van")]
+    near = lambda a, b, r: (a["pos"][0] - b["pos"][0]) ** 2 + (a["pos"][2] - b["pos"][2]) ** 2 < r * r
+    expect("street furniture D67: bus stops, ad columns, phone booths placed", stops and "Land_SKY_AdColumn" in names
+           and "Land_SKY_PhoneBooth" in names)
+    expect("street furniture D67: no bus stop on a street-lamp spot", not any(near(st, lp, 2.5) for st in stops for lp in lamps))
+    expect("street furniture D67: no jam line through a bus stop", not any(near(st, j, 3.5) for st in stops for j in jams))
     trig = json.load(open(os.path.join(od, "cfgundergroundtriggers_snippet.json")))["Triggers"] if rc == 0 else []
     expect("underground: one darkness trigger per piece, stairs fade with breadcrumbs",
            len(trig) == sum(nm.startswith(("Land_SKY_Sewer_", "Land_SKY_Metro_")) for nm in names)

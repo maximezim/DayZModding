@@ -13,35 +13,36 @@ map: chernarusplus  site: citylife-template  status: **PASS (with warnings)**
 ## Notes
 - street plane y 0.00 (one height for every tile)
 - viaduct ew 6 -8..7: 96 m deck at +7 m, ramps at both ends
-- jams: 36 blocking lines (50% of straight tiles asked), 1.0 m pedestrian gap each
+- jams: 30 blocking lines (50% of straight tiles asked), 1.0 m pedestrian gap each
 - block FUN: park funfair (15 pieces)
 - block LAND: park landfill (9 pieces)
 - block STAD: park stadium (9 pieces)
 - bridge at [6.0, -132.0], deck y 0.00: checkpoint + convoy loot mid-span
-- target terrain: ENTITY_CAP not applied (497 objects + 113 loot would be within the spawner cap 800); deploy through a custom terrain, city_objects.csv
-- loot export: survey request "exportRadius" >= 138 m around site.center
+- target terrain: ENTITY_CAP not applied (521 objects + 110 loot would be within the spawner cap 800); deploy through a custom terrain, city_objects.csv
+- loot export: survey request "exportRadius" >= 140 m around site.center
 
 ## Entity counts (caps: entities + loot 800 per district / 2500 per server, 25 props per floor / 70 per tower)
 - modules: 0
 - buildings: 21
-- vegetation: 14
+- vegetation: 22
 - cutters: 0
 - tiles: 93
 - lights: 30
 - props: 4
 - decals: 0
 - bridges: 1
-- furniture: 65
-- jams: 199
+- furniture: 116
+- jams: 165
 - parks: 33
 - roads: 14
-- underground: 23
-- **total: 497** entities, 113 loot items (max), server total 610
+- underground: 22
+- **total: 521** entities, 110 loot items (max), server total 631
 
 ## City buildings by type (intact / damaged / ruined)
 - AptBlock: 1 / 0 / 0
 - AptBlockBrick: 0 / 1 / 0
 - Bar: 1 / 0 / 0
+- Cafe: 0 / 0 / 1
 - ChurchHanged: 1 / 0 / 0
 - Cinema: 1 / 0 / 0
 - Hypermarket: 1 / 0 / 0
@@ -51,13 +52,13 @@ map: chernarusplus  site: citylife-template  status: **PASS (with warnings)**
 - MetroEntrance: 1 / 0 / 0
 - Rowhouse: 0 / 1 / 0
 - RubbleLot: 0 / 0 / 2
-- ShopRow: 2 / 0 / 2
+- ShopRow: 2 / 0 / 1
 - ShopRowMarket: 0 / 1 / 0
 - SupermarketSmall: 1 / 0 / 0
 - **all: 11 / 6 / 4** (21 buildings)
 
 ## Terrain fit and overgrowth (D59)
-- lots the terrain could not take (given to a smaller type or left as yard): 130
+- lots the terrain could not take (given to a smaller type or left as yard): 142
   - KioskCafe: tower tunnel cell (-8, 0)
   - MetroEntrance: tower tunnel cell (-8, 0)
   - Kiosk: tower tunnel cell (-8, 0)
@@ -78,12 +79,12 @@ map: chernarusplus  site: citylife-template  status: **PASS (with warnings)**
   - MetroEntrance: tower tunnel cell (-8, 0)
   - Kiosk: tower tunnel cell (-8, 0)
   - KioskCafe: tower tunnel cell (-8, 0)
-- slivers avoided (gap < 0.8 m between buildings): 14
+- slivers avoided (gap < 0.8 m between buildings): 18
 - deepest ground drop under a city building: 0.00 m (skirt 1.5 m)
 - clutter cutters: off (custom terrain: paint a no-clutter surface under the city)
-- vegetation: Veg_Bush 4, Veg_TreeDead 1, Veg_Weeds 9
+- vegetation: Veg_Bush 13, Veg_TreeDead 1, Veg_Weeds 8
 
-## Objects (497)
+## Objects (521)
 - Land_SKY_Street_Intersection at [-108.0, 0.0, -72.0] yaw 0.0
 - Land_SKY_Street_Straight at [-108.0, 0.0, -60.0] yaw 0.0
 - Land_SKY_StreetLight at [-112.5, 0.15, -60.0] yaw 0.0
@@ -221,8 +222,8 @@ map: chernarusplus  site: citylife-template  status: **PASS (with warnings)**
 - Land_SKY_Tunnel_Straight at [-84.0, 0.0, 0.0] yaw 90.0
 - Land_SKY_Tunnel_Straight at [-72.0, 0.0, 0.0] yaw 90.0
 - Land_SKY_Tunnel_Portal at [-60.0, 0.0, 0.0] yaw 270.0
-- Land_SKY_Sewer_End at [-48.0, 0.0, -60.0] yaw 180.0
-- Land_SKY_Sewer_Straight at [-48.0, 0.0, -48.0] yaw 0.0
+- Land_SKY_Sewer_FloodedEnd at [-48.0, 0.0, -60.0] yaw 180.0
+- Land_SKY_Sewer_Collapsed at [-48.0, 0.0, -48.0] yaw 0.0
 - Land_SKY_Sewer_Straight at [-48.0, 0.0, -36.0] yaw 0.0
 - Land_SKY_Sewer_Access at [-48.0, 0.0, -24.0] yaw 0.0
 - Land_SKY_Sewer_Stair at [-44.2, 0.0, -24.0] yaw 0.0
@@ -233,81 +234,131 @@ map: chernarusplus  site: citylife-template  status: **PASS (with warnings)**
 - Land_SKY_Sewer_Access at [-48.0, 0.0, 36.0] yaw 0.0
 - Land_SKY_Sewer_Stair at [-44.2, 0.0, 36.0] yaw 0.0
 - Land_SKY_Sewer_Straight at [-48.0, 0.0, 48.0] yaw 0.0
-- Land_SKY_Sewer_End at [-48.0, 0.0, 60.0] yaw 0.0
+- Land_SKY_Sewer_FloodedEnd at [-48.0, 0.0, 60.0] yaw 0.0
 - Land_SKY_Metro_End at [96.0, 0.0, -60.0] yaw 180.0
-- Land_SKY_Metro_Tunnel at [96.0, 0.0, -48.0] yaw 0.0
+- Land_SKY_Metro_Collapsed at [96.0, 0.0, -48.0] yaw 0.0
 - Land_SKY_Metro_Tunnel at [96.0, 0.0, -36.0] yaw 0.0
 - Land_SKY_Metro_Tunnel at [96.0, 0.0, -24.0] yaw 0.0
 - Land_SKY_Metro_Tunnel at [96.0, 0.0, -12.0] yaw 0.0
 - Land_SKY_Metro_Station at [96.0, 0.0, 6.0] yaw 0.0
 - Land_SKY_Metro_Tunnel at [96.0, 0.0, 24.0] yaw 0.0
-- Land_SKY_Metro_Tunnel at [96.0, 0.0, 36.0] yaw 0.0
-- Land_SKY_Metro_Tunnel at [96.0, 0.0, 48.0] yaw 0.0
+- Land_SKY_Metro_Station_B at [96.0, 0.0, 42.0] yaw 0.0
 - Land_SKY_Metro_End at [96.0, 0.0, 60.0] yaw 0.0
 - Land_SKY_TrashBin at [-103.4, 0.15, -54.6] yaw 0.0
 - Land_SKY_Hydrant_Dry at [-103.4, 0.15, -53.4] yaw 0.0
+- Land_SKY_AdColumn at [-113.0, 0.15, -53.2] yaw 0.0
 - Land_SKY_TrashBin at [-103.4, 0.15, -30.6] yaw 0.0
+- Land_SKY_BusStop at [-113.0, 0.15, -36.0] yaw 270.0
+- Land_SKY_PhoneBooth at [-113.0, 0.15, -18.7] yaw 270.0
 - Land_SKY_TrashBin at [-103.4, 0.15, -6.6] yaw 0.0
 - Land_SKY_Hydrant_Dry at [-103.4, 0.15, -17.4] yaw 0.0
+- Land_SKY_AdColumn at [-113.0, 0.15, 6.8] yaw 0.0
 - Land_SKY_TrashBin at [-103.4, 0.15, 29.4] yaw 0.0
 - Land_SKY_Hydrant_Dry at [-103.4, 0.15, 30.6] yaw 0.0
+- Land_SKY_BusStop at [-113.0, 0.15, 36.0] yaw 270.0
 - Land_SKY_TrashBin at [-103.4, 0.15, 53.4] yaw 0.0
+- Land_SKY_AdColumn at [-113.0, 0.15, 54.8] yaw 0.0
+- Land_SKY_PhoneBooth at [-113.0, 0.15, 65.3] yaw 270.0
 - Land_SKY_TrashBin at [-90.6, 0.15, -76.6] yaw 90.0
 - Land_SKY_TrashBin at [-90.6, 0.15, 67.4] yaw 90.0
 - Land_SKY_Hydrant_Wet at [-89.4, 0.15, -76.6] yaw 90.0
+- Land_SKY_AdColumn at [-89.2, 0.15, -67.0] yaw 90.0
 - Land_SKY_Hydrant_Wet at [-89.4, 0.15, 67.4] yaw 90.0
+- Land_SKY_AdColumn at [-89.2, 0.15, 77.0] yaw 90.0
 - Land_SKY_TrashBin at [-66.6, 0.15, 67.4] yaw 90.0
+- Land_SKY_BusStop at [-72.0, 0.15, 77.0] yaw 0.0
 - Land_SKY_TrashBin at [-54.6, 0.15, -76.6] yaw 90.0
+- Land_SKY_BusStop at [-60.0, 0.15, -67.0] yaw 0.0
+- Land_SKY_PhoneBooth at [-54.7, 0.15, 77.0] yaw 0.0
 - Land_SKY_TrashBin at [-43.4, 0.15, -54.6] yaw 0.0
 - Land_SKY_Hydrant_Dry at [-43.4, 0.15, -53.4] yaw 0.0
+- Land_SKY_AdColumn at [-53.0, 0.15, -53.2] yaw 0.0
 - Land_SKY_TrashBin at [-43.4, 0.15, -30.6] yaw 0.0
+- Land_SKY_BusStop at [-53.0, 0.15, -36.0] yaw 270.0
+- Land_SKY_PhoneBooth at [-53.0, 0.15, -18.7] yaw 270.0
 - Land_SKY_TrashBin at [-43.4, 0.15, -6.6] yaw 0.0
 - Land_SKY_Hydrant_Dry at [-43.4, 0.15, -17.4] yaw 0.0
+- Land_SKY_AdColumn at [-53.0, 0.15, 6.8] yaw 0.0
 - Land_SKY_TrashBin at [-43.4, 0.15, 29.4] yaw 0.0
 - Land_SKY_Hydrant_Dry at [-43.4, 0.15, 30.6] yaw 0.0
+- Land_SKY_BusStop at [-53.0, 0.15, 36.0] yaw 270.0
 - Land_SKY_TrashBin at [-43.4, 0.15, 53.4] yaw 0.0
+- Land_SKY_AdColumn at [-53.0, 0.15, 54.8] yaw 0.0
+- Land_SKY_PhoneBooth at [-53.0, 0.15, 65.3] yaw 270.0
+- Land_SKY_PhoneBooth at [-30.7, 0.15, -67.0] yaw 0.0
 - Land_SKY_TrashBin at [-30.6, 0.15, -4.6] yaw 90.0
 - Land_SKY_TrashBin at [-30.6, 0.15, 67.4] yaw 90.0
 - Land_SKY_Hydrant_Dry at [-41.4, 0.15, 67.4] yaw 90.0
 - Land_SKY_TrashBin at [-18.6, 0.15, -76.6] yaw 90.0
 - Land_SKY_Hydrant_Wet at [-29.4, 0.15, -76.6] yaw 90.0
+- Land_SKY_AdColumn at [-29.2, 0.15, 77.0] yaw 90.0
+- Land_SKY_AdColumn at [-17.2, 0.15, -67.0] yaw 90.0
 - Land_SKY_Hydrant_Wet at [-17.4, 0.15, -4.6] yaw 90.0
+- Land_SKY_AdColumn at [-17.2, 0.15, 5.0] yaw 90.0
 - Land_SKY_TrashBin at [-6.6, 0.15, 67.4] yaw 90.0
 - Land_SKY_TrashBin at [5.4, 0.15, -76.6] yaw 90.0
 - Land_SKY_TrashBin at [5.4, 0.15, -4.6] yaw 90.0
+- Land_SKY_BusStop at [-0.0, 0.15, 5.0] yaw 0.0
 - Land_SKY_Hydrant_Dry at [-5.4, 0.15, 67.4] yaw 90.0
+- Land_SKY_BusStop at [-0.0, 0.15, 77.0] yaw 0.0
 - Land_SKY_TrashBin at [16.6, 0.15, -54.6] yaw 0.0
 - Land_SKY_Hydrant_Dry at [16.6, 0.15, -53.4] yaw 0.0
+- Land_SKY_AdColumn at [7.0, 0.15, -53.2] yaw 0.0
 - Land_SKY_TrashBin at [16.6, 0.15, -30.6] yaw 0.0
+- Land_SKY_BusStop at [7.0, 0.15, -36.0] yaw 270.0
+- Land_SKY_PhoneBooth at [7.0, 0.15, -18.7] yaw 270.0
 - Land_SKY_TrashBin at [16.6, 0.15, -6.6] yaw 0.0
 - Land_SKY_Hydrant_Dry at [16.6, 0.15, -17.4] yaw 0.0
+- Land_SKY_AdColumn at [7.0, 0.15, 6.8] yaw 0.0
 - Land_SKY_TrashBin at [16.6, 0.15, 29.4] yaw 0.0
 - Land_SKY_Hydrant_Dry at [16.6, 0.15, 30.6] yaw 0.0
+- Land_SKY_BusStop at [7.0, 0.15, 36.0] yaw 270.0
 - Land_SKY_TrashBin at [16.6, 0.15, 53.4] yaw 0.0
+- Land_SKY_AdColumn at [7.0, 0.15, 54.8] yaw 0.0
+- Land_SKY_PhoneBooth at [7.0, 0.15, 65.3] yaw 270.0
 - Land_SKY_Hydrant_Wet at [18.6, 0.15, -76.6] yaw 90.0
+- Land_SKY_BusStop at [24.0, 0.15, -67.0] yaw 0.0
+- Land_SKY_PhoneBooth at [29.3, 0.15, 5.0] yaw 0.0
 - Land_SKY_TrashBin at [29.4, 0.15, 67.4] yaw 90.0
 - Land_SKY_TrashBin at [41.4, 0.15, -76.6] yaw 90.0
 - Land_SKY_TrashBin at [41.4, 0.15, -4.6] yaw 90.0
 - Land_SKY_Hydrant_Dry at [30.6, 0.15, -4.6] yaw 90.0
+- Land_SKY_AdColumn at [30.8, 0.15, 77.0] yaw 90.0
+- Land_SKY_PhoneBooth at [41.3, 0.15, 77.0] yaw 0.0
+- Land_SKY_AdColumn at [42.8, 0.15, -67.0] yaw 90.0
+- Land_SKY_PhoneBooth at [53.3, 0.15, -67.0] yaw 0.0
+- Land_SKY_AdColumn at [42.8, 0.15, 5.0] yaw 90.0
 - Land_SKY_TrashBin at [53.4, 0.15, 67.4] yaw 90.0
 - Land_SKY_Hydrant_Wet at [42.6, 0.15, 67.4] yaw 90.0
 - Land_SKY_TrashBin at [65.4, 0.15, -76.6] yaw 90.0
 - Land_SKY_Hydrant_Dry at [54.6, 0.15, -76.6] yaw 90.0
 - Land_SKY_TrashBin at [65.4, 0.15, -4.6] yaw 90.0
 - Land_SKY_Hydrant_Wet at [66.6, 0.15, -4.6] yaw 90.0
+- Land_SKY_BusStop at [72.0, 0.15, 5.0] yaw 0.0
 - Land_SKY_TrashBin at [77.4, 0.15, 67.4] yaw 90.0
 - Land_SKY_TrashBin at [89.4, 0.15, -76.6] yaw 90.0
 - Land_SKY_TrashBin at [89.4, 0.15, -4.6] yaw 90.0
 - Land_SKY_Hydrant_Wet at [78.6, 0.15, 67.4] yaw 90.0
+- Land_SKY_AdColumn at [78.8, 0.15, 77.0] yaw 90.0
 - Land_SKY_TrashBin at [100.6, 0.15, -54.6] yaw 0.0
 - Land_SKY_Hydrant_Dry at [100.6, 0.15, -53.4] yaw 0.0
+- Land_SKY_AdColumn at [91.0, 0.15, -53.2] yaw 0.0
 - Land_SKY_TrashBin at [100.6, 0.15, -30.6] yaw 0.0
+- Land_SKY_BusStop at [91.0, 0.15, -36.0] yaw 270.0
+- Land_SKY_PhoneBooth at [91.0, 0.15, -18.7] yaw 270.0
 - Land_SKY_TrashBin at [100.6, 0.15, -6.6] yaw 0.0
 - Land_SKY_Hydrant_Wet at [100.6, 0.15, -17.4] yaw 0.0
+- Land_SKY_AdColumn at [91.0, 0.15, 6.8] yaw 0.0
 - Land_SKY_TrashBin at [100.6, 0.15, 29.4] yaw 0.0
 - Land_SKY_Hydrant_Dry at [100.6, 0.15, 30.6] yaw 0.0
+- Land_SKY_BusStop at [91.0, 0.15, 36.0] yaw 270.0
 - Land_SKY_TrashBin at [100.6, 0.15, 53.4] yaw 0.0
+- Land_SKY_AdColumn at [91.0, 0.15, 54.8] yaw 0.0
+- Land_SKY_PhoneBooth at [91.0, 0.15, 65.3] yaw 270.0
 - Land_SKY_Hydrant_Dry at [102.6, 0.15, -76.6] yaw 90.0
+- Land_SKY_AdColumn at [102.8, 0.15, -67.0] yaw 90.0
+- Land_SKY_AdColumn at [102.8, 0.15, 5.0] yaw 90.0
+- Land_SKY_PhoneBooth at [113.3, 0.15, 5.0] yaw 0.0
 - Land_SKY_TrashBin at [113.4, 0.15, 67.4] yaw 90.0
 - Land_SKY_Barrier_Concrete at [-112.5, 0.0, -63.6597] yaw 270.0
 - Land_SKY_Wreck_Sedan at [-109.2, 0.0, -62.7597] yaw 270.0
@@ -319,195 +370,161 @@ map: chernarusplus  site: citylife-template  status: **PASS (with warnings)**
 - Land_SKY_Wreck_Van at [-107.5, 0.0, -50.7319] yaw 270.0
 - Land_SKY_Barrier_Concrete at [-104.5, 0.0, -51.6319] yaw 270.0
 - Land_Wreck_sed02_aban1_red_DE at [-109.7199, 0.0, -42.5023] yaw 163.8954
-- Land_SKY_Wreck_Sedan at [-110.9, 0.0, -27.4713] yaw 270.0
-- Land_SKY_Wreck_Sedan at [-107.0, 0.0, -26.5713] yaw 270.0
-- Land_SKY_Barrier_Concrete at [-103.7, 0.0, -27.4713] yaw 270.0
-- Land_SKY_Barrier_Concrete at [-103.5, 0.0, -26.5713] yaw 90.0
-- Land_Wreck_offroad02_aban1_DE at [-105.897, 0.0, -19.3888] yaw 11.84
-- Land_Wreck_Volha_Police at [-109.7315, 0.0, -18.557] yaw 202.2198
-- Land_SKY_Barrier_Concrete at [-112.5, 0.0, -15.6568] yaw 90.0
-- Land_SKY_Barrier_Concrete at [-111.6083, 0.0, -14.7568] yaw 90.0
-- Land_SKY_Wreck_Sedan at [-107.0083, 0.0, -15.6568] yaw 90.0
-- Land_SKY_Barrier_Concrete at [-103.7083, 0.0, -14.7568] yaw 270.0
-- Land_SKY_Barrier_Concrete at [-103.5, 0.0, -15.6568] yaw 270.0
-- Land_Wreck_sed01_aban1_black_DE at [-110.3148, 0.0, -7.3971] yaw 350.8342
-- Land_SKY_Wreck_Van at [-110.4, 0.0, 14.0403] yaw 270.0
-- Land_SKY_Wreck_Van at [-105.5, 0.0, 14.9403] yaw 270.0
-- Land_SKY_Barrier_Concrete at [-103.5, 0.0, 14.0403] yaw 270.0
-- Land_Wreck_sed02_aban1_red_DE at [-106.0271, 0.0, 6.6043] yaw 14.1212
-- Land_Wreck_offroad02_aban1_DE at [-109.7967, 0.0, 6.7908] yaw 192.9683
-- Land_SKY_Barrier_Concrete at [-112.5, 0.0, 62.2942] yaw 90.0
-- Land_SKY_Wreck_Sedan at [-109.2, 0.0, 63.1942] yaw 90.0
-- Land_SKY_Wreck_Sedan at [-105.3, 0.0, 62.2942] yaw 90.0
-- Land_SKY_Barrier_Concrete at [-104.5, 0.0, 63.1942] yaw 90.0
-- Land_Wreck_sed01_aban1_black_DE at [-109.8943, 0.0, 55.5347] yaw 347.622
-- Land_SKY_Wreck_Van at [-87.3413, 0.0, -68.6] yaw 180.0
-- Land_SKY_Barrier_Concrete at [-86.4413, 0.0, -72.4] yaw 0.0
-- Land_SKY_Barrier_Concrete at [-87.3413, 0.0, -75.1] yaw 180.0
-- Land_SKY_Barrier_Concrete at [-86.4413, 0.0, -75.5] yaw 0.0
-- Land_Wreck_V3S_DE at [-79.0311, 0.0, -73.7001] yaw 88.28
-- Land_Wreck_Ikarus_DE at [-79.8634, 0.0, -69.7521] yaw 271.8566
-- Land_SKY_Wreck_Sedan at [-62.8809, 0.0, -68.1] yaw 0.0
-- Land_SKY_Barrier_Concrete at [-61.9809, 0.0, -70.4698] yaw 180.0
-- Land_SKY_Barrier_Concrete at [-62.8809, 0.0, -74.4698] yaw 0.0
-- Land_SKY_Barrier_Concrete at [-61.9809, 0.0, -76.5] yaw 0.0
-- Land_Wreck_hb01_aban1_blue_DE at [-55.0854, 0.0, -73.9532] yaw 260.6267
-- Land_SKY_Barrier_Concrete at [-52.5, 0.0, -50.9921] yaw 90.0
-- Land_SKY_Barrier_Concrete at [-50.6323, 0.0, -50.0921] yaw 270.0
-- Land_SKY_Barrier_Concrete at [-46.6323, 0.0, -50.9921] yaw 90.0
-- Land_SKY_Barrier_Concrete at [-43.9323, 0.0, -50.0921] yaw 270.0
-- Land_SKY_Barrier_Concrete at [-43.5, 0.0, -50.9921] yaw 270.0
-- Land_Wreck_Ikarus_DE at [-50.0791, 0.0, -43.8667] yaw 158.8106
-- Land_Wreck_offroad02_aban1_DE at [-49.8913, 0.0, -43.8697] yaw 156.3193
-- Land_SKY_Wreck_Van at [-51.4, 0.0, -15.8022] yaw 270.0
-- Land_SKY_Barrier_Concrete at [-49.6837, 0.0, -14.9022] yaw 90.0
-- Land_SKY_Wreck_Sedan at [-45.0837, 0.0, -15.8022] yaw 90.0
-- Land_SKY_Barrier_Concrete at [-43.5, 0.0, -14.9022] yaw 90.0
-- Land_Wreck_hb01_aban1_blue_DE at [-50.1596, 0.0, -7.7984] yaw 170.5281
-- Land_SKY_Barrier_Concrete at [-52.5, 0.0, 9.1495] yaw 90.0
-- Land_SKY_Barrier_Concrete at [-52.4468, 0.0, 10.0495] yaw 270.0
-- Land_SKY_Wreck_Van at [-47.3468, 0.0, 9.1495] yaw 270.0
-- Land_SKY_Barrier_Concrete at [-43.5468, 0.0, 10.0495] yaw 270.0
-- Land_SKY_Barrier_Concrete at [-43.5, 0.0, 9.1495] yaw 90.0
-- Land_wreck_truck01_aban1_blue_DE at [-50.1414, 0.0, 16.6945] yaw 21.6392
-- Land_SKY_Wreck_Sedan at [-50.9, 0.0, 20.4509] yaw 270.0
-- Land_SKY_Wreck_Van at [-46.5, 0.0, 21.3509] yaw 270.0
-- Land_SKY_Barrier_Concrete at [-43.5, 0.0, 20.4509] yaw 270.0
-- Land_Wreck_offroad02_aban1_DE at [-46.1983, 0.0, 28.375] yaw 179.0373
-- Land_wreck_truck01_aban1_blue_DE at [-45.8464, 0.0, 28.1835] yaw 6.1689
-- Land_SKY_Wreck_Sedan at [-39.5492, 0.0, 3.9] yaw 0.0
-- Land_SKY_Wreck_Sedan at [-38.6492, 0.0, -0.0] yaw 180.0
-- Land_SKY_Barrier_Concrete at [-39.5492, 0.0, -3.3] yaw 0.0
-- Land_SKY_Barrier_Concrete at [-38.6492, 0.0, -3.5] yaw 180.0
-- Land_Wreck_sed02_aban1_red_DE at [-30.9391, 0.0, -2.1715] yaw 294.9702
-- Land_SKY_Wreck_Sedan at [-27.2144, 0.0, 75.9] yaw 0.0
-- Land_SKY_Barrier_Concrete at [-26.3144, 0.0, 74.2253] yaw 180.0
-- Land_SKY_Wreck_Van at [-27.2144, 0.0, 69.1253] yaw 0.0
-- Land_SKY_Barrier_Concrete at [-26.3144, 0.0, 67.5] yaw 0.0
-- Land_Wreck_Volha_Police at [-18.5021, 0.0, 70.0949] yaw 77.3895
-- Land_Wreck_V3S_DE at [-19.0462, 0.0, 69.681] yaw 283.6581
-- Land_SKY_Wreck_Van at [-9.6735, 0.0, 2.4] yaw 180.0
-- Land_SKY_Wreck_Sedan at [-8.7735, 0.0, -2.0] yaw 180.0
-- Land_SKY_Barrier_Concrete at [-9.6735, 0.0, -4.5] yaw 180.0
-- Land_Wreck_sed01_aban1_black_DE at [-16.3121, 0.0, 2.2366] yaw 86.8714
-- Land_Wreck_sed02_aban1_red_DE at [-17.2006, 0.0, -1.7744] yaw 257.4883
-- Land_SKY_Barrier_Concrete at [2.4685, 0.0, 4.5] yaw 0.0
-- Land_SKY_Wreck_Sedan at [3.3685, 0.0, 1.2] yaw 180.0
-- Land_SKY_Wreck_Sedan at [2.4685, 0.0, -2.7] yaw 0.0
-- Land_SKY_Barrier_Concrete at [3.3685, 0.0, -3.5] yaw 180.0
-- Land_Wreck_hb01_aban1_blue_DE at [-5.4665, 0.0, 2.3661] yaw 250.2098
-- Land_SKY_Barrier_Concrete at [7.5, 0.0, -57.712] yaw 90.0
-- Land_SKY_Barrier_Concrete at [10.2, 0.0, -56.812] yaw 270.0
-- Land_SKY_Barrier_Concrete at [12.3417, 0.0, -57.712] yaw 90.0
-- Land_SKY_Barrier_Concrete at [16.3417, 0.0, -56.812] yaw 270.0
-- Land_SKY_Barrier_Concrete at [16.5, 0.0, -57.712] yaw 270.0
-- Land_Wreck_sed02_aban1_red_DE at [10.2447, 0.0, -65.3602] yaw 176.1296
-- Land_SKY_Wreck_Sedan at [8.1, 0.0, -15.4751] yaw 270.0
-- Land_SKY_Wreck_Sedan at [12.0, 0.0, -14.5751] yaw 90.0
-- Land_SKY_Barrier_Concrete at [15.3, 0.0, -15.4751] yaw 90.0
-- Land_SKY_Barrier_Concrete at [15.5, 0.0, -14.5751] yaw 90.0
-- Land_Wreck_sed01_aban1_black_DE at [14.0774, 0.0, -7.075] yaw 12.0763
-- Land_Wreck_sed02_aban1_red_DE at [13.9977, 0.0, -7.4208] yaw 185.8625
-- Land_SKY_Wreck_Sedan at [9.1, 0.0, 32.4858] yaw 90.0
-- Land_SKY_Barrier_Concrete at [12.4, 0.0, 33.3858] yaw 90.0
-- Land_SKY_Barrier_Concrete at [15.1, 0.0, 32.4858] yaw 270.0
-- Land_SKY_Barrier_Concrete at [16.5, 0.0, 33.3858] yaw 270.0
-- Land_Wreck_Volha_Police at [10.0552, 0.0, 40.7082] yaw 339.9358
-- Land_SKY_Wreck_Sedan at [9.1, 0.0, 44.8434] yaw 270.0
-- Land_SKY_Barrier_Concrete at [12.4, 0.0, 45.7434] yaw 270.0
-- Land_SKY_Barrier_Concrete at [15.1, 0.0, 44.8434] yaw 270.0
-- Land_SKY_Barrier_Concrete at [16.5, 0.0, 45.7434] yaw 90.0
-- Land_Wreck_hb01_aban1_blue_DE at [10.2672, 0.0, 52.5598] yaw 19.2769
-- Land_Wreck_Volha_Police at [10.1818, 0.0, 53.461] yaw 178.2885
-- Land_SKY_Barrier_Concrete at [8.5, 0.0, 61.9805] yaw 270.0
-- Land_SKY_Barrier_Concrete at [11.2, 0.0, 62.8805] yaw 270.0
-- Land_SKY_Barrier_Concrete at [13.9, 0.0, 61.9805] yaw 90.0
-- Land_SKY_Barrier_Concrete at [16.5, 0.0, 62.8805] yaw 270.0
-- Land_Wreck_sed01_aban1_black_DE at [14.3071, 0.0, 54.6237] yaw 203.6699
-- Land_Wreck_offroad02_aban1_DE at [14.262, 0.0, 55.2959] yaw 336.7872
-- Land_SKY_Wreck_Van at [26.3176, 0.0, -69.6] yaw 0.0
-- Land_SKY_Wreck_Van at [27.2176, 0.0, -74.5] yaw 180.0
-- Land_SKY_Barrier_Concrete at [26.3176, 0.0, -76.5] yaw 0.0
-- Land_Wreck_sed01_aban1_black_DE at [18.6385, 0.0, -70.383] yaw 249.2937
-- Land_Wreck_sed02_aban1_red_DE at [19.8639, 0.0, -74.2812] yaw 285.5094
-- Land_SKY_Wreck_Sedan at [32.4127, 0.0, -69.1] yaw 0.0
-- Land_SKY_Wreck_Sedan at [33.3127, 0.0, -73.0] yaw 0.0
-- Land_SKY_Barrier_Concrete at [32.4127, 0.0, -76.3] yaw 0.0
-- Land_SKY_Barrier_Concrete at [33.3127, 0.0, -76.5] yaw 0.0
-- Land_Wreck_sed02_aban1_red_DE at [40.3665, 0.0, -70.3251] yaw 112.1171
-- Land_SKY_Wreck_Van at [38.7511, 0.0, 2.4] yaw 180.0
-- Land_SKY_Barrier_Concrete at [39.6511, 0.0, -1.4] yaw 180.0
-- Land_SKY_Barrier_Concrete at [38.7511, 0.0, -4.1] yaw 0.0
-- Land_SKY_Barrier_Concrete at [39.6511, 0.0, -4.5] yaw 0.0
-- Land_wreck_truck01_aban1_blue_DE at [30.8571, 0.0, 2.3992] yaw 79.1346
-- Land_SKY_Barrier_Concrete at [38.2518, 0.0, 75.5] yaw 0.0
-- Land_SKY_Wreck_Sedan at [39.1518, 0.0, 72.2] yaw 0.0
-- Land_SKY_Wreck_Sedan at [38.2518, 0.0, 68.3] yaw 0.0
-- Land_SKY_Barrier_Concrete at [39.1518, 0.0, 67.5] yaw 180.0
-- Land_Wreck_Volha_Police at [30.935, 0.0, 69.6044] yaw 291.934
-- Land_SKY_Wreck_Sedan at [50.8087, 0.0, -69.1] yaw 0.0
-- Land_SKY_Barrier_Concrete at [51.7087, 0.0, -72.4] yaw 0.0
-- Land_SKY_Wreck_Sedan at [50.8087, 0.0, -75.7] yaw 180.0
-- Land_SKY_Barrier_Concrete at [51.7087, 0.0, -76.5] yaw 0.0
-- Land_Wreck_sed02_aban1_red_DE at [42.7138, 0.0, -74.2032] yaw 100.2144
-- Land_SKY_Wreck_Sedan at [56.5533, 0.0, -68.1] yaw 180.0
-- Land_SKY_Barrier_Concrete at [57.4533, 0.0, -69.082] yaw 0.0
-- Land_SKY_Wreck_Van at [56.5533, 0.0, -74.182] yaw 0.0
-- Land_SKY_Barrier_Concrete at [57.4533, 0.0, -76.5] yaw 0.0
-- Land_Wreck_Volha_Police at [64.0285, 0.0, -73.6092] yaw 88.7805
-- Land_Wreck_sed01_aban1_black_DE at [64.4072, 0.0, -73.9615] yaw 294.9433
-- Land_SKY_Wreck_Van at [56.4017, 0.0, 3.4] yaw 180.0
-- Land_SKY_Barrier_Concrete at [57.3017, 0.0, 2.0592] yaw 0.0
-- Land_SKY_Wreck_Van at [56.4017, 0.0, -3.0408] yaw 0.0
-- Land_SKY_Barrier_Concrete at [57.3017, 0.0, -4.5] yaw 0.0
-- Land_Wreck_V3S_DE at [65.1913, 0.0, 2.3078] yaw 67.8076
-- Land_SKY_Wreck_Sedan at [86.5951, 0.0, -68.1] yaw 0.0
-- Land_SKY_Wreck_Sedan at [87.4951, 0.0, -72.0] yaw 0.0
-- Land_SKY_Barrier_Concrete at [86.5951, 0.0, -75.3] yaw 180.0
-- Land_SKY_Barrier_Concrete at [87.4951, 0.0, -75.5] yaw 180.0
-- Land_Wreck_hb01_aban1_blue_DE at [79.1836, 0.0, -73.9866] yaw 97.5873
-- Land_Wreck_V3S_DE at [79.7103, 0.0, -73.8177] yaw 75.7486
-- Land_SKY_Wreck_Sedan at [80.1607, 0.0, 3.9] yaw 0.0
-- Land_SKY_Barrier_Concrete at [81.0607, 0.0, 0.6] yaw 180.0
-- Land_SKY_Barrier_Concrete at [80.1607, 0.0, -0.378] yaw 0.0
-- Land_SKY_Barrier_Concrete at [81.0607, 0.0, -4.378] yaw 180.0
-- Land_SKY_Barrier_Concrete at [80.1607, 0.0, -4.5] yaw 180.0
-- Land_Wreck_sed01_aban1_black_DE at [89.2962, 0.0, -2.1215] yaw 279.7043
-- Land_Wreck_sed01_aban1_black_DE at [88.3763, 0.0, 1.9563] yaw 95.0544
-- Land_SKY_Wreck_Van at [93.6, 0.0, -39.2423] yaw 90.0
-- Land_SKY_Wreck_Van at [98.5, 0.0, -38.3423] yaw 270.0
-- Land_SKY_Barrier_Concrete at [100.5, 0.0, -39.2423] yaw 270.0
-- Land_Wreck_hb01_aban1_blue_DE at [98.0637, 0.0, -31.1703] yaw 6.9755
-- Land_Wreck_hb01_aban1_blue_DE at [98.1795, 0.0, -31.1863] yaw 170.9814
-- Land_SKY_Barrier_Concrete at [91.5, 0.0, -15.4391] yaw 90.0
-- Land_SKY_Barrier_Concrete at [91.5873, 0.0, -14.5391] yaw 90.0
-- Land_SKY_Wreck_Van at [96.6873, 0.0, -15.4391] yaw 270.0
-- Land_SKY_Barrier_Concrete at [100.4873, 0.0, -14.5391] yaw 270.0
-- Land_SKY_Barrier_Concrete at [100.5, 0.0, -15.4391] yaw 270.0
-- Land_Wreck_V3S_DE at [94.3738, 0.0, -6.5224] yaw 169.4914
-- Land_SKY_Barrier_Concrete at [91.5, 0.0, 32.525] yaw 90.0
-- Land_SKY_Wreck_Van at [95.3, 0.0, 33.425] yaw 270.0
-- Land_SKY_Barrier_Concrete at [99.1, 0.0, 32.525] yaw 270.0
-- Land_SKY_Barrier_Concrete at [99.5, 0.0, 33.425] yaw 270.0
-- Land_wreck_truck01_aban1_blue_DE at [98.349, 0.0, 41.2266] yaw 359.1519
-- Land_Wreck_offroad02_aban1_DE at [98.0053, 0.0, 40.9849] yaw 184.2642
-- Land_SKY_Wreck_Van at [92.6, 0.0, 50.5211] yaw 90.0
-- Land_SKY_Barrier_Concrete at [95.2417, 0.0, 51.4211] yaw 90.0
-- Land_SKY_Barrier_Concrete at [99.2417, 0.0, 50.5211] yaw 270.0
-- Land_SKY_Barrier_Concrete at [100.5, 0.0, 51.4211] yaw 90.0
-- Land_Wreck_sed01_aban1_black_DE at [97.9583, 0.0, 43.526] yaw 340.1502
-- Land_Wreck_Volha_Police at [94.3654, 0.0, 43.3299] yaw 356.2741
-- Land_SKY_Barrier_Concrete at [91.5, 0.0, 56.9599] yaw 90.0
-- Land_SKY_Barrier_Concrete at [91.822, 0.0, 57.8599] yaw 90.0
-- Land_SKY_Wreck_Sedan at [96.422, 0.0, 56.9599] yaw 270.0
-- Land_SKY_Barrier_Concrete at [99.722, 0.0, 57.8599] yaw 270.0
-- Land_SKY_Barrier_Concrete at [100.5, 0.0, 56.9599] yaw 90.0
-- Land_Wreck_V3S_DE at [94.1724, 0.0, 64.4476] yaw 340.2272
-- Land_SKY_Barrier_Concrete at [105.0019, 0.0, -67.5] yaw 0.0
-- Land_SKY_Barrier_Concrete at [105.9019, 0.0, -68.6706] yaw 0.0
-- Land_SKY_Wreck_Sedan at [105.0019, 0.0, -73.2706] yaw 180.0
-- Land_SKY_Barrier_Concrete at [105.9019, 0.0, -76.5] yaw 180.0
-- Land_Wreck_offroad02_aban1_DE at [112.5602, 0.0, -70.1636] yaw 109.8142
+- Land_SKY_Wreck_Sedan at [-110.9, 0.0, -15.4713] yaw 270.0
+- Land_SKY_Wreck_Sedan at [-107.0, 0.0, -14.5713] yaw 270.0
+- Land_SKY_Barrier_Concrete at [-103.7, 0.0, -15.4713] yaw 270.0
+- Land_SKY_Barrier_Concrete at [-103.5, 0.0, -14.5713] yaw 90.0
+- Land_Wreck_offroad02_aban1_DE at [-105.897, 0.0, -7.3888] yaw 11.84
+- Land_Wreck_Volha_Police at [-109.7315, 0.0, -6.557] yaw 202.2198
+- Land_SKY_Barrier_Concrete at [-112.5, 0.0, 8.3432] yaw 90.0
+- Land_SKY_Barrier_Concrete at [-111.6083, 0.0, 9.2432] yaw 90.0
+- Land_SKY_Wreck_Sedan at [-107.0083, 0.0, 8.3432] yaw 90.0
+- Land_SKY_Barrier_Concrete at [-103.7083, 0.0, 9.2432] yaw 270.0
+- Land_SKY_Barrier_Concrete at [-103.5, 0.0, 8.3432] yaw 270.0
+- Land_Wreck_sed01_aban1_black_DE at [-110.3148, 0.0, 16.6029] yaw 350.8342
+- Land_SKY_Wreck_Van at [-110.4, 0.0, 26.0403] yaw 270.0
+- Land_SKY_Wreck_Van at [-105.5, 0.0, 26.9403] yaw 270.0
+- Land_SKY_Barrier_Concrete at [-103.5, 0.0, 26.0403] yaw 270.0
+- Land_Wreck_sed02_aban1_red_DE at [-106.0271, 0.0, 18.6043] yaw 14.1212
+- Land_Wreck_offroad02_aban1_DE at [-109.7967, 0.0, 18.7908] yaw 192.9683
+- Land_SKY_Barrier_Concrete at [-81.7058, 0.0, -67.5] yaw 180.0
+- Land_SKY_Wreck_Sedan at [-80.8058, 0.0, -70.8] yaw 180.0
+- Land_SKY_Wreck_Sedan at [-81.7058, 0.0, -74.7] yaw 180.0
+- Land_SKY_Barrier_Concrete at [-80.8058, 0.0, -75.5] yaw 180.0
+- Land_Wreck_sed01_aban1_black_DE at [-88.4653, 0.0, -70.1057] yaw 77.622
+- Land_SKY_Wreck_Van at [-51.4, 0.0, -51.3413] yaw 90.0
+- Land_SKY_Barrier_Concrete at [-47.6, 0.0, -50.4413] yaw 270.0
+- Land_SKY_Barrier_Concrete at [-44.9, 0.0, -51.3413] yaw 90.0
+- Land_SKY_Barrier_Concrete at [-44.5, 0.0, -50.4413] yaw 270.0
+- Land_Wreck_V3S_DE at [-46.2999, 0.0, -43.0311] yaw 358.28
+- Land_Wreck_Ikarus_DE at [-50.2479, 0.0, -43.8634] yaw 181.8566
+- Land_SKY_Wreck_Sedan at [-51.9, 0.0, -26.8809] yaw 270.0
+- Land_SKY_Barrier_Concrete at [-49.5302, 0.0, -25.9809] yaw 90.0
+- Land_SKY_Barrier_Concrete at [-45.5302, 0.0, -26.8809] yaw 270.0
+- Land_SKY_Barrier_Concrete at [-43.5, 0.0, -25.9809] yaw 270.0
+- Land_Wreck_hb01_aban1_blue_DE at [-46.0468, 0.0, -19.0854] yaw 170.6267
+- Land_SKY_Barrier_Concrete at [-52.5, 0.0, 9.0079] yaw 90.0
+- Land_SKY_Barrier_Concrete at [-50.6323, 0.0, 9.9079] yaw 270.0
+- Land_SKY_Barrier_Concrete at [-46.6323, 0.0, 9.0079] yaw 90.0
+- Land_SKY_Barrier_Concrete at [-43.9323, 0.0, 9.9079] yaw 270.0
+- Land_SKY_Barrier_Concrete at [-43.5, 0.0, 9.0079] yaw 270.0
+- Land_Wreck_Ikarus_DE at [-50.0791, 0.0, 16.1333] yaw 158.8106
+- Land_Wreck_offroad02_aban1_DE at [-49.8913, 0.0, 16.1303] yaw 156.3193
+- Land_SKY_Wreck_Van at [-51.4, 0.0, 56.1978] yaw 270.0
+- Land_SKY_Barrier_Concrete at [-49.6837, 0.0, 57.0978] yaw 90.0
+- Land_SKY_Wreck_Sedan at [-45.0837, 0.0, 56.1978] yaw 90.0
+- Land_SKY_Barrier_Concrete at [-43.5, 0.0, 57.0978] yaw 90.0
+- Land_Wreck_hb01_aban1_blue_DE at [-50.1596, 0.0, 64.2016] yaw 170.5281
+- Land_SKY_Barrier_Concrete at [-38.8505, 0.0, -67.5] yaw 180.0
+- Land_SKY_Barrier_Concrete at [-37.9505, 0.0, -67.5532] yaw 0.0
+- Land_SKY_Wreck_Van at [-38.8505, 0.0, -72.6532] yaw 0.0
+- Land_SKY_Barrier_Concrete at [-37.9505, 0.0, -76.4532] yaw 0.0
+- Land_SKY_Barrier_Concrete at [-38.8505, 0.0, -76.5] yaw 180.0
+- Land_wreck_truck01_aban1_blue_DE at [-31.3055, 0.0, -69.8586] yaw 111.6392
+- Land_SKY_Wreck_Sedan at [-39.5491, 0.0, 2.9] yaw 0.0
+- Land_SKY_Wreck_Van at [-38.6491, 0.0, -1.5] yaw 0.0
+- Land_SKY_Barrier_Concrete at [-39.5491, 0.0, -4.5] yaw 0.0
+- Land_Wreck_offroad02_aban1_DE at [-31.625, 0.0, -1.8017] yaw 269.0373
+- Land_wreck_truck01_aban1_blue_DE at [-31.8165, 0.0, -2.1536] yaw 96.1689
+- Land_SKY_Wreck_Sedan at [-15.5492, 0.0, 3.9] yaw 0.0
+- Land_SKY_Wreck_Sedan at [-14.6492, 0.0, -0.0] yaw 180.0
+- Land_SKY_Barrier_Concrete at [-15.5492, 0.0, -3.3] yaw 0.0
+- Land_SKY_Barrier_Concrete at [-14.6492, 0.0, -3.5] yaw 180.0
+- Land_Wreck_sed02_aban1_red_DE at [-6.9391, 0.0, -2.1715] yaw 294.9702
+- Land_SKY_Wreck_Sedan at [8.1, 0.0, -63.2144] yaw 270.0
+- Land_SKY_Barrier_Concrete at [9.7747, 0.0, -62.3144] yaw 90.0
+- Land_SKY_Wreck_Van at [14.8747, 0.0, -63.2144] yaw 270.0
+- Land_SKY_Barrier_Concrete at [16.5, 0.0, -62.3144] yaw 270.0
+- Land_Wreck_Volha_Police at [13.9051, 0.0, -54.5021] yaw 347.3895
+- Land_Wreck_V3S_DE at [14.319, 0.0, -55.0462] yaw 193.6581
+- Land_SKY_Wreck_Van at [9.6, 0.0, -21.6735] yaw 90.0
+- Land_SKY_Wreck_Sedan at [14.0, 0.0, -20.7735] yaw 90.0
+- Land_SKY_Barrier_Concrete at [16.5, 0.0, -21.6735] yaw 90.0
+- Land_Wreck_sed01_aban1_black_DE at [9.7634, 0.0, -28.3121] yaw 356.8714
+- Land_Wreck_sed02_aban1_red_DE at [13.7744, 0.0, -29.2006] yaw 167.4883
+- Land_SKY_Barrier_Concrete at [7.5, 0.0, 26.4685] yaw 270.0
+- Land_SKY_Wreck_Sedan at [10.8, 0.0, 27.3685] yaw 90.0
+- Land_SKY_Wreck_Sedan at [14.7, 0.0, 26.4685] yaw 270.0
+- Land_SKY_Barrier_Concrete at [15.5, 0.0, 27.3685] yaw 90.0
+- Land_Wreck_hb01_aban1_blue_DE at [9.6339, 0.0, 18.5335] yaw 160.2098
+- Land_SKY_Barrier_Concrete at [7.5, 0.0, 62.288] yaw 90.0
+- Land_SKY_Barrier_Concrete at [10.2, 0.0, 63.188] yaw 270.0
+- Land_SKY_Barrier_Concrete at [12.3417, 0.0, 62.288] yaw 90.0
+- Land_SKY_Barrier_Concrete at [16.3417, 0.0, 63.188] yaw 270.0
+- Land_SKY_Barrier_Concrete at [16.5, 0.0, 62.288] yaw 270.0
+- Land_Wreck_sed02_aban1_red_DE at [10.2447, 0.0, 54.6398] yaw 176.1296
+- Land_SKY_Wreck_Sedan at [32.5249, 0.0, 3.9] yaw 0.0
+- Land_SKY_Wreck_Sedan at [33.4249, 0.0, -0.0] yaw 180.0
+- Land_SKY_Barrier_Concrete at [32.5249, 0.0, -3.3] yaw 180.0
+- Land_SKY_Barrier_Concrete at [33.4249, 0.0, -3.5] yaw 180.0
+- Land_Wreck_sed01_aban1_black_DE at [40.925, 0.0, -2.0774] yaw 102.0763
+- Land_Wreck_sed02_aban1_red_DE at [40.5792, 0.0, -1.9977] yaw 275.8625
+- Land_SKY_Wreck_Sedan at [44.4858, 0.0, 2.9] yaw 180.0
+- Land_SKY_Barrier_Concrete at [45.3858, 0.0, -0.4] yaw 180.0
+- Land_SKY_Barrier_Concrete at [44.4858, 0.0, -3.1] yaw 0.0
+- Land_SKY_Barrier_Concrete at [45.3858, 0.0, -4.5] yaw 0.0
+- Land_Wreck_Volha_Police at [52.7082, 0.0, 1.9448] yaw 69.9358
+- Land_SKY_Wreck_Sedan at [56.8434, 0.0, -69.1] yaw 0.0
+- Land_SKY_Barrier_Concrete at [57.7434, 0.0, -72.4] yaw 0.0
+- Land_SKY_Barrier_Concrete at [56.8434, 0.0, -75.1] yaw 0.0
+- Land_SKY_Barrier_Concrete at [57.7434, 0.0, -76.5] yaw 180.0
+- Land_Wreck_hb01_aban1_blue_DE at [64.5598, 0.0, -70.2672] yaw 109.2769
+- Land_Wreck_Volha_Police at [65.461, 0.0, -70.1818] yaw 268.2885
+- Land_SKY_Barrier_Concrete at [61.9805, 0.0, 3.5] yaw 0.0
+- Land_SKY_Barrier_Concrete at [62.8805, 0.0, 0.8] yaw 0.0
+- Land_SKY_Barrier_Concrete at [61.9805, 0.0, -1.9] yaw 180.0
+- Land_SKY_Barrier_Concrete at [62.8805, 0.0, -4.5] yaw 0.0
+- Land_Wreck_sed01_aban1_black_DE at [54.6237, 0.0, -2.3071] yaw 293.6699
+- Land_Wreck_offroad02_aban1_DE at [55.2959, 0.0, -2.262] yaw 66.7872
+- Land_SKY_Wreck_Van at [74.3176, 0.0, -69.6] yaw 0.0
+- Land_SKY_Wreck_Van at [75.2176, 0.0, -74.5] yaw 180.0
+- Land_SKY_Barrier_Concrete at [74.3176, 0.0, -76.5] yaw 0.0
+- Land_Wreck_sed01_aban1_black_DE at [66.6385, 0.0, -70.383] yaw 249.2937
+- Land_Wreck_sed02_aban1_red_DE at [67.8639, 0.0, -74.2812] yaw 285.5094
+- Land_SKY_Wreck_Sedan at [93.1, 0.0, -63.5873] yaw 270.0
+- Land_SKY_Wreck_Sedan at [97.0, 0.0, -62.6873] yaw 270.0
+- Land_SKY_Barrier_Concrete at [100.3, 0.0, -63.5873] yaw 270.0
+- Land_SKY_Barrier_Concrete at [100.5, 0.0, -62.6873] yaw 270.0
+- Land_Wreck_sed02_aban1_red_DE at [94.3251, 0.0, -55.6335] yaw 22.1171
+- Land_SKY_Wreck_Van at [93.6, 0.0, -45.2489] yaw 90.0
+- Land_SKY_Barrier_Concrete at [97.4, 0.0, -44.3489] yaw 90.0
+- Land_SKY_Barrier_Concrete at [100.1, 0.0, -45.2489] yaw 270.0
+- Land_SKY_Barrier_Concrete at [100.5, 0.0, -44.3489] yaw 270.0
+- Land_wreck_truck01_aban1_blue_DE at [93.6008, 0.0, -53.1429] yaw 349.1346
+- Land_SKY_Barrier_Concrete at [92.5, 0.0, -21.7482] yaw 270.0
+- Land_SKY_Wreck_Sedan at [95.8, 0.0, -20.8482] yaw 270.0
+- Land_SKY_Wreck_Sedan at [99.7, 0.0, -21.7482] yaw 270.0
+- Land_SKY_Barrier_Concrete at [100.5, 0.0, -20.8482] yaw 90.0
+- Land_Wreck_Volha_Police at [98.3956, 0.0, -29.065] yaw 201.934
+- Land_SKY_Wreck_Sedan at [93.1, 0.0, -9.1913] yaw 270.0
+- Land_SKY_Barrier_Concrete at [96.4, 0.0, -8.2913] yaw 270.0
+- Land_SKY_Wreck_Sedan at [99.7, 0.0, -9.1913] yaw 90.0
+- Land_SKY_Barrier_Concrete at [100.5, 0.0, -8.2913] yaw 270.0
+- Land_Wreck_sed02_aban1_red_DE at [98.2032, 0.0, -17.2862] yaw 10.2144
+- Land_SKY_Wreck_Sedan at [92.1, 0.0, 20.5533] yaw 90.0
+- Land_SKY_Barrier_Concrete at [93.082, 0.0, 21.4533] yaw 270.0
+- Land_SKY_Wreck_Van at [98.182, 0.0, 20.5533] yaw 270.0
+- Land_SKY_Barrier_Concrete at [100.5, 0.0, 21.4533] yaw 270.0
+- Land_Wreck_Volha_Police at [97.6092, 0.0, 28.0285] yaw 358.7805
+- Land_Wreck_sed01_aban1_black_DE at [97.9615, 0.0, 28.4072] yaw 204.9433
+- Land_SKY_Wreck_Van at [92.6, 0.0, 44.4017] yaw 90.0
+- Land_SKY_Barrier_Concrete at [93.9408, 0.0, 45.3017] yaw 270.0
+- Land_SKY_Wreck_Van at [99.0408, 0.0, 44.4017] yaw 270.0
+- Land_SKY_Barrier_Concrete at [100.5, 0.0, 45.3017] yaw 270.0
+- Land_Wreck_V3S_DE at [93.6922, 0.0, 53.1913] yaw 337.8076
+- Land_SKY_Wreck_Sedan at [110.5951, 0.0, 3.9] yaw 0.0
+- Land_SKY_Wreck_Sedan at [111.4951, 0.0, -0.0] yaw 0.0
+- Land_SKY_Barrier_Concrete at [110.5951, 0.0, -3.3] yaw 180.0
+- Land_SKY_Barrier_Concrete at [111.4951, 0.0, -3.5] yaw 180.0
+- Land_Wreck_hb01_aban1_blue_DE at [103.1836, 0.0, -1.9866] yaw 97.5873
+- Land_Wreck_V3S_DE at [103.7103, 0.0, -1.8177] yaw 75.7486
+- Land_SKY_Wreck_Sedan at [104.1607, 0.0, 75.9] yaw 0.0
+- Land_SKY_Barrier_Concrete at [105.0607, 0.0, 72.6] yaw 180.0
+- Land_SKY_Barrier_Concrete at [104.1607, 0.0, 71.622] yaw 0.0
+- Land_SKY_Barrier_Concrete at [105.0607, 0.0, 67.622] yaw 180.0
+- Land_SKY_Barrier_Concrete at [104.1607, 0.0, 67.5] yaw 180.0
+- Land_Wreck_sed01_aban1_black_DE at [113.2962, 0.0, 69.8785] yaw 279.7043
+- Land_Wreck_sed01_aban1_black_DE at [112.3763, 0.0, 73.9563] yaw 95.0544
 - Land_SKY_SirenTower at [-46.0, 0.15, 5.0] yaw 0.0
 - Land_SKY_SirenTower at [58.0, 0.15, 5.0] yaw 0.0
 - Land_SKY_Wreck_CityBus at [30.0, 0.15, -64.0] yaw 90.0
@@ -569,15 +586,23 @@ map: chernarusplus  site: citylife-template  status: **PASS (with warnings)**
 - Land_SKY_Veg_Weeds at [-9.5087, 0.15, 50.2966] yaw 180.0
 - Land_SKY_City_Mall_Damaged at [54.0, 0.15, 26.5] yaw 0.0
 - Land_SKY_City_Kiosk_Intact at [20.0, 0.15, 7.7] yaw 0.0
-- Land_SKY_City_ShopRow_Ruined at [85.0, 0.15, 58.5] yaw 180.0
-- Land_SKY_City_SupermarketSmall_Intact at [70.0, 0.15, 58.5] yaw 180.0
-- Land_SKY_City_AptBlock_Intact at [50.5, 0.15, 59.5] yaw 180.0
-- Land_SKY_City_ShopRow_Intact at [35.5, 0.15, 58.5] yaw 180.0
-- Land_SKY_City_ShopRow_Intact at [26.5, 0.15, 58.5] yaw 180.0
-- Land_SKY_Veg_Weeds at [24.0968, 0.15, 20.9739] yaw 180.0
-- Land_SKY_Veg_Weeds at [20.1766, 0.15, 36.1977] yaw 270.0
-- Land_SKY_Veg_Weeds at [32.3328, 0.15, 48.3622] yaw 90.0
-- Land_SKY_Veg_Bush at [44.3198, 0.15, 49.5971] yaw 90.0
-- Land_SKY_Veg_Weeds at [20.2923, 0.15, 42.7947] yaw 180.0
-- Land_SKY_Veg_Bush at [50.3965, 0.15, 49.5411] yaw 180.0
-- Land_SKY_Veg_Weeds at [57.0734, 0.15, 48.9219] yaw 90.0
+- Land_SKY_City_Cafe_Ruined at [83.5, 0.15, 58.5] yaw 180.0
+- Land_SKY_City_SupermarketSmall_Intact at [67.0, 0.15, 58.5] yaw 180.0
+- Land_SKY_City_AptBlock_Intact at [47.5, 0.15, 59.5] yaw 180.0
+- Land_SKY_City_ShopRow_Intact at [32.5, 0.15, 58.5] yaw 180.0
+- Land_SKY_City_ShopRow_Intact at [23.5, 0.15, 58.5] yaw 180.0
+- Land_SKY_Veg_Bush at [23.3478, 0.15, 34.6486] yaw 90.0
+- Land_SKY_Veg_Bush at [20.2535, 0.15, 44.247] yaw 180.0
+- Land_SKY_Veg_Bush at [19.9399, 0.15, 48.9378] yaw 0.0
+- Land_SKY_Veg_Bush at [41.0384, 0.15, 49.6017] yaw 180.0
+- Land_SKY_Veg_Bush at [50.5814, 0.15, 49.2914] yaw 270.0
+- Land_SKY_Veg_Weeds at [57.0024, 0.15, 49.6513] yaw 180.0
+- Land_SKY_Veg_Bush at [67.0375, 0.15, 48.8337] yaw 180.0
+- Land_SKY_Veg_Weeds at [79.5398, 0.15, 48.822] yaw 180.0
+- Land_SKY_Veg_Bush at [80.5795, 0.15, 52.7061] yaw 0.0
+- Land_SKY_Veg_Weeds at [85.4992, 0.15, 8.4659] yaw 90.0
+- Land_SKY_Veg_Bush at [85.5346, 0.15, 14.5732] yaw 90.0
+- Land_SKY_Veg_Bush at [85.6082, 0.15, 22.9157] yaw 90.0
+- Land_SKY_Veg_Bush at [85.9044, 0.15, 30.08] yaw 180.0
+- Land_SKY_Veg_Weeds at [85.3404, 0.15, 43.2508] yaw 180.0
+- Land_SKY_Veg_Bush at [85.0607, 0.15, 47.9586] yaw 0.0

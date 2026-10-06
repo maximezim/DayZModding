@@ -97,8 +97,62 @@ class CfgVehicles
 	};
 	class Land_SKY_Metro_Station: Land_SKY_Underground_Base
 	{
-		// metro station: island platform, columns, tiles, benches, kiosk, stair to the street (+Y)
+		// metro station PLOSHCHAD POBEDY: island platform, columns, tiles, benches, kiosk, stair to the street (+Y)
 		scope = 1;
 		model = "SKY_Skyline\sky_underground\sky_metro_station.p3d";
+	};
+	class Land_SKY_Metro_Station_B: Land_SKY_Underground_Base
+	{
+		// metro station VOKZALNAYA (same plan)
+		scope = 1;
+		model = "SKY_Skyline\sky_underground\sky_metro_station_b.p3d";
+	};
+	class Land_SKY_Metro_Station_C: Land_SKY_Underground_Base
+	{
+		// metro station STADION (same plan)
+		scope = 1;
+		model = "SKY_Skyline\sky_underground\sky_metro_station_c.p3d";
+	};
+	class Land_SKY_Metro_Station_D: Land_SKY_Underground_Base
+	{
+		// metro station TEATRALNAYA (same plan)
+		scope = 1;
+		model = "SKY_Skyline\sky_underground\sky_metro_station_d.p3d";
+	};
+	class Land_SKY_Sewer_Collapsed: Land_SKY_Underground_Base
+	{
+		// sewer straight with a collapsed vault: walkable rubble heap over the +X walkway, hanging lamp
+		scope = 1;
+		model = "SKY_Skyline\sky_underground\sky_sewer_collapsed.p3d";
+		class AnimationSources
+		{
+			class flood
+			{
+				source = "user";
+				animPeriod = 20;
+				initPhase = 0;
+			};
+		};
+	};
+	class Land_SKY_Sewer_FloodedEnd: Land_SKY_Underground_Base
+	{
+		// sewer dead end with knee-deep standing water and floating junk
+		scope = 1;
+		model = "SKY_Skyline\sky_underground\sky_sewer_floodedend.p3d";
+		class AnimationSources
+		{
+			class flood
+			{
+				source = "user";
+				animPeriod = 20;
+				initPhase = 0;
+			};
+		};
+	};
+	class Land_SKY_Metro_Collapsed: Land_SKY_Underground_Base
+	{
+		// metro tunnel with a collapse burying the +X track, fallen catenary beam; -X track passable
+		scope = 1;
+		model = "SKY_Skyline\sky_underground\sky_metro_collapsed.p3d";
 	};
 };

@@ -1,0 +1,38 @@
+{
+ "sky_adcolumn.p3d": {
+  "fire": 56,
+  "geo": 56,
+  "mem": 0,
+  "res0": 664,
+  "res1": 84,
+  "res2": 20,
+  "res3": 12,
+  "road": 0,
+  "shadow": 20,
+  "view": 56
+ },
+ "sky_busstop.p3d": {
+  "fire": 120,
+  "geo": 120,
+  "mem": 0,
+  "res0": 540,
+  "res1": 96,
+  "res2": 22,
+  "res3": 12,
+  "road": 0,
+  "shadow": 12,
+  "view": 84
+ },
+ "sky_phonebooth.p3d": {
+  "fire": 108,
+  "geo": 108,
+  "mem": 0,
+  "res0": 142,
+  "res1": 72,
+  "res2": 24,
+  "res3": 12,
+  "road": 0,
+  "shadow": 12,
+  "view": 108
+ }
+}

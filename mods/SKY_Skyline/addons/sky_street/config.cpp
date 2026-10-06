@@ -107,12 +107,6 @@ class CfgVehicles
 		scope = 1;
 		model = "SKY_Skyline\sky_street\sky_barrier_steel.p3d";
 	};
-	class Land_SKY_BusStop: Land_SKY_Street_Base
-	{
-		// 4 m shelter with bench and timetable
-		scope = 1;
-		model = "SKY_Skyline\sky_street\sky_busstop.p3d";
-	};
 	class Land_SKY_Dumpster: Land_SKY_Street_Base
 	{
 		// 1.8 m waste container
@@ -247,5 +241,23 @@ class CfgVehicles
 		// dead horse on its side, half hide half bone (horses are blocked, D62)
 		scope = 1;
 		model = "SKY_Skyline\sky_street\sky_horsecarcass.p3d";
+	};
+	class Land_SKY_BusStop: Land_SKY_Street_Base
+	{
+		// Soviet bus shelter: sloped corrugated roof, smashed glass back wall, bench, route sign
+		scope = 1;
+		model = "SKY_Skyline\sky_street\sky_busstop.p3d";
+	};
+	class Land_SKY_AdColumn: Land_SKY_Street_Base
+	{
+		// Morris advertising column wrapped in torn posters, domed cap
+		scope = 1;
+		model = "SKY_Skyline\sky_street\sky_adcolumn.p3d";
+	};
+	class Land_SKY_PhoneBooth: Land_SKY_Street_Base
+	{
+		// Soviet street phone booth (taxofon), a pane gone, handset hanging
+		scope = 1;
+		model = "SKY_Skyline\sky_street\sky_phonebooth.p3d";
 	};
 };

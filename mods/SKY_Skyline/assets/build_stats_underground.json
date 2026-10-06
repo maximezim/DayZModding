@@ -1,4 +1,16 @@
 {
+ "sky_metro_collapsed.p3d": {
+  "fire": 148,
+  "geo": 148,
+  "mem": 0,
+  "res0": 1580,
+  "res1": 112,
+  "res2": 12,
+  "res3": 12,
+  "road": 16,
+  "shadow": 12,
+  "view": 100
+ },
  "sky_metro_end.p3d": {
   "fire": 132,
   "geo": 132,
@@ -12,6 +24,42 @@
   "view": 60
  },
  "sky_metro_station.p3d": {
+  "fire": 336,
+  "geo": 384,
+  "mem": 0,
+  "res0": 3162,
+  "res1": 830,
+  "res2": 12,
+  "res3": 12,
+  "road": 16,
+  "shadow": 12,
+  "view": 252
+ },
+ "sky_metro_station_b.p3d": {
+  "fire": 336,
+  "geo": 384,
+  "mem": 0,
+  "res0": 3168,
+  "res1": 830,
+  "res2": 12,
+  "res3": 12,
+  "road": 16,
+  "shadow": 12,
+  "view": 252
+ },
+ "sky_metro_station_c.p3d": {
+  "fire": 336,
+  "geo": 384,
+  "mem": 0,
+  "res0": 3152,
+  "res1": 830,
+  "res2": 12,
+  "res3": 12,
+  "road": 16,
+  "shadow": 12,
+  "view": 252
+ },
+ "sky_metro_station_d.p3d": {
   "fire": 336,
   "geo": 384,
   "mem": 0,
@@ -47,12 +95,36 @@
   "shadow": 12,
   "view": 96
  },
+ "sky_sewer_collapsed.p3d": {
+  "fire": 140,
+  "geo": 140,
+  "mem": 0,
+  "res0": 868,
+  "res1": 104,
+  "res2": 12,
+  "res3": 12,
+  "road": 12,
+  "shadow": 12,
+  "view": 112
+ },
  "sky_sewer_end.p3d": {
   "fire": 100,
   "geo": 100,
   "mem": 0,
   "res0": 756,
   "res1": 100,
+  "res2": 12,
+  "res3": 12,
+  "road": 8,
+  "shadow": 12,
+  "view": 84
+ },
+ "sky_sewer_floodedend.p3d": {
+  "fire": 100,
+  "geo": 100,
+  "mem": 0,
+  "res0": 814,
+  "res1": 102,
   "res2": 12,
   "res3": 12,
   "road": 8,

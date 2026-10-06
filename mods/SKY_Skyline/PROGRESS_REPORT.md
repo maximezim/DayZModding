@@ -267,3 +267,10 @@ The weakest street props were rebuilt from boxes into real objects:
 The underground got its identity: station name boards with the M roundel, exit and line boards, a sewer
 warning, graffiti and sagging cables. Before/after renders: `reviews/d66_gates.md`.
 
+## 19. Variety (D67)
+
+Streets got their furniture: Soviet bus shelters with a smashed pane, poster-wrapped advertising columns and
+phone booths, placed along the sidewalk away from lamps and car jams (citylife: 14 bus stops, 23 columns,
+14 booths; 521 entities). Underground, every station now carries its own name (four variants), and seeded
+dead ends break the routine: a collapsed sewer vault and metro tunnel you climb over, and a flooded sewer
+dead end. Renders and gates: `reviews/d67_gates.md`.

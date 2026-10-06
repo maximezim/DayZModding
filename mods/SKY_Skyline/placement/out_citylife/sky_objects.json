@@ -2193,7 +2193,7 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_Sewer_End",
+   "name": "Land_SKY_Sewer_FloodedEnd",
    "pos": [
     -48.0,
     0.0,
@@ -2209,7 +2209,7 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_Sewer_Straight",
+   "name": "Land_SKY_Sewer_Collapsed",
    "pos": [
     -48.0,
     0.0,
@@ -2385,7 +2385,7 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_Sewer_End",
+   "name": "Land_SKY_Sewer_FloodedEnd",
    "pos": [
     -48.0,
     0.0,
@@ -2417,7 +2417,7 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_Metro_Tunnel",
+   "name": "Land_SKY_Metro_Collapsed",
    "pos": [
     96.0,
     0.0,
@@ -2513,27 +2513,11 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_Metro_Tunnel",
+   "name": "Land_SKY_Metro_Station_B",
    "pos": [
     96.0,
     0.0,
-    36.0
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Metro_Tunnel",
-   "pos": [
-    96.0,
-    0.0,
-    48.0
+    42.0
    ],
    "ypr": [
     0.0,
@@ -2593,6 +2577,22 @@
    "customString": ""
   },
   {
+   "name": "Land_SKY_AdColumn",
+   "pos": [
+    -113.0,
+    0.15,
+    -53.2
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
    "name": "Land_SKY_TrashBin",
    "pos": [
     -103.4,
@@ -2601,6 +2601,38 @@
    ],
    "ypr": [
     0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_BusStop",
+   "pos": [
+    -113.0,
+    0.15,
+    -36.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_PhoneBooth",
+   "pos": [
+    -113.0,
+    0.15,
+    -18.7
+   ],
+   "ypr": [
+    270.0,
     0.0,
     0.0
    ],
@@ -2630,6 +2662,22 @@
     -103.4,
     0.15,
     -17.4
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_AdColumn",
+   "pos": [
+    -113.0,
+    0.15,
+    6.8
    ],
    "ypr": [
     0.0,
@@ -2673,6 +2721,22 @@
    "customString": ""
   },
   {
+   "name": "Land_SKY_BusStop",
+   "pos": [
+    -113.0,
+    0.15,
+    36.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
    "name": "Land_SKY_TrashBin",
    "pos": [
     -103.4,
@@ -2689,6 +2753,38 @@
    "customString": ""
   },
   {
+   "name": "Land_SKY_AdColumn",
+   "pos": [
+    -113.0,
+    0.15,
+    54.8
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_PhoneBooth",
+   "pos": [
+    -113.0,
+    0.15,
+    65.3
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
    "name": "Land_SKY_TrashBin",
    "pos": [
     -90.6,
@@ -2737,11 +2833,43 @@
    "customString": ""
   },
   {
+   "name": "Land_SKY_AdColumn",
+   "pos": [
+    -89.2,
+    0.15,
+    -67.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
    "name": "Land_SKY_Hydrant_Wet",
    "pos": [
     -89.4,
     0.15,
     67.4
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_AdColumn",
+   "pos": [
+    -89.2,
+    0.15,
+    77.0
    ],
    "ypr": [
     90.0,
@@ -2769,6 +2897,22 @@
    "customString": ""
   },
   {
+   "name": "Land_SKY_BusStop",
+   "pos": [
+    -72.0,
+    0.15,
+    77.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
    "name": "Land_SKY_TrashBin",
    "pos": [
     -54.6,
@@ -2777,6 +2921,38 @@
    ],
    "ypr": [
     90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_BusStop",
+   "pos": [
+    -60.0,
+    0.15,
+    -67.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_PhoneBooth",
+   "pos": [
+    -54.7,
+    0.15,
+    77.0
+   ],
+   "ypr": [
+    0.0,
     0.0,
     0.0
    ],
@@ -2817,6 +2993,22 @@
    "customString": ""
   },
   {
+   "name": "Land_SKY_AdColumn",
+   "pos": [
+    -53.0,
+    0.15,
+    -53.2
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
    "name": "Land_SKY_TrashBin",
    "pos": [
     -43.4,
@@ -2825,6 +3017,38 @@
    ],
    "ypr": [
     0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_BusStop",
+   "pos": [
+    -53.0,
+    0.15,
+    -36.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_PhoneBooth",
+   "pos": [
+    -53.0,
+    0.15,
+    -18.7
+   ],
+   "ypr": [
+    270.0,
     0.0,
     0.0
    ],
@@ -2854,6 +3078,22 @@
     -43.4,
     0.15,
     -17.4
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_AdColumn",
+   "pos": [
+    -53.0,
+    0.15,
+    6.8
    ],
    "ypr": [
     0.0,
@@ -2897,11 +3137,75 @@
    "customString": ""
   },
   {
+   "name": "Land_SKY_BusStop",
+   "pos": [
+    -53.0,
+    0.15,
+    36.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
    "name": "Land_SKY_TrashBin",
    "pos": [
     -43.4,
     0.15,
     53.4
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_AdColumn",
+   "pos": [
+    -53.0,
+    0.15,
+    54.8
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_PhoneBooth",
+   "pos": [
+    -53.0,
+    0.15,
+    65.3
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_PhoneBooth",
+   "pos": [
+    -30.7,
+    0.15,
+    -67.0
    ],
    "ypr": [
     0.0,
@@ -2993,11 +3297,59 @@
    "customString": ""
   },
   {
+   "name": "Land_SKY_AdColumn",
+   "pos": [
+    -29.2,
+    0.15,
+    77.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_AdColumn",
+   "pos": [
+    -17.2,
+    0.15,
+    -67.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
    "name": "Land_SKY_Hydrant_Wet",
    "pos": [
     -17.4,
     0.15,
     -4.6
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_AdColumn",
+   "pos": [
+    -17.2,
+    0.15,
+    5.0
    ],
    "ypr": [
     90.0,
@@ -3057,6 +3409,22 @@
    "customString": ""
   },
   {
+   "name": "Land_SKY_BusStop",
+   "pos": [
+    -0.0,
+    0.15,
+    5.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
    "name": "Land_SKY_Hydrant_Dry",
    "pos": [
     -5.4,
@@ -3065,6 +3433,22 @@
    ],
    "ypr": [
     90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_BusStop",
+   "pos": [
+    -0.0,
+    0.15,
+    77.0
+   ],
+   "ypr": [
+    0.0,
     0.0,
     0.0
    ],
@@ -3105,6 +3489,22 @@
    "customString": ""
   },
   {
+   "name": "Land_SKY_AdColumn",
+   "pos": [
+    7.0,
+    0.15,
+    -53.2
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
    "name": "Land_SKY_TrashBin",
    "pos": [
     16.6,
@@ -3113,6 +3513,38 @@
    ],
    "ypr": [
     0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_BusStop",
+   "pos": [
+    7.0,
+    0.15,
+    -36.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_PhoneBooth",
+   "pos": [
+    7.0,
+    0.15,
+    -18.7
+   ],
+   "ypr": [
+    270.0,
     0.0,
     0.0
    ],
@@ -3142,6 +3574,22 @@
     16.6,
     0.15,
     -17.4
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_AdColumn",
+   "pos": [
+    7.0,
+    0.15,
+    6.8
    ],
    "ypr": [
     0.0,
@@ -3185,6 +3633,22 @@
    "customString": ""
   },
   {
+   "name": "Land_SKY_BusStop",
+   "pos": [
+    7.0,
+    0.15,
+    36.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
    "name": "Land_SKY_TrashBin",
    "pos": [
     16.6,
@@ -3201,6 +3665,38 @@
    "customString": ""
   },
   {
+   "name": "Land_SKY_AdColumn",
+   "pos": [
+    7.0,
+    0.15,
+    54.8
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_PhoneBooth",
+   "pos": [
+    7.0,
+    0.15,
+    65.3
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
    "name": "Land_SKY_Hydrant_Wet",
    "pos": [
     18.6,
@@ -3209,6 +3705,38 @@
    ],
    "ypr": [
     90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_BusStop",
+   "pos": [
+    24.0,
+    0.15,
+    -67.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_PhoneBooth",
+   "pos": [
+    29.3,
+    0.15,
+    5.0
+   ],
+   "ypr": [
+    0.0,
     0.0,
     0.0
    ],
@@ -3270,6 +3798,86 @@
     30.6,
     0.15,
     -4.6
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_AdColumn",
+   "pos": [
+    30.8,
+    0.15,
+    77.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_PhoneBooth",
+   "pos": [
+    41.3,
+    0.15,
+    77.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_AdColumn",
+   "pos": [
+    42.8,
+    0.15,
+    -67.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_PhoneBooth",
+   "pos": [
+    53.3,
+    0.15,
+    -67.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_AdColumn",
+   "pos": [
+    42.8,
+    0.15,
+    5.0
    ],
    "ypr": [
     90.0,
@@ -3377,6 +3985,22 @@
    "customString": ""
   },
   {
+   "name": "Land_SKY_BusStop",
+   "pos": [
+    72.0,
+    0.15,
+    5.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
    "name": "Land_SKY_TrashBin",
    "pos": [
     77.4,
@@ -3441,6 +4065,22 @@
    "customString": ""
   },
   {
+   "name": "Land_SKY_AdColumn",
+   "pos": [
+    78.8,
+    0.15,
+    77.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
    "name": "Land_SKY_TrashBin",
    "pos": [
     100.6,
@@ -3473,6 +4113,22 @@
    "customString": ""
   },
   {
+   "name": "Land_SKY_AdColumn",
+   "pos": [
+    91.0,
+    0.15,
+    -53.2
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
    "name": "Land_SKY_TrashBin",
    "pos": [
     100.6,
@@ -3481,6 +4137,38 @@
    ],
    "ypr": [
     0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_BusStop",
+   "pos": [
+    91.0,
+    0.15,
+    -36.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_PhoneBooth",
+   "pos": [
+    91.0,
+    0.15,
+    -18.7
+   ],
+   "ypr": [
+    270.0,
     0.0,
     0.0
    ],
@@ -3510,6 +4198,22 @@
     100.6,
     0.15,
     -17.4
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_AdColumn",
+   "pos": [
+    91.0,
+    0.15,
+    6.8
    ],
    "ypr": [
     0.0,
@@ -3553,6 +4257,22 @@
    "customString": ""
   },
   {
+   "name": "Land_SKY_BusStop",
+   "pos": [
+    91.0,
+    0.15,
+    36.0
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
    "name": "Land_SKY_TrashBin",
    "pos": [
     100.6,
@@ -3569,6 +4289,38 @@
    "customString": ""
   },
   {
+   "name": "Land_SKY_AdColumn",
+   "pos": [
+    91.0,
+    0.15,
+    54.8
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_PhoneBooth",
+   "pos": [
+    91.0,
+    0.15,
+    65.3
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
    "name": "Land_SKY_Hydrant_Dry",
    "pos": [
     102.6,
@@ -3577,6 +4329,54 @@
    ],
    "ypr": [
     90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_AdColumn",
+   "pos": [
+    102.8,
+    0.15,
+    -67.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_AdColumn",
+   "pos": [
+    102.8,
+    0.15,
+    5.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_PhoneBooth",
+   "pos": [
+    113.3,
+    0.15,
+    5.0
+   ],
+   "ypr": [
+    0.0,
     0.0,
     0.0
    ],
@@ -3765,7 +4565,7 @@
    "pos": [
     -110.9,
     0.0,
-    -27.4713
+    -15.4713
    ],
    "ypr": [
     270.0,
@@ -3781,7 +4581,7 @@
    "pos": [
     -107.0,
     0.0,
-    -26.5713
+    -14.5713
    ],
    "ypr": [
     270.0,
@@ -3797,7 +4597,7 @@
    "pos": [
     -103.7,
     0.0,
-    -27.4713
+    -15.4713
    ],
    "ypr": [
     270.0,
@@ -3813,7 +4613,7 @@
    "pos": [
     -103.5,
     0.0,
-    -26.5713
+    -14.5713
    ],
    "ypr": [
     90.0,
@@ -3829,7 +4629,7 @@
    "pos": [
     -105.897,
     0.0,
-    -19.3888
+    -7.3888
    ],
    "ypr": [
     11.84,
@@ -3845,7 +4645,7 @@
    "pos": [
     -109.7315,
     0.0,
-    -18.557
+    -6.557
    ],
    "ypr": [
     202.2198,
@@ -3861,7 +4661,7 @@
    "pos": [
     -112.5,
     0.0,
-    -15.6568
+    8.3432
    ],
    "ypr": [
     90.0,
@@ -3877,7 +4677,7 @@
    "pos": [
     -111.6083,
     0.0,
-    -14.7568
+    9.2432
    ],
    "ypr": [
     90.0,
@@ -3893,7 +4693,7 @@
    "pos": [
     -107.0083,
     0.0,
-    -15.6568
+    8.3432
    ],
    "ypr": [
     90.0,
@@ -3909,7 +4709,7 @@
    "pos": [
     -103.7083,
     0.0,
-    -14.7568
+    9.2432
    ],
    "ypr": [
     270.0,
@@ -3925,7 +4725,7 @@
    "pos": [
     -103.5,
     0.0,
-    -15.6568
+    8.3432
    ],
    "ypr": [
     270.0,
@@ -3941,7 +4741,7 @@
    "pos": [
     -110.3148,
     0.0,
-    -7.3971
+    16.6029
    ],
    "ypr": [
     350.8342,
@@ -3957,7 +4757,7 @@
    "pos": [
     -110.4,
     0.0,
-    14.0403
+    26.0403
    ],
    "ypr": [
     270.0,
@@ -3973,7 +4773,7 @@
    "pos": [
     -105.5,
     0.0,
-    14.9403
+    26.9403
    ],
    "ypr": [
     270.0,
@@ -3989,7 +4789,7 @@
    "pos": [
     -103.5,
     0.0,
-    14.0403
+    26.0403
    ],
    "ypr": [
     270.0,
@@ -4005,7 +4805,7 @@
    "pos": [
     -106.0271,
     0.0,
-    6.6043
+    18.6043
    ],
    "ypr": [
     14.1212,
@@ -4021,7 +4821,7 @@
    "pos": [
     -109.7967,
     0.0,
-    6.7908
+    18.7908
    ],
    "ypr": [
     192.9683,
@@ -4035,12 +4835,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    -112.5,
+    -81.7058,
     0.0,
-    62.2942
+    -67.5
    ],
    "ypr": [
-    90.0,
+    180.0,
     0.0,
     0.0
    ],
@@ -4051,12 +4851,12 @@
   {
    "name": "Land_SKY_Wreck_Sedan",
    "pos": [
-    -109.2,
+    -80.8058,
     0.0,
-    63.1942
+    -70.8
    ],
    "ypr": [
-    90.0,
+    180.0,
     0.0,
     0.0
    ],
@@ -4067,12 +4867,12 @@
   {
    "name": "Land_SKY_Wreck_Sedan",
    "pos": [
-    -105.3,
+    -81.7058,
     0.0,
-    62.2942
+    -74.7
    ],
    "ypr": [
-    90.0,
+    180.0,
     0.0,
     0.0
    ],
@@ -4083,12 +4883,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    -104.5,
+    -80.8058,
     0.0,
-    63.1942
+    -75.5
    ],
    "ypr": [
-    90.0,
+    180.0,
     0.0,
     0.0
    ],
@@ -4099,12 +4899,12 @@
   {
    "name": "Land_Wreck_sed01_aban1_black_DE",
    "pos": [
-    -109.8943,
+    -88.4653,
     0.0,
-    55.5347
+    -70.1057
    ],
    "ypr": [
-    347.622,
+    77.622,
     0.0,
     0.0
    ],
@@ -4115,12 +4915,12 @@
   {
    "name": "Land_SKY_Wreck_Van",
    "pos": [
-    -87.3413,
+    -51.4,
     0.0,
-    -68.6
+    -51.3413
    ],
    "ypr": [
-    180.0,
+    90.0,
     0.0,
     0.0
    ],
@@ -4131,12 +4931,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    -86.4413,
+    -47.6,
     0.0,
-    -72.4
+    -50.4413
    ],
    "ypr": [
-    0.0,
+    270.0,
     0.0,
     0.0
    ],
@@ -4147,12 +4947,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    -87.3413,
+    -44.9,
     0.0,
-    -75.1
+    -51.3413
    ],
    "ypr": [
-    180.0,
+    90.0,
     0.0,
     0.0
    ],
@@ -4163,12 +4963,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    -86.4413,
+    -44.5,
     0.0,
-    -75.5
+    -50.4413
    ],
    "ypr": [
-    0.0,
+    270.0,
     0.0,
     0.0
    ],
@@ -4179,12 +4979,12 @@
   {
    "name": "Land_Wreck_V3S_DE",
    "pos": [
-    -79.0311,
+    -46.2999,
     0.0,
-    -73.7001
+    -43.0311
    ],
    "ypr": [
-    88.28,
+    358.28,
     0.0,
     0.0
    ],
@@ -4195,12 +4995,12 @@
   {
    "name": "Land_Wreck_Ikarus_DE",
    "pos": [
-    -79.8634,
+    -50.2479,
     0.0,
-    -69.7521
+    -43.8634
    ],
    "ypr": [
-    271.8566,
+    181.8566,
     0.0,
     0.0
    ],
@@ -4211,12 +5011,12 @@
   {
    "name": "Land_SKY_Wreck_Sedan",
    "pos": [
-    -62.8809,
+    -51.9,
     0.0,
-    -68.1
+    -26.8809
    ],
    "ypr": [
-    0.0,
+    270.0,
     0.0,
     0.0
    ],
@@ -4227,12 +5027,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    -61.9809,
+    -49.5302,
     0.0,
-    -70.4698
+    -25.9809
    ],
    "ypr": [
-    180.0,
+    90.0,
     0.0,
     0.0
    ],
@@ -4243,12 +5043,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    -62.8809,
+    -45.5302,
     0.0,
-    -74.4698
+    -26.8809
    ],
    "ypr": [
-    0.0,
+    270.0,
     0.0,
     0.0
    ],
@@ -4259,12 +5059,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    -61.9809,
+    -43.5,
     0.0,
-    -76.5
+    -25.9809
    ],
    "ypr": [
-    0.0,
+    270.0,
     0.0,
     0.0
    ],
@@ -4275,12 +5075,12 @@
   {
    "name": "Land_Wreck_hb01_aban1_blue_DE",
    "pos": [
-    -55.0854,
+    -46.0468,
     0.0,
-    -73.9532
+    -19.0854
    ],
    "ypr": [
-    260.6267,
+    170.6267,
     0.0,
     0.0
    ],
@@ -4293,7 +5093,7 @@
    "pos": [
     -52.5,
     0.0,
-    -50.9921
+    9.0079
    ],
    "ypr": [
     90.0,
@@ -4309,7 +5109,7 @@
    "pos": [
     -50.6323,
     0.0,
-    -50.0921
+    9.9079
    ],
    "ypr": [
     270.0,
@@ -4325,7 +5125,7 @@
    "pos": [
     -46.6323,
     0.0,
-    -50.9921
+    9.0079
    ],
    "ypr": [
     90.0,
@@ -4341,7 +5141,7 @@
    "pos": [
     -43.9323,
     0.0,
-    -50.0921
+    9.9079
    ],
    "ypr": [
     270.0,
@@ -4357,7 +5157,7 @@
    "pos": [
     -43.5,
     0.0,
-    -50.9921
+    9.0079
    ],
    "ypr": [
     270.0,
@@ -4373,7 +5173,7 @@
    "pos": [
     -50.0791,
     0.0,
-    -43.8667
+    16.1333
    ],
    "ypr": [
     158.8106,
@@ -4389,7 +5189,7 @@
    "pos": [
     -49.8913,
     0.0,
-    -43.8697
+    16.1303
    ],
    "ypr": [
     156.3193,
@@ -4405,7 +5205,7 @@
    "pos": [
     -51.4,
     0.0,
-    -15.8022
+    56.1978
    ],
    "ypr": [
     270.0,
@@ -4421,7 +5221,7 @@
    "pos": [
     -49.6837,
     0.0,
-    -14.9022
+    57.0978
    ],
    "ypr": [
     90.0,
@@ -4437,7 +5237,7 @@
    "pos": [
     -45.0837,
     0.0,
-    -15.8022
+    56.1978
    ],
    "ypr": [
     90.0,
@@ -4453,7 +5253,7 @@
    "pos": [
     -43.5,
     0.0,
-    -14.9022
+    57.0978
    ],
    "ypr": [
     90.0,
@@ -4469,7 +5269,7 @@
    "pos": [
     -50.1596,
     0.0,
-    -7.7984
+    64.2016
    ],
    "ypr": [
     170.5281,
@@ -4483,12 +5283,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    -52.5,
+    -38.8505,
     0.0,
-    9.1495
+    -67.5
    ],
    "ypr": [
-    90.0,
+    180.0,
     0.0,
     0.0
    ],
@@ -4499,12 +5299,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    -52.4468,
+    -37.9505,
     0.0,
-    10.0495
+    -67.5532
    ],
    "ypr": [
-    270.0,
+    0.0,
     0.0,
     0.0
    ],
@@ -4515,12 +5315,12 @@
   {
    "name": "Land_SKY_Wreck_Van",
    "pos": [
-    -47.3468,
+    -38.8505,
     0.0,
-    9.1495
+    -72.6532
    ],
    "ypr": [
-    270.0,
+    0.0,
     0.0,
     0.0
    ],
@@ -4531,12 +5331,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    -43.5468,
+    -37.9505,
     0.0,
-    10.0495
+    -76.4532
    ],
    "ypr": [
-    270.0,
+    0.0,
     0.0,
     0.0
    ],
@@ -4547,12 +5347,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    -43.5,
+    -38.8505,
     0.0,
-    9.1495
+    -76.5
    ],
    "ypr": [
-    90.0,
+    180.0,
     0.0,
     0.0
    ],
@@ -4563,12 +5363,12 @@
   {
    "name": "Land_wreck_truck01_aban1_blue_DE",
    "pos": [
-    -50.1414,
+    -31.3055,
     0.0,
-    16.6945
+    -69.8586
    ],
    "ypr": [
-    21.6392,
+    111.6392,
     0.0,
     0.0
    ],
@@ -4579,12 +5379,12 @@
   {
    "name": "Land_SKY_Wreck_Sedan",
    "pos": [
-    -50.9,
+    -39.5491,
     0.0,
-    20.4509
+    2.9
    ],
    "ypr": [
-    270.0,
+    0.0,
     0.0,
     0.0
    ],
@@ -4595,12 +5395,12 @@
   {
    "name": "Land_SKY_Wreck_Van",
    "pos": [
-    -46.5,
+    -38.6491,
     0.0,
-    21.3509
+    -1.5
    ],
    "ypr": [
-    270.0,
+    0.0,
     0.0,
     0.0
    ],
@@ -4611,12 +5411,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    -43.5,
+    -39.5491,
     0.0,
-    20.4509
+    -4.5
    ],
    "ypr": [
-    270.0,
+    0.0,
     0.0,
     0.0
    ],
@@ -4627,12 +5427,12 @@
   {
    "name": "Land_Wreck_offroad02_aban1_DE",
    "pos": [
-    -46.1983,
+    -31.625,
     0.0,
-    28.375
+    -1.8017
    ],
    "ypr": [
-    179.0373,
+    269.0373,
     0.0,
     0.0
    ],
@@ -4643,12 +5443,12 @@
   {
    "name": "Land_wreck_truck01_aban1_blue_DE",
    "pos": [
-    -45.8464,
+    -31.8165,
     0.0,
-    28.1835
+    -2.1536
    ],
    "ypr": [
-    6.1689,
+    96.1689,
     0.0,
     0.0
    ],
@@ -4659,7 +5459,7 @@
   {
    "name": "Land_SKY_Wreck_Sedan",
    "pos": [
-    -39.5492,
+    -15.5492,
     0.0,
     3.9
    ],
@@ -4675,7 +5475,7 @@
   {
    "name": "Land_SKY_Wreck_Sedan",
    "pos": [
-    -38.6492,
+    -14.6492,
     0.0,
     -0.0
    ],
@@ -4691,7 +5491,7 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    -39.5492,
+    -15.5492,
     0.0,
     -3.3
    ],
@@ -4707,7 +5507,7 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    -38.6492,
+    -14.6492,
     0.0,
     -3.5
    ],
@@ -4723,7 +5523,7 @@
   {
    "name": "Land_Wreck_sed02_aban1_red_DE",
    "pos": [
-    -30.9391,
+    -6.9391,
     0.0,
     -2.1715
    ],
@@ -4739,12 +5539,12 @@
   {
    "name": "Land_SKY_Wreck_Sedan",
    "pos": [
-    -27.2144,
+    8.1,
     0.0,
-    75.9
+    -63.2144
    ],
    "ypr": [
-    0.0,
+    270.0,
     0.0,
     0.0
    ],
@@ -4755,12 +5555,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    -26.3144,
+    9.7747,
     0.0,
-    74.2253
+    -62.3144
    ],
    "ypr": [
-    180.0,
+    90.0,
     0.0,
     0.0
    ],
@@ -4771,12 +5571,12 @@
   {
    "name": "Land_SKY_Wreck_Van",
    "pos": [
-    -27.2144,
+    14.8747,
     0.0,
-    69.1253
+    -63.2144
    ],
    "ypr": [
-    0.0,
+    270.0,
     0.0,
     0.0
    ],
@@ -4787,12 +5587,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    -26.3144,
+    16.5,
     0.0,
-    67.5
+    -62.3144
    ],
    "ypr": [
-    0.0,
+    270.0,
     0.0,
     0.0
    ],
@@ -4803,12 +5603,12 @@
   {
    "name": "Land_Wreck_Volha_Police",
    "pos": [
-    -18.5021,
+    13.9051,
     0.0,
-    70.0949
+    -54.5021
    ],
    "ypr": [
-    77.3895,
+    347.3895,
     0.0,
     0.0
    ],
@@ -4819,12 +5619,12 @@
   {
    "name": "Land_Wreck_V3S_DE",
    "pos": [
-    -19.0462,
+    14.319,
     0.0,
-    69.681
+    -55.0462
    ],
    "ypr": [
-    283.6581,
+    193.6581,
     0.0,
     0.0
    ],
@@ -4835,12 +5635,12 @@
   {
    "name": "Land_SKY_Wreck_Van",
    "pos": [
-    -9.6735,
+    9.6,
     0.0,
-    2.4
+    -21.6735
    ],
    "ypr": [
-    180.0,
+    90.0,
     0.0,
     0.0
    ],
@@ -4851,12 +5651,12 @@
   {
    "name": "Land_SKY_Wreck_Sedan",
    "pos": [
-    -8.7735,
+    14.0,
     0.0,
-    -2.0
+    -20.7735
    ],
    "ypr": [
-    180.0,
+    90.0,
     0.0,
     0.0
    ],
@@ -4867,12 +5667,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    -9.6735,
+    16.5,
     0.0,
-    -4.5
+    -21.6735
    ],
    "ypr": [
-    180.0,
+    90.0,
     0.0,
     0.0
    ],
@@ -4883,12 +5683,12 @@
   {
    "name": "Land_Wreck_sed01_aban1_black_DE",
    "pos": [
-    -16.3121,
+    9.7634,
     0.0,
-    2.2366
+    -28.3121
    ],
    "ypr": [
-    86.8714,
+    356.8714,
     0.0,
     0.0
    ],
@@ -4899,92 +5699,12 @@
   {
    "name": "Land_Wreck_sed02_aban1_red_DE",
    "pos": [
-    -17.2006,
+    13.7744,
     0.0,
-    -1.7744
+    -29.2006
    ],
    "ypr": [
-    257.4883,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Barrier_Concrete",
-   "pos": [
-    2.4685,
-    0.0,
-    4.5
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Wreck_Sedan",
-   "pos": [
-    3.3685,
-    0.0,
-    1.2
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Wreck_Sedan",
-   "pos": [
-    2.4685,
-    0.0,
-    -2.7
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Barrier_Concrete",
-   "pos": [
-    3.3685,
-    0.0,
-    -3.5
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_Wreck_hb01_aban1_blue_DE",
-   "pos": [
-    -5.4665,
-    0.0,
-    2.3661
-   ],
-   "ypr": [
-    250.2098,
+    167.4883,
     0.0,
     0.0
    ],
@@ -4997,7 +5717,87 @@
    "pos": [
     7.5,
     0.0,
-    -57.712
+    26.4685
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Wreck_Sedan",
+   "pos": [
+    10.8,
+    0.0,
+    27.3685
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Wreck_Sedan",
+   "pos": [
+    14.7,
+    0.0,
+    26.4685
+   ],
+   "ypr": [
+    270.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Barrier_Concrete",
+   "pos": [
+    15.5,
+    0.0,
+    27.3685
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_Wreck_hb01_aban1_blue_DE",
+   "pos": [
+    9.6339,
+    0.0,
+    18.5335
+   ],
+   "ypr": [
+    160.2098,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Barrier_Concrete",
+   "pos": [
+    7.5,
+    0.0,
+    62.288
    ],
    "ypr": [
     90.0,
@@ -5013,7 +5813,7 @@
    "pos": [
     10.2,
     0.0,
-    -56.812
+    63.188
    ],
    "ypr": [
     270.0,
@@ -5029,7 +5829,7 @@
    "pos": [
     12.3417,
     0.0,
-    -57.712
+    62.288
    ],
    "ypr": [
     90.0,
@@ -5045,7 +5845,7 @@
    "pos": [
     16.3417,
     0.0,
-    -56.812
+    63.188
    ],
    "ypr": [
     270.0,
@@ -5061,7 +5861,7 @@
    "pos": [
     16.5,
     0.0,
-    -57.712
+    62.288
    ],
    "ypr": [
     270.0,
@@ -5077,7 +5877,7 @@
    "pos": [
     10.2447,
     0.0,
-    -65.3602
+    54.6398
    ],
    "ypr": [
     176.1296,
@@ -5091,12 +5891,12 @@
   {
    "name": "Land_SKY_Wreck_Sedan",
    "pos": [
-    8.1,
+    32.5249,
     0.0,
-    -15.4751
+    3.9
    ],
    "ypr": [
-    270.0,
+    0.0,
     0.0,
     0.0
    ],
@@ -5107,12 +5907,12 @@
   {
    "name": "Land_SKY_Wreck_Sedan",
    "pos": [
-    12.0,
+    33.4249,
     0.0,
-    -14.5751
+    -0.0
    ],
    "ypr": [
-    90.0,
+    180.0,
     0.0,
     0.0
    ],
@@ -5123,12 +5923,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    15.3,
+    32.5249,
     0.0,
-    -15.4751
+    -3.3
    ],
    "ypr": [
-    90.0,
+    180.0,
     0.0,
     0.0
    ],
@@ -5139,12 +5939,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    15.5,
+    33.4249,
     0.0,
-    -14.5751
+    -3.5
    ],
    "ypr": [
-    90.0,
+    180.0,
     0.0,
     0.0
    ],
@@ -5155,12 +5955,12 @@
   {
    "name": "Land_Wreck_sed01_aban1_black_DE",
    "pos": [
-    14.0774,
+    40.925,
     0.0,
-    -7.075
+    -2.0774
    ],
    "ypr": [
-    12.0763,
+    102.0763,
     0.0,
     0.0
    ],
@@ -5171,12 +5971,12 @@
   {
    "name": "Land_Wreck_sed02_aban1_red_DE",
    "pos": [
-    13.9977,
+    40.5792,
     0.0,
-    -7.4208
+    -1.9977
    ],
    "ypr": [
-    185.8625,
+    275.8625,
     0.0,
     0.0
    ],
@@ -5187,12 +5987,12 @@
   {
    "name": "Land_SKY_Wreck_Sedan",
    "pos": [
-    9.1,
+    44.4858,
     0.0,
-    32.4858
+    2.9
    ],
    "ypr": [
-    90.0,
+    180.0,
     0.0,
     0.0
    ],
@@ -5203,12 +6003,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    12.4,
+    45.3858,
     0.0,
-    33.3858
+    -0.4
    ],
    "ypr": [
-    90.0,
+    180.0,
     0.0,
     0.0
    ],
@@ -5219,12 +6019,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    15.1,
+    44.4858,
     0.0,
-    32.4858
+    -3.1
    ],
    "ypr": [
-    270.0,
+    0.0,
     0.0,
     0.0
    ],
@@ -5235,12 +6035,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    16.5,
+    45.3858,
     0.0,
-    33.3858
+    -4.5
    ],
    "ypr": [
-    270.0,
+    0.0,
     0.0,
     0.0
    ],
@@ -5251,12 +6051,12 @@
   {
    "name": "Land_Wreck_Volha_Police",
    "pos": [
-    10.0552,
+    52.7082,
     0.0,
-    40.7082
+    1.9448
    ],
    "ypr": [
-    339.9358,
+    69.9358,
     0.0,
     0.0
    ],
@@ -5267,12 +6067,12 @@
   {
    "name": "Land_SKY_Wreck_Sedan",
    "pos": [
-    9.1,
+    56.8434,
     0.0,
-    44.8434
+    -69.1
    ],
    "ypr": [
-    270.0,
+    0.0,
     0.0,
     0.0
    ],
@@ -5283,12 +6083,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    12.4,
+    57.7434,
     0.0,
-    45.7434
+    -72.4
    ],
    "ypr": [
-    270.0,
+    0.0,
     0.0,
     0.0
    ],
@@ -5299,12 +6099,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    15.1,
+    56.8434,
     0.0,
-    44.8434
+    -75.1
    ],
    "ypr": [
-    270.0,
+    0.0,
     0.0,
     0.0
    ],
@@ -5315,12 +6115,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    16.5,
+    57.7434,
     0.0,
-    45.7434
+    -76.5
    ],
    "ypr": [
-    90.0,
+    180.0,
     0.0,
     0.0
    ],
@@ -5331,12 +6131,12 @@
   {
    "name": "Land_Wreck_hb01_aban1_blue_DE",
    "pos": [
-    10.2672,
+    64.5598,
     0.0,
-    52.5598
+    -70.2672
    ],
    "ypr": [
-    19.2769,
+    109.2769,
     0.0,
     0.0
    ],
@@ -5347,12 +6147,12 @@
   {
    "name": "Land_Wreck_Volha_Police",
    "pos": [
-    10.1818,
+    65.461,
     0.0,
-    53.461
+    -70.1818
    ],
    "ypr": [
-    178.2885,
+    268.2885,
     0.0,
     0.0
    ],
@@ -5363,12 +6163,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    8.5,
+    61.9805,
     0.0,
-    61.9805
+    3.5
    ],
    "ypr": [
-    270.0,
+    0.0,
     0.0,
     0.0
    ],
@@ -5379,12 +6179,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    11.2,
+    62.8805,
     0.0,
-    62.8805
+    0.8
    ],
    "ypr": [
-    270.0,
+    0.0,
     0.0,
     0.0
    ],
@@ -5395,12 +6195,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    13.9,
+    61.9805,
     0.0,
-    61.9805
+    -1.9
    ],
    "ypr": [
-    90.0,
+    180.0,
     0.0,
     0.0
    ],
@@ -5411,12 +6211,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    16.5,
+    62.8805,
     0.0,
-    62.8805
+    -4.5
    ],
    "ypr": [
-    270.0,
+    0.0,
     0.0,
     0.0
    ],
@@ -5427,12 +6227,12 @@
   {
    "name": "Land_Wreck_sed01_aban1_black_DE",
    "pos": [
-    14.3071,
+    54.6237,
     0.0,
-    54.6237
+    -2.3071
    ],
    "ypr": [
-    203.6699,
+    293.6699,
     0.0,
     0.0
    ],
@@ -5443,12 +6243,12 @@
   {
    "name": "Land_Wreck_offroad02_aban1_DE",
    "pos": [
-    14.262,
+    55.2959,
     0.0,
-    55.2959
+    -2.262
    ],
    "ypr": [
-    336.7872,
+    66.7872,
     0.0,
     0.0
    ],
@@ -5459,7 +6259,7 @@
   {
    "name": "Land_SKY_Wreck_Van",
    "pos": [
-    26.3176,
+    74.3176,
     0.0,
     -69.6
    ],
@@ -5475,7 +6275,7 @@
   {
    "name": "Land_SKY_Wreck_Van",
    "pos": [
-    27.2176,
+    75.2176,
     0.0,
     -74.5
    ],
@@ -5491,7 +6291,7 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    26.3176,
+    74.3176,
     0.0,
     -76.5
    ],
@@ -5507,7 +6307,7 @@
   {
    "name": "Land_Wreck_sed01_aban1_black_DE",
    "pos": [
-    18.6385,
+    66.6385,
     0.0,
     -70.383
    ],
@@ -5523,7 +6323,7 @@
   {
    "name": "Land_Wreck_sed02_aban1_red_DE",
    "pos": [
-    19.8639,
+    67.8639,
     0.0,
     -74.2812
    ],
@@ -5539,12 +6339,12 @@
   {
    "name": "Land_SKY_Wreck_Sedan",
    "pos": [
-    32.4127,
+    93.1,
     0.0,
-    -69.1
+    -63.5873
    ],
    "ypr": [
-    0.0,
+    270.0,
     0.0,
     0.0
    ],
@@ -5555,12 +6355,12 @@
   {
    "name": "Land_SKY_Wreck_Sedan",
    "pos": [
-    33.3127,
+    97.0,
     0.0,
-    -73.0
+    -62.6873
    ],
    "ypr": [
-    0.0,
+    270.0,
     0.0,
     0.0
    ],
@@ -5571,12 +6371,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    32.4127,
+    100.3,
     0.0,
-    -76.3
+    -63.5873
    ],
    "ypr": [
-    0.0,
+    270.0,
     0.0,
     0.0
    ],
@@ -5587,12 +6387,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    33.3127,
+    100.5,
     0.0,
-    -76.5
+    -62.6873
    ],
    "ypr": [
-    0.0,
+    270.0,
     0.0,
     0.0
    ],
@@ -5603,12 +6403,12 @@
   {
    "name": "Land_Wreck_sed02_aban1_red_DE",
    "pos": [
-    40.3665,
+    94.3251,
     0.0,
-    -70.3251
+    -55.6335
    ],
    "ypr": [
-    112.1171,
+    22.1171,
     0.0,
     0.0
    ],
@@ -5619,12 +6419,12 @@
   {
    "name": "Land_SKY_Wreck_Van",
    "pos": [
-    38.7511,
+    93.6,
     0.0,
-    2.4
+    -45.2489
    ],
    "ypr": [
-    180.0,
+    90.0,
     0.0,
     0.0
    ],
@@ -5635,12 +6435,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    39.6511,
+    97.4,
     0.0,
-    -1.4
+    -44.3489
    ],
    "ypr": [
-    180.0,
+    90.0,
     0.0,
     0.0
    ],
@@ -5651,12 +6451,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    38.7511,
+    100.1,
     0.0,
-    -4.1
+    -45.2489
    ],
    "ypr": [
-    0.0,
+    270.0,
     0.0,
     0.0
    ],
@@ -5667,12 +6467,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    39.6511,
+    100.5,
     0.0,
-    -4.5
+    -44.3489
    ],
    "ypr": [
-    0.0,
+    270.0,
     0.0,
     0.0
    ],
@@ -5683,12 +6483,12 @@
   {
    "name": "Land_wreck_truck01_aban1_blue_DE",
    "pos": [
-    30.8571,
+    93.6008,
     0.0,
-    2.3992
+    -53.1429
    ],
    "ypr": [
-    79.1346,
+    349.1346,
     0.0,
     0.0
    ],
@@ -5699,12 +6499,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    38.2518,
+    92.5,
     0.0,
-    75.5
+    -21.7482
    ],
    "ypr": [
-    0.0,
+    270.0,
     0.0,
     0.0
    ],
@@ -5715,12 +6515,12 @@
   {
    "name": "Land_SKY_Wreck_Sedan",
    "pos": [
-    39.1518,
+    95.8,
     0.0,
-    72.2
+    -20.8482
    ],
    "ypr": [
-    0.0,
+    270.0,
     0.0,
     0.0
    ],
@@ -5731,12 +6531,12 @@
   {
    "name": "Land_SKY_Wreck_Sedan",
    "pos": [
-    38.2518,
+    99.7,
     0.0,
-    68.3
+    -21.7482
    ],
    "ypr": [
-    0.0,
+    270.0,
     0.0,
     0.0
    ],
@@ -5747,12 +6547,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    39.1518,
+    100.5,
     0.0,
-    67.5
+    -20.8482
    ],
    "ypr": [
-    180.0,
+    90.0,
     0.0,
     0.0
    ],
@@ -5763,12 +6563,12 @@
   {
    "name": "Land_Wreck_Volha_Police",
    "pos": [
-    30.935,
+    98.3956,
     0.0,
-    69.6044
+    -29.065
    ],
    "ypr": [
-    291.934,
+    201.934,
     0.0,
     0.0
    ],
@@ -5779,12 +6579,12 @@
   {
    "name": "Land_SKY_Wreck_Sedan",
    "pos": [
-    50.8087,
+    93.1,
     0.0,
-    -69.1
+    -9.1913
    ],
    "ypr": [
-    0.0,
+    270.0,
     0.0,
     0.0
    ],
@@ -5795,12 +6595,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    51.7087,
+    96.4,
     0.0,
-    -72.4
+    -8.2913
    ],
    "ypr": [
-    0.0,
+    270.0,
     0.0,
     0.0
    ],
@@ -5811,12 +6611,12 @@
   {
    "name": "Land_SKY_Wreck_Sedan",
    "pos": [
-    50.8087,
+    99.7,
     0.0,
-    -75.7
+    -9.1913
    ],
    "ypr": [
-    180.0,
+    90.0,
     0.0,
     0.0
    ],
@@ -5827,12 +6627,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    51.7087,
+    100.5,
     0.0,
-    -76.5
+    -8.2913
    ],
    "ypr": [
-    0.0,
+    270.0,
     0.0,
     0.0
    ],
@@ -5843,12 +6643,12 @@
   {
    "name": "Land_Wreck_sed02_aban1_red_DE",
    "pos": [
-    42.7138,
+    98.2032,
     0.0,
-    -74.2032
+    -17.2862
    ],
    "ypr": [
-    100.2144,
+    10.2144,
     0.0,
     0.0
    ],
@@ -5859,12 +6659,12 @@
   {
    "name": "Land_SKY_Wreck_Sedan",
    "pos": [
-    56.5533,
+    92.1,
     0.0,
-    -68.1
+    20.5533
    ],
    "ypr": [
-    180.0,
+    90.0,
     0.0,
     0.0
    ],
@@ -5875,12 +6675,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    57.4533,
+    93.082,
     0.0,
-    -69.082
+    21.4533
    ],
    "ypr": [
-    0.0,
+    270.0,
     0.0,
     0.0
    ],
@@ -5891,12 +6691,12 @@
   {
    "name": "Land_SKY_Wreck_Van",
    "pos": [
-    56.5533,
+    98.182,
     0.0,
-    -74.182
+    20.5533
    ],
    "ypr": [
-    0.0,
+    270.0,
     0.0,
     0.0
    ],
@@ -5907,12 +6707,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    57.4533,
+    100.5,
     0.0,
-    -76.5
+    21.4533
    ],
    "ypr": [
-    0.0,
+    270.0,
     0.0,
     0.0
    ],
@@ -5923,12 +6723,12 @@
   {
    "name": "Land_Wreck_Volha_Police",
    "pos": [
-    64.0285,
+    97.6092,
     0.0,
-    -73.6092
+    28.0285
    ],
    "ypr": [
-    88.7805,
+    358.7805,
     0.0,
     0.0
    ],
@@ -5939,12 +6739,12 @@
   {
    "name": "Land_Wreck_sed01_aban1_black_DE",
    "pos": [
-    64.4072,
+    97.9615,
     0.0,
-    -73.9615
+    28.4072
    ],
    "ypr": [
-    294.9433,
+    204.9433,
     0.0,
     0.0
    ],
@@ -5955,12 +6755,12 @@
   {
    "name": "Land_SKY_Wreck_Van",
    "pos": [
-    56.4017,
+    92.6,
     0.0,
-    3.4
+    44.4017
    ],
    "ypr": [
-    180.0,
+    90.0,
     0.0,
     0.0
    ],
@@ -5971,12 +6771,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    57.3017,
+    93.9408,
     0.0,
-    2.0592
+    45.3017
    ],
    "ypr": [
-    0.0,
+    270.0,
     0.0,
     0.0
    ],
@@ -5987,12 +6787,12 @@
   {
    "name": "Land_SKY_Wreck_Van",
    "pos": [
-    56.4017,
+    99.0408,
     0.0,
-    -3.0408
+    44.4017
    ],
    "ypr": [
-    0.0,
+    270.0,
     0.0,
     0.0
    ],
@@ -6003,12 +6803,12 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    57.3017,
+    100.5,
     0.0,
-    -4.5
+    45.3017
    ],
    "ypr": [
-    0.0,
+    270.0,
     0.0,
     0.0
    ],
@@ -6019,12 +6819,12 @@
   {
    "name": "Land_Wreck_V3S_DE",
    "pos": [
-    65.1913,
+    93.6922,
     0.0,
-    2.3078
+    53.1913
    ],
    "ypr": [
-    67.8076,
+    337.8076,
     0.0,
     0.0
    ],
@@ -6035,103 +6835,7 @@
   {
    "name": "Land_SKY_Wreck_Sedan",
    "pos": [
-    86.5951,
-    0.0,
-    -68.1
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Wreck_Sedan",
-   "pos": [
-    87.4951,
-    0.0,
-    -72.0
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Barrier_Concrete",
-   "pos": [
-    86.5951,
-    0.0,
-    -75.3
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Barrier_Concrete",
-   "pos": [
-    87.4951,
-    0.0,
-    -75.5
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_Wreck_hb01_aban1_blue_DE",
-   "pos": [
-    79.1836,
-    0.0,
-    -73.9866
-   ],
-   "ypr": [
-    97.5873,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_Wreck_V3S_DE",
-   "pos": [
-    79.7103,
-    0.0,
-    -73.8177
-   ],
-   "ypr": [
-    75.7486,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Wreck_Sedan",
-   "pos": [
-    80.1607,
+    110.5951,
     0.0,
     3.9
    ],
@@ -6145,11 +6849,27 @@
    "customString": ""
   },
   {
+   "name": "Land_SKY_Wreck_Sedan",
+   "pos": [
+    111.4951,
+    0.0,
+    -0.0
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    81.0607,
+    110.5951,
     0.0,
-    0.6
+    -3.3
    ],
    "ypr": [
     180.0,
@@ -6163,9 +6883,57 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    80.1607,
+    111.4951,
     0.0,
-    -0.378
+    -3.5
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_Wreck_hb01_aban1_blue_DE",
+   "pos": [
+    103.1836,
+    0.0,
+    -1.9866
+   ],
+   "ypr": [
+    97.5873,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_Wreck_V3S_DE",
+   "pos": [
+    103.7103,
+    0.0,
+    -1.8177
+   ],
+   "ypr": [
+    75.7486,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Wreck_Sedan",
+   "pos": [
+    104.1607,
+    0.0,
+    75.9
    ],
    "ypr": [
     0.0,
@@ -6179,9 +6947,9 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    81.0607,
+    105.0607,
     0.0,
-    -4.378
+    72.6
    ],
    "ypr": [
     180.0,
@@ -6195,9 +6963,41 @@
   {
    "name": "Land_SKY_Barrier_Concrete",
    "pos": [
-    80.1607,
+    104.1607,
     0.0,
-    -4.5
+    71.622
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Barrier_Concrete",
+   "pos": [
+    105.0607,
+    0.0,
+    67.622
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Barrier_Concrete",
+   "pos": [
+    104.1607,
+    0.0,
+    67.5
    ],
    "ypr": [
     180.0,
@@ -6211,9 +7011,9 @@
   {
    "name": "Land_Wreck_sed01_aban1_black_DE",
    "pos": [
-    89.2962,
+    113.2962,
     0.0,
-    -2.1215
+    69.8785
    ],
    "ypr": [
     279.7043,
@@ -6227,556 +7027,12 @@
   {
    "name": "Land_Wreck_sed01_aban1_black_DE",
    "pos": [
-    88.3763,
+    112.3763,
     0.0,
-    1.9563
+    73.9563
    ],
    "ypr": [
     95.0544,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Wreck_Van",
-   "pos": [
-    93.6,
-    0.0,
-    -39.2423
-   ],
-   "ypr": [
-    90.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Wreck_Van",
-   "pos": [
-    98.5,
-    0.0,
-    -38.3423
-   ],
-   "ypr": [
-    270.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Barrier_Concrete",
-   "pos": [
-    100.5,
-    0.0,
-    -39.2423
-   ],
-   "ypr": [
-    270.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_Wreck_hb01_aban1_blue_DE",
-   "pos": [
-    98.0637,
-    0.0,
-    -31.1703
-   ],
-   "ypr": [
-    6.9755,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_Wreck_hb01_aban1_blue_DE",
-   "pos": [
-    98.1795,
-    0.0,
-    -31.1863
-   ],
-   "ypr": [
-    170.9814,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Barrier_Concrete",
-   "pos": [
-    91.5,
-    0.0,
-    -15.4391
-   ],
-   "ypr": [
-    90.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Barrier_Concrete",
-   "pos": [
-    91.5873,
-    0.0,
-    -14.5391
-   ],
-   "ypr": [
-    90.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Wreck_Van",
-   "pos": [
-    96.6873,
-    0.0,
-    -15.4391
-   ],
-   "ypr": [
-    270.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Barrier_Concrete",
-   "pos": [
-    100.4873,
-    0.0,
-    -14.5391
-   ],
-   "ypr": [
-    270.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Barrier_Concrete",
-   "pos": [
-    100.5,
-    0.0,
-    -15.4391
-   ],
-   "ypr": [
-    270.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_Wreck_V3S_DE",
-   "pos": [
-    94.3738,
-    0.0,
-    -6.5224
-   ],
-   "ypr": [
-    169.4914,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Barrier_Concrete",
-   "pos": [
-    91.5,
-    0.0,
-    32.525
-   ],
-   "ypr": [
-    90.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Wreck_Van",
-   "pos": [
-    95.3,
-    0.0,
-    33.425
-   ],
-   "ypr": [
-    270.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Barrier_Concrete",
-   "pos": [
-    99.1,
-    0.0,
-    32.525
-   ],
-   "ypr": [
-    270.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Barrier_Concrete",
-   "pos": [
-    99.5,
-    0.0,
-    33.425
-   ],
-   "ypr": [
-    270.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_wreck_truck01_aban1_blue_DE",
-   "pos": [
-    98.349,
-    0.0,
-    41.2266
-   ],
-   "ypr": [
-    359.1519,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_Wreck_offroad02_aban1_DE",
-   "pos": [
-    98.0053,
-    0.0,
-    40.9849
-   ],
-   "ypr": [
-    184.2642,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Wreck_Van",
-   "pos": [
-    92.6,
-    0.0,
-    50.5211
-   ],
-   "ypr": [
-    90.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Barrier_Concrete",
-   "pos": [
-    95.2417,
-    0.0,
-    51.4211
-   ],
-   "ypr": [
-    90.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Barrier_Concrete",
-   "pos": [
-    99.2417,
-    0.0,
-    50.5211
-   ],
-   "ypr": [
-    270.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Barrier_Concrete",
-   "pos": [
-    100.5,
-    0.0,
-    51.4211
-   ],
-   "ypr": [
-    90.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_Wreck_sed01_aban1_black_DE",
-   "pos": [
-    97.9583,
-    0.0,
-    43.526
-   ],
-   "ypr": [
-    340.1502,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_Wreck_Volha_Police",
-   "pos": [
-    94.3654,
-    0.0,
-    43.3299
-   ],
-   "ypr": [
-    356.2741,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Barrier_Concrete",
-   "pos": [
-    91.5,
-    0.0,
-    56.9599
-   ],
-   "ypr": [
-    90.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Barrier_Concrete",
-   "pos": [
-    91.822,
-    0.0,
-    57.8599
-   ],
-   "ypr": [
-    90.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Wreck_Sedan",
-   "pos": [
-    96.422,
-    0.0,
-    56.9599
-   ],
-   "ypr": [
-    270.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Barrier_Concrete",
-   "pos": [
-    99.722,
-    0.0,
-    57.8599
-   ],
-   "ypr": [
-    270.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Barrier_Concrete",
-   "pos": [
-    100.5,
-    0.0,
-    56.9599
-   ],
-   "ypr": [
-    90.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_Wreck_V3S_DE",
-   "pos": [
-    94.1724,
-    0.0,
-    64.4476
-   ],
-   "ypr": [
-    340.2272,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Barrier_Concrete",
-   "pos": [
-    105.0019,
-    0.0,
-    -67.5
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Barrier_Concrete",
-   "pos": [
-    105.9019,
-    0.0,
-    -68.6706
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Wreck_Sedan",
-   "pos": [
-    105.0019,
-    0.0,
-    -73.2706
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Barrier_Concrete",
-   "pos": [
-    105.9019,
-    0.0,
-    -76.5
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_Wreck_offroad02_aban1_DE",
-   "pos": [
-    112.5602,
-    0.0,
-    -70.1636
-   ],
-   "ypr": [
-    109.8142,
     0.0,
     0.0
    ],
@@ -7761,9 +8017,9 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_ShopRow_Ruined",
+   "name": "Land_SKY_City_Cafe_Ruined",
    "pos": [
-    85.0,
+    83.5,
     0.15,
     58.5
    ],
@@ -7779,7 +8035,7 @@
   {
    "name": "Land_SKY_City_SupermarketSmall_Intact",
    "pos": [
-    70.0,
+    67.0,
     0.15,
     58.5
    ],
@@ -7795,7 +8051,7 @@
   {
    "name": "Land_SKY_City_AptBlock_Intact",
    "pos": [
-    50.5,
+    47.5,
     0.15,
     59.5
    ],
@@ -7811,7 +8067,7 @@
   {
    "name": "Land_SKY_City_ShopRow_Intact",
    "pos": [
-    35.5,
+    32.5,
     0.15,
     58.5
    ],
@@ -7827,7 +8083,7 @@
   {
    "name": "Land_SKY_City_ShopRow_Intact",
    "pos": [
-    26.5,
+    23.5,
     0.15,
     58.5
    ],
@@ -7841,11 +8097,27 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_Veg_Weeds",
+   "name": "Land_SKY_Veg_Bush",
    "pos": [
-    24.0968,
+    23.3478,
     0.15,
-    20.9739
+    34.6486
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Veg_Bush",
+   "pos": [
+    20.2535,
+    0.15,
+    44.247
    ],
    "ypr": [
     180.0,
@@ -7857,11 +8129,43 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_Veg_Weeds",
+   "name": "Land_SKY_Veg_Bush",
    "pos": [
-    20.1766,
+    19.9399,
     0.15,
-    36.1977
+    48.9378
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Veg_Bush",
+   "pos": [
+    41.0384,
+    0.15,
+    49.6017
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Veg_Bush",
+   "pos": [
+    50.5814,
+    0.15,
+    49.2914
    ],
    "ypr": [
     270.0,
@@ -7875,41 +8179,9 @@
   {
    "name": "Land_SKY_Veg_Weeds",
    "pos": [
-    32.3328,
+    57.0024,
     0.15,
-    48.3622
-   ],
-   "ypr": [
-    90.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Veg_Bush",
-   "pos": [
-    44.3198,
-    0.15,
-    49.5971
-   ],
-   "ypr": [
-    90.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Veg_Weeds",
-   "pos": [
-    20.2923,
-    0.15,
-    42.7947
+    49.6513
    ],
    "ypr": [
     180.0,
@@ -7923,9 +8195,9 @@
   {
    "name": "Land_SKY_Veg_Bush",
    "pos": [
-    50.3965,
+    67.0375,
     0.15,
-    49.5411
+    48.8337
    ],
    "ypr": [
     180.0,
@@ -7939,12 +8211,124 @@
   {
    "name": "Land_SKY_Veg_Weeds",
    "pos": [
-    57.0734,
+    79.5398,
     0.15,
-    48.9219
+    48.822
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Veg_Bush",
+   "pos": [
+    80.5795,
+    0.15,
+    52.7061
+   ],
+   "ypr": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Veg_Weeds",
+   "pos": [
+    85.4992,
+    0.15,
+    8.4659
    ],
    "ypr": [
     90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Veg_Bush",
+   "pos": [
+    85.5346,
+    0.15,
+    14.5732
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Veg_Bush",
+   "pos": [
+    85.6082,
+    0.15,
+    22.9157
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Veg_Bush",
+   "pos": [
+    85.9044,
+    0.15,
+    30.08
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Veg_Weeds",
+   "pos": [
+    85.3404,
+    0.15,
+    43.2508
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Veg_Bush",
+   "pos": [
+    85.0607,
+    0.15,
+    47.9586
+   ],
+   "ypr": [
+    0.0,
     0.0,
     0.0
    ],

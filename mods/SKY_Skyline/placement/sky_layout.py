@@ -597,7 +597,8 @@ def place_underground(ctx, lay, world, site_yaw, street_y, terrain):
     """Sewers and metro under street lines (D63, ROADMAP ideas 18, 22): cut-and-cover pieces whose roof is
     just under street level, so they need a trench in the terrain: custom terrain only (MOD_DEVELOPMENT_GUIDE
     4.3; terrain/gen_terrain.py trenches them). On a vanilla map the ParkingLot_Metro hatches stay sealed.
-    underground: [{kind: sewer|metro, axis, index, from, to, access: [c...], stations: [c...]}]
+    underground: [{kind: sewer|metro, axis, index, from, to, access: [c...], stations: [c...],
+                   collapse: 0..1, flooded_ends: bool, seed}]   (D67 variants; stations cycle S.METRO_STATIONS)
     - sewer: Sewer_Straight per cell, Sewer_Junction where two sewer runs cross, Sewer_End at open ends,
       at an `access` cell a Sewer_Access + a parallel Sewer_Stair on its +X side (under the sidewalk);
     - metro: Metro_Tunnel per cell, Metro_End at both ends, a 24 m Metro_Station over cells c and c+1.
@@ -605,6 +606,7 @@ def place_underground(ctx, lay, world, site_yaw, street_y, terrain):
     world footprint and floor depth) for the darkness triggers and the terrain trenches."""
     runs = lay.get("underground") or []
     ctx.underground = []
+    ctx.station_count = 0
     if not runs:
         return []
     if not terrain:
@@ -639,6 +641,10 @@ def place_underground(ctx, lay, world, site_yaw, street_y, terrain):
         fwd = _line_yaw(r)
         along = [c[1] if r["axis"] == "ns" else c[0] for c in cells]
         stations = set(r.get("stations") or [])
+        import random
+        rr = random.Random(int(r.get("seed", 63)))
+        collapse = float(r.get("collapse", 0.0))                          # D67: share of plain cells that collapsed
+        flooded_ends = bool(r.get("flooded_ends", False))                 # D67: sewer dead ends hold water
         access = set(r.get("access") or [])
         skip = set()
         for n, c in enumerate(cells):
@@ -652,7 +658,9 @@ def place_underground(ctx, lay, world, site_yaw, street_y, terrain):
                         ctx.errors.append("underground metro %s: station at %s needs a tunnel cell before and after it" % (r.get("index"), along[n]))
                         continue
                     nx, nz = world(*cell_center(lay, *cells[n + 1]))
-                    quads.append(("metro station %s" % (c,), put("Metro_Station", (wx + nx) / 2, (wz + nz) / 2, yaw, UG["metro_floor"])))
+                    variant = S.METRO_STATIONS[ctx.station_count % len(S.METRO_STATIONS)]     # D67: each station its own name
+                    ctx.station_count += 1
+                    quads.append(("metro station %s" % (c,), put(variant, (wx + nx) / 2, (wz + nz) / 2, yaw, UG["metro_floor"])))
                     skip.add(n + 1)
                     continue
                 if n == 0:
@@ -660,7 +668,7 @@ def place_underground(ctx, lay, world, site_yaw, street_y, terrain):
                 elif n == len(cells) - 1:
                     put("Metro_End", wx, wz, yaw, UG["metro_floor"])
                 else:
-                    put("Metro_Tunnel", wx, wz, yaw, UG["metro_floor"])
+                    put("Metro_Collapsed" if rr.random() < collapse else "Metro_Tunnel", wx, wz, yaw, UG["metro_floor"])
                 continue
             if sewer_cells.get(c, 0) > 1:                                       # crossing of two sewer runs
                 if c not in done_junctions:
@@ -673,11 +681,11 @@ def place_underground(ctx, lay, world, site_yaw, street_y, terrain):
                 off = S.LANDMARK_SIZE["Sewer_Access"][0] / 2 + S.LANDMARK_SIZE["Sewer_Stair"][0] / 2
                 put("Sewer_Stair", wx + ox * off, wz + oz * off, yaw, UG["sewer_floor"])   # parallel, under the sidewalk
             elif n == 0:
-                put("Sewer_End", wx, wz, yaw + 180.0, UG["sewer_floor"])
+                put("Sewer_FloodedEnd" if flooded_ends else "Sewer_End", wx, wz, yaw + 180.0, UG["sewer_floor"])
             elif n == len(cells) - 1:
-                put("Sewer_End", wx, wz, yaw, UG["sewer_floor"])
+                put("Sewer_FloodedEnd" if flooded_ends else "Sewer_End", wx, wz, yaw, UG["sewer_floor"])
             else:
-                put("Sewer_Straight", wx, wz, yaw, UG["sewer_floor"])
+                put("Sewer_Collapsed" if rr.random() < collapse else "Sewer_Straight", wx, wz, yaw, UG["sewer_floor"])
         bad = [a for a in access if a not in along] + [s_ for s_ in stations if s_ not in along]
         if bad:
             ctx.errors.append("underground %s %s: access/station positions %s are not on the run" % (kind, r.get("index"), bad))
@@ -685,7 +693,7 @@ def place_underground(ctx, lay, world, site_yaw, street_y, terrain):
     for p in ug:
         if not all(v > 0 for v in p["size"]) or any(v != v for v in p["pos"]):
             ctx.errors.append("underground %s: bad size / position %s %s" % (p["cls"], p["size"], p["pos"]))
-    sewers = sum(1 for p in ug if p["cls"].startswith("Sewer_") and p["cls"] != "Sewer_Stair")
+    sewers = sum(1 for p in ug if p["cls"].startswith("Sewer_") and p["cls"] != "Sewer_Stair")   # flooding pieces
     if sewers > 512:
         ctx.errors.append("underground: %d flooding sewer pieces > SKY_Under.MAX_PIECES 512" % sewers)
     polys = [footprint_corners(p["pos"][0], p["pos"][2], p["size"][0] / 2 - 0.05, p["size"][1] / 2 - 0.05, p["yaw"]) for p in ug]
@@ -711,10 +719,10 @@ def underground_triggers(ctx):
                 "Orientation": [round(p["yaw"], 2), 0.0, 0.0], "Size": [round(w, 2), round(h, 2), round(d, 2)],
                 "EyeAccommodation": S.UNDERGROUND_LIGHT["eye_inside"], "InterpolationSpeed": S.UNDERGROUND_LIGHT["speed"],
                 "UseLinePointFade": False, "AmbientSoundType": "", "AmbientSoundSet": "", "Breadcrumbs": []}
-        if p["cls"] in ("Sewer_Stair", "Metro_Station"):
+        if p["cls"] == "Sewer_Stair" or p["cls"].startswith("Metro_Station"):
             # fade along the stair: street end bright -> bottom dark (local +-Y ends)
             ends = [(0.0, -d / 2 + 1.0, y + UG["roof_top"]), (0.0, d / 2 - 2.0, p["floor"])] if p["cls"] == "Sewer_Stair" else \
-                   [(0.0, d / 2 - 0.5, y + UG["roof_top"]), (0.0, 0.0, p["floor"] + 1.0)]
+                   [(0.0, d / 2 - 0.5, y + UG["roof_top"]), (0.0, 0.0, p["floor"] + 1.0)]   # station stair (all variants)
             crumbs = []
             for i, (u, v, yy) in enumerate(ends):
                 dx, dz = rot(u, v, p["yaw"])
@@ -730,13 +738,19 @@ def underground_triggers(ctx):
 def place_street_furniture(ctx, lay, tiles, world, site_yaw, street_y):
     """Bins and hydrants on the +X sidewalk of straight tiles (ideas 16, 17): a bin every
     `bins_every`, a hydrant every `hydrants_every` tile per street line; `wet` = share of hydrants
-    that still give water (Hydrant_Wet), the rest are dry. Clear of the jam lines (|v| <= 4.9)."""
+    that still give water (Hydrant_Wet), the rest are dry. Clear of the jam lines (|v| <= 4.9).
+    D67, -X sidewalk: a bus shelter every `bus_stops_every` tile (centred, never on a street-lamp tile;
+    the tile is reserved so no jam line crosses it), an advertising column every `ads_every` (v -5.2),
+    a phone booth every `phones_every` (v +5.3). Returns the reserved (bus stop) cells."""
     fu = (lay.get("streets") or {}).get("furniture")
     if not fu:
-        return
+        return set()
     import random
     rng = random.Random(int(fu.get("seed", 1)))
     be, he, wet = int(fu.get("bins_every", 0) or 0), int(fu.get("hydrants_every", 0) or 0), float(fu.get("wet", 0.35))
+    bse, ade, phe = (int(fu.get(k, 0) or 0) for k in ("bus_stops_every", "ads_every", "phones_every"))   # D67, -X sidewalk
+    le = int((lay.get("streets") or {}).get("lights_every", 0) or 0)            # street lamps stand at v 0 there too
+    reserved = set()
     per_line = {}
     lu = S.STREET["carriageway"] / 2 + 0.6
     for kind, i, j, tyaw in tiles:
@@ -756,6 +770,19 @@ def place_street_furniture(ctx, lay, tiles, world, site_yaw, street_y):
             dx, dz = rot(lu, -5.4, yaw)
             cls = "Hydrant_Wet" if rng.random() < wet else "Hydrant_Dry"
             ctx.add("furniture", S.KIT[cls]["cls"], (wx + dx, y, wz + dz), yaw)
+        su = -(lu + 0.4)                                                            # -X sidewalk centre line
+        lamp_here = bool(le) and k % le == 0
+        if bse and k % bse == 2 % bse and not lamp_here:                            # shelter faces the carriageway
+            dx, dz = rot(su, 0.0, yaw)
+            ctx.add("furniture", S.KIT["BusStop"]["cls"], (wx + dx, y, wz + dz), (yaw + 270.0) % 360.0)
+            reserved.add((i, j))                                                    # no jam line across a bus stop
+        elif ade and k % ade == 1 % ade:
+            dx, dz = rot(su, -5.2, yaw)
+            ctx.add("furniture", S.KIT["AdColumn"]["cls"], (wx + dx, y, wz + dz), yaw)
+        if phe and k % phe == 3 % phe and not (bse and k % bse == 2 % bse and not lamp_here):
+            dx, dz = rot(su, 5.3, yaw)
+            ctx.add("furniture", S.KIT["PhoneBooth"]["cls"], (wx + dx, y, wz + dz), (yaw + 270.0) % 360.0)
+    return reserved
 
 
 def place_props(ctx, lay, world, site_yaw, survey):
@@ -1089,8 +1116,8 @@ def main():
         for tid, tq2 in quads:
             if sat_overlap(oq, tq2):
                 ctx.errors.append("%s: berm overlaps tower %s" % (oid, tid))
-    place_street_furniture(ctx, lay, tiles, world, site_yaw, sy_)
-    place_jams(ctx, lay, tiles, world, site_yaw, sy_, ramp_cells)
+    bus_cells = place_street_furniture(ctx, lay, tiles, world, site_yaw, sy_)
+    place_jams(ctx, lay, tiles, world, site_yaw, sy_, set(ramp_cells) | bus_cells)
     place_props(ctx, lay, world, site_yaw, survey)
     pq = place_parks(ctx, lay, block_rects, world, site_yaw, survey, site, tile_quads, quads + tq)
     place_bridges(ctx, lay, world, site_yaw, survey)

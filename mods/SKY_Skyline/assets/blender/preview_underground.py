@@ -5,6 +5,7 @@
 sewer.png: Sewer_Straight + Sewer_Access + Sewer_Junction in a row, camera on a walkway;
 metro.png: Metro_Tunnel + Metro_Station + Metro_Tunnel, camera on the platform. Lit only by the kit's
 lamps (emissive) plus one point light per lamp position (the in-game lights are script lights, P26).
+--variants adds the D67 pieces: sewer_collapsed.png, sewer_floodedend.png, metro_station_c.png.
 """
 import os
 import sys
@@ -90,6 +91,17 @@ def main():
           (2.4, -8.8, mf + 1.0 + 1.7), (-1.0, 8.0, mf + 2.4),
           [(x, y, mf + 5.4) for x in (-1.8, 1.8) for y in (-8.0, -4.0, -0.5)] + [(-4.0, -18.0, mf + 3.5), (0.0, 8.0, mf + 4.0)],
           150, "metro.png")
+    if "--variants" in argv:                                                     # D67 variant pieces
+        shoot(out, tex, [("Sewer_Straight", -12.0), ("Sewer_Collapsed", 0.0)],
+              (-1.2, -16.5, zf + 1.65), (0.3, 6.0, zf + 0.6),
+              [(0.0, y, zc - 0.3) for y in (-15.0, -9.0, -3.0)], 60, "sewer_collapsed.png")
+        shoot(out, tex, [("Sewer_Straight", -12.0), ("Sewer_FloodedEnd", 0.0)],
+              (-1.2, -16.5, zf + 1.65), (0.3, 6.0, zf + 0.6),
+              [(0.0, y, zc - 0.3) for y in (-15.0, -9.0, -3.0)], 60, "sewer_floodedend.png")
+        shoot(out, tex, [("Metro_Tunnel", -18.0), ("Metro_Station_C", 0.0), ("Metro_Collapsed", 18.0)],
+              (2.4, -8.8, mf + 1.0 + 1.7), (-1.0, 8.0, mf + 2.4),
+              [(x, y, mf + 5.4) for x in (-1.8, 1.8) for y in (-8.0, -4.0, -0.5)] + [(0.0, 8.0, mf + 4.0)],
+              150, "metro_station_c.png")
 
 
 if __name__ == "__main__":

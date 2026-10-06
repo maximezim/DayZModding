@@ -193,8 +193,40 @@ def sewer_section(L, name, y0, y1, side_door=None, open_x=False):
         L["res0"].box(x - 0.08, x + 0.08, y - 0.12, y + 0.12, ch_b, ch_b + 0.06, mat="trash", uv=UVWorld(S.MATERIALS["trash"]["sheet_m"]))
 
 
-def build_sewer_straight(access=False, end=False):
+def rubble_mound(L, name, x0, x1, y0, y1, z0, h, n_bricks=14):
+    """Collapse heap (D67): a walkable rubble ramp (solid wedge rising to the middle, Roadway over it)
+    with loose bricks and a few slabs on it; z0 = the floor it lies on."""
+    ym = (y0 + y1) / 2
+    for (ya, yb, za, zb) in ((y0, ym, z0, z0 + h), (ym, y1, z0 + h, z0)):
+        verts = [(x0, ya, z0), (x1, ya, z0), (x1, yb, z0), (x0, yb, z0), (x0, ya, za), (x1, ya, za), (x1, yb, zb), (x0, yb, zb)]
+        faces = [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (2, 3, 7, 6), (0, 3, 7, 4), (1, 2, 6, 5)]
+        if za == z0:
+            verts = [(x0, ya, z0), (x1, ya, z0), (x1, yb, z0), (x0, yb, z0), (x1, yb, zb), (x0, yb, zb)]
+            faces = [(0, 1, 2, 3), (0, 1, 4, 5), (2, 3, 5, 4), (0, 3, 5), (1, 2, 4)]
+        else:
+            verts = [(x0, ya, z0), (x1, ya, z0), (x1, yb, z0), (x0, yb, z0), (x1, ya, za), (x0, ya, za)]
+            faces = [(0, 1, 2, 3), (2, 3, 5, 4), (0, 1, 4, 5), (0, 3, 5), (1, 2, 4)]
+        for k in ("res0", "res1", "geo", "fire", "view"):
+            L[k].lod.solid(verts, faces, **kw_for(k, "rubble", UV_RUBBLE, "concrete"))
+        L["road"].lod.quad([(x0, ya, za), (x1, ya, za), (x1, yb, zb), (x0, yb, zb)], (0, 0, 1), "road_int", UV_TILE)
+    for i in range(n_bricks):
+        bx = x0 + (x1 - x0) * h01(name, "bx", i)
+        by = y0 + (y1 - y0) * h01(name, "by", i)
+        top = z0 + h * (1 - abs(by - ym) / ((y1 - y0) / 2))
+        L["res0"].box(bx - 0.11, bx + 0.11, by - 0.06, by + 0.06, top - 0.02, top + 0.06, mat="wall_brick", uv=UV_BRICK)
+    for i in range(2):
+        bx = x0 + (x1 - x0) * (0.3 + 0.4 * i)
+        slab = [(bx - 0.5, ym - 0.6, z0 + h * 0.4), (bx + 0.5, ym - 0.6, z0 + h * 0.4), (bx + 0.5, ym + 0.6, z0 + h * 0.9),
+                (bx - 0.5, ym + 0.6, z0 + h * 0.9), (bx - 0.5, ym - 0.6, z0 + h * 0.4 + 0.15), (bx + 0.5, ym - 0.6, z0 + h * 0.4 + 0.15),
+                (bx + 0.5, ym + 0.6, z0 + h * 0.9 + 0.15), (bx - 0.5, ym + 0.6, z0 + h * 0.9 + 0.15)]
+        for k in ("res0", "geo", "fire", "view"):                                 # slabs are solid (D67 security L1)
+            L[k].lod.solid(slab, [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (2, 3, 7, 6), (0, 3, 7, 4), (1, 2, 6, 5)],
+                           **kw_for(k, "concrete", UV_CONC, "concrete"))
+
+
+def build_sewer_straight(access=False, end=False, collapsed=False, flooded=False):
     name = "Sewer_End" if end else ("Sewer_Access" if access else "Sewer_Straight")
+    name = "Sewer_FloodedEnd" if flooded else ("Sewer_Collapsed" if collapsed else name)
     L = L_new(name)
     hy = LEN / 2
     zf, zc = UG["sewer_floor"], UG["sewer_floor"] + UG["sewer_height"]
@@ -206,6 +238,18 @@ def build_sewer_straight(access=False, end=False):
         for i in range(9):
             xx = -SW_CH + 0.05 + i * (2 * SW_CH - 0.1) / 8
             L["res0"].box(xx - 0.015, xx + 0.015, hy - 0.62, hy - 0.5, zf - 0.6, zf + 0.6, mat="rust", uv=UV_RUST)
+    if collapsed:                                                                                 # D67: part of the vault came down
+        rubble_mound(L, name, -SW_CH, SW_IN, -2.6, 2.6, zf - 0.6, 1.5)
+        for k in ("res0", "geo", "fire"):                                         # lamp hanging on its cable (solid, D67 sec L1)
+            L[k].box(-0.25, 0.25, 0.2, 0.7, zc - 1.2, zc - 0.2, **kw_for(k, "metal", DT.UV_STEEL, "metal"))
+        C.bar(L["res0"].lod, (0.0, 0.45, zc - 0.2), (0.0, 0.45, zc), 0.01, "rubble", UV_RUBBLE)
+    if flooded:                                                                                   # D67: standing water to the knees
+        for k in ("res0", "res1"):
+            L[k].lod.quad([(-SW_IN, -hy, zf + 0.35), (SW_IN, -hy, zf + 0.35), (SW_IN, hy - 0.5, zf + 0.35), (-SW_IN, hy - 0.5, zf + 0.35)],
+                          (0, 0, 1), "glassfar", C.UV_GLASS)
+        for i in range(5):                                                                        # floating junk
+            fx, fy = -1.5 + 3.0 * h01(name, "fx", i), -4.5 + 9.0 * h01(name, "fy", i)
+            L["res0"].box(fx - 0.15, fx + 0.15, fy - 0.1, fy + 0.1, zf + 0.33, zf + 0.4, mat="trash", uv=UVWorld(S.MATERIALS["trash"]["sheet_m"]))
     L["mem"].lod.point("center", (0.0, 0.0, zf))
     if access:
         L["mem"].lod.point("access", (SW_IN + 0.25, sum(DOOR_Y) / 2, zf))
@@ -355,7 +399,7 @@ def build_sewer_stair():
 
 
 # ================================================================== metro
-STATION_SIGN = "st_pobedy"                    # D66 name board (signs3); D67 variants pick other names
+STATION_SIGNS = {"A": "st_pobedy", "B": "st_vokzal", "C": "st_stadion", "D": "st_teatr"}   # name boards (signs3), D66/D67
 MT_IN = 6.0                                   # box tunnel interior half width (tracks at +-TRACK_X like the station)
 TRACK_X = 4.6
 
@@ -376,8 +420,8 @@ def tracks(L, y0, y1, zf, xs=(-TRACK_X, TRACK_X)):
         L["road"].hquad(xc - 1.3, xc + 1.3, y0, y1, zf + 0.3, mat="road_int", uv=UV_TILE)
 
 
-def build_metro_tunnel(end=False):
-    name = "Metro_End" if end else "Metro_Tunnel"
+def build_metro_tunnel(end=False, collapsed=False):
+    name = "Metro_End" if end else ("Metro_Collapsed" if collapsed else "Metro_Tunnel")
     L = L_new(name)
     hy = LEN / 2
     zf = UG["metro_floor"]
@@ -404,15 +448,21 @@ def build_metro_tunnel(end=False):
             for k in ("res0", "res1", "geo", "fire"):
                 L[k].box(xc - 1.0, xc + 1.0, hy - 2.0, hy - 1.4, zf + 0.3, zf + 1.4, **kw_for(k, "fair", UVBand(S.MATERIALS["fair"]["bands"]["red"], 1.0), "metal"))
             L["res0"].box(xc - 0.9, xc + 0.9, hy - 2.06, hy - 2.0, zf + 0.9, zf + 1.2, mat="fair", uv=UVBand(S.MATERIALS["fair"]["bands"]["white"], 1.0))
+    if collapsed:                                                                                 # D67: +X track buried, -X passable
+        rubble_mound(L, name, 0.8, MT_IN, -4.5, 4.5, zf, 2.6, n_bricks=24)
+        for k in ("res0", "geo", "fire", "view"):                                 # fallen catenary beam (solid, D67 sec L1)
+            C.bar(L[k].lod, (-0.1, -hy + 1.0, zc - 0.3), (2.5, 2.0, zf + 2.2), 0.12,
+                  *(("metal", DT.UV_STEEL) if k == "res0" else (("pen_metal", None) if k == "fire" else (None, None))))
     L["shadow"].lod.box(-MT_IN - 0.5, MT_IN + 0.5, -hy, hy, zf - 0.8, UG["roof_top"])
     L["mem"].lod.point("center", (0.0, 0.0, zf))
     return C._finish(L, 1500000.0)
 
 
-def build_metro_station():
+def build_metro_station(variant="A"):
     """24 x 16 m station: two tracks at the sides, a 6 m island platform with columns, tiled walls with
     the station name, benches, bins, a ticket kiosk, and a stair up to a street opening at +Y."""
-    name = "Metro_Station"
+    name = "Metro_Station" + ("" if variant == "A" else "_" + variant)
+    sign = STATION_SIGNS[variant]
     L = L_new(name)
     hy, hx = 12.0, 8.0
     zf = UG["metro_floor"]
@@ -462,7 +512,7 @@ def build_metro_station():
     L["res0"].box(-1.0, 1.0, -10.02, -10.0, zp + 1.0, zp + 1.8, mat="glass", uv=C.UV_GLASS)
     for sx in (-1, 1):                                                            # station name boards (D66)
         for yy in (-6.0, 6.0):
-            sign_quad(L, STATION_SIGN, sx * hx, yy - 2.0, yy + 2.0, zf + 2.8, zf + 3.3, -sx)
+            sign_quad(L, sign, sx * hx, yy - 2.0, yy + 2.0, zf + 2.8, zf + 3.3, -sx)
         for i, yy in enumerate((-9.5, -2.0, 3.0, 9.0)):
             graffiti(L, name, sx * hx - 0.001 * sx, yy - 1.0, yy + 1.0, zf + 0.6, zf + 2.4, -sx, i + (10 if sx > 0 else 0))
         cable_run(L, sx * (hx - 0.05), -hy + 0.6, hy - 0.6, zf + 4.4, n_brackets=6)
@@ -478,6 +528,11 @@ def build_metro_station():
 BUILDERS = {
     "Sewer_Straight": lambda: build_sewer_straight(False), "Sewer_Access": lambda: build_sewer_straight(True),
     "Sewer_End": lambda: build_sewer_straight(end=True),
+    "Sewer_Collapsed": lambda: build_sewer_straight(collapsed=True),
+    "Sewer_FloodedEnd": lambda: build_sewer_straight(end=True, flooded=True),
+    "Metro_Collapsed": lambda: build_metro_tunnel(collapsed=True),
+    "Metro_Station_B": lambda: build_metro_station("B"), "Metro_Station_C": lambda: build_metro_station("C"),
+    "Metro_Station_D": lambda: build_metro_station("D"),
     "Sewer_Junction": build_sewer_junction, "Sewer_Stair": build_sewer_stair,
     "Metro_Tunnel": build_metro_tunnel, "Metro_End": lambda: build_metro_tunnel(True), "Metro_Station": build_metro_station,
 }

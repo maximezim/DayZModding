@@ -596,7 +596,7 @@
    "Position": [
     96.0,
     -4.05,
-    36.0
+    42.0
    ],
    "Orientation": [
     0.0,
@@ -604,42 +604,39 @@
     0.0
    ],
    "Size": [
-    13.0,
+    17.0,
     7.9,
-    12.0
+    24.0
    ],
    "EyeAccommodation": 0.15,
    "InterpolationSpeed": 1.0,
-   "UseLinePointFade": false,
+   "UseLinePointFade": true,
    "AmbientSoundType": "",
    "AmbientSoundSet": "",
-   "Breadcrumbs": []
-  },
-  {
-   "CustomSpawn": false,
-   "Tag": "",
-   "ParentNetworkId": [],
-   "Position": [
-    96.0,
-    -4.05,
-    48.0
-   ],
-   "Orientation": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "Size": [
-    13.0,
-    7.9,
-    12.0
-   ],
-   "EyeAccommodation": 0.15,
-   "InterpolationSpeed": 1.0,
-   "UseLinePointFade": false,
-   "AmbientSoundType": "",
-   "AmbientSoundSet": "",
-   "Breadcrumbs": []
+   "Breadcrumbs": [
+    {
+     "Position": [
+      96.0,
+      1.4,
+      53.5
+     ],
+     "EyeAccommodation": 1.0,
+     "UseRaycast": false,
+     "Radius": -1.0,
+     "LightLerp": false
+    },
+    {
+     "Position": [
+      96.0,
+      -5.5,
+      42.0
+     ],
+     "EyeAccommodation": 0.15,
+     "UseRaycast": false,
+     "Radius": -1.0,
+     "LightLerp": false
+    }
+   ]
   },
   {
    "CustomSpawn": false,

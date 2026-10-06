@@ -1,7 +1,7 @@
 {
  "pieces": [
   {
-   "cls": "Sewer_End",
+   "cls": "Sewer_FloodedEnd",
    "corners": [
     [
      -45.1,
@@ -23,7 +23,7 @@
    "bottom": -7.5
   },
   {
-   "cls": "Sewer_Straight",
+   "cls": "Sewer_Collapsed",
    "corners": [
     [
      -50.9,
@@ -265,7 +265,7 @@
    "bottom": -7.5
   },
   {
-   "cls": "Sewer_End",
+   "cls": "Sewer_FloodedEnd",
    "corners": [
     [
      -50.9,
@@ -309,7 +309,7 @@
    "bottom": -9.5
   },
   {
-   "cls": "Metro_Tunnel",
+   "cls": "Metro_Collapsed",
    "corners": [
     [
      89.0,
@@ -441,44 +441,22 @@
    "bottom": -9.5
   },
   {
-   "cls": "Metro_Tunnel",
+   "cls": "Metro_Station_B",
    "corners": [
     [
-     89.0,
+     87.0,
      29.5
     ],
     [
-     103.0,
+     105.0,
      29.5
     ],
     [
-     103.0,
-     42.5
-    ],
-    [
-     89.0,
-     42.5
-    ]
-   ],
-   "bottom": -9.5
-  },
-  {
-   "cls": "Metro_Tunnel",
-   "corners": [
-    [
-     89.0,
-     41.5
-    ],
-    [
-     103.0,
-     41.5
-    ],
-    [
-     103.0,
+     105.0,
      54.5
     ],
     [
-     89.0,
+     87.0,
      54.5
     ]
    ],

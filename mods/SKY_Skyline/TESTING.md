@@ -623,6 +623,15 @@ collision and looks.
 | AQ-01 | Look at the bin, dumpster and hydrants from 1 m and 30 m | Clean silhouettes, no floating parts, LOD switch without popping; bin and dumpster searchable as before | | |
 | AQ-02 | Metro station and sewers with a flashlight (P33) | Station names and exit boards readable (not mirrored); graffiti and signs without flicker | | |
 
+## 32. Variety: street props, underground variants (D67)
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| VA-01 | Walk a citylife street on the -X sidewalk | Bus stops, ad columns, phone booths stand upright, open side to the road, never under a street lamp or inside a car jam; glass blocks bullets, not sight | | |
+| VA-02 | Climb the rubble in Sewer_Collapsed and Metro_Collapsed (P34) | Heap is walkable; the free walkway / track always passes; slabs and beam stop players and bullets | | |
+| VA-03 | Stand in Sewer_FloodedEnd during heavy rain (P35) | One water surface; drowning grace and damage as §28 | | |
+| VA-04 | Visit both citylife metro stations | Different name boards (Pobedy, Vokzal), not mirrored | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -641,6 +650,7 @@ collision and looks.
 | Vehicles §29 | | | |
 | Refinement §30 | | | |
 | Asset quality §31 | | | |
+| Variety §32 | | | |
 | Placement §9 | | | |
 | Roof drop §10 | | | |
 | Clean logs §11 | | | |
