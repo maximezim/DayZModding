@@ -1,0 +1,76 @@
+# SKY_Skyline CITY LIFE TEMPLATE (D61, ROADMAP.md) -> python placement/sky_layout.py --layout placement/citylife_template.yaml
+#
+# The friends' ideas on one 228 x 156 m grid:
+# - parks: the Pripyat funfair, the landfill and the football ground;
+# - explicit venues: cinema, bar, kindergarten, hanged church, hypermarket, mall;
+# - the street network: car jams on half the straight tiles (pedestrian gaps only), an elevated
+#   viaduct along the north street as the drivable bypass, a cut-and-cover tunnel;
+# - street furniture: bins and hydrants (about one in three gives water), two alarm siren towers;
+# - the bridge on the southern river crossing.
+# target: terrain - like the city template this is a whole quarter (too many entities for one
+# objectSpawnersArr district); fill the site (survey, centre, yaw) before deploying anything.
+map: chernarusplus
+mission: dayzOffline.chernarusplus
+
+site:
+  name: citylife-template
+  placeholder: true
+  target: terrain
+  center: null
+  yaw: null
+  survey: null
+  base_y: null
+  clearance: 0.05
+  max_ground_drop: 2.2
+
+streets:
+  origin: [0.0, 0.0]
+  extent: [-9, 9, -6, 6]
+  ns: [-9, -4, 1, 8]
+  ew: [-6, 0, 6]
+  crossings: [[-2, 0], [-6, -6]]
+  lights_every: 3
+  base_y: null
+  furniture: {bins_every: 2, hydrants_every: 3, wet: 0.35, seed: 61}
+
+# north (j > 0): venues + fill; south (j < 0): funfair, landfill, stadium
+blocks:
+  - {id: FUN, cells: [-8, -5, -5, -1], park: funfair}
+  - {id: LAND, cells: [-3, -5, 0, -1], park: landfill}
+  - {id: STAD, cells: [2, -5, 7, -1], park: stadium}
+  - id: V1
+    cells: [-8, 1, -5, 5]
+    buildings:
+      - {type: Cinema, ruin: intact, at: [-12.0, -5.0], yaw: 0}
+      - {type: Kindergarten, ruin: damaged, at: [12.0, -12.0], yaw: 0}
+      - {type: ChurchHanged, ruin: intact, at: [12.0, 17.0], yaw: 180}
+      - {type: Bar, ruin: intact, at: [-12.0, 22.0], yaw: 180}
+    fill: {zone: downtown, seed: 61}
+  - id: V2
+    cells: [-3, 1, 0, 5]
+    buildings:
+      - {type: Hypermarket, ruin: intact, at: [0.0, -13.5], yaw: 0}
+    fill: {zone: midtown, seed: 62}
+  - id: V3
+    cells: [2, 1, 7, 5]
+    buildings:
+      - {type: Mall, ruin: damaged, at: [0.0, -9.5], yaw: 0}
+    fill: {zone: midtown, seed: 63}
+
+towers: []
+
+# abandoned cars: blocking lines on half of the straight tiles (one 1 m pedestrian gap each)
+jams: {density: 0.5, seed: 61}
+# the drivable bypass: elevated road along the north street, ramps at both ends
+viaducts:
+  - {axis: ew, index: 6, from: -8, to: 7}
+# cut-and-cover tunnel between the funfair and the cinema block
+tunnels:
+  - {axis: ew, index: 0, from: -8, to: -5}
+# the bridge: the only crossing of the river south of the quarter (deck height of the banks)
+bridges:
+  - {at: [6.0, -132.0], y: 0.0, yaw: 0}
+# city alarm sirens (ROADMAP idea 20)
+props:
+  - {type: SirenTower, at: [-46.0, 5.0], yaw: 0}
+  - {type: SirenTower, at: [58.0, 5.0], yaw: 0}

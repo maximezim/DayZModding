@@ -22,6 +22,13 @@ Layout content (all optional except site):
   towers    site-frame towers (legacy) - same keys as block towers
   tower     {id, type: TowerA, floors: [5 variants], roof: variant, lobby: A|B, yaw, furnish: {level: set}}
   decals    {tower, face: N|E|S|W, u, z, type}: flush on the facade at DECAL_OFFSET (D16, D19)
+  jams      {density, seed}: abandoned-car blocking lines on straight tiles, one pedestrian gap (D61)
+  viaducts  [{axis: ns|ew, index, from, to}]: elevated road over a street line, ramps at both ends (D61)
+  tunnels   [{axis, index, from, to}]: cut-and-cover tunnel cells replace the street tiles (D61)
+  bridges   [{at: [u, v], y, yaw}]: Bridge_Long (river crossing, deck height explicit) (D61)
+  props     [{type, at: [u, v], yaw}]: free kit pieces (siren towers, dumpsters) (D61)
+  streets.furniture {bins_every, hydrants_every, wet, seed}: bins / hydrants on the sidewalks (D61)
+  blocks[].park  funfair | stadium | landfill: fixed arrangement instead of the fill (skyspec.PARKS, D61)
   skybridges {from: <tower id>, to: <tower id>}: Land_SKY_Skybridge between the two roofs (D60) -
             same yaw, same roof height, facing sides aligned, facade gap SKYBRIDGE["gap"]
 
@@ -502,6 +509,292 @@ def place_skybridges(ctx, lay, towers):
         ctx.notes.append("%s: span %.2f m at y %.2f" % (name, gap, a["top"]))
 
 
+# ------------------------------------------------------------------ D61: roads, jams, parks, bridges
+def line_cells(ctx, spec, what):
+    """Cells of one street-line segment {axis: ns|ew, index, from, to} -> [(i, j)] in travel order."""
+    axis, k, a, b = spec.get("axis"), spec.get("index"), spec.get("from"), spec.get("to")
+    if axis not in ("ns", "ew") or k is None or a is None or b is None or a == b:
+        ctx.errors.append("%s %s: needs axis ns|ew, index, from, to (from != to)" % (what, spec))
+        return []
+    step = 1 if b > a else -1
+    return [((k, c) if axis == "ns" else (c, k)) for c in range(a, b + step, step)]
+
+
+def _line_yaw(spec):
+    """Model +Y along the travel direction of a line segment (site frame, before site yaw)."""
+    base = 0.0 if spec["axis"] == "ns" else 90.0
+    return base if spec["to"] > spec["from"] else base + 180.0
+
+
+def place_viaducts(ctx, lay, kinds, world, site_yaw, street_y):
+    """Elevated roads over a street line (idea 2): a 48 m ramp at each end (on straight tiles),
+    12 m deck segments between. Returns the ramp cells (no jams there)."""
+    R = S.VIADUCT["ramp_cells"]
+    ramp_cells = set()
+    for vd in lay.get("viaducts", []) or []:
+        cells = line_cells(ctx, vd, "viaduct")
+        if not cells:
+            continue
+        name = "viaduct %s %s %s..%s" % (vd["axis"], vd["index"], vd["from"], vd["to"])
+        if len(cells) < 2 * R + 1:
+            ctx.errors.append("%s: %d cells, needs at least %d (two %d-cell ramps + a deck)" % (name, len(cells), 2 * R + 1, R))
+            continue
+        missing = [c for c in cells if c not in kinds]
+        if missing:
+            ctx.errors.append("%s: cells %s are not street tiles" % (name, missing[:4]))
+            continue
+        ramps = cells[:R] + cells[-R:]
+        bad = [c for c in ramps if kinds[c] != "Street_Straight"]
+        if bad:
+            ctx.errors.append("%s: ramp over a junction / crossing %s - ramps need straight tiles" % (name, bad[:4]))
+            continue
+        fwd = _line_yaw(vd)
+        for grp, yaw in ((cells[:R], fwd), (cells[-R:], fwd + 180.0)):
+            us = [cell_center(lay, *c) for c in grp]
+            wx, wz = world(sum(u for u, _v in us) / R, sum(v for _u, v in us) / R)
+            ctx.add("roads", S.KIT["Viaduct_Ramp"]["cls"], (wx, street_y, wz), (site_yaw + yaw) % 360.0)
+            ramp_cells |= set(grp)
+        for c in cells[R:-R]:
+            wx, wz = world(*cell_center(lay, *c))
+            ctx.add("roads", S.KIT["Viaduct_Straight"]["cls"], (wx, street_y, wz), (site_yaw + fwd) % 360.0)
+        ctx.notes.append("%s: %d m deck at +%.0f m, ramps at both ends" % (name, 12 * (len(cells) - 2 * R), S.VIADUCT["height"]))
+    return ramp_cells
+
+
+def tunnel_cells(ctx, lay):
+    out = []
+    for t in lay.get("tunnels", []) or []:
+        out += line_cells(ctx, t, "tunnel")
+    return out
+
+
+def place_tunnels(ctx, lay, world, site_yaw, street_y):
+    """Cut-and-cover tunnels on a street line (idea 2): portal cells at both ends, straights between;
+    the cells are taken off the street grid (the tunnel carries the road). Returns footprints (24 m
+    wide with the berms) so blocks keep clear of them."""
+    quads = []
+    for t in lay.get("tunnels", []) or []:
+        cells = line_cells(ctx, t, "tunnel")
+        if len(cells) < 2:
+            continue
+        fwd = _line_yaw(t)
+        for n, c in enumerate(cells):
+            wx, wz = world(*cell_center(lay, *c))
+            if n == 0:
+                cls, yaw = "Tunnel_Portal", fwd                        # headwall (-Y) faces back out of the tunnel
+            elif n == len(cells) - 1:
+                cls, yaw = "Tunnel_Portal", fwd + 180.0
+            else:
+                cls, yaw = "Tunnel_Straight", fwd
+            yaw = (site_yaw + yaw) % 360.0
+            ctx.add("roads", S.KIT[cls]["cls"], (wx, street_y, wz), yaw)
+            w, d = S.LANDMARK_SIZE[cls]
+            quads.append(("tunnel cell %s" % (c,), footprint_corners(wx, wz, w / 2, d / 2, yaw)))
+    return quads
+
+
+def place_street_furniture(ctx, lay, tiles, world, site_yaw, street_y):
+    """Bins and hydrants on the +X sidewalk of straight tiles (ideas 16, 17): a bin every
+    `bins_every`, a hydrant every `hydrants_every` tile per street line; `wet` = share of hydrants
+    that still give water (Hydrant_Wet), the rest are dry. Clear of the jam lines (|v| <= 4.9)."""
+    fu = (lay.get("streets") or {}).get("furniture")
+    if not fu:
+        return
+    import random
+    rng = random.Random(int(fu.get("seed", 1)))
+    be, he, wet = int(fu.get("bins_every", 0) or 0), int(fu.get("hydrants_every", 0) or 0), float(fu.get("wet", 0.35))
+    per_line = {}
+    lu = S.STREET["carriageway"] / 2 + 0.6
+    for kind, i, j, tyaw in tiles:
+        if kind != "Street_Straight":
+            continue
+        line = ("ns", i) if tyaw == 0.0 else ("ew", j)
+        k = per_line.get(line, 0)
+        per_line[line] = k + 1
+        u, v = cell_center(lay, i, j)
+        wx, wz = world(u, v)
+        yaw = site_yaw + tyaw
+        y = street_y + S.STREET["curb_h"]
+        if be and k % be == 0:
+            dx, dz = rot(lu, 5.4, yaw)
+            ctx.add("furniture", S.KIT["TrashBin"]["cls"], (wx + dx, y, wz + dz), yaw)
+        if he and k % he == 1 % he:
+            dx, dz = rot(lu, -5.4, yaw)
+            cls = "Hydrant_Wet" if rng.random() < wet else "Hydrant_Dry"
+            ctx.add("furniture", S.KIT[cls]["cls"], (wx + dx, y, wz + dz), yaw)
+
+
+def place_props(ctx, lay, world, site_yaw, survey):
+    """Free props in the site frame: {type: <KIT name>, at: [u, v], yaw} (siren towers, dumpsters...)."""
+    for pr in lay.get("props", []) or []:
+        name = pr.get("type")
+        if name not in S.KIT or S.KIT[name]["category"] in ("floor", "roof") or name.startswith("City_"):
+            ctx.errors.append("prop %s: unknown or not a free prop" % pr)
+            continue
+        wx, wz = world(float(pr["at"][0]), float(pr["at"][1]))
+        y = (ctx.street_y + S.STREET["curb_h"]) if ctx.street_y is not None else 0.0
+        if survey is not None:
+            ys = survey_ground(survey, lambda x, z: (x - wx) ** 2 + (z - wz) ** 2 < 4.0)
+            if ys:
+                y = min(ys)
+        ctx.add("props", S.KIT[name]["cls"], (wx, y, wz), (site_yaw + float(pr.get("yaw", 0.0))) % 360.0)
+
+
+def place_jams(ctx, lay, tiles, world, site_yaw, street_y, skip):
+    """Abandoned-car jams (idea 2): on a share of the straight tiles a blocking line of wrecks and
+    jersey barriers across the whole 12 m section with one JAM_GAP-wide gap (people pass, vehicles
+    do not); vanilla wrecks (decor, P19 sizes) a few metres away. Each line is verified here."""
+    jm = lay.get("jams")
+    if not jm:
+        return
+    import random
+    rng = random.Random(int(jm.get("seed", 1)))
+    density = float(jm.get("density", 0.4))
+    half = TILE / 2
+    gap_w = S.JAM_GAP
+    lines = 0
+    for kind, i, j, tyaw in tiles:
+        if kind != "Street_Straight" or (i, j) in skip or rng.random() >= density:
+            continue
+        u, v = cell_center(lay, i, j)
+        wx, wz = world(u, v)
+        yaw = site_yaw + tyaw
+        vb = rng.choice((-1.0, 1.0)) * (2.4 + 1.0 * rng.random())       # extent <= 4.9 m: clear of bins / hydrants
+        g0 = rng.choice([-half, half - gap_w, rng.uniform(-3.0, 2.0)])
+        segs = [(a, b) for (a, b) in ((-half, g0), (g0 + gap_w, half)) if b - a > 1e-6]
+        cover = []
+        row = 0
+        for a, b in segs:
+            x = a
+            while x < b - 1e-6:
+                left = b - x
+                names = [n for n in S.JAM_BLOCKERS if S.JAM_BLOCKERS[n][0] <= max(left, 3.0) + 1e-6] or ["Barrier_Concrete"]
+                piece = rng.choice(names)
+                ln, dp = S.JAM_BLOCKERS[piece]
+                start = min(x, b - ln)
+                if start < a - 1e-6:                                   # segment shorter than the piece: centre it
+                    start = a
+                uc = start + ln / 2
+                off = 0.45 if row % 2 else -0.45
+                dx, dz = rot(uc, vb + off, yaw)
+                py = (yaw + 90.0 + (180.0 if rng.random() < 0.5 else 0.0)) % 360.0
+                ctx.add("jams", S.KIT[piece]["cls"], (wx + dx, street_y, wz + dz), py)
+                cover.append((start, start + ln))
+                row += 1
+                if start + ln >= b - 1e-6:                              # segment closed
+                    break
+                x = start + ln - 0.3
+        # verify: union of covered intervals leaves exactly one opening of about gap_w
+        cover.sort()
+        free, cur = [], -half
+        for c0, c1 in cover:
+            if c0 > cur + 1e-6:
+                free.append((cur, c0))
+            cur = max(cur, c1)
+        if cur < half - 1e-6:
+            free.append((cur, half))
+        widest = max((b - a for a, b in free), default=0.0)
+        if widest > gap_w + 0.05 or widest < gap_w - 0.3:
+            ctx.errors.append("jam on tile (%d, %d): widest opening %.2f m (expected %.1f m)" % (i, j, widest, gap_w))
+        for _k in range(1 + int(rng.random() < 0.5)):                   # decor: vanilla wrecks away from the line
+            lu = rng.choice((-2.0, 2.0)) + rng.uniform(-0.4, 0.4)
+            lv = -math.copysign(1.0, vb) * (4.0 + 1.5 * rng.random())
+            dx, dz = rot(lu, lv, yaw)
+            ctx.add("jams", rng.choice(S.JAM_DECOR), (wx + dx, street_y, wz + dz),
+                    (yaw + rng.uniform(-25.0, 25.0) + (180.0 if rng.random() < 0.5 else 0.0)) % 360.0)
+        lines += 1
+    ctx.notes.append("jams: %d blocking lines (%.0f%% of straight tiles asked), %.1f m pedestrian gap each" % (
+        lines, 100 * density, gap_w))
+
+
+def _piece_size(name):
+    if name in S.LANDMARK_SIZE:
+        return S.LANDMARK_SIZE[name] + (0.0,)
+    if name.startswith("City_"):
+        arch = name[len("City_"):].rsplit("_", 1)[0]
+        return city_fill.footprint(S, arch)
+    if name in S.CITY_PIECES:
+        return S.CITY_PIECES[name][1], S.CITY_PIECES[name][2], 0.0
+    return {"Dumpster": (1.9, 1.1, 0.0)}.get(name, (2.0, 2.0, 0.0))
+
+
+def place_parks(ctx, lay, block_rects, world, site_yaw, survey, site, tile_quads, obstacles):
+    """Whole-block arrangements (skyspec.PARKS: funfair, stadium, landfill) instead of the fill."""
+    quads = []
+    clearance = float(site.get("clearance", 0.05))
+    for b, rect in block_rects:
+        kind = b.get("park")
+        if not kind:
+            continue
+        if kind not in S.PARKS:
+            ctx.errors.append("block %s: unknown park '%s' (%s)" % (b["id"], kind, ", ".join(sorted(S.PARKS))))
+            continue
+        P = S.PARKS[kind]
+        bw, bd = rect[1] - rect[0], rect[3] - rect[2]
+        if bw < P["min"][0] - 1e-6 or bd < P["min"][1] - 1e-6:
+            ctx.errors.append("block %s: %s needs %.0f x %.0f m, block is %.0f x %.0f" % (b["id"], kind, P["min"][0], P["min"][1], bw, bd))
+            continue
+        bu, bv = (rect[0] + rect[1]) / 2, (rect[2] + rect[3]) / 2
+        mine = []
+        for name, du, dv, yr in P["pieces"]:
+            w, d, oy = _piece_size(name)
+            cu, cv = bu + du, bv + dv
+            loc = footprint_corners(cu, cv, w / 2, d / 2, yr)
+            m = S.BLOCK_SETBACK
+            what = "%s %s in block %s" % (kind, name, b["id"])
+            if any(not (rect[0] + m - 1e-6 <= x <= rect[1] - m + 1e-6 and rect[2] + m - 1e-6 <= z <= rect[3] - m + 1e-6)
+                   for x, z in loc):
+                ctx.errors.append("%s leaves the block (setback %.1f m)" % (what, m))
+            cx, cz = world(cu, cv)
+            yaw = (site_yaw + yr) % 360.0
+            quad = footprint_corners(cx, cz, w / 2, d / 2, yaw)
+            small = name.startswith("Veg_") or name in ("TrashBin", "Dumpster")
+            if not small:
+                for oid, oq in tile_quads + obstacles + mine:
+                    if sat_overlap(quad, oq):
+                        ctx.errors.append("%s overlaps %s" % (what, oid))
+                mine.append((what, quad))
+            base_y = (ctx.street_y + S.STREET["curb_h"]) if ctx.street_y is not None else float(site.get("base_y") or 0.0)
+            if survey is not None:
+                ys = survey_ground(survey, lambda x, z: inside(x, z, cx, cz, w / 2, d / 2, yaw))
+                if not ys:
+                    ctx.errors.append("%s: survey has no samples inside its footprint" % what)
+                else:
+                    base_y = (min(ys) if small else max(ys) + clearance)
+                    if not small and base_y - min(ys) > S.CITY_SKIRT_DROP:
+                        ctx.errors.append("%s: ground falls %.2f m (skirt %.1f m)" % (what, base_y - min(ys), S.CITY_SKIRT_DROP))
+                    if not small:
+                        foreign_objects(ctx, survey, what, lambda x, z: inside(x, z, cx, cz, w / 2, d / 2, yaw))
+            mdu, mdv = rot(0.0, oy, yaw)
+            ctx.add("parks", S.KIT[name]["cls"], (cx + mdu, base_y, cz + mdv), yaw)
+        quads += mine
+        ctx.notes.append("block %s: park %s (%d pieces)" % (b["id"], kind, len(P["pieces"])))
+    return quads
+
+
+def place_bridges(ctx, lay, world, site_yaw, survey):
+    """The bridge (idea 23): Bridge_Long at a site position, deck height y given explicitly (a river
+    crossing is not on the street plane); with a survey both abutments must sit on the banks."""
+    for br in lay.get("bridges", []) or []:
+        at, y = br.get("at"), br.get("y")
+        if at is None or y is None:
+            ctx.errors.append("bridge %s: needs at: [u, v] and y (deck height)" % br)
+            continue
+        yaw = (site_yaw + float(br.get("yaw", 0.0))) % 360.0
+        wx, wz = world(float(at[0]), float(at[1]))
+        if survey is not None:
+            for s_ in (-1, 1):
+                ex, ez = rot(s_ * 46.0, 0.0, yaw)
+                ys = survey_ground(survey, lambda x, z: inside(x, z, wx + ex, wz + ez, 2.0, 6.0, yaw))
+                if not ys:
+                    ctx.errors.append("bridge %s: no survey samples at the %s abutment" % (at, "west" if s_ < 0 else "east"))
+                elif not (float(y) - 3.5 <= max(ys) <= float(y) + 0.3):
+                    ctx.errors.append("bridge %s: bank %.2f m at the %s abutment, deck %.2f (bank must be 0.3 above to 3.5 below)"
+                                      % (at, max(ys), "west" if s_ < 0 else "east", float(y)))
+        ctx.add("bridges", S.KIT["Bridge_Long"]["cls"], (wx, float(y), wz), yaw)
+        ctx.notes.append("bridge at %s, deck y %.2f: checkpoint + convoy loot mid-span" % (at, float(y)))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--layout", default=os.path.join(HERE, "layout.yaml"))
@@ -535,6 +828,10 @@ def main():
         return cx0 + dx, cz0 + dz
 
     # ---- streets
+    tcells = tunnel_cells(ctx, lay)                                         # D61: tunnels carry their own road
+    if tcells and lay.get("streets"):
+        lay["streets"] = dict(lay["streets"])
+        lay["streets"]["closed"] = [list(c) for c in lay["streets"].get("closed", [])] + [list(c) for c in tcells]
     tiles = street_tiles(lay)
     street_cells = set()
     tile_quads = []
@@ -649,7 +946,20 @@ def main():
 
     place_decals(ctx, lay, placed, site_yaw)
     place_skybridges(ctx, lay, placed)
-    city = place_city(ctx, lay, block_rects, world, site_yaw, survey, site, tile_quads, quads)
+    sy_ = ctx.street_y if ctx.street_y is not None else float(site.get("base_y") or 0.0)
+    kinds = {(i, j): k for k, i, j, _y in tiles}
+    ramp_cells = place_viaducts(ctx, lay, kinds, world, site_yaw, sy_)
+    tq = place_tunnels(ctx, lay, world, site_yaw, sy_)
+    for oid, oq in tq:
+        for tid, tq2 in quads:
+            if sat_overlap(oq, tq2):
+                ctx.errors.append("%s: berm overlaps tower %s" % (oid, tid))
+    place_street_furniture(ctx, lay, tiles, world, site_yaw, sy_)
+    place_jams(ctx, lay, tiles, world, site_yaw, sy_, ramp_cells)
+    place_props(ctx, lay, world, site_yaw, survey)
+    pq = place_parks(ctx, lay, block_rects, world, site_yaw, survey, site, tile_quads, quads + tq)
+    place_bridges(ctx, lay, world, site_yaw, survey)
+    city = place_city(ctx, lay, block_rects, world, site_yaw, survey, site, tile_quads, quads + tq + pq)
     if ctx.street_y is not None:
         for t in placed:
             step = t["base_y"] - (ctx.street_y + S.STREET["curb_h"])
@@ -735,7 +1045,8 @@ def main():
             fh.write("## %s\n" % title + ("".join("- %s\n" % i for i in items) or "- none\n") + "\n")
         fh.write("## Entity counts (caps: entities + loot %d per district / %d per server, %d props per floor / %d per tower)\n"
                  % (S.ENTITY_CAP["per_district"], S.ENTITY_CAP["per_server"], S.PROP_CAPS["per_floor"], S.PROP_CAPS["per_tower"]))
-        for k in ("modules", "buildings", "vegetation", "cutters", "tiles", "lights", "props", "decals"):
+        base = ("modules", "buildings", "vegetation", "cutters", "tiles", "lights", "props", "decals")
+        for k in base + tuple(sorted(k for k in ctx.counts if k not in base)):      # D61: jams, roads, parks...
             fh.write("- %s: %d\n" % (k, ctx.counts.get(k, 0)))
         fh.write("- **total: %d** entities, %d loot items (max), server total %d\n\n" % (total, loot, server))
         if ctx.city_stats:

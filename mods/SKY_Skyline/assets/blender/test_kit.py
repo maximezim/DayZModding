@@ -350,7 +350,7 @@ def skybridge_lanes():
 def main():
     self_check()
     builders = {}
-    for modname in ("build_kit", "build_props", "build_floors", "build_city"):
+    for modname in ("build_kit", "build_props", "build_floors", "build_city", "build_landmarks"):
         try:
             m = __import__(modname)
         except ImportError:
@@ -419,6 +419,11 @@ def main():
                       "%s: door %s is not exactly one Geometry component" % (n, dn))
         if S.KIT[n]["category"] in ("floor", "roof"):
             module_checks(n, lods)
+        if n in getattr(S, "LANDMARK_SIZE", {}):                    # D61: Geometry inside the placement footprint
+            w, d = S.LANDMARK_SIZE[n]
+            b = bounds(lods["geo"])
+            check(b[0] >= -w / 2 - 1e-6 and b[1] <= w / 2 + 1e-6 and b[2] >= -d / 2 - 1e-6 and b[3] <= d / 2 + 1e-6,
+                  "%s: Geometry %s leaves the %g x %g footprint" % (n, [round(v, 2) for v in b[:4]], w, d))
         if n in SNAP:
             x0, x1, y0, y1, top = SNAP[n]
             b = bounds(lods["geo"])

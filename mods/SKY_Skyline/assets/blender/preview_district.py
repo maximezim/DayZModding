@@ -25,7 +25,7 @@ from skygeo import build_object, optional_arma_toolbox  # noqa: E402
 
 def builders():
     out = {}
-    for modname in ("build_kit", "build_props", "build_floors", "build_city"):
+    for modname in ("build_kit", "build_props", "build_floors", "build_city", "build_landmarks"):
         m = __import__(modname)
         for n, (fn, _p, _f) in m.modules().items():
             out[S.KIT[n]["cls"]] = fn

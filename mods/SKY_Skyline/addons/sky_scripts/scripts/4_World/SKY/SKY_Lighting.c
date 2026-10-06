@@ -49,6 +49,20 @@ class SKY_OfficeLight extends SKY_InteriorLight
 	}
 }
 
+//! D61 hypermarket: cold, over-bright fluorescent wash that stays on by day too (ROADMAP idea 4:
+//! "une lumiere blanche qui fait mal aux yeux" - the emergency generators still run).
+class SKY_HyperLight extends SKY_InteriorLight
+{
+	void SKY_HyperLight()
+	{
+		SetVisibleDuringDaylight(true);
+		SetRadiusTo(24);
+		SetBrightnessTo(2.2);
+		SetAmbientColor(0.9, 0.97, 1.0);
+		SetDiffuseColor(0.9, 0.97, 1.0);
+	}
+}
+
 class SKY_LitBuilding extends House
 {
 	protected ref array<ScriptedLightBase> m_SkyLights;

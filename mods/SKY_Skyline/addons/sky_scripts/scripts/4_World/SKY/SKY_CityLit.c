@@ -18,6 +18,9 @@ class Land_SKY_City_Bank_Intact extends SKY_LitBuilding
 	}
 }
 
+class Land_SKY_City_Bar_Intact extends SKY_LitBuilding
+{}
+
 class Land_SKY_City_CafeBrick_Intact extends SKY_LitBuilding
 {
 	override protected typename SkyLightType()
@@ -34,6 +37,14 @@ class Land_SKY_City_Cafe_Intact extends SKY_LitBuilding
 	}
 }
 
+class Land_SKY_City_ChurchHanged_Intact extends SKY_LitBuilding
+{
+	override protected typename SkyLightType()
+	{
+		return SKY_OfficeLight;
+	}
+}
+
 class Land_SKY_City_Church_Intact extends SKY_LitBuilding
 {
 	override protected typename SkyLightType()
@@ -42,6 +53,9 @@ class Land_SKY_City_Church_Intact extends SKY_LitBuilding
 	}
 }
 
+class Land_SKY_City_Cinema_Intact extends SKY_LitBuilding
+{}
+
 class Land_SKY_City_Clinic_Intact extends SKY_LitBuilding
 {
 	override protected typename SkyLightType()
@@ -49,6 +63,9 @@ class Land_SKY_City_Clinic_Intact extends SKY_LitBuilding
 		return SKY_OfficeLight;
 	}
 }
+
+class Land_SKY_City_Clubhouse_Intact extends SKY_LitBuilding
+{}
 
 class Land_SKY_City_CornerHardware_Intact extends SKY_LitBuilding
 {}
@@ -113,10 +130,29 @@ class Land_SKY_City_Hospital_Intact extends SKY_LitBuilding
 	}
 }
 
+class Land_SKY_City_Hypermarket_Intact extends SKY_LitBuilding
+{
+	override protected typename SkyLightType()
+	{
+		return SKY_HyperLight;
+	}
+
+	override protected int SkyLightCount()
+	{
+		return 4;
+	}
+}
+
+class Land_SKY_City_Kindergarten_Intact extends SKY_LitBuilding
+{}
+
 class Land_SKY_City_KioskCafe_Intact extends SKY_LitBuilding
 {}
 
 class Land_SKY_City_Kiosk_Intact extends SKY_LitBuilding
+{}
+
+class Land_SKY_City_Mall_Intact extends SKY_LitBuilding
 {}
 
 class Land_SKY_City_OfficeMid_Intact extends SKY_LitBuilding

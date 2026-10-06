@@ -1027,6 +1027,121 @@ def signs(size, out):
     img.save(os.path.join(out, "sky_signs_co.png"))
 
 
+SIGNS2 = ["HYPERMARKET  GIGANT", "KINO  ZARYA", "CENTRAL  MALL", "BAR  ZUBR", "KINDERGARTEN  No 7", "FC  LOKOMOTIV",
+          "LUNAPARK", "PARKING", "MUNICIPAL  LANDFILL", "FOOD  COURT", "TICKETS", "FASHION", "SHOES", "JEWELRY",
+          "ELECTRONICS", "STOP  -  DANGER"]
+
+
+def signs2(size, out):
+    """Second sign sheet (2048, D61): 16 bands for the venues (skyspec.SIGN2_NAMES order). Neon-era
+    palette: hypermarket red on white, cinema gold on burgundy, mall white on teal, bar amber on black."""
+    size = min(size, 2048)
+    img = Image.new("RGB", (size, size), (30, 30, 34))
+    d = ImageDraw.Draw(img)
+    styles = [((245, 245, 242), (200, 30, 30)), ((110, 20, 30), (240, 200, 90)), ((20, 110, 115), (250, 250, 245)),
+              ((20, 18, 18), (250, 170, 40)), ((250, 225, 120), (40, 90, 160)), ((25, 70, 40), (245, 245, 240)),
+              ((240, 210, 40), (180, 30, 60)), ((30, 70, 150), (250, 250, 250)), ((80, 85, 70), (235, 230, 210)),
+              ((200, 90, 30), (255, 245, 225)), ((120, 20, 30), (250, 230, 160)), ((25, 25, 28), (235, 120, 170)),
+              ((60, 40, 30), (240, 220, 190)), ((20, 20, 40), (230, 200, 110)), ((15, 30, 60), (110, 220, 250)),
+              ((230, 190, 20), (20, 20, 20))]
+    for i, txt in enumerate(SIGNS2):
+        bg, fg = styles[i]
+        y0 = int(i * size / len(SIGNS2))                      # same band edges as skyspec.SIGN_BAND (signs2)
+        bh = int((i + 1) * size / len(SIGNS2)) - y0
+        d.rectangle([0, y0, size, y0 + bh - 1], fill=bg)
+        d.rectangle([5, y0 + 5, size - 6, y0 + bh - 6], outline=fg, width=4)
+        if i in (1, 6, 10):                                   # marquee bulbs round the cinema / fair / ticket bands
+            for x in range(18, size - 10, 36):
+                for yy in (y0 + 14, y0 + bh - 15):
+                    d.ellipse([x - 6, yy - 6, x + 6, yy + 6], fill=(255, 236, 170))
+        if i == 15:                                           # hazard stripes for the bridge checkpoint
+            for x in range(-bh, size, 80):
+                d.polygon([(x, y0 + bh - 1), (x + 40, y0 + bh - 1), (x + 40 + bh // 3, y0 + bh - 1 - bh // 3),
+                           (x + bh // 3, y0 + bh - 1 - bh // 3)], fill=(20, 20, 20))
+        f = _font(int(bh * 0.5))
+        tb = d.textbbox((0, 0), txt, font=f)
+        d.text(((size - (tb[2] - tb[0])) // 2 - tb[0], y0 + (bh - (tb[3] - tb[1])) // 2 - tb[1] - (6 if i == 15 else 0)),
+               txt, fill=fg, font=f)
+    img.save(os.path.join(out, "sky_signs2_co.png"))
+
+
+def fair(size, out):
+    """Fairground paint trim (1024, D61): V 0-0.25 Pripyat yellow, 0.25-0.5 signal red, 0.5-0.75 fair
+    blue, 0.75-1 cream white. Chalked, flaking to grey primer and rust, rust runs from the top."""
+    size = min(size, 1024)
+    cols = [(0.86, 0.68, 0.12), (0.66, 0.13, 0.10), (0.16, 0.33, 0.58), (0.86, 0.83, 0.74)]
+    n = tfbm(size, 1301, octaves=5, base=8)
+    flake = np.clip((tfbm(size, 1303, octaves=4, base=16) - 0.58) * 6, 0, 1)
+    rust = np.clip((tfbm(size, 1307, octaves=4, base=8) - 0.62) * 4, 0, 1)
+    col = np.zeros((size, size, 3), np.float32)
+    for i, c in enumerate(cols):
+        r0, r1 = band_rows(size, i * 0.25, (i + 1) * 0.25)
+        base = np.array(c, np.float32) * (0.9 + 0.2 * (n[r0:r1, :, None] - 0.5))
+        chalk = 0.25 * np.clip(n[r0:r1, :, None] - 0.3, 0, 1)
+        base = base * (1 - chalk) + 0.85 * chalk
+        f = flake[r0:r1, :, None]
+        base = base * (1 - f) + np.array([0.48, 0.46, 0.42], np.float32) * f
+        yy = np.linspace(0, 1, r1 - r0, dtype=np.float32)[:, None, None]
+        run = rust[r0:r1, :, None] * (1.2 - yy)
+        rr = np.clip(run, 0, 0.8)
+        base = base * (1 - rr) + np.array([0.38, 0.20, 0.10], np.float32) * rr
+        col[r0:r1] = base
+    col = weather(col, 1311, dirt=0.15, desat=0.12, moss=0.0, streaks=0.1, spots=0.1)
+    save(to_rgb(col), out, "sky_fair_co")
+    save(normal_from_height(0.3 * n - 0.6 * flake, 1.5), out, "sky_fair_nohq")
+
+
+def trash(size, out):
+    """Landfill rubbish (2048, tileable 4 m, D61): black / blue / white bin bags, crushed cans,
+    paper, rags and dark soil between; mostly low-frequency relief."""
+    rng = np.random.default_rng(1401)
+    img = Image.new("RGB", (size, size), (58, 50, 40))
+    d = ImageDraw.Draw(img)
+    bag_cols = [(22, 22, 24)] * 6 + [(34, 34, 38)] * 4 + [(52, 66, 96), (150, 150, 145), (64, 74, 52), (96, 72, 48),
+                                                          (120, 100, 70)]
+    for _ in range(int(520 * (size / 2048) ** 2)):
+        x, y = rng.uniform(0, size), rng.uniform(0, size)
+        r = rng.uniform(size / 60, size / 20)
+        c = bag_cols[int(rng.integers(0, len(bag_cols)))]
+        sh = rng.uniform(0.75, 1.1)
+        cc = tuple(int(min(255, v * sh)) for v in c)
+        for ox in (-size, 0, size):
+            for oy in (-size, 0, size):
+                d.ellipse([x + ox - r, y + oy - r * 0.7, x + ox + r, y + oy + r * 0.7], fill=cc)
+                if rng.random() < 0.3:
+                    d.line([x + ox - r * 0.6, y + oy, x + ox + r * 0.6, y + oy - r * 0.2], fill=(min(255, cc[0] + 40),) * 3, width=2)
+    for _ in range(int(500 * (size / 2048) ** 2)):                     # paper, cans, rags
+        x, y = rng.uniform(0, size), rng.uniform(0, size)
+        w, h = rng.uniform(6, 30) * size / 2048, rng.uniform(4, 18) * size / 2048
+        c = [(200, 195, 180), (150, 145, 130), (130, 135, 140), (140, 70, 50), (120, 100, 70)][int(rng.integers(0, 5))]
+        d.polygon([(x, y), (x + w, y + h * 0.3), (x + w * 0.8, y + h), (x - w * 0.1, y + h * 0.7)], fill=c)
+    arr = np.asarray(img).astype(np.float32) / 255.0
+    n = tfbm(size, 1403, octaves=5, base=8)
+    arr *= (0.7 + 0.5 * n)[..., None]
+    soil = np.clip((tfbm(size, 1405, octaves=4, base=6) - 0.5) * 2.0, 0, 1)[..., None] * 0.55   # dirt washed over it
+    arr = arr * (1 - soil) + np.array([0.24, 0.20, 0.15], np.float32) * soil
+    arr = weather(arr, 1409, dirt=0.25, desat=0.35, moss=0.04, streaks=0.0, spots=0.2)
+    save(to_rgb(np.clip(arr, 0, 1)), out, "sky_trash_co")
+    nh = normal_from_height(arr.mean(-1) * 1.5 + 0.5 * n, 2.0)
+    save(nh.resize((size // 2,) * 2, Image.BILINEAR), out, "sky_trash_nohq")
+
+
+def turf(size, out):
+    """Worn football turf (2048, tileable 8 m, D61): mown stripes, bald mud patches, weeds."""
+    n = tfbm(size, 1501, octaves=6, base=16)
+    m = np.clip((tfbm(size, 1503, octaves=4, base=4) - 0.55) * 3.5, 0, 1)
+    xx = np.mgrid[0:size, 0:size][1]
+    stripe = ((xx // (size // 8)) % 2).astype(np.float32)
+    grass = np.stack([0.24 + 0.06 * n, 0.31 + 0.08 * n + 0.025 * stripe, 0.15 + 0.04 * n], -1)
+    dry = np.array([0.45, 0.42, 0.26], np.float32)
+    dr = np.clip((tfbm(size, 1507, octaves=4, base=6) - 0.5) * 2.5, 0, 1)[..., None] * 0.6
+    grass = grass * (1 - dr) + dry * dr
+    mud = np.array([0.30, 0.24, 0.17], np.float32) * (0.85 + 0.3 * n[..., None])
+    col = grass * (1 - m[..., None]) + mud * m[..., None]
+    col = weather(col, 1509, dirt=0.15, desat=0.3, moss=0.0, streaks=0.0, spots=0.15)
+    save(to_rgb(col), out, "sky_turf_co")
+
+
 def grime(size, out):
     """Facade weathering overlay sheet (alpha-blended like decal_dirt, 1024): 4 horizontal bands,
     each tileable along U so one quad can span a whole facade:
@@ -1368,7 +1483,7 @@ GENERATORS = {
     "marble": marble, "parquet": parquet, "paint": paint, "stone": stone, "textile": textile,
     "render": render, "rubble": rubble, "signs": signs, "grime": grime, "vegetation": vegetation,
     "wall_brick": wall_brick, "wall_panel": wall_panel, "wall_limestone": wall_limestone, "wall_render": wall_render,
-    "hq_facade": hq_facade,
+    "hq_facade": hq_facade, "signs2": signs2, "fair": fair, "trash": trash, "turf": turf,
 }
 
 

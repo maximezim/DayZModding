@@ -197,4 +197,34 @@ class CfgVehicles
 	{
 		hiddenSelectionsTextures[] = {"SKY_Skyline\sky_textures\data\sky_decal_graffiti_d_ca.paa"};
 	};
+	class Land_SKY_TrashBin: Land_SKY_Street_Base
+	{
+		// street litter bin with lid (searchable)
+		scope = 1;
+		model = "SKY_Skyline\sky_street\sky_trashbin.p3d";
+	};
+	class Land_SKY_Hydrant_Wet: Land_SKY_Street_Base
+	{
+		// fire hydrant that still gives water (vanilla well behaviour)
+		scope = 1;
+		model = "SKY_Skyline\sky_street\sky_hydrant_wet.p3d";
+	};
+	class Land_SKY_Hydrant_Dry: Land_SKY_Street_Base
+	{
+		// dry fire hydrant (decoration)
+		scope = 1;
+		model = "SKY_Skyline\sky_street\sky_hydrant_dry.p3d";
+	};
+	class Land_SKY_SirenTower: Land_SKY_Street_Base
+	{
+		// civil-defence siren on a 10 m pole (city alarm event)
+		scope = 1;
+		model = "SKY_Skyline\sky_street\sky_sirentower.p3d";
+	};
+	class Land_SKY_Wreck_GarbageTruck: Land_SKY_Street_Base
+	{
+		// abandoned garbage truck (rear hopper searchable)
+		scope = 1;
+		model = "SKY_Skyline\sky_street\sky_wreck_garbagetruck.p3d";
+	};
 };

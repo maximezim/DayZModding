@@ -35,7 +35,7 @@ def main():
     optional_arma_toolbox()
     import build_kit
     register(build_kit)
-    for extra in ("build_props", "build_floors"):
+    for extra in ("build_props", "build_floors", "build_landmarks"):
         try:
             register(__import__(extra))
         except ImportError:
@@ -58,7 +58,8 @@ def main():
     PT.shade(tex)
     for m in bpy.data.materials:
         if m.name in ("rust", "asphalt", "paver", "atlas", "billboard", "foliage", "roadmark", "lamp", "wood", "fabric",
-                      "brick", "concpanel", "windows") and tex:
+                      "brick", "concpanel", "windows", "rubble", "vegetation", "decal_grime", "fair", "trash", "turf",
+                      "signs2") and tex:
             m.use_nodes = True
             nt = m.node_tree
             bsdf = nt.nodes.get("Principled BSDF")
@@ -68,7 +69,7 @@ def main():
                 img = nt.nodes.new("ShaderNodeTexImage")
                 img.image = bpy.data.images.load(png)
                 nt.links.new(img.outputs["Color"], bsdf.inputs["Base Color"])
-                if m.name in ("foliage", "roadmark"):
+                if m.name in ("foliage", "roadmark", "vegetation", "decal_grime"):
                     nt.links.new(img.outputs["Alpha"], bsdf.inputs["Alpha"])
                     m.blend_method = "BLEND"
             if m.name == "lamp":

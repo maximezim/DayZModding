@@ -1404,6 +1404,153 @@ generated_kit:
     budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
     uses: [PENETRATION]
     status: built-unverified
+  - name: Land_SKY_City_Hypermarket_Intact
+    type: "hypermarket: 44 x 32 m hall, tall racks, checkout lines, harsh fluorescent light (intact)"
+    p3d: addons/sky_city_venue/sky_city_hypermarket_intact.p3d
+    category: city_large
+    budget: {res0: 80000, res1: 24000, res2: 2500, res3: 300, shadow: 1000, geo_comps: 640, geo_tris: 8000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_Hypermarket_Damaged
+    type: "hypermarket: 44 x 32 m hall, tall racks, checkout lines, harsh fluorescent light (damaged)"
+    p3d: addons/sky_city_venue/sky_city_hypermarket_damaged.p3d
+    category: city_large
+    budget: {res0: 80000, res1: 24000, res2: 2500, res3: 300, shadow: 1000, geo_comps: 640, geo_tris: 8000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_Hypermarket_Ruined
+    type: "hypermarket: 44 x 32 m hall, tall racks, checkout lines, harsh fluorescent light (ruined)"
+    p3d: addons/sky_city_venue/sky_city_hypermarket_ruined.p3d
+    category: city_large
+    budget: {res0: 80000, res1: 24000, res2: 2500, res3: 300, shadow: 1000, geo_comps: 640, geo_tris: 8000, sections_res0: 24}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_City_Mall_Intact
+    type: "3-level mall round a glass-roofed atrium: shop units, galleries, escalators, fountain, food court (intact)"
+    p3d: addons/sky_city_venue/sky_city_mall_intact.p3d
+    category: city_large
+    budget: {res0: 80000, res1: 24000, res2: 2500, res3: 300, shadow: 1000, geo_comps: 640, geo_tris: 8000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_Mall_Damaged
+    type: "3-level mall round a glass-roofed atrium: shop units, galleries, escalators, fountain, food court (damaged)"
+    p3d: addons/sky_city_venue/sky_city_mall_damaged.p3d
+    category: city_large
+    budget: {res0: 80000, res1: 24000, res2: 2500, res3: 300, shadow: 1000, geo_comps: 640, geo_tris: 8000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_Mall_Ruined
+    type: "3-level mall round a glass-roofed atrium: shop units, galleries, escalators, fountain, food court (ruined)"
+    p3d: addons/sky_city_venue/sky_city_mall_ruined.p3d
+    category: city_large
+    budget: {res0: 80000, res1: 24000, res2: 2500, res3: 300, shadow: 1000, geo_comps: 640, geo_tris: 8000, sections_res0: 24}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_City_Cinema_Intact
+    type: "cinema KINO: marquee, foyer with ticket and snack counters, raked auditorium, screen (intact)"
+    p3d: addons/sky_city_venue/sky_city_cinema_intact.p3d
+    category: city_large
+    budget: {res0: 80000, res1: 24000, res2: 2500, res3: 300, shadow: 1000, geo_comps: 640, geo_tris: 8000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_Cinema_Damaged
+    type: "cinema KINO: marquee, foyer with ticket and snack counters, raked auditorium, screen (damaged)"
+    p3d: addons/sky_city_venue/sky_city_cinema_damaged.p3d
+    category: city_large
+    budget: {res0: 80000, res1: 24000, res2: 2500, res3: 300, shadow: 1000, geo_comps: 640, geo_tris: 8000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_Cinema_Ruined
+    type: "cinema KINO: marquee, foyer with ticket and snack counters, raked auditorium, screen (ruined)"
+    p3d: addons/sky_city_venue/sky_city_cinema_ruined.p3d
+    category: city_large
+    budget: {res0: 80000, res1: 24000, res2: 2500, res3: 300, shadow: 1000, geo_comps: 640, geo_tris: 8000, sections_res0: 24}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_City_Bar_Intact
+    type: "corner bar: long counter, bottle wall, booths, pool table (intact)"
+    p3d: addons/sky_city_com/sky_city_bar_intact.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_Bar_Damaged
+    type: "corner bar: long counter, bottle wall, booths, pool table (damaged)"
+    p3d: addons/sky_city_com/sky_city_bar_damaged.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_Bar_Ruined
+    type: "corner bar: long counter, bottle wall, booths, pool table (ruined)"
+    p3d: addons/sky_city_com/sky_city_bar_ruined.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_City_Kindergarten_Intact
+    type: "2-storey kindergarten: playrooms, nap room with cots, mosaic sun, rusty playground (intact)"
+    p3d: addons/sky_city_civic/sky_city_kindergarten_intact.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_Kindergarten_Damaged
+    type: "2-storey kindergarten: playrooms, nap room with cots, mosaic sun, rusty playground (damaged)"
+    p3d: addons/sky_city_civic/sky_city_kindergarten_damaged.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_Kindergarten_Ruined
+    type: "2-storey kindergarten: playrooms, nap room with cots, mosaic sun, rusty playground (ruined)"
+    p3d: addons/sky_city_civic/sky_city_kindergarten_ruined.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_City_Clubhouse_Intact
+    type: "football clubhouse: home and away changing rooms with benches, lockers and showers (intact)"
+    p3d: addons/sky_city_civic/sky_city_clubhouse_intact.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_Clubhouse_Damaged
+    type: "football clubhouse: home and away changing rooms with benches, lockers and showers (damaged)"
+    p3d: addons/sky_city_civic/sky_city_clubhouse_damaged.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_Clubhouse_Ruined
+    type: "football clubhouse: home and away changing rooms with benches, lockers and showers (ruined)"
+    p3d: addons/sky_city_civic/sky_city_clubhouse_ruined.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_City_ChurchHanged_Intact
+    type: "stone church: hanged shrouded bodies from the trusses, toppled pews, candles (intact)"
+    p3d: addons/sky_city_civic/sky_city_churchhanged_intact.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_ChurchHanged_Damaged
+    type: "stone church: hanged shrouded bodies from the trusses, toppled pews, candles (damaged)"
+    p3d: addons/sky_city_civic/sky_city_churchhanged_damaged.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_ChurchHanged_Ruined
+    type: "stone church: hanged shrouded bodies from the trusses, toppled pews, candles (ruined)"
+    p3d: addons/sky_city_civic/sky_city_churchhanged_ruined.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION]
+    status: built-unverified
   - name: Land_SKY_City_RubbleLot_A
     type: "12 x 12 m collapsed building lot"
     p3d: addons/sky_city_env/sky_city_rubblelot_a.p3d
@@ -1510,6 +1657,160 @@ generated_kit:
     p3d: addons/sky_floors/sky_skybridge.p3d
     category: skybridge
     budget: {res0: 1500, res1: 600, res2: 120, res3: 40, shadow: 60, geo_comps: 40, geo_tris: 400, sections_res0: 6}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_Fair_FerrisWheel
+    type: "26 m Ferris wheel, 16 yellow gondolas, rust and saplings (Pripyat)"
+    p3d: addons/sky_landmarks/sky_fair_ferriswheel.p3d
+    category: landmark
+    budget: {res0: 60000, res1: 15000, res2: 2500, res3: 300, shadow: 600, geo_comps: 400, geo_tris: 6000, sections_res0: 16}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_Fair_Carousel
+    type: "chain-swing carousel: striped canopy, 16 swings, ring fence"
+    p3d: addons/sky_landmarks/sky_fair_carousel.p3d
+    category: landmark
+    budget: {res0: 60000, res1: 15000, res2: 2500, res3: 300, shadow: 600, geo_comps: 400, geo_tris: 6000, sections_res0: 16}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_Fair_BumperCars
+    type: "bumper-car pavilion: steel roof, fascia, 6 abandoned cars"
+    p3d: addons/sky_landmarks/sky_fair_bumpercars.p3d
+    category: landmark
+    budget: {res0: 60000, res1: 15000, res2: 2500, res3: 300, shadow: 600, geo_comps: 400, geo_tris: 6000, sections_res0: 16}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_Fair_Booth
+    type: "ticket / shooting-gallery booth with striped awning"
+    p3d: addons/sky_landmarks/sky_fair_booth.p3d
+    category: medium
+    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 4, shadow: 100}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_Fair_Gate
+    type: "LUNAPARK entrance arch with turnstiles"
+    p3d: addons/sky_landmarks/sky_fair_gate.p3d
+    category: landmark
+    budget: {res0: 60000, res1: 15000, res2: 2500, res3: 300, shadow: 600, geo_comps: 400, geo_tris: 6000, sections_res0: 16}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_Landfill
+    type: "municipal landfill: rubbish mounds, crushed cars, compactor shed, fence"
+    p3d: addons/sky_landmarks/sky_landfill.p3d
+    category: lot
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 400, geo_comps: 300, geo_tris: 4000, sections_res0: 16}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_Stadium_Pitch
+    type: "football pitch: worn turf, lines, goals, dugouts, rail fence"
+    p3d: addons/sky_landmarks/sky_stadium_pitch.p3d
+    category: lot
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 400, geo_comps: 300, geo_tris: 4000, sections_res0: 16}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_Stadium_Stand
+    type: "covered stand: 6 terraces with seats, roof on columns"
+    p3d: addons/sky_landmarks/sky_stadium_stand.p3d
+    category: landmark
+    budget: {res0: 60000, res1: 15000, res2: 2500, res3: 300, shadow: 600, geo_comps: 400, geo_tris: 6000, sections_res0: 16}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_Stadium_Floodlight
+    type: "18 m lattice floodlight mast"
+    p3d: addons/sky_landmarks/sky_stadium_floodlight.p3d
+    category: medium
+    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 4, shadow: 100}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_ParkingLot_A
+    type: "surface car park: bays, lamp posts, barrier booth, wrecks"
+    p3d: addons/sky_landmarks/sky_parkinglot_a.p3d
+    category: lot
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 400, geo_comps: 300, geo_tris: 4000, sections_res0: 16}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_ParkingLot_B
+    type: "small surface car park: one row of bays, wrecks"
+    p3d: addons/sky_landmarks/sky_parkinglot_b.p3d
+    category: lot
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 400, geo_comps: 300, geo_tris: 4000, sections_res0: 16}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_ParkingLot_Metro
+    type: "car park hiding a sealed metro service hatch behind a van wreck"
+    p3d: addons/sky_landmarks/sky_parkinglot_metro.p3d
+    category: lot
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 400, geo_comps: 300, geo_tris: 4000, sections_res0: 16}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_TrashBin
+    type: "street litter bin with lid (searchable)"
+    p3d: addons/sky_street/sky_trashbin.p3d
+    category: small
+    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 3, shadow: 60}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_Hydrant_Wet
+    type: "fire hydrant that still gives water (vanilla well behaviour)"
+    p3d: addons/sky_street/sky_hydrant_wet.p3d
+    category: small
+    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 3, shadow: 60}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_Hydrant_Dry
+    type: "dry fire hydrant (decoration)"
+    p3d: addons/sky_street/sky_hydrant_dry.p3d
+    category: small
+    budget: {res0: 600, res1: 300, res2: 100, geo_comps: 8, geo_tris: 120, sections_res0: 3, shadow: 60}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_SirenTower
+    type: "civil-defence siren on a 10 m pole (city alarm event)"
+    p3d: addons/sky_street/sky_sirentower.p3d
+    category: medium
+    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 4, shadow: 100}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_Wreck_GarbageTruck
+    type: "abandoned garbage truck (rear hopper searchable)"
+    p3d: addons/sky_street/sky_wreck_garbagetruck.p3d
+    category: medium
+    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 4, shadow: 100}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_Viaduct_Straight
+    type: "elevated road, 12 m segment at 7 m, barriers, central pier"
+    p3d: addons/sky_roads/sky_viaduct_straight.p3d
+    category: road_struct
+    budget: {res0: 12000, res1: 4000, res2: 800, res3: 100, shadow: 200, geo_comps: 80, geo_tris: 1200, sections_res0: 10}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_Viaduct_Ramp
+    type: "viaduct ramp: 0 -> 7 m over 48 m, retaining walls"
+    p3d: addons/sky_roads/sky_viaduct_ramp.p3d
+    category: road_struct
+    budget: {res0: 12000, res1: 4000, res2: 800, res3: 100, shadow: 200, geo_comps: 80, geo_tris: 1200, sections_res0: 10}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_Tunnel_Straight
+    type: "cut-and-cover road tunnel, 12 m segment, earth berms, deck on top"
+    p3d: addons/sky_roads/sky_tunnel_straight.p3d
+    category: road_struct
+    budget: {res0: 12000, res1: 4000, res2: 800, res3: 100, shadow: 200, geo_comps: 80, geo_tris: 1200, sections_res0: 10}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_Tunnel_Portal
+    type: "tunnel end cell: headwall over the mouth at -Y, hazard band, sign"
+    p3d: addons/sky_roads/sky_tunnel_portal.p3d
+    category: road_struct
+    budget: {res0: 12000, res1: 4000, res2: 800, res3: 100, shadow: 200, geo_comps: 80, geo_tris: 1200, sections_res0: 10}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_Bridge_Long
+    type: "96 m truss bridge: checkpoint, convoy pile-up, sniper nests (the bridge)"
+    p3d: addons/sky_roads/sky_bridge_long.p3d
+    category: landmark
+    budget: {res0: 60000, res1: 15000, res2: 2500, res3: 300, shadow: 600, geo_comps: 400, geo_tris: 6000, sections_res0: 16}
     uses: [PENETRATION]
     status: built-unverified
   - name: Land_SKY_TowerA_Core15

@@ -738,6 +738,52 @@ CITY_ARCHETYPES.update({
 })
 
 
+# ---- D61 venues (ROADMAP.md ideas 4, 6, 7, 10, 12, 14, 21). Second sign sheet so the existing
+# sign bands (and every committed city P3D) stay unchanged.
+MATERIALS.update({"signs2": {"rvmat": rvmat("sky_signs2"), "co": tex("sky_signs2_co")}})
+SIGN2_NAMES = ["hyper", "kino", "mall", "bar", "creche", "club", "fair", "parking", "landfill", "food", "tickets",
+               "fashion", "shoes", "jewelry", "electro", "danger"]
+SIGN_MAT = {k: "signs" for k in SIGN_NAMES}
+SIGN_MAT.update({k: "signs2" for k in SIGN2_NAMES})
+SIGN_BAND.update({k: (i / float(len(SIGN2_NAMES)), (i + 1) / float(len(SIGN2_NAMES))) for i, k in enumerate(SIGN2_NAMES)})
+# Night light per archetype ("light"): hyper = cold, over-bright, also on by day (idea 4: "une lumiere
+# blanche qui fait mal aux yeux"); warm = interior light; default by group (gen_configs.city_lit_script).
+CITY_LIGHT = {"hyper": "SKY_HyperLight", "warm": "SKY_InteriorLight", "cool": "SKY_OfficeLight"}
+CITY_ARCHETYPES.update({
+    "Hypermarket": {"group": "venue", "w": 44.0, "d": 32.0, "levels": [("hyper", 7.0)], "skin": ("panel", None),
+                    "ground": "shopfront", "shop_sides": ("S",), "blank": (), "stair": None, "bay": 4.0,
+                    "door_bay": "center", "sign": "hyper", "sign_w": 16.0, "parapet": 1.2, "light": "hyper",
+                    "usage": ["Town"], "cats": ["food", "containers", "tools", "clothes"],
+                    "desc": "hypermarket: 44 x 32 m hall, tall racks, checkout lines, harsh fluorescent light"},
+    "Mall": {"group": "venue", "w": 56.0, "d": 40.0, "levels": [("mall", 5.0)] * 3, "skin": ("render", "white"),
+             "ground": "shopfront", "shop_sides": ("S",), "blank": (), "stair": "back_center", "bay": 4.0,
+             "door_bay": "center", "atrium": (20.0, 12.0), "skylight": True, "escalators": True, "sign": "mall",
+             "sign_w": 12.0, "costume": True, "light": "warm", "usage": ["Town"],
+             "cats": ["clothes", "containers", "food", "tools", "books"],
+             "desc": "3-level mall round a glass-roofed atrium: shop units, galleries, escalators, fountain, food court"},
+    "Cinema": {"group": "venue", "w": 22.0, "d": 34.0, "levels": [("cinema", 9.0)], "skin": ("render", "cream"),
+               "forecourt": (14.0, 3.0),
+               "blank": (), "stair": None, "bay": 3.67, "door_bay": "center", "landmark": "cinema",
+               "costume": True, "light": "warm", "usage": ["Town"], "cats": ["clothes", "food", "containers"],
+               "desc": "cinema KINO: marquee, foyer with ticket and snack counters, raked auditorium, screen"},
+    "Bar": {"group": "commercial", "w": 12.0, "d": 10.0, "levels": [("bar", 3.8)], "skin": ("brick", None),
+            "ground": "shopfront", "shop_sides": ("S",), "blank": (), "stair": None, "bay": 2.4, "door_bay": "center",
+            "sign": "bar", "parapet": 0.5, "roof_gear": False, "alcohol": True, "light": "warm", "usage": ["Town"],
+            "cats": ["food", "containers"], "desc": "corner bar: long counter, bottle wall, booths, pool table"},
+    "Kindergarten": {"group": "civic", "w": 20.0, "d": 14.0, "levels": [("creche", 3.3)] * 2,
+                     "skin": ("render", "ochre"), "forecourt": (20.0, 9.0), "blank": ("E",), "stair": "back_left",
+                     "bay": 2.86, "door_bay": "center", "sign": "creche", "landmark": "creche", "light": "warm",
+                     "usage": ["School"], "cats": ["clothes", "books", "containers"],
+                     "desc": "2-storey kindergarten: playrooms, nap room with cots, mosaic sun, rusty playground"},
+    "Clubhouse": {"group": "civic", "w": 16.0, "d": 8.0, "levels": [("changing", 3.2)], "skin": ("brick", None),
+                  "blank": (), "stair": None, "bay": 2.67, "door_bay": "center", "sign": "club", "parapet": 0.5,
+                  "roof_gear": False, "light": "warm", "usage": ["Town"], "cats": ["clothes", "containers"],
+                  "desc": "football clubhouse: home and away changing rooms with benches, lockers and showers"},
+})
+CITY_ARCHETYPES["ChurchHanged"] = _variant("Church", decor="hanged",
+                                           desc="stone church: hanged shrouded bodies from the trusses, toppled pews, candles")
+
+
 def city_footprint(A):
     """Model-space footprint (x0, x1, y0, y1) of an archetype: body + forecourt in front (-Y)."""
     hw, hd = A["w"] / 2, A["d"] / 2
@@ -757,6 +803,7 @@ CITY_PBOS = {
     "sky_city_civic": "police, fire station, clinic, hospital, school, town hall, church, post office",
     "sky_city_ind": "warehouses, workshops, garages, factory, parking garage, substation, kiosks, sheds",
     "sky_city_env": "rubble lots, vegetation, water tower, metro entrances",
+    "sky_city_venue": "hypermarket, mall, cinema (D61 venues)",
 }
 
 
@@ -766,7 +813,7 @@ def city_pbo(arch=None):
         return "sky_city_env"
     if arch.startswith("CourtyardBlock"):
         return "sky_city_block"
-    return {"residential": "sky_city_res", "mixed": "sky_city_com", "commercial": "sky_city_com",
+    return {"residential": "sky_city_res", "mixed": "sky_city_com", "commercial": "sky_city_com", "venue": "sky_city_venue",
             "civic": "sky_city_civic", "industrial": "sky_city_ind", "small": "sky_city_ind"}[CITY_ARCHETYPES[arch]["group"]]
 
 
@@ -1177,3 +1224,87 @@ kit("Skybridge", "sky_floors", "skybridge", uses=["PENETRATION"],
 # of the Veg_Birch picks (same 4 m footprint, same clearances) with real DayZ trees.
 VANILLA_TREES = []
 VANILLA_TREE_SHARE = 0.5
+
+
+# ===================================================================== D61 landmarks, roads, street props
+# ROADMAP.md: funfair (1), car jams / viaducts / tunnel (2), landfill (13), searchable bins (16),
+# hydrants (17), alarm sirens (20), football ground (21), car parks + hidden metro hatch (22), the bridge (23).
+MATERIALS.update({
+    "fair": {"rvmat": rvmat("sky_fair"), "co": tex("sky_fair_co"),
+             "bands": {"yellow": (0.0, 0.25), "red": (0.25, 0.5), "blue": (0.5, 0.75), "white": (0.75, 1.0)}},
+    "trash": {"rvmat": rvmat("sky_trash"), "co": tex("sky_trash_co"), "sheet_m": 4.0},
+    "turf": {"rvmat": rvmat("sky_turf"), "co": tex("sky_turf_co"), "sheet_m": 8.0},
+})
+BUDGETS["landmark"] = {"res0": 60000, "res1": 15000, "res2": 2500, "res3": 300, "shadow": 600, "geo_comps": 400,
+                       "geo_tris": 6000, "sections_res0": 16}           # Ferris wheel, bridge, stadium stand (hypothesis)
+BUDGETS["lot"] = {"res0": 30000, "res1": 9000, "res2": 1500, "res3": 200, "shadow": 400, "geo_comps": 300,
+                  "geo_tris": 4000, "sections_res0": 16}                # open lots: landfill, pitch, car parks
+BUDGETS["road_struct"] = {"res0": 12000, "res1": 4000, "res2": 800, "res3": 100, "shadow": 200, "geo_comps": 80,
+                          "geo_tris": 1200, "sections_res0": 10}        # viaduct / tunnel segments
+LANDMARKS = [
+    # name, pbo, category, footprint (w, d), description
+    ("Fair_FerrisWheel", "sky_landmarks", "landmark", (28.0, 10.0), "26 m Ferris wheel, 16 yellow gondolas, rust and saplings (Pripyat)"),
+    ("Fair_Carousel", "sky_landmarks", "landmark", (14.0, 14.0), "chain-swing carousel: striped canopy, 16 swings, ring fence"),
+    ("Fair_BumperCars", "sky_landmarks", "landmark", (18.0, 12.0), "bumper-car pavilion: steel roof, fascia, 6 abandoned cars"),
+    ("Fair_Booth", "sky_landmarks", "medium", (4.0, 3.0), "ticket / shooting-gallery booth with striped awning"),
+    ("Fair_Gate", "sky_landmarks", "landmark", (14.0, 3.0), "LUNAPARK entrance arch with turnstiles"),
+    ("Landfill", "sky_landmarks", "lot", (40.0, 40.0), "municipal landfill: rubbish mounds, crushed cars, compactor shed, fence"),
+    ("Stadium_Pitch", "sky_landmarks", "lot", (64.0, 44.0), "football pitch: worn turf, lines, goals, dugouts, rail fence"),
+    ("Stadium_Stand", "sky_landmarks", "landmark", (24.0, 8.0), "covered stand: 6 terraces with seats, roof on columns"),
+    ("Stadium_Floodlight", "sky_landmarks", "medium", (4.0, 2.0), "18 m lattice floodlight mast"),
+    ("ParkingLot_A", "sky_landmarks", "lot", (24.0, 24.0), "surface car park: bays, lamp posts, barrier booth, wrecks"),
+    ("ParkingLot_B", "sky_landmarks", "lot", (24.0, 12.0), "small surface car park: one row of bays, wrecks"),
+    ("ParkingLot_Metro", "sky_landmarks", "lot", (24.0, 24.0), "car park hiding a sealed metro service hatch behind a van wreck"),
+    ("TrashBin", "sky_street", "small", (0.7, 0.7), "street litter bin with lid (searchable)"),
+    ("Hydrant_Wet", "sky_street", "small", (0.6, 0.6), "fire hydrant that still gives water (vanilla well behaviour)"),
+    ("Hydrant_Dry", "sky_street", "small", (0.6, 0.6), "dry fire hydrant (decoration)"),
+    ("SirenTower", "sky_street", "medium", (2.0, 2.0), "civil-defence siren on a 10 m pole (city alarm event)"),
+    ("Wreck_GarbageTruck", "sky_street", "medium", (2.6, 9.0), "abandoned garbage truck (rear hopper searchable)"),
+    ("Viaduct_Straight", "sky_roads", "road_struct", (12.0, 12.0), "elevated road, 12 m segment at 7 m, barriers, central pier"),
+    ("Viaduct_Ramp", "sky_roads", "road_struct", (12.0, 48.0), "viaduct ramp: 0 -> 7 m over 48 m, retaining walls"),
+    ("Tunnel_Straight", "sky_roads", "road_struct", (24.0, 12.0), "cut-and-cover road tunnel, 12 m segment, earth berms, deck on top"),
+    ("Tunnel_Portal", "sky_roads", "road_struct", (24.0, 12.0), "tunnel end cell: headwall over the mouth at -Y, hazard band, sign"),
+    ("Bridge_Long", "sky_roads", "landmark", (98.0, 16.0), "96 m truss bridge: checkpoint, convoy pile-up, sniper nests (the bridge)"),
+]
+LANDMARK_SIZE = {}
+for _n, _pbo, _cat, _fp, _d in LANDMARKS:
+    kit(_n, _pbo, _cat, uses=["PENETRATION"], desc=_d)
+    LANDMARK_SIZE[_n] = _fp
+KIT["Fair_Booth"]["doors"] = []
+# Placeable non-archetype pieces for city_fill.py (class keys, footprint w, d).
+CITY_PIECES.update({"ParkingLot": (["ParkingLot_A", "ParkingLot_Metro"], 24.0, 24.0),
+                    "ParkingLotSmall": (["ParkingLot_B"], 24.0, 12.0)})
+for _p in ("ParkingLot", "ParkingLotSmall"):
+    CITY_ZONES["downtown"]["weights"][_p] = 1
+    CITY_ZONES["midtown"]["weights"][_p] = 2
+    CITY_ZONES["industrial"]["weights"][_p] = 1
+# Searchable objects (ActionSKY_SearchTrash): memory point "search" (or search_N) marks where the player
+# stands; the server loot table lives in SKY_SearchTable (scripts), not in config.
+SEARCHABLE = ["Dumpster", "TrashBin", "Wreck_GarbageTruck", "Landfill"]
+# Parks: fixed arrangements placed in a whole block (layout `blocks: [{park: <kind>}]`) instead of the fill.
+# (piece | archetype@state, u, v, yaw) relative to the block centre; min = block size needed (m).
+PARKS = {
+    "funfair": {"min": (48.0, 48.0), "pieces": [
+        ("Fair_Gate", 0.0, -22.0, 0.0), ("Fair_FerrisWheel", 0.0, 12.0, 0.0), ("Fair_Carousel", -13.0, -6.0, 0.0),
+        ("Fair_BumperCars", 12.0, -6.0, 0.0), ("Fair_Booth", -6.0, -16.0, 0.0), ("Fair_Booth", 6.0, -16.0, 0.0),
+        ("Fair_Booth", 21.0, 6.0, 270.0), ("Veg_Birch", -20.0, 19.0, 0.0), ("Veg_Birch", 19.0, -19.0, 0.0),
+        ("Veg_TreeDead", -21.0, -18.0, 0.0), ("Veg_Bush", 20.0, 20.0, 0.0), ("Veg_Weeds", -3.0, -12.0, 0.0),
+        ("Veg_Weeds", 4.0, 2.0, 0.0), ("TrashBin", -3.0, -19.0, 0.0), ("TrashBin", 3.0, -19.0, 0.0)]},
+    "stadium": {"min": (72.0, 60.0), "pieces": [
+        ("Stadium_Pitch", 0.0, -6.0, 0.0), ("Stadium_Stand", 0.0, 22.0, 0.0), ("City_Clubhouse_Intact", -24.0, 24.0, 0.0),
+        ("Stadium_Floodlight", 34.0, -26.0, 90.0), ("Stadium_Floodlight", 34.0, 14.0, 90.0),
+        ("Stadium_Floodlight", -34.0, -26.0, 270.0), ("Stadium_Floodlight", -34.0, 14.0, 270.0),
+        ("Veg_Birch", 26.0, 25.0, 0.0), ("Veg_Weeds", 17.0, 25.0, 0.0)]},
+    "landfill": {"min": (48.0, 48.0), "pieces": [
+        ("Landfill", 0.0, 0.0, 0.0), ("Wreck_GarbageTruck", 16.0, -22.0, 90.0), ("Dumpster", -8.0, -22.5, 0.0),
+        ("Dumpster", -5.5, -22.5, 0.0), ("Veg_Birch", 20.0, 22.0, 0.0), ("Veg_TreeDead", -20.0, 22.0, 0.0)]},
+}
+# Car jams (idea 2): blocking lines across straight street tiles from pieces with known Geometry
+# (our wrecks and jersey barriers), one pedestrian gap; vanilla wrecks (CE types, verified names)
+# as decoration away from the line - their sizes are not verified (P19).
+JAM_BLOCKERS = {"Wreck_Van": (5.2, 2.1), "Wreck_Sedan": (4.2, 1.8), "Barrier_Concrete": (3.0, 0.6)}   # length, depth
+JAM_GAP = 1.0                       # m: people pass, vehicles (>= 1.8 m wide) do not
+JAM_DECOR = ["Land_Wreck_Ikarus_DE", "Land_Wreck_V3S_DE", "Land_Wreck_sed01_aban1_black_DE", "Land_Wreck_hb01_aban1_blue_DE",
+             "Land_wreck_truck01_aban1_blue_DE", "Land_Wreck_offroad02_aban1_DE", "Land_Wreck_sed02_aban1_red_DE",
+             "Land_Wreck_Volha_Police"]
+VIADUCT = {"ramp_cells": 4, "height": 7.0}

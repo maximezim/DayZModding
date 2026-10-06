@@ -250,6 +250,13 @@ class Plan:
         # car ramps (parking): level l -> l+1 in strip A (l even, up +x) or B (l odd, up -x); the
         # slab of level l+1 is open over the ramp that rises into it (U-turn at the strip ends)
         self.ramps = []
+        self.escalators = []                                     # D61 mall: (level, x0, x1, y0, y1), rising +y
+        if A.get("escalators") and self.atrium:
+            ax0, ax1, ay0, _ay1 = self.atrium
+            for l in range(len(self.levels) - 1):
+                run = self.levels[l][1] * 1.732                  # 30 degree flight
+                xs = (ax1 + 0.6, ax1 + 2.2) if l % 2 == 0 else (ax0 - 2.2, ax0 - 0.6)
+                self.escalators.append((l, xs[0], xs[1], ay0, ay0 + run))
         if A.get("ramps"):
             for l in range(len(self.levels) - 1):
                 y0, y1 = (-3.7, -0.15) if l % 2 == 0 else (0.15, 3.7)
@@ -269,6 +276,8 @@ class Plan:
             ytop = self.hd * 0.35
             if any(u.startswith("double_") for u, _f, _z in self.levels):
                 ytop = -1.25                                     # keep the corridor: rooms behind it stay reachable
+            if any(u == "creche" for u, _f, _z in self.levels) and self.stair:
+                ytop = self.stair[2] - 1.8 - 1.0                  # D61: same for the kindergarten corridor
             self.ruin.region = (xa, xb, min(-self.hd, self.fy0) - 1.0, ytop, zc)
         else:
             self.kc = None
@@ -294,6 +303,9 @@ class Plan:
         if self.yard and l >= 1:
             out.append(self.yard)
         out += [(x0, x1, y0, y1) for (k, x0, x1, y0, y1, _d) in self.ramps if k + 1 == l]
+        out += [(x0, x1, y0, y1) for (k, x0, x1, y0, y1) in self.escalators if k + 1 == l]
+        if self.A.get("skylight") and self.atrium and l == n:              # glass vault over the atrium (D61)
+            out.append(self.atrium)
         return out
 
     def in_hole(self, x, y, l, margin=0.0, stair=True):
@@ -417,6 +429,12 @@ def layout(P, use, l):
         walls, rooms = layout_double(P, use[len("double_"):], l)
     elif use == "ring":
         walls, rooms = layout_ring(P, l)
+    elif use == "creche":
+        walls, rooms = layout_venue(P, use, l)
+    elif use in ("hyper", "cinema", "bar", "changing", "mall"):
+        vw, vr = layout_venue(P, use, l)
+        walls += vw
+        rooms += vr
     elif use == "bank_ground":
         sx0, sx1, sy0, sy1 = st
         yb = 0.6
@@ -1206,17 +1224,24 @@ FLOOR = {"living": "parquet", "bedroom": "parquet", "kitchen": "tile", "hall": "
          "police_lobby": "tile", "cell": None, "waiting": "tile", "exam": "tile", "room": "carpet", "dorm": "parquet",
          "market": "tile", "bay": None, "workshop": None, "garage": None, "kiosk": "tile", "shed": None,
          "reception": "marble", "ward": "tile", "class": "parquet", "banking": "marble", "vault": None, "nave": "marble",
-         "gas": "tile", "cafe": "tile", "parking": None, "dept": "tile", "factory": None}
+         "gas": "tile", "cafe": "tile", "parking": None, "dept": "tile", "factory": None,
+         # D61 venues
+         "hyper": "tile", "foyer": "carpet", "auditorium": "carpet", "bar": "parquet", "club_hall": "tile",
+         "changing": "tile", "play": "parquet", "nap": "parquet", "wash": None, "mall_shop": "tile", "food": "tile",
+         "mall_hall": "marble"}
+VENUE_KINDS = ("hyper", "foyer", "auditorium", "bar", "club_hall", "changing", "play", "nap", "wash", "mall_shop",
+               "food", "mall_hall")
 CEIL = {"lobby": "ceiling", "open_office": "ceiling", "office": "ceiling", "shop": "ceiling", "police_lobby": "ceiling"}
 WALL_BAND = {"house": "beige", "flats": "sage", "flat": "white", "shop": "white", "office_lobby": "white",
              "office": "slate", "warehouse": "white", "police_ground": "slate", "police_upper": "white",
              "corridor": "white", "clinic_ground": "white", "market": "white", "firebays": "beige", "workshop": "white",
              "garage": "white", "kiosk": "white", "shed": "white", "ring": "beige", "double_exam": "white",
              "double_ward": "sage", "double_class": "beige", "double_office": "slate", "bank_ground": "beige",
-             "dept": "white", "nave": "beige", "gas": "white", "cafe": "terracotta", "parking": "white", "factory": "white"}
-NO_CEILING = ("warehouse", "firebays", "workshop", "garage", "shed", "factory", "parking")
+             "dept": "white", "nave": "beige", "gas": "white", "cafe": "terracotta", "parking": "white", "factory": "white",
+             "hyper": "white", "cinema": "terracotta", "bar": "beige", "mall": "white", "creche": "sage", "changing": "white"}
+NO_CEILING = ("warehouse", "firebays", "workshop", "garage", "shed", "factory", "parking", "hyper")
 CEILING_USES = ("office_lobby", "office", "shop", "police_ground", "police_upper", "corridor", "clinic_ground", "market",
-                "bank_ground", "dept", "nave", "gas", "cafe")
+                "bank_ground", "dept", "nave", "gas", "cafe", "mall", "bar")
 
 
 def finish_uv(mat):
@@ -1503,6 +1528,10 @@ def furnish(L, P, l, r, kind, z, top):
         ry = yb0
         while ry + 0.5 < yb1:                                                       # pews, central aisle 1.8 m
             for (px0, px1) in ((x0 + 0.9, -0.9), (0.9, x1 - 0.9)):
+                if P.A.get("decor") == "hanged" and h01(P.name, "pew", round(ry, 1), px0) < 0.3:
+                    if clear(zones, (px0, px1, ry, ry + 0.5)):                     # toppled pew on its back
+                        piece(L, (px0 + 0.1, px1 - 0.1, ry - 0.1, ry + 0.8, z, z + 0.25), "wood", UV_WALNUT)
+                    continue
                 if clear(zones, (px0, px1, ry, ry + 0.5)):
                     piece(L, (px0, px1, ry, ry + 0.45, z, z + 0.45), "wood", UV_WALNUT)
                     L["res0"].box(px0, px1, ry + 0.45, ry + 0.5, z, z + 0.9, mat="wood", uv=UV_WALNUT)
@@ -1512,6 +1541,8 @@ def furnish(L, P, l, r, kind, z, top):
             L[k].box(x0, x1, y1 - 3.0, y1, z, z + 0.3, **kw)
             L[k].box(-1.0, 1.0, y1 - 1.6, y1 - 0.8, z + 0.3, z + 1.3, **kw)
         L["road"].hquad(x0, x1, y1 - 3.0, y1, z + 0.3, mat="road_int", uv=UV_TILE)
+        if P.A.get("decor") == "hanged":
+            hanged(L, P, r, z, top)
         if lamp:
             for gy in (yb0 + 2.0, cy, yb1 - 1.0):
                 DT.pendant(L, 0.0, gy, top - 0.02, 2.5, r=0.5)
@@ -1591,6 +1622,8 @@ def furnish(L, P, l, r, kind, z, top):
     elif kind == "cell":
         bed(L, x0 + 0.05, x0 + 0.85, y1 - 2.05, y1 - 0.05, z, fabric="grey")
         piece(L, (x1 - 0.5, x1 - 0.05, y1 - 0.55, y1 - 0.05, z, z + 0.45), "metal", DT.UV_STEEL, pen="metal")
+    elif kind in VENUE_KINDS:
+        furnish_venue(L, P, l, r, kind, z, top, zones)
 
 
 CAR_PAINT = ("white", "slate", "terracotta", "sage", "beige")
@@ -1656,6 +1689,8 @@ def level_features(L, P, l):
         rail(L, x0 - t, x1 + t, y1, y1 + t, z0, glass=g)
         rail(L, x0 - t, x0, y0, y1, z0, glass=g)
         rail(L, x1, x1 + t, y0, y1, z0, glass=g)
+    if P.escalators:
+        escalators(L, P, l)
     if P.ramps and l < len(P.levels) - 1:                                       # spine between the ramp strips
         for k in ("res0", "res1", "geo", "view", "fire"):
             L[k].box(-9.0, 9.0, -0.15, 0.15, z0, z0 + fh - SLAB, **kw_for(k, "concrete", UV_CONC, "concrete"))
@@ -1731,6 +1766,8 @@ def forecourt(L, P):
                 for k in ("res0", "res1", "geo", "view", "fire"):
                     L[k].box(ix - 0.3, ix + 0.3, py - 0.25, py + 0.25, 0.15, 1.9, **kw_for(k, "paint", DT.paint_uv("white"), "metal"))
                 L["res0"].box(ix - 0.31, ix + 0.31, py - 0.26, py + 0.26, 1.5, 1.75, mat="paint", uv=DT.paint_uv("terracotta"))
+    elif use == "creche":
+        playground(L, P)
     elif use == "cafe":
         yr = fy0 + 0.1
         gap = (P.entry[0] - 0.4, P.entry[1] + 0.4)
@@ -1775,6 +1812,10 @@ def landmark(L, P):
     kind = P.A.get("landmark")
     if not kind:
         return
+    if kind == "cinema":
+        return marquee(L, P)
+    if kind == "creche":
+        return creche_mural(L, P)
     hw, hd, top = P.hw, P.hd, P.top
     lim = DT.stone_uv("limestone")
     for (b0, b1) in [(a, a) for a, _b in P.bays(-hw, hw)[1:]] + [(-hw + 0.25, 0), (hw - 0.25, 0)]:
@@ -1980,6 +2021,7 @@ def roof(L, P):
             DT.unit(Lt, hw * 0.3, hw * 0.3 + 2.2, -hd * 0.6, -hd * 0.6 + 1.8, 1.3, grille="-x")
         DT.mast(Lt, hw - 1.0, hd - 1.0, 4.0)
         DT.obstruction_light(Lt, hw - 1.0, hd - 1.0, 4.0) if P.state == 0 else None
+    skylight(L, P)
     roof_signs(L, P, skin)
 
 
@@ -2001,12 +2043,15 @@ def roof_signs(L, P, skin):
         zs0 = top_s - 0.55 if P.A.get("ground") == "shopfront" else P.levels[0][1] + 0.25
         if skin == "metal":
             zs0 = P.levels[0][1] - 1.2
-        wsg = min(P.W * 0.5, 6.0)
+        wsg = P.A.get("sign_w", min(P.W * 0.5, 6.0))
+        hs = 0.5 * max(1.0, wsg / 6.0) if P.A.get("sign_w") else 0.5             # big venue signs scale up
+        if P.A.get("sign_w") and P.A.get("ground") == "shopfront":
+            zs0 = P.levels[0][1] - SLAB + 0.15                                     # above the shopfront, on the parapet band
         for k in ("res0", "res1"):
-            L[k].box(-wsg / 2, wsg / 2, y, y + 0.08, zs0, zs0 + 0.5, mat="metal", uv=DT.UV_PAINT, skip=("+y",))
-            L[k].quad([(-wsg / 2, y - 0.003, zs0), (wsg / 2, y - 0.003, zs0), (wsg / 2, y - 0.003, zs0 + 0.5),
-                       (-wsg / 2, y - 0.003, zs0 + 0.5)], (0, -1, 0), "signs",
-                      UVRect(0, 2, (-wsg / 2, zs0), (wsg / 2, zs0 + 0.5), (0, 1 - v1, 1, 1 - v0)))
+            L[k].box(-wsg / 2, wsg / 2, y, y + 0.08, zs0, zs0 + hs, mat="metal", uv=DT.UV_PAINT, skip=("+y",))
+            L[k].quad([(-wsg / 2, y - 0.003, zs0), (wsg / 2, y - 0.003, zs0), (wsg / 2, y - 0.003, zs0 + hs),
+                       (-wsg / 2, y - 0.003, zs0 + hs)], (0, -1, 0), S.SIGN_MAT[sign],
+                      UVRect(0, 2, (-wsg / 2, zs0), (wsg / 2, zs0 + hs), (0, 1 - v1, 1, 1 - v0)))
         if sign == "police" and P.state == 0:
             L["res0"].prism(0.0, -hd - 0.25, 0.12, zs0 + 0.6, zs0 + 0.9, n=10, mat="lamp")
     if P.A.get("ground") == "shopfront" and P.state < 2:                              # striped awning (fabric)
@@ -2577,8 +2622,774 @@ def build_veg(name):
 
 
 # ================================================================== memory, loot, build
+
+# ================================================================== D61 venues (ROADMAP.md)
+# Hypermarket, mall, cinema, bar, kindergarten, clubhouse, hanged church. Same grammar and rules:
+# collision only where walkable / big; keep-clear zones; Res0 detail, Res1 big forms.
+VENUE_SHOPS = ["fashion", "shoes", "jewelry", "electro"]
+
+
+def sign2_quad(lod, pts, facing, sign, axes, lo, hi):
+    """Quad textured with one band of a sign sheet (signs / signs2, skyspec.SIGN_MAT)."""
+    v0, v1 = S.SIGN_BAND[sign]
+    lod.quad(pts, facing, S.SIGN_MAT[sign], UVRect(axes[0], axes[1], lo, hi, (0, 1 - v1, 1, 1 - v0)))
+
+
+def layout_venue(P, use, l):
+    ix0, ix1, iy0, iy1 = P.ix0, P.ix1, P.iy0, P.iy1
+    h = PT / 2
+    walls, rooms = [], []
+    if use == "hyper":
+        ys = iy1 - 7.0
+        walls.append(("x", ys, ix0, ix1, [(ix0 + 2.6, ix0 + 4.0), (ix1 - 4.0, ix1 - 2.6)]))
+        rooms += [(ix0, ix1, iy0, ys - h, "hyper"), (ix0, ix1, ys + h, iy1, "storage")]
+    elif use == "cinema":
+        yw = iy0 + 9.0
+        walls.append(("x", yw, ix0, ix1, [(ix0 + 0.15, ix0 + 1.45), (ix1 - 1.45, ix1 - 0.15)]))
+        rooms += [(ix0, ix1, iy0, yw - h, "foyer"), (ix0, ix1, yw + h, iy1, "auditorium")]
+    elif use == "bar":
+        ys = iy1 - 2.4
+        walls.append(("x", ys, ix0, ix1, [(ix1 - 1.8, ix1 - 0.9)]))
+        rooms += [(ix0, ix1, iy0, ys - h, "bar"), (ix0, ix1, ys + h, iy1, "storage")]
+    elif use == "changing":
+        yh = iy0 + 2.2
+        walls += [("x", yh, ix0, ix1, [(-4.5, -3.6), (3.6, 4.5)]), ("y", 0.0, yh + h, iy1, [])]
+        rooms += [(ix0, ix1, iy0, yh - h, "club_hall"), (ix0, -h, yh + h, iy1, "changing"), (h, ix1, yh + h, iy1, "changing")]
+    elif use == "creche":
+        walls, rooms = layout(P, "corridor", l)
+        kinds = ["play", "nap", "play", "wash"]
+        rooms = [(r[0], r[1], r[2], r[3], kinds[i % 4] if r[4] in ("room", "exam", "dorm") else r[4])
+                 for i, r in enumerate(rooms)]
+    elif use == "mall":
+        sx0, sx1, sy0, sy1 = P.stair
+        dp = 7.5
+        xw, xe, yn = ix0 + dp, ix1 - dp, iy1 - dp
+        shop_kind = "food" if l == len(P.levels) - 1 else "mall_shop"
+        for side, xc, a_lo in (("W", xw, ix0), ("E", xe, ix1)):
+            units = split_bays(iy0, yn - h, 8.0, 5.0)
+            walls.append(("y", xc, iy0, yn - h, [((a + b) / 2 - 1.6, (a + b) / 2 + 1.6) for a, b in units]))
+            for a, b in units[1:]:
+                walls.append(("x", a, ix0, xw - h, []) if side == "W" else ("x", a, xe + h, ix1, []))
+            for i, (a, b) in enumerate(units):
+                x0, x1 = (ix0, xw - h) if side == "W" else (xe + h, ix1)
+                rooms.append((x0, x1, a + (h if i else 0), b - (h if i < len(units) - 1 else 0), shop_kind))
+        north = [(ix0, sx0 - 1.2 - h), (sx1 + 1.2 + h, ix1)]
+        ops = [(sx0 - 1.2, sx1 + 1.2)]
+        for (a0, a1) in north:
+            units = split_bays(a0, a1, 8.5, 5.0)
+            ops += [((a + b) / 2 - 1.6, (a + b) / 2 + 1.6) for a, b in units]
+            for a, b in units[1:]:
+                walls.append(("y", a, yn + h, iy1, []))
+            for i, (a, b) in enumerate(units):
+                rooms.append((a + (h if i else 0), b - (h if i < len(units) - 1 else 0), yn + h, iy1, shop_kind))
+        for c in (sx0 - 1.2, sx1 + 1.2):                                        # corridor to the stair
+            walls.append(("y", c, yn + h, iy1, []))
+        walls.append(("x", yn, ix0, ix1, sorted(ops)))
+        rooms.append((sx0 - 1.2 + h, sx1 + 1.2 - h, yn + h, sy0, "hall"))
+        rooms.append((xw + h, xe - h, iy0, yn - h, "mall_hall"))
+    return walls, rooms
+
+
+def tube_row(L, x0, x1, y, z, lit, lods=("res0",)):
+    """Fluorescent batten row: steel housings with diffuser tubes (lamp_cool when lit), 1.5 m each."""
+    a = x0
+    while a + 1.5 <= x1 + 1e-6:
+        L["res0"].box(a + 0.05, a + 1.45, y - 0.09, y + 0.09, z, z + 0.06, mat="metal", uv=DT.UV_PAINT, skip=("-z",))
+        L["res0"].hquad(a + 0.08, a + 1.42, y - 0.07, y + 0.07, z - 0.001, mat="lamp_cool" if lit else "metal",
+                        uv=None if lit else DT.UV_STEEL, up=False)
+        a += 1.6
+    if "res1" in lods:
+        L["res1"].hquad(x0, x1, y - 0.09, y + 0.09, z - 0.001, mat="lamp_cool" if lit else "metal",
+                        uv=None if lit else DT.UV_STEEL, up=False)
+
+
+def chair(L, x, y, z, face, s=1.0, mat="metal", uv=None):
+    """Visual chair (seat + back), face = direction the sitter looks ('+y', '-y', '+x', '-x')."""
+    uv = uv or DT.UV_ALU
+    w, sh = 0.42 * s, 0.45 * s
+    L["res0"].box(x - w / 2, x + w / 2, y - w / 2, y + w / 2, z + sh - 0.05 * s, z + sh, mat=mat, uv=uv)
+    for (lx, ly) in ((x - w / 2 + 0.03, y - w / 2 + 0.03), (x + w / 2 - 0.03, y - w / 2 + 0.03),
+                     (x - w / 2 + 0.03, y + w / 2 - 0.03), (x + w / 2 - 0.03, y + w / 2 - 0.03)):
+        L["res0"].box(lx - 0.015, lx + 0.015, ly - 0.015, ly + 0.015, z, z + sh - 0.05 * s, mat="metal", uv=DT.UV_STEEL,
+                      skip=("-z", "+z"))
+    back = {"+y": (x - w / 2, x + w / 2, y - w / 2, y - w / 2 + 0.03), "-y": (x - w / 2, x + w / 2, y + w / 2 - 0.03, y + w / 2),
+            "+x": (x - w / 2, x - w / 2 + 0.03, y - w / 2, y + w / 2), "-x": (x + w / 2 - 0.03, x + w / 2, y - w / 2, y + w / 2)}[face]
+    L["res0"].box(*back, z + sh, z + sh + 0.42 * s, mat=mat, uv=uv)
+
+
+def bottles(L, x0, x1, y, z, depth=0.2, key=(), ruin=False):
+    """A row of bottles on a shelf (Res0): glass / brown / green / clear by seed."""
+    n = int((x1 - x0) / 0.11)
+    for i in range(n):
+        r = h01("btl", key, i)
+        if r < 0.12:
+            continue
+        cx = x0 + 0.055 + i * (x1 - x0 - 0.11) / max(1, n - 1)
+        hb = 0.24 + 0.1 * h01("btlh", key, i)
+        mat = ("glassfar", "paint", "paint", "glassfar" if ruin else "glass")[int(r * 4)]
+        uv = UV_GLASS if mat.startswith("glass") else DT.paint_uv(("sage", "terracotta", "beige")[i % 3])
+        L["res0"].prism(cx, y, 0.035, z, z + hb, n=6, mat=mat, uv=uv)
+        L["res0"].prism(cx, y, 0.012, z + hb, z + hb + 0.08, n=4, mat=mat, uv=uv)
+
+
+def mannequin(L, x, y, z, key):
+    """Shop mannequin (Res0): stand, legs, torso with a garment, head - pale paint."""
+    pale = DT.paint_uv("white")
+    L["res0"].prism(x, y, 0.18, z, z + 0.03, n=8, mat="metal", uv=DT.UV_STEEL)
+    L["res0"].prism(x, y, 0.02, z + 0.03, z + 0.85, n=4, mat="metal", uv=DT.UV_STEEL)
+    L["res0"].box(x - 0.13, x + 0.13, y - 0.08, y + 0.08, z + 0.85, z + 1.45, mat="textile",
+                  uv=DT.band_fit("textile", ("rug_a", "rug_b", "curtain")[int(h01("mq", key) * 3)], x - 0.13, x + 0.13, y - 0.08, y + 0.08))
+    L["res0"].box(x - 0.2, x + 0.2, y - 0.09, y + 0.09, z + 1.3, z + 1.5, mat="paint", uv=pale)
+    L["res0"].prism(x, y, 0.035, z + 1.5, z + 1.58, n=6, mat="paint", uv=pale)
+    L["res0"].prism(x, y, 0.1, z + 1.58, z + 1.8, n=8, mat="paint", uv=pale)
+
+
+def garment_rail(L, x0, x1, y, z, key):
+    """Clothes rail with hanging garments (double-sided textile cards)."""
+    for xx in (x0, x1):
+        L["res0"].prism(xx, y, 0.02, z, z + 1.5, n=4, mat="metal", uv=DT.UV_STEEL)
+    bar(L["res0"], (x0, y, z + 1.5), (x1, y, z + 1.5), 0.012, "metal", DT.UV_STEEL)
+    n = int((x1 - x0) / 0.12)
+    for i in range(n):
+        gx = x0 + 0.08 + i * (x1 - x0 - 0.16) / max(1, n - 1)
+        if h01("gr", key, i) < 0.25:
+            continue
+        band = ("rug_a", "rug_b", "curtain", "runner")[int(h01("grc", key, i) * 4)]
+        ln = 0.7 + 0.5 * h01("grl", key, i)
+        L["res0"].quad([(gx, y - 0.22, z + 1.48 - ln), (gx, y + 0.22, z + 1.48 - ln), (gx, y + 0.22, z + 1.46), (gx, y - 0.22, z + 1.46)],
+                       (1, 0, 0), "textile", DT.band_fit("textile", band, y - 0.22, y + 0.22, 0.0, 1.0, axes=(1, 2)), double=True)
+
+
+def furnish_venue(L, P, l, r, kind, z, top, zones):
+    x0, x1, y0, y1 = r
+    cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+    w, d = x1 - x0, y1 - y0
+    lit = P.state == 0
+    Lz = lifted(L, z)
+    if kind == "hyper":
+        # checkout lines along the front, trolley corral by the door
+        for xk in [x0 + 6.0 + i * 3.6 for i in range(int((w - 12.0) / 3.6) + 1)]:
+            box = (xk - 0.35, xk + 0.35, y0 + 2.2, y0 + 4.8)
+            if clear(zones, box):
+                kitchen_run(L, *box, z)
+                L["res0"].box(xk + 0.4, xk + 0.85, y0 + 2.6, y0 + 3.0, z, z + 0.5, mat="metal", uv=DT.UV_PAINT)    # cashier seat
+                L["res0"].prism(xk - 0.3, y0 + 4.7, 0.025, z + 0.9, z + 2.1, n=4, mat="metal", uv=DT.UV_STEEL)
+                L["res0"].box(xk - 0.42, xk - 0.18, y0 + 4.68, y0 + 4.72, z + 2.0, z + 2.25,
+                              mat="lamp_cool" if lit else "metal", uv=None if lit else DT.UV_STEEL)
+        for i in range(5):                                                      # trolleys (Res0)
+            tx = x0 + 1.2 + i * 0.55
+            L["res0"].box(tx, tx + 0.5, y0 + 1.0, y0 + 1.95, z + 0.25, z + 0.95, mat="metal", uv=DT.UV_STEEL)
+        # tall racking: rows across the hall, main aisle in the middle, cross aisle halfway
+        ry = y0 + 7.0
+        while ry + 0.9 < y1 - 1.6:
+            for (a0, a1) in ((x0 + 2.0, -2.5), (2.5, x1 - 2.0)):
+                mid = (a0 + a1) / 2
+                for (b0, b1) in ((a0, mid - 1.2), (mid + 1.2, a1)):
+                    box = (b0, b1, ry, ry + 0.9)
+                    if b1 - b0 > 2.0 and clear(zones, box):
+                        shelf_unit(L, *box, z, h=3.4)
+            ry += 3.4
+        for (px, py) in ((-6.0, y0 + 5.6), (0.0, y0 + 5.6), (6.0, y0 + 5.6)):    # promotion pallets
+            box = (px - 0.6, px + 0.6, py - 0.4, py + 0.4)
+            if clear(zones, box):
+                piece(L, box + (z, z + 0.15), "wood", UV_LAMINATE)
+                for j in range(3):
+                    L["res0"].box(px - 0.55 + 0.02 * j, px + 0.55 - 0.02 * j, py - 0.35, py + 0.35, z + 0.15 + 0.3 * j,
+                                  z + 0.44 + 0.3 * j, mat="wood", uv=UV_LAMINATE)
+        # aisle signs hung over the main aisle
+        for i, sg in enumerate(("food", "electro", "fashion", "tickets")[:3]):
+            sy = y0 + 9.0 + i * 7.0
+            if sy > y1 - 2.0:
+                break
+            for k in ("res0", "res1"):
+                L[k].box(-1.6, 1.6, sy - 0.03, sy + 0.03, top - 2.2, top - 1.7, mat="metal", uv=DT.UV_PAINT)
+            for s_ in (-1, 1):
+                sign2_quad(L["res0"], [(-1.55, sy + s_ * 0.032, top - 2.15), (1.55, sy + s_ * 0.032, top - 2.15),
+                                        (1.55, sy + s_ * 0.032, top - 1.75), (-1.55, sy + s_ * 0.032, top - 1.75)],
+                           (0, s_, 0), sg, (0, 2), (-1.55, top - 2.15), (1.55, top - 1.75))
+            for xx in (-1.4, 1.4):
+                L["res0"].prism(xx, sy, 0.008, top - 1.7, top, n=3, mat="metal", uv=DT.UV_STEEL)
+        # harsh light: continuous fluorescent rows every 2.4 m, hung 1 m below the roof
+        yy = y0 + 1.5
+        while yy < y1 - 0.5:
+            tube_row(L, x0 + 1.0, x1 - 1.0, yy, top - 1.0, lit, lods=("res0", "res1"))
+            for xx in (x0 + 2.0, cx, x1 - 2.0):
+                L["res0"].prism(xx, yy, 0.006, top - 0.94, top, n=3, mat="metal", uv=DT.UV_STEEL)
+            yy += 2.4
+    elif kind == "foyer":
+        DT.rug(Lz, cx - 3.0, cx + 3.0, y0 + 1.5, y1 - 1.5, "runner")
+        tb = (x0 + 0.4, x0 + 3.6, y1 - 2.2, y1 - 1.5)                          # ticket booth (glass screen)
+        if clear(zones, tb):
+            kitchen_run(L, *tb, z)
+            L["res0"].quad([(tb[0], tb[2] - 0.01, z + 0.95), (tb[1], tb[2] - 0.01, z + 0.95), (tb[1], tb[2] - 0.01, z + 2.0),
+                            (tb[0], tb[2] - 0.01, z + 2.0)], (0, -1, 0), "glass" if lit else "glassfar", UV_GLASS, double=True)
+            for k in ("res0", "res1"):
+                L[k].box(tb[0], tb[1], tb[2], tb[3], z + 2.0, z + 2.5, mat="wood", uv=UV_WALNUT)
+            sign2_quad(L["res0"], [(tb[0] + 0.2, tb[2] - 0.012, z + 2.05), (tb[1] - 0.2, tb[2] - 0.012, z + 2.05),
+                                    (tb[1] - 0.2, tb[2] - 0.012, z + 2.45), (tb[0] + 0.2, tb[2] - 0.012, z + 2.45)],
+                       (0, -1, 0), "tickets", (0, 2), (tb[0] + 0.2, z + 2.05), (tb[1] - 0.2, z + 2.45))
+        sc = (x1 - 5.0, x1 - 0.4, y1 - 2.2, y1 - 1.5)                           # snack counter + popcorn machine
+        if clear(zones, sc):
+            kitchen_run(L, *sc, z)
+            L["res0"].box(sc[0] + 0.3, sc[0] + 0.9, sc[2] + 0.1, sc[3] - 0.1, z + 0.93, z + 1.6, mat="paint",
+                          uv=DT.paint_uv("terracotta"))
+            L["res0"].box(sc[0] + 0.35, sc[0] + 0.85, sc[2] + 0.09, sc[2] + 0.1, z + 1.0, z + 1.5, mat="glassfar", uv=UV_GLASS)
+        for i, cell in enumerate(("art_a", "art_b", "art_c", "art_d")):          # film posters on the side walls
+            yy = y0 + 2.0 + i * 1.6
+            if yy < y1 - 2.6:
+                DT.wall_art(Lz, x0, yy, 1.7, 1.0, 1.5, "+x", cell)
+                DT.wall_art(Lz, x1, yy, 1.7, 1.0, 1.5, "-x", ("art_d", "art_c", "art_b", "art_a")[i])
+        for (px, py) in ((cx - 1.5, cy), (cx + 1.5, cy)):                       # velvet rope posts
+            L["res0"].prism(px, py, 0.05, z, z + 0.95, n=8, mat="metal", uv=DT.UV_ALU)
+        bar(L["res0"], (cx - 1.5, cy, z + 0.85), (cx + 1.5, cy, z + 0.8), 0.02, "textile", DT.band_fit("textile", "curtain", 0, 1, 0, 1))
+        if lit:
+            for gx in (cx - 4.0, cx, cx + 4.0):
+                DT.pendant(L, gx, cy, top - 0.02, 1.4, r=0.45)
+    elif kind == "auditorium":
+        cinema_hall(L, P, r, z, top, lit)
+    elif kind == "bar":
+        ys = y1                                                                 # back wall line (storage partition)
+        cnt = (x0 + 0.8, x1 - 2.6, ys - 1.75, ys - 1.05)
+        if clear(zones, cnt):
+            kitchen_run(L, *cnt, z)
+            for i in range(int((cnt[1] - cnt[0]) / 0.9)):                        # beer taps
+                tx = cnt[0] + 0.5 + i * 0.9
+                L["res0"].prism(tx, cnt[2] + 0.35, 0.03, z + 0.92, z + 1.3, n=6, mat="metal", uv=DT.UV_ALU)
+                L["res0"].box(tx - 0.03, tx + 0.03, cnt[2] + 0.2, cnt[2] + 0.36, z + 1.24, z + 1.3, mat="metal", uv=DT.UV_ALU)
+            for i in range(int((cnt[1] - cnt[0]) / 0.75)):                       # stools (visual)
+                sx = cnt[0] + 0.4 + i * 0.75
+                L["res0"].prism(sx, cnt[2] - 0.45, 0.03, z, z + 0.72, n=6, mat="metal", uv=DT.UV_STEEL)
+                L["res0"].prism(sx, cnt[2] - 0.45, 0.2, z + 0.72, z + 0.78, n=10, mat="fabric", uv=UV_FAB["grey"])
+        bb = (x0 + 0.8, x1 - 2.6, ys - 0.4, ys)                                  # back bar: shelves of bottles
+        piece(L, bb + (z, z + 0.9), "wood", UV_WALNUT)
+        for j, zz in enumerate((z + 1.2, z + 1.6, z + 2.0)):
+            L["res0"].box(bb[0], bb[1], bb[2] + 0.1, bb[3], zz - 0.03, zz, mat="wood", uv=UV_WALNUT)
+            bottles(L, bb[0] + 0.1, bb[1] - 0.1, bb[2] + 0.25, zz, key=(P.name, j), ruin=P.state == 2)
+        bottles(L, bb[0] + 0.1, bb[1] - 0.1, bb[2] + 0.2, z + 0.9, key=(P.name, "top"), ruin=P.state == 2)
+        if lit:                                                                 # neon BAR sign + pendants
+            sign2_quad(L["res0"], [(cx - 1.4, ys - 0.02, z + 2.4), (cx + 1.0, ys - 0.02, z + 2.4), (cx + 1.0, ys - 0.02, z + 2.9),
+                                    (cx - 1.4, ys - 0.02, z + 2.9)], (0, -1, 0), "bar", (0, 2), (cx - 1.4, z + 2.4), (cx + 1.0, z + 2.9))
+            for gx in [cnt[0] + 0.8 + i * 1.8 for i in range(int((cnt[1] - cnt[0]) / 1.8))]:
+                DT.pendant(L, gx, cnt[2] + 0.35, top - 0.02, 0.9, r=0.18)
+        for i in range(2):                                                      # booths on the west wall
+            by = y0 + 1.6 + i * 2.4
+            if by + 1.2 > cnt[2] - 1.2:
+                break
+            tbx = (x0 + 0.05, x0 + 0.85, by - 0.4, by + 0.4)
+            if clear(zones, tbx):
+                table(L, *tbx, z)
+                for s_ in (-1, 1):
+                    bb2 = (x0 + 0.05, x0 + 1.05, by + s_ * 0.85 - 0.25, by + s_ * 0.85 + 0.25)
+                    piece(L, bb2 + (z, z + 0.45), "fabric", UV_FAB["blue"], pen="wood")
+                    L["res0"].box(bb2[0], bb2[1], *(sorted((by + s_ * 1.05, by + s_ * 1.1))), z + 0.45, z + 1.15,
+                                  mat="fabric", uv=UV_FAB["blue"])
+        pt = (cx + 0.3, cx + 2.8, cy - 1.0, cy + 0.4)                            # pool table
+        if clear(zones, pt):
+            piece(L, pt + (z, z + 0.8), "wood", UV_WALNUT)
+            L["res0"].hquad(pt[0] + 0.1, pt[1] - 0.1, pt[2] + 0.1, pt[3] - 0.1, z + 0.801, mat="paint", uv=DT.paint_uv("sage"))
+            for (qx, qy) in ((pt[0] + 0.1, pt[2] + 0.1), (pt[1] - 0.1, pt[2] + 0.1), (pt[0] + 0.1, pt[3] - 0.1),
+                             (pt[1] - 0.1, pt[3] - 0.1), ((pt[0] + pt[1]) / 2, pt[2] + 0.1), ((pt[0] + pt[1]) / 2, pt[3] - 0.1)):
+                L["res0"].prism(qx, qy, 0.06, z + 0.79, z + 0.802, n=6, mat="rubble", uv=UV_RUBBLE)
+            if lit:
+                L["res0"].box(pt[0] + 0.3, pt[1] - 0.3, cy - 0.35, cy - 0.25, top - 0.8, top - 0.7, mat="lamp")
+    elif kind == "club_hall":
+        DT.wall_art(Lz, cx, y1, 1.6, 1.4, 0.9, "-y", "art_c")                   # team photo
+        if lit:
+            DT.downlight(L, cx - 3.0, cy, top - 0.02)
+            DT.downlight(L, cx + 3.0, cy, top - 0.02)
+    elif kind == "changing":
+        for (a0, a1, b0, b1) in ((x0 + 0.05, x0 + 0.5, y0 + 0.4, y1 - 2.4), (x0 + 0.5, x1 - 2.4, y1 - 0.5, y1 - 0.05)):
+            if clear(zones, (a0, a1, b0, b1)):
+                DT.bench(lifted(L, z), a0, a1, b0, b1)
+                along_x = (a1 - a0) > (b1 - b0)
+                for i in range(int(((a1 - a0) if along_x else (b1 - b0)) / 0.5)):   # coat hooks + kit
+                    t = (a0 if along_x else b0) + 0.25 + i * 0.5
+                    hx, hy = (t, b1 - 0.02) if along_x else (a0 + 0.02, t)
+                    L["res0"].box(hx - 0.02, hx + 0.02, hy - 0.02, hy + 0.02, z + 1.65, z + 1.72, mat="metal", uv=DT.UV_STEEL)
+                    if h01(P.name, "kit", round(t, 1), l) < 0.4:
+                        band = ("rug_a", "rug_b")[i % 2]
+                        if along_x:
+                            L["res0"].quad([(hx - 0.2, hy - 0.04, z + 1.0), (hx + 0.2, hy - 0.04, z + 1.0), (hx + 0.2, hy - 0.04, z + 1.68),
+                                            (hx - 0.2, hy - 0.04, z + 1.68)], (0, -1, 0), "textile",
+                                           DT.band_fit("textile", band, hx - 0.2, hx + 0.2, z + 1.0, z + 1.68, axes=(0, 2)))
+        sh = (x1 - 2.2, x1, y1 - 2.2, y1)                                        # shower corner: tiles + heads
+        for k in ("res0", "res1"):
+            L[k].hquad(sh[0], sh[1], sh[2], sh[3], z + 0.006, mat="tile", uv=UV_TILE)
+        L["res0"].box(sh[0], sh[0] + 0.08, sh[2], sh[3] - 0.9, z, z + 2.0, mat="tile", uv=UV_TILE)
+        for i in range(3):
+            hx = sh[0] + 0.4 + i * 0.6
+            L["res0"].box(hx - 0.04, hx + 0.04, sh[3] - 0.25, sh[3] - 0.02, z + 2.0, z + 2.08, mat="metal", uv=DT.UV_ALU)
+        L["res0"].box(cx - 0.6, cx + 0.6, y0 + 0.02, y0 + 0.05, z + 1.2, z + 2.0, mat="paint", uv=DT.paint_uv("slate"))   # tactics board
+        if lit:
+            DT.downlight(L, cx, cy, top - 0.02)
+    elif kind in ("play", "nap", "wash"):
+        creche_room(L, P, l, r, kind, z, top, zones, lit)
+    elif kind == "mall_shop" or kind == "food":
+        mall_unit(L, P, l, r, kind, z, top, zones, lit)
+    elif kind == "mall_hall":
+        mall_gallery(L, P, l, r, z, top, zones, lit)
+
+
+def cinema_hall(L, P, r, z, top, lit):
+    """Raked auditorium: stage + screen + curtains on the foyer wall (audience looks at -y), tiers
+    rising to the back with seat rows, side aisle ramps, a cross aisle on top, projection window."""
+    x0, x1, y0, y1 = r
+    ax = 1.6                                                                     # side aisle width
+    t0, t1 = x0 + ax, x1 - ax
+    stage = (t0, t1, y0, y0 + 2.4)
+    for k in ("res0", "res1", "geo", "view", "fire"):
+        L[k].box(*stage, z, z + 0.6, **kw_for(k, "wood", UV_WALNUT, "wood"))
+    L["road"].hquad(*stage, z + 0.6, mat="road_int", uv=UV_TILE)
+    ws = y0 - 0.02                                                               # screen on the partition
+    sx0, sx1, sz0, sz1 = t0 + 0.8, t1 - 0.8, z + 2.0, z + 7.4
+    for k in ("res0", "res1"):
+        L[k].quad([(sx0, ws + 0.05, sz0), (sx1, ws + 0.05, sz0), (sx1, ws + 0.05, sz1), (sx0, ws + 0.05, sz1)], (0, 1, 0),
+                  "paint", DT.paint_uv("white"))
+        for (a, b) in ((sx0 - 0.25, sx0), (sx1, sx1 + 0.25)):
+            L[k].box(a, b, ws, ws + 0.06, sz0 - 0.25, sz1 + 0.25, mat="paint", uv=DT.paint_uv("slate"))
+        L[k].box(sx0, sx1, ws, ws + 0.06, sz1, sz1 + 0.25, mat="paint", uv=DT.paint_uv("slate"))
+    cur = DT.band_fit("textile", "curtain", 0, 1, 0, 1)
+    for (a, b) in ((t0 - 0.2, sx0 - 0.25), (sx1 + 0.25, t1 + 0.2)):              # drapes + valance
+        for k in ("res0", "res1"):
+            L[k].box(a, b, ws + 0.1, ws + 0.4, z + 0.6, sz1 + 0.9, mat="textile", uv=cur)
+    for k in ("res0", "res1"):
+        L[k].box(t0 - 0.2, t1 + 0.2, ws + 0.1, ws + 0.4, sz1 + 0.3, sz1 + 1.1, mat="textile", uv=cur)
+    # tiers: rise 0.25 m per 1.0 m row, from 4.5 m behind the screen wall to the cross aisle
+    rise, depth = 0.25, 1.0
+    ty0, ty1 = y0 + 4.5, y1 - 1.8
+    n = int((ty1 - ty0) / depth)
+    ztop = z + n * rise
+    seat_uv = DT.paint_uv("terracotta")
+    for i in range(n):
+        ya, yb = ty0 + i * depth, ty0 + (i + 1) * depth
+        zt = z + (i + 1) * rise
+        for k in ("res0", "res1", "geo", "view", "fire"):
+            kw = kw_for(k, "concrete", UV_REVEAL, "concrete")
+            if k.startswith("res"):
+                kw["skip"] = ("-z",)
+            L[k].box(t0, t1, ya, yb, z, zt, **kw)
+        for k in ("res0", "res1"):
+            L[k].hquad(t0, t1, ya, yb, zt + 0.004, mat="carpet", uv=UV_CARPET)
+        L["road"].hquad(t0, t1, ya, yb, zt, mat="road_int", uv=UV_TILE)
+        # seat row at the front of the tier, facing -y (the screen)
+        sy0_, sy1_ = ya + 0.05, ya + 0.55
+        for k in ("geo", "fire"):
+            L[k].box(t0 + 0.2, t1 - 0.2, sy0_, sy1_, zt, zt + 0.45, **({"mat": "pen_wood"} if k == "fire" else {}))
+        L["res1"].box(t0 + 0.2, t1 - 0.2, sy0_, sy1_, zt, zt + 0.95, mat="paint", uv=seat_uv, skip=("-z",))
+        sxx = t0 + 0.25
+        while sxx + 0.5 < t1 - 0.2:
+            L["res0"].box(sxx + 0.03, sxx + 0.5, sy0_ + 0.05, sy1_ - 0.08, zt + 0.35, zt + 0.47, mat="paint", uv=seat_uv)
+            L["res0"].box(sxx + 0.03, sxx + 0.5, sy1_ - 0.12, sy1_ - 0.02, zt + 0.35, zt + 0.98, mat="paint", uv=seat_uv)
+            L["res0"].box(sxx, sxx + 0.03, sy0_ + 0.05, sy1_ - 0.02, zt, zt + 0.65, mat="metal", uv=DT.UV_STEEL)
+            sxx += 0.53
+        if lit and i % 3 == 0:                                                   # aisle step lights
+            for ax_ in (t0 - 0.05, t1 + 0.05):
+                L["res0"].box(ax_ - 0.03, ax_ + 0.03, yb - 0.2, yb - 0.1, zt + 0.05, zt + 0.1, mat="lamp")
+    # side aisles: flat to the first tier, then a ramp up to the cross aisle
+    for (a0, a1) in ((x0, t0), (t1, x1)):
+        for k in ("geo", "fire"):
+            L[k].wedge(a0, a1, ty0, ty0 + n * depth, z - 0.25, z, ztop, **({"mat": "pen_concrete"} if k == "fire" else {}))
+        for k in ("res0", "res1"):
+            L[k].ramp(a0, a1, ty0, ty0 + n * depth, z + 0.004, ztop + 0.004, mat="carpet", uv=UV_CARPET)
+        L["road"].ramp(a0, a1, ty0, ty0 + n * depth, z, ztop, mat="road_int", uv=UV_TILE)
+    cross = (x0, x1, ty0 + n * depth, y1)
+    for k in ("res0", "res1", "geo", "view", "fire"):
+        kw = kw_for(k, "concrete", UV_REVEAL, "concrete")
+        if k.startswith("res"):
+            kw["skip"] = ("-z",)
+        L[k].box(*cross, z, ztop, **kw)
+    L["road"].hquad(*cross, ztop, mat="road_int", uv=UV_TILE)
+    for k in ("res0", "res1"):
+        L[k].hquad(*cross, ztop + 0.004, mat="carpet", uv=UV_CARPET)
+    rail(L, t0, t1, cross[2], cross[2] + 0.06, ztop, h=0.9)                     # rail at the top row
+    # projection window high in the back wall
+    L["res0"].quad([(-0.9, y1 - 0.01, ztop + 2.4), (0.9, y1 - 0.01, ztop + 2.4), (0.9, y1 - 0.01, ztop + 3.0),
+                    (-0.9, y1 - 0.01, ztop + 3.0)], (0, -1, 0), "glassfar", UV_GLASS)
+    if lit:
+        for yy in (ty0 + 2.0, ty0 + n * depth / 2, ty0 + n * depth - 1.0):
+            zz = z + (yy - ty0) / depth * rise + 2.2
+            DT.sconce(L, x0, yy, zz, "+x")
+            DT.sconce(L, x1, yy, zz, "-x")
+        for s_ in (-1, 1):                                                       # green EXIT boxes over the doors
+            ex = x0 + 0.8 if s_ < 0 else x1 - 0.8
+            L["res0"].box(ex - 0.25, ex + 0.25, y0 + 0.02, y0 + 0.08, z + 2.25, z + 2.45, mat="lamp")
+
+
+def creche_room(L, P, l, r, kind, z, top, zones, lit):
+    x0, x1, y0, y1 = r
+    cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+    w, d = x1 - x0, y1 - y0
+    Lz = lifted(L, z)
+    bands = ("terracotta", "sage", "beige", "white")
+    front = cy < (P.stair[2] - 0.9 if P.stair else 0.0)                          # door on y1 (front rooms) or y0
+    far0, far1 = (y0 + 0.05, y0 + 0.45) if front else (y1 - 0.45, y1 - 0.05)
+    if kind == "play":
+        if w > 2.6 and d > 2.6:
+            DT.rug(Lz, cx - 1.2, cx + 1.2, cy - 1.0, cy + 1.0, "rug_b")
+        tb = (cx - 0.6, cx + 0.6, cy - 0.4, cy + 0.4)
+        if w > 3.0 and d > 3.0 and clear(zones, tb):
+            table(L, *tb, z, h=0.52)
+            for (qx, qy, f) in ((cx - 0.85, cy, "+x"), (cx + 0.85, cy, "-x"), (cx - 0.3, cy - 0.65, "+y"), (cx + 0.3, cy + 0.65, "-y")):
+                chair(L, qx, qy, z, f, s=0.65, mat="paint", uv=DT.paint_uv(bands[int(h01(P.name, qx, qy, l) * 4)]))
+        sh = (x0 + 0.1, min(x1 - 0.1, x0 + 1.9), far0, far1)                         # low toy shelf (far wall)
+        if sh[1] - sh[0] > 1.0 and clear(zones, sh):
+            shelf_unit(L, *sh, z, h=1.0)
+        for i in range(7):                                                        # scattered toy blocks (visual)
+            bx = x0 + 0.6 + (w - 1.2) * h01(P.name, "toy", l, i, round(x0, 1))
+            byy = y0 + 0.6 + (d - 1.2) * h01(P.name, "toyy", l, i, round(y0, 1))
+            s = 0.08 + 0.06 * h01(P.name, "toys", i)
+            L["res0"].box(bx - s, bx + s, byy - s, byy + s, z, z + 2 * s, mat="paint", uv=DT.paint_uv(bands[i % 4]))
+        DT.wall_art(Lz, cx, y0 if front else y1, 1.4, min(1.6, w - 0.6), 0.9, "+y" if front else "-y", "art_a")
+    elif kind == "nap":
+        cot_x = x0 + 0.3
+        while cot_x + 0.7 < x1 - 0.3:
+            for (b0, b1) in ((y0 + 0.4, y0 + 1.7), (y1 - 1.7, y1 - 0.4)):
+                box = (cot_x, cot_x + 0.65, b0, b1)
+                if d > 3.6 and clear(zones, box):
+                    piece(L, box + (z, z + 0.3), "wood", UV_OAK)
+                    L["res0"].box(box[0] + 0.04, box[1] - 0.04, b0 + 0.04, b1 - 0.04, z + 0.3, z + 0.4, mat="fabric",
+                                  uv=UV_FAB[("blue", "beige", "grey")[int(h01(P.name, "cot", cot_x, b0) * 3)]])
+                    L["res0"].box(box[0], box[1], b1 - 0.04, b1, z + 0.3, z + 0.65, mat="wood", uv=UV_OAK)
+            cot_x += 0.95
+    elif kind == "wash":
+        for k in ("res0", "res1"):
+            L[k].hquad(x0, x1, y0, y1, z + 0.006, mat="tile", uv=UV_TILE)
+        n = int((w - 0.6) / 0.6)
+        tap = (far0, far0 + 0.07) if front else (far1 - 0.07, far1)
+        for i in range(n):                                                         # row of low basins (far wall)
+            bx = x0 + 0.5 + i * 0.6
+            L["res0"].box(bx - 0.22, bx + 0.22, far0, far1, z + 0.45, z + 0.6, mat="paint", uv=DT.paint_uv("white"))
+            L["res0"].box(bx - 0.02, bx + 0.02, tap[0], tap[1], z + 0.6, z + 0.75, mat="metal", uv=DT.UV_ALU)
+        L["geo"].box(x0 + 0.2, x0 + 0.3 + n * 0.6, far0, far1, z, z + 0.6)
+    if lit:
+        DT.pendant(L, cx, cy, top - 0.02, 0.5, r=0.25)
+
+
+def mall_unit(L, P, l, r, kind, z, top, zones, lit):
+    """Mall shop unit: rails, display tables, mannequins, counter; top level = food court kitchens.
+    Fascia sign and half-down shutter on the gallery side."""
+    x0, x1, y0, y1 = r
+    cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+    key = (P.name, l, round(cx, 1), round(cy, 1))
+    if kind == "food":
+        kb = (x0 + 0.3, x1 - 0.3, y1 - 0.9, y1 - 0.2) if (x1 - x0) >= (y1 - y0) else (x0 + 0.2, x0 + 0.9, y0 + 0.3, y1 - 0.3)
+        if clear(zones, kb):
+            kitchen_run(L, *kb, z)
+            if lit:
+                L["res0"].box(kb[0], kb[1], kb[2], kb[3], z + 2.0, z + 2.6, mat="lamp")
+    else:
+        rails_ = 0
+        ry = y0 + 1.2
+        while ry < y1 - 1.0 and rails_ < 4:
+            if clear(zones, (x0 + 0.8, x1 - 0.8, ry - 0.3, ry + 0.3)) and x1 - x0 > 3.0:
+                garment_rail(L, x0 + 1.0, min(x1 - 1.0, x0 + 3.4), ry, z, key + (ry,))
+                rails_ += 1
+            ry += 1.6
+        tb = (cx - 0.5, cx + 0.5, cy - 0.35, cy + 0.35)
+        if clear(zones, tb):
+            table(L, *tb, z, h=0.8)
+            for i in range(4):
+                L["res0"].box(tb[0] + 0.05 + i * 0.23, tb[0] + 0.25 + i * 0.23, cy - 0.15, cy + 0.15, z + 0.8, z + 0.86,
+                              mat="fabric", uv=UV_FAB[("blue", "beige", "grey", "blue")[i]])
+        for i in range(2):
+            mx = x1 - 0.6 - i * 0.7
+            my = y0 + 0.6 if (y1 - y0) > 3 else cy
+            mannequin(L, mx, my, z, key + (i,))
+    if lit:
+        DT.downlight(L, cx, cy, top - 0.02)
+
+
+def mall_gallery(L, P, l, r, z, top, zones, lit):
+    """Gallery round the atrium: benches, palm planters, kiosk cart; ground floor: dry fountain
+    with weeds; top floor: food-court tables; shop fascias facing the gallery."""
+    x0, x1, y0, y1 = r
+    at = P.atrium
+    if l == 0 and at:                                                             # dry fountain in the atrium
+        fx, fy = (at[0] + at[1]) / 2, (at[2] + at[3]) / 2
+        for k in ("res0", "res1", "geo", "view", "fire"):
+            L[k].prism(fx, fy, 3.0, z, z + 0.5, n=16 if k == "res0" else 8, **kw_for(k, "stone", DT.stone_uv("limestone"), "concrete"))
+        L["road"].hquad(fx - 2.1, fx + 2.1, fy - 2.1, fy + 2.1, z + 0.5, mat="road_ext", uv=UV_TILE)
+        L["res0"].prism(fx, fy, 2.6, z + 0.5, z + 0.505, n=16, mat="rubble", uv=UV_RUBBLE)
+        for k in ("res0", "res1", "geo", "fire"):
+            L[k].prism(fx, fy, 0.5, z + 0.5, z + 2.2, n=10 if k == "res0" else 6, **kw_for(k, "stone", DT.stone_uv("limestone"), "concrete"))
+        L["res0"].prism(fx, fy, 1.1, z + 2.2, z + 2.35, n=12, mat="stone", uv=DT.stone_uv("limestone"))
+        U = {k: v.lod for k, v in L.items()}
+        for i in range(6):
+            a = 2 * math.pi * i / 6 + 0.3
+            plant_tuft(U, fx + 2.0 * math.cos(a), fy + 2.0 * math.sin(a), z + 0.5, 0.7, 0.6,
+                       ("weeds", "grass", "dry_grass")[i % 3], (P.name, "ftn", i))
+    # palm planters at the atrium corners (every level), benches between
+    if at:
+        for (px, py) in ((at[0] - 2.2, at[2] + 1.5), (at[1] + 2.2 if l % 2 else at[0] - 2.2, at[3] - 1.5)):
+            box = (px - 0.7, px + 0.7, py - 0.7, py + 0.7)
+            if clear(zones, box) and not P.in_hole(px, py, l, 1.0):
+                for k in ("res0", "res1", "geo", "fire", "view"):
+                    L[k].box(*box, z, z + 0.6, **kw_for(k, "stone", DT.stone_uv("granite"), "concrete"))
+                L["res0"].prism(px, py, 0.12, z + 0.6, z + 3.4, n=8, mat="wood", uv=UV_WALNUT)
+                U = {k: v.lod for k, v in L.items()}
+                for i in range(5):
+                    a = 2 * math.pi * i / 5
+                    p0 = (px, py, z + 3.4)
+                    ex, ey = px + 1.3 * math.cos(a), py + 1.3 * math.sin(a)
+                    veg_card(U, [(px + 0.1 * math.cos(a), py + 0.1 * math.sin(a), z + 3.0), (ex, ey, z + 2.6),
+                                 (ex, ey, z + 3.3), (px + 0.1 * math.cos(a), py + 0.1 * math.sin(a), z + 3.6)],
+                             (-math.sin(a), math.cos(a), 0), "shrub")
+        top_level = l == len(P.levels) - 1
+        for (bx0, bx1) in ((at[0] + 2.0, at[0] + 5.0), (at[1] - 5.0, at[1] - 2.0)):
+            by = at[2] - 1.4
+            box = (bx0, bx1, by - 0.25, by + 0.25)
+            if clear(zones, box) and not P.in_hole((bx0 + bx1) / 2, by, l, 0.8):
+                if top_level:
+                    table(L, bx0 + 0.6, bx0 + 1.4, by - 0.4, by + 0.4, z)
+                    table(L, bx1 - 1.4, bx1 - 0.6, by - 0.4, by + 0.4, z)
+                else:
+                    DT.bench(lifted(L, z), *box)
+    if lit:
+        x = x0 + 2.0
+        while x < x1 - 1.0:
+            for yy in (y0 + 1.5, y1 - 1.5):
+                if not P.in_hole(x, yy, l + 1, 0.6):
+                    DT.downlight(L, x, yy, top - 0.02, r=0.12)
+            x += 4.0
+
+
+def escalators(L, P, l):
+    """Static escalator banks (stopped = stairs) rising from level l through the slab hole of l+1:
+    stepped Res0 treads on a steel truss, glass balustrades with black handrails, smooth Roadway
+    and Geometry wedge; rails round the hole on the upper deck."""
+    for (k, x0, x1, y0, y1) in P.escalators:
+        if k == l:
+            za, zb = P.levels[k][2], P.levels[k + 1][2]
+            for kk in ("geo", "fire", "view"):
+                kw = {"mat": "pen_metal"} if kk == "fire" else {}
+                L[kk].wedge(x0, x1, y0, y1, za - 0.3, za, zb, **kw)
+            L["road"].ramp(x0, x1, y0, y1, za, zb, mat="road_int", uv=UV_TILE)
+            n = int(math.ceil((y1 - y0) / 0.4))
+            for i in range(n):
+                ya, yb = y0 + i * (y1 - y0) / n, y0 + (i + 1) * (y1 - y0) / n
+                zt = za + (i + 1) * (zb - za) / n
+                L["res0"].box(x0 + 0.12, x1 - 0.12, ya, yb, zt - 0.3, zt, mat="metal", uv=DT.UV_STEEL, skip=("-x", "+x"))
+            L["res1"].ramp(x0 + 0.12, x1 - 0.12, y0, y1, za, zb, mat="metal", uv=DT.UV_STEEL)
+            for (a0, a1) in ((x0, x0 + 0.12), (x1 - 0.12, x1)):                 # truss sides + balustrades
+                verts = [(a0, y0, za - 0.4), (a0, y1, zb - 0.4), (a0, y1, zb + 0.15), (a0, y0, za + 0.15),
+                         (a1, y0, za - 0.4), (a1, y1, zb - 0.4), (a1, y1, zb + 0.15), (a1, y0, za + 0.15)]
+                faces = [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)]
+                for kk in ("res0", "res1", "res2"):
+                    L[kk].solid(verts, faces, mat="metal", uv=DT.UV_PAINT)
+                c = (a0 + a1) / 2
+                gv = [(c - 0.01, y0, za + 0.15), (c - 0.01, y1, zb + 0.15), (c - 0.01, y1, zb + 1.0), (c - 0.01, y0, za + 1.0),
+                      (c + 0.01, y0, za + 0.15), (c + 0.01, y1, zb + 0.15), (c + 0.01, y1, zb + 1.0), (c + 0.01, y0, za + 1.0)]
+                for kk in ("geo", "fire"):
+                    L[kk].solid(gv, faces, **({"mat": "pen_glass"} if kk == "fire" else {}))
+                if P.state < 2:
+                    L["res0"].quad([gv[0], gv[1], gv[2], gv[3]], (1, 0, 0), "glass", UV_GLASS, double=True)
+                bar(L["res0"], (c, y0 - 0.3, za + 1.0), (c, y1 + 0.3, zb + 1.0), 0.04, "rubble", UV_RUBBLE)
+        if k + 1 == l:                                                          # rails round the hole on the upper deck
+            z0 = P.levels[l][2]
+            rail(L, x0 - 0.06, x0, y0, y1, z0, glass=P.state < 2)
+            rail(L, x1, x1 + 0.06, y0, y1, z0, glass=P.state < 2)
+            rail(L, x0 - 0.06, x1 + 0.06, y0 - 0.06, y0, z0, glass=P.state < 2)
+
+
+def skylight(L, P):
+    """Glass barrel vault over the atrium hole in the roof slab: steel ribs every 2 m, glazed bays
+    (Res0 / Res1), opaque far LODs; a flat glass deck in Geometry / Fire keeps the roof closed."""
+    if not (P.A.get("skylight") and P.atrium):
+        return
+    x0, x1, y0, y1 = P.atrium
+    top = P.top
+    rise, nseg = 2.6, 8
+    pts = [(x0 + (x1 - x0) * i / nseg, top + 0.2 + rise * math.sin(math.pi * i / nseg)) for i in range(nseg + 1)]
+    ribs = [y0 + i * 2.0 for i in range(int((y1 - y0) / 2.0) + 1)]
+    for yy in ribs:
+        for (a, b) in zip(pts, pts[1:]):
+            bar(L["res0"], (a[0], yy, a[1]), (b[0], yy, b[1]), 0.06, "metal", DT.UV_PAINT)
+    for (a, b) in zip(pts, pts[1:]):
+        q = [(a[0], y0, a[1]), (b[0], y0, b[1]), (b[0], y1, b[1]), (a[0], y1, a[1])]
+        if P.state < 2:
+            L["res0"].quad(q, (0, 0, 1), "glass", UV_GLASS, double=True)
+            L["res1"].quad(q, (0, 0, 1), "glass", UV_GLASS, double=True)
+        L["res2"].quad(q, (0, 0, 1), "glassfar", UV_GLASS)
+        if P.state == 2:                                                         # ruin: only a few panes left
+            L["res0"].quad(q, (0, 0, 1), "metal", DT.UV_STEEL) if h01(P.name, "sky", a[0]) < 0.2 else None
+    for (yy, nrm) in ((y0, -1), (y1, 1)):                                        # gable ends
+        for (a, b) in zip(pts, pts[1:]):
+            tri = [(a[0], yy, top + 0.2), (b[0], yy, top + 0.2), (b[0], yy, b[1]), (a[0], yy, a[1])]
+            if P.state < 2:
+                L["res0"].quad(tri, (0, nrm, 0), "glass", UV_GLASS, double=True)
+    for k in ("res0", "res1", "res2", "geo", "fire", "view"):                   # kerb round the opening
+        for (a0, a1, b0, b1) in ((x0 - 0.3, x1 + 0.3, y0 - 0.3, y0), (x0 - 0.3, x1 + 0.3, y1, y1 + 0.3),
+                                 (x0 - 0.3, x0, y0, y1), (x1, x1 + 0.3, y0, y1)):
+            L[k].box(a0, a1, b0, b1, top, top + 0.2, **kw_for(k, "concrete", UV_REVEAL, "concrete"))
+    for k in ("geo", "fire"):
+        L[k].box(x0, x1, y0, y1, top + 0.15, top + 0.2, **({"mat": "pen_glass"} if k == "fire" else {}))
+    L["res3"].box(x0, x1, y0, y1, top, top + 0.2 + rise, mat="glassfar", uv=UV_GLASS, skip=("-z",))
+
+
+def marquee(L, P):
+    """Cinema front: canopy marquee with a bulb frame and the KINO fascia, vertical blade sign,
+    poster cases either side of the door."""
+    hd = P.hd
+    zc = 4.0
+    y = -hd
+    for k in ("res0", "res1", "res2", "geo", "fire", "view", "shadow"):
+        L[k].box(-5.5, 5.5, y - 2.6, y, zc, zc + 0.7, **kw_for(k, "metal", DT.UV_PAINT, "metal"))
+    sign2_quad(L["res0"], [(-5.3, y - 2.61, zc + 0.08), (5.3, y - 2.61, zc + 0.08), (5.3, y - 2.61, zc + 0.62),
+                            (-5.3, y - 2.61, zc + 0.62)], (0, -1, 0), "kino", (0, 2), (-5.3, zc + 0.08), (5.3, zc + 0.62))
+    sign2_quad(L["res1"], [(-5.3, y - 2.61, zc + 0.08), (5.3, y - 2.61, zc + 0.08), (5.3, y - 2.61, zc + 0.62),
+                            (-5.3, y - 2.61, zc + 0.62)], (0, -1, 0), "kino", (0, 2), (-5.3, zc + 0.08), (5.3, zc + 0.62))
+    if P.state == 0:                                                              # bulbs round the canopy edge
+        for i in range(23):
+            bx = -5.4 + i * 10.8 / 22
+            L["res0"].prism(bx, y - 2.62, 0.04, zc - 0.06, zc, n=6, mat="lamp")
+            L["res0"].prism(bx, y - 2.62, 0.04, zc + 0.7, zc + 0.76, n=6, mat="lamp")
+        for i in range(10):
+            by = y - 2.5 + i * 0.25
+            for bx in (-5.52, 5.52):
+                L["res0"].prism(bx, by, 0.04, zc + 0.3, zc + 0.36, n=6, mat="lamp")
+    for x_ in (-4.5, 4.5):                                                        # canopy hangers
+        bar(L["res0"], (x_, y - 2.4, zc + 0.7), (x_, y - 0.02, zc + 2.4), 0.03, "metal", DT.UV_STEEL)
+    bx, bz0, bz1 = P.hw - 1.2, 4.9, P.top - 0.6                                    # vertical blade sign on the corner
+    for k in ("res0", "res1", "res2"):
+        L[k].box(bx - 0.6, bx + 0.6, y - 0.9, y - 0.1, bz0, bz1, mat="metal", uv=DT.UV_PAINT)
+    for s_ in (-1, 1):
+        xx = bx + s_ * 0.61
+        sign2_quad(L["res0"], [(xx, y - 0.85, bz0 + 0.1), (xx, y - 0.15, bz0 + 0.1), (xx, y - 0.15, bz1 - 0.1),
+                                (xx, y - 0.85, bz1 - 0.1)], (s_, 0, 0), "kino", (2, 1), (bz0 + 0.1, y - 0.85), (bz1 - 0.1, y - 0.15))
+    for x_ in (-3.6, 3.6):                                                        # poster cases
+        for k in ("res0", "res1"):
+            L[k].box(x_ - 0.6, x_ + 0.6, y - 0.12, y, 0.6, 2.4, mat="metal", uv=DT.UV_ALU)
+        u0, v0, u1, v1 = S.atlas_uv(("art_a" if x_ < 0 else "art_b"))
+        L["res0"].quad([(x_ - 0.5, y - 0.125, 0.7), (x_ + 0.5, y - 0.125, 0.7), (x_ + 0.5, y - 0.125, 2.3), (x_ - 0.5, y - 0.125, 2.3)],
+                       (0, -1, 0), "atlas", UVRect(0, 2, (x_ - 0.5, 0.7), (x_ + 0.5, 2.3), (u0, v0, u1, v1)))
+
+
+def creche_mural(L, P):
+    """Faded Soviet tile mural on the blank east gable of the kindergarten: a sun with 16 rays over
+    rolling hills (triangle mosaic, Res0; a simple disc and band in Res1)."""
+    x = P.hw + 0.012
+    cy, cz = 0.0, P.top * 0.62
+    cols = ("terracotta", "beige", "sage", "white")
+    n = 16
+    for i in range(n):
+        a0, a1 = 2 * math.pi * i / n, 2 * math.pi * (i + 0.5) / n
+        r0, r1 = 0.95, 2.1 + 0.4 * (i % 2)
+        tri = [(x, cy + r0 * math.cos((a0 + a1) / 2), cz + r0 * math.sin((a0 + a1) / 2)),
+               (x, cy + r1 * math.cos(a0), cz + r1 * math.sin(a0)), (x, cy + r1 * math.cos(a1), cz + r1 * math.sin(a1))]
+        L["res0"].quad(tri, (1, 0, 0), "paint", DT.paint_uv(cols[i % 2]))
+    for i in range(12):                                                          # sun disc (fan)
+        a0, a1 = 2 * math.pi * i / 12, 2 * math.pi * (i + 1) / 12
+        tri = [(x + 0.002, cy, cz), (x + 0.002, cy + 0.85 * math.cos(a0), cz + 0.85 * math.sin(a0)),
+               (x + 0.002, cy + 0.85 * math.cos(a1), cz + 0.85 * math.sin(a1))]
+        L["res0"].quad(tri, (1, 0, 0), "paint", DT.paint_uv("beige"))
+    for j, (h0, col) in enumerate(((0.5, "sage"), (0.9, "white"))):              # hills
+        pts = [(x + 0.001 * (j + 1), -P.hd + 0.6 + 2.0 * i, P.top * 0.18 + h0 + 0.5 * math.sin(i * 1.3 + j)) for i in range(int((P.D - 1.2) / 2.0) + 1)]
+        for a, b2 in zip(pts, pts[1:]):
+            L["res0"].quad([(a[0], a[1], P.top * 0.18), (b2[0], b2[1], P.top * 0.18), (b2[0], b2[1], b2[2]), (a[0], a[1], a[2])],
+                           (1, 0, 0), "paint", DT.paint_uv(col))
+    for i in range(12):
+        a0, a1 = 2 * math.pi * i / 12, 2 * math.pi * (i + 1) / 12
+        L["res1"].quad([(x, cy, cz), (x, cy + 1.6 * math.cos(a0), cz + 1.6 * math.sin(a0)),
+                        (x, cy + 1.6 * math.cos(a1), cz + 1.6 * math.sin(a1))], (1, 0, 0), "paint", DT.paint_uv("terracotta"))
+
+
+def playground(L, P):
+    """Kindergarten forecourt: low fence with a gate gap, rusty swings, slide, sandbox, merry-go-round."""
+    hd = P.hd
+    fx0, fx1, fy0 = P.fx0, P.fx1, P.fy0
+    rust = UVBand(S.MATERIALS["rust"]["bands"]["rust"], 1.0)
+    green = UVBand(S.MATERIALS["rust"]["bands"]["green"], 1.0)
+    gap = (P.entry[0] - 0.6, P.entry[1] + 0.6)
+    for (a, b) in ((fx0 + 0.1, gap[0]), (gap[1], fx1 - 0.1)):
+        rail(L, a, b, fy0 + 0.06, fy0 + 0.12, 0.0, h=0.9)
+    for sx in (fx0 + 0.06, fx1 - 0.12):
+        rail(L, sx, sx + 0.06, fy0 + 0.12, -hd - 0.1, 0.0, h=0.9)
+    # swings (west): A-frames + beam (collide), two seats on chains (visual)
+    sx0, sx1, sy = fx0 + 1.5, fx0 + 5.5, (fy0 - hd) / 2
+    for xx in (sx0, sx1):
+        for s_ in (-1, 1):
+            bar(L["res0"], (xx, sy + s_ * 0.9, 0.0), (xx, sy, 2.4), 0.05, "rust", green)
+            bar(L["res1"], (xx, sy + s_ * 0.9, 0.0), (xx, sy, 2.4), 0.05, "rust", green)
+        for k in ("geo", "fire"):
+            L[k].box(xx - 0.06, xx + 0.06, sy - 0.9, sy + 0.9, 0.0, 0.3, **({"mat": "pen_metal"} if k == "fire" else {}))
+    bar(L["res0"], (sx0, sy, 2.4), (sx1, sy, 2.4), 0.06, "rust", green)
+    for i, cxs in enumerate((sx0 + 1.2, sx1 - 1.2)):
+        swing = 0.2 * (h01(P.name, "swing", i) - 0.5)
+        for dx in (-0.25, 0.25):
+            bar(L["res0"], (cxs + dx, sy, 2.38), (cxs + dx, sy + swing, 0.5), 0.008, "metal", DT.UV_STEEL)
+        L["res0"].box(cxs - 0.3, cxs + 0.3, sy + swing - 0.12, sy + swing + 0.12, 0.45, 0.5, mat="rust", uv=rust)
+    # slide (east): ladder tower + chute (collide as one block + wedge)
+    tx, ty = fx1 - 3.0, (fy0 - hd) / 2
+    for k in ("res0", "res1", "geo", "fire", "view"):
+        L[k].box(tx - 0.5, tx + 0.5, ty - 0.5, ty + 0.5, 1.4, 1.5, **kw_for(k, "rust", green, "metal"))
+    for (a, b) in ((tx - 0.5, ty - 0.5), (tx + 0.5, ty - 0.5), (tx - 0.5, ty + 0.5), (tx + 0.5, ty + 0.5)):
+        for k in ("res0", "res1", "geo", "fire"):
+            L[k].box(a - 0.04, a + 0.04, b - 0.04, b + 0.04, 0.0, 1.4, **kw_for(k, "rust", green, "metal"))
+    chute = [(tx + 0.5, ty - 0.3, 1.45), (tx + 2.4, ty - 0.3, 0.25), (tx + 2.4, ty + 0.3, 0.25), (tx + 0.5, ty + 0.3, 1.45)]
+    L["res0"].quad(chute, (0.55, 0, 0.83), "metal", DT.UV_ALU, double=True)
+    L["res1"].quad(chute, (0.55, 0, 0.83), "metal", DT.UV_ALU, double=True)
+    for i in range(5):
+        L["res0"].box(tx - 0.95, tx - 0.5, ty - 0.25, ty + 0.25, 0.25 + i * 0.27, 0.29 + i * 0.27, mat="metal", uv=DT.UV_STEEL)
+    # sandbox + merry-go-round in the middle
+    sbx, sby = -1.0 if P.entry[0] > 1.0 else -6.0, fy0 + 1.6
+    for (a0, a1, b0, b1) in ((sbx - 1.2, sbx + 1.2, sby - 1.2, sby - 1.05), (sbx - 1.2, sbx + 1.2, sby + 1.05, sby + 1.2),
+                             (sbx - 1.2, sbx - 1.05, sby - 1.05, sby + 1.05), (sbx + 1.05, sbx + 1.2, sby - 1.05, sby + 1.05)):
+        for k in ("res0", "res1", "geo", "fire"):
+            L[k].box(a0, a1, b0, b1, 0.0, 0.3, **kw_for(k, "wood", UV_OAK, "wood"))
+    L["res0"].hquad(sbx - 1.05, sbx + 1.05, sby - 1.05, sby + 1.05, 0.2, mat="paint", uv=DT.paint_uv("beige"))
+    mx, my = fx1 - 7.5, fy0 + 1.8
+    for k in ("res0", "res1", "geo", "fire"):
+        L[k].prism(mx, my, 1.0, 0.0, 0.2, n=12 if k == "res0" else 8, **kw_for(k, "rust", rust, "metal"))
+    for a in range(4):
+        ang = math.pi / 2 * a + 0.4
+        bar(L["res0"], (mx, my, 0.9), (mx + 0.9 * math.cos(ang), my + 0.9 * math.sin(ang), 0.2), 0.025, "rust", green)
+    U = {k: v.lod for k, v in L.items()}
+    for i in range(8):                                                           # weeds through the playground
+        px = fx0 + 0.8 + (fx1 - fx0 - 1.6) * h01(P.name, "pgw", i)
+        py = fy0 + 0.5 + (-hd - fy0 - 1.0) * h01(P.name, "pgwy", i)
+        plant_tuft(U, px, py, 0.0, 0.6, 0.5, ("grass", "weeds", "dry_grass")[i % 3], (P.name, "pg", i))
+
+
+def hanged(L, P, r, z, top):
+    """Hanged church (idea 12): shrouded bodies hang from ropes off the trusses along both sides of
+    the aisle (feet ~2 m up, out of reach; visual only), candles on the altar step, toppled pews."""
+    x0, x1, y0, y1 = r
+    rope = UVBand(S.MATERIALS["wood"]["bands"]["oak"], 1.0)
+    n = 0
+    yy = y0 + 4.0
+    while yy < y1 - 5.0 and n < 7:
+        xx = (-2.1 if n % 2 else 2.1) + 0.3 * (h01(P.name, "hx", n) - 0.5)
+        zf = z + 2.0 + 0.4 * h01(P.name, "hz", n)
+        bar(L["res0"], (xx, yy, top - 0.3), (xx, yy, zf + 1.85), 0.012, "wood", rope)
+        # shrouded figure: lofted rings feet -> knees -> hips -> shoulders -> neck -> head (burlap shroud)
+        prof = [(0.0, 0.07, 0.06), (0.45, 0.10, 0.08), (0.85, 0.15, 0.11), (1.35, 0.19, 0.12), (1.45, 0.07, 0.06),
+                (1.52, 0.10, 0.09), (1.72, 0.09, 0.08), (1.78, 0.03, 0.03)]
+        tilt = 0.06 * (h01(P.name, "tilt", n) - 0.5)
+        for (za, ra, rb), (zb, rc, rd) in zip(prof, prof[1:]):
+            ring_a = [(xx + tilt * za + ra * math.cos(2 * math.pi * k / 8), yy + rb * math.sin(2 * math.pi * k / 8), zf + za) for k in range(8)]
+            ring_b = [(xx + tilt * zb + rc * math.cos(2 * math.pi * k / 8), yy + rd * math.sin(2 * math.pi * k / 8), zf + zb) for k in range(8)]
+            L["res0"].solid(ring_a + ring_b, [tuple(range(8)), tuple(range(8, 16))] +
+                            [(k, (k + 1) % 8, 8 + (k + 1) % 8, 8 + k) for k in range(8)], mat="fabric", uv=UV_FAB["beige"])
+        for zz in (zf + 0.5, zf + 1.0, zf + 1.4):                                # rope bindings round the shroud
+            L["res0"].prism(xx + tilt * (zz - zf), yy, 0.16 if zz < zf + 1.2 else 0.08, zz, zz + 0.03, n=8, mat="wood", uv=rope)
+        L["res1"].box(xx - 0.15, xx + 0.15, yy - 0.12, yy + 0.12, zf, zf + 1.75, mat="fabric", uv=UV_FAB["beige"])
+        yy += 2.2
+        n += 1
+    for i in range(14):                                                          # candles on the chancel step
+        cx_ = -1.6 + 3.2 * h01(P.name, "cnd", i)
+        cy_ = y1 - 2.8 + 0.3 * h01(P.name, "cndy", i)
+        hh = 0.1 + 0.25 * h01(P.name, "cndh", i)
+        L["res0"].prism(cx_, cy_, 0.025, z + 0.3, z + 0.3 + hh, n=6, mat="paint", uv=DT.paint_uv("white"))
+        L["res0"].prism(cx_, cy_, 0.008, z + 0.3 + hh, z + 0.33 + hh, n=4, mat="lamp")
+
+
 def memory(L, P):
     m = L["mem"].lod
+    if P.A.get("light") == "hyper":                                              # 4 points over the sales hall (D61)
+        for i, (fx, fy) in enumerate(((-0.25, -0.3), (0.25, -0.3), (-0.25, 0.15), (0.25, 0.15))):
+            m.point("light_%d" % (i + 1), (fx * P.W, fy * P.D, P.levels[0][1] - SLAB - 1.3))
+        m.point("entrance", ((P.entry[0] + P.entry[1]) / 2, -P.hd - 1.0, 0.0))
+        return
     rooms_per_level = [layout(P, u, l)[1] for l, (u, _f, _z) in enumerate(P.levels)]
     names = ["light_1", "light_2", "light_3", "light_4"]
     order = [0, 1, 2, len(P.levels) - 1]

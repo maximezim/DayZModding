@@ -72,6 +72,38 @@ def district_tests(expect):
            'x="22.000" z="32.000"' in ev and 'x="26.000" z="16.000"' in ev, ev[:600])
     rc, out, _ = run_layout(tpl, strict=True)
     expect("district template refused by --strict", rc == 1 and "PLACEHOLDER" in out, out)
+    # D61: city life template - parks, venues, jams, viaduct, tunnel, bridge, street furniture, sirens
+    life = os.path.join(os.path.dirname(HERE), "citylife_template.yaml")
+    rc, out, od = run_layout(life)
+    objs = json.load(open(os.path.join(od, "sky_objects.json")))["Objects"] if rc == 0 else []
+    names = [o["name"] for o in objs]
+    rep = open(os.path.join(od, "placement_report.md")).read() if rc == 0 else ""
+    expect("city life template (D61) runs offline", rc == 0, out)
+    for cls, n in (("Land_SKY_Fair_FerrisWheel", 1), ("Land_SKY_Landfill", 1), ("Land_SKY_Stadium_Pitch", 1),
+                   ("Land_SKY_Viaduct_Ramp", 2), ("Land_SKY_Tunnel_Portal", 2), ("Land_SKY_Bridge_Long", 1),
+                   ("Land_SKY_SirenTower", 2), ("Land_SKY_City_Cinema_Intact", 1), ("Land_SKY_City_Mall_Damaged", 1)):
+        expect("city life: %d x %s" % (n, cls), names.count(cls) == n, str(names.count(cls)))
+    expect("city life: car jams with vanilla wreck decor + our blockers",
+           any(nm.startswith("Land_Wreck_") for nm in names) and names.count("Land_SKY_Barrier_Concrete") +
+           names.count("Land_SKY_Wreck_Sedan") + names.count("Land_SKY_Wreck_Van") >= 30 and "blocking lines" in rep, rep[-800:])
+    expect("city life: wet and dry hydrants, bins", "Land_SKY_Hydrant_Wet" in names and "Land_SKY_Hydrant_Dry" in names
+           and "Land_SKY_TrashBin" in names)
+    lay = yaml.safe_load(open(life))
+    tun_cells = {(c, 0) for c in range(-8, -4)}
+    tiles = [o for o in objs if o["name"].startswith("Land_SKY_Street_")]
+    expect("city life: no street tile under the tunnel cells",
+           not any(abs(o["pos"][0] - 12 * i) < 0.1 and abs(o["pos"][2] - 12 * j) < 0.1 for (i, j) in tun_cells for o in tiles))
+    bad = dict(lay)
+    bad["viaducts"] = [{"axis": "ew", "index": 6, "from": -7, "to": 8}]          # ramp over the (8, 6) junction
+    d = tempfile.mkdtemp()
+    yaml.safe_dump(bad, open(os.path.join(d, "l.yaml"), "w"))
+    rc, out, _ = run_layout(os.path.join(d, "l.yaml"))
+    expect("viaduct ramp over a junction fails", rc == 1 and "ramps need straight tiles" in out, out[-400:])
+    bad = dict(lay)
+    bad["blocks"] = [dict(b, cells=[-8, -5, -6, -1]) if b["id"] == "FUN" else b for b in lay["blocks"]]
+    yaml.safe_dump(bad, open(os.path.join(d, "l2.yaml"), "w"))
+    rc, out, _ = run_layout(os.path.join(d, "l2.yaml"))
+    expect("funfair in a too small block fails", rc == 1 and "funfair needs" in out, out[-400:])
     sky = os.path.join(os.path.dirname(HERE), "skyline_template.yaml")
     rc, out, od = run_layout(sky)
     objs = json.load(open(os.path.join(od, "sky_objects.json")))["Objects"] if rc == 0 else []

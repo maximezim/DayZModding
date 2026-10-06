@@ -57,11 +57,13 @@ PROCEDURAL_MAPS = {
     "sky_wall_render_cream": ("nohq", "as", "smdi"), "sky_wall_render_ochre": ("nohq", "as", "smdi"),
     "sky_wall_render_grey": ("nohq", "as", "smdi"), "sky_wall_render_white": ("nohq", "as", "smdi"),
     "sky_hq_facade": ("as",),                                                  # D60: 4K co, 2K nohq, 1K smdi
+    "sky_signs2": ("nohq", "as", "smdi"),                                      # D61
+    "sky_fair": ("as", "smdi"), "sky_trash": ("as", "smdi"), "sky_turf": ("nohq", "as", "smdi"),
 }
 # Constant specular/gloss for procedural _smdi stages (default PROC["smdi"] otherwise).
 PROC_SMDI = {"sky_wall_brick": (0.08, 0.15), "sky_wall_panel": (0.1, 0.2), "sky_wall_limestone": (0.12, 0.2),
              "sky_wall_render_cream": (0.05, 0.1), "sky_wall_render_ochre": (0.05, 0.1), "sky_wall_render_grey": (0.05, 0.1),
-             "sky_wall_render_white": (0.05, 0.1), "sky_decal_grime": (0.02, 0.05), "sky_vegetation": (0.08, 0.15), "sky_render": (0.05, 0.1), "sky_signs": (0.3, 0.4), "sky_paint": (0.06, 0.12), "sky_textile": (0.02, 0.05), "sky_ceiling": (0.05, 0.1), "sky_brick": (0.08, 0.15), "sky_concpanel": (0.1, 0.2), "sky_wood": (0.25, 0.35), "sky_fabric": (0.03, 0.1)}
+             "sky_wall_render_white": (0.05, 0.1), "sky_decal_grime": (0.02, 0.05), "sky_vegetation": (0.08, 0.15), "sky_render": (0.05, 0.1), "sky_signs": (0.3, 0.4), "sky_signs2": (0.3, 0.4), "sky_fair": (0.25, 0.3), "sky_trash": (0.1, 0.2), "sky_turf": (0.02, 0.05), "sky_paint": (0.06, 0.12), "sky_textile": (0.02, 0.05), "sky_ceiling": (0.05, 0.1), "sky_brick": (0.08, 0.15), "sky_concpanel": (0.1, 0.2), "sky_wood": (0.25, 0.35), "sky_fabric": (0.03, 0.1)}
 
 
 def rvmat_super(base, spec_power=40, emissive=(0, 0, 0)):
@@ -136,6 +138,9 @@ RVMATS = {
     "sky_wall_brick": ("sky_wall_brick", 10), "sky_wall_panel": ("sky_wall_panel", 15),
     # content pass (D60)
     "sky_hq_facade": ("sky_hq_facade", 60),
+    # D61 venues
+    "sky_signs2": ("sky_signs2", 40),
+    "sky_fair": ("sky_fair", 25), "sky_trash": ("sky_trash", 10), "sky_turf": ("sky_turf", 5),
     "sky_wall_limestone": ("sky_wall_limestone", 20),
     "sky_wall_render_cream": ("sky_wall_render_cream", 8), "sky_wall_render_ochre": ("sky_wall_render_ochre", 8),
     "sky_wall_render_grey": ("sky_wall_render_grey", 8), "sky_wall_render_white": ("sky_wall_render_white", 8),
@@ -146,7 +151,9 @@ RVMATS = {
 KIT_PATCH = {"sky_street": "SKY_Skyline_Street", "sky_props": "SKY_Skyline_Props", "sky_floors": "SKY_Skyline_Floors",
              "sky_city_res": "SKY_Skyline_CityRes", "sky_city_block": "SKY_Skyline_CityBlock",
              "sky_city_com": "SKY_Skyline_CityCom", "sky_city_civic": "SKY_Skyline_CityCivic",
-             "sky_city_ind": "SKY_Skyline_CityInd", "sky_city_env": "SKY_Skyline_CityEnv"}   # D60 split
+             "sky_city_ind": "SKY_Skyline_CityInd", "sky_city_env": "SKY_Skyline_CityEnv",
+             "sky_city_venue": "SKY_Skyline_CityVenue",   # D60 split, D61 venues
+             "sky_landmarks": "SKY_Skyline_Landmarks", "sky_roads": "SKY_Skyline_Roads"}   # D61
 
 
 def kit_entries(pbo):
@@ -546,10 +553,16 @@ def city_lit_script():
         c = e.get("city")
         if not c or c["ruin"] != 0 or not c.get("archetype") or S.CITY_ARCHETYPES[c["archetype"]].get("special"):
             continue                                       # lots, kit pieces, substations: no lights
-        group = S.CITY_ARCHETYPES[c["archetype"]]["group"]
+        A = S.CITY_ARCHETYPES[c["archetype"]]
+        group = A["group"]
         body = ""
-        if group in ("commercial", "civic", "industrial"):
-            body = "\n\toverride protected typename SkyLightType()\n\t{\n\t\treturn SKY_OfficeLight;\n\t}\n"
+        light = S.CITY_LIGHT.get(A.get("light"))                 # D61: per-archetype light (hyper / warm / cool)
+        if light is None and group in ("commercial", "civic", "industrial"):
+            light = "SKY_OfficeLight"
+        if light and light != "SKY_InteriorLight":
+            body = "\n\toverride protected typename SkyLightType()\n\t{\n\t\treturn %s;\n\t}\n" % light
+        if A.get("light") == "hyper":                            # the hall is lit by all four points
+            body += "\n\toverride protected int SkyLightCount()\n\t{\n\t\treturn 4;\n\t}\n"
         out += "\nclass %s extends SKY_LitBuilding\n{%s}\n" % (e["cls"], body)
     return out
 
