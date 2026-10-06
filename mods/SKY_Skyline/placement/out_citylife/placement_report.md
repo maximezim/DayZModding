@@ -18,7 +18,7 @@ map: chernarusplus  site: citylife-template  status: **PASS (with warnings)**
 - block LAND: park landfill (9 pieces)
 - block STAD: park stadium (9 pieces)
 - bridge at [6.0, -132.0], deck y 0.00: checkpoint + convoy loot mid-span
-- target terrain: ENTITY_CAP not applied (495 objects + 113 loot would be within the spawner cap 800); deploy through a custom terrain, city_objects.csv
+- target terrain: ENTITY_CAP not applied (497 objects + 113 loot would be within the spawner cap 800); deploy through a custom terrain, city_objects.csv
 - loot export: survey request "exportRadius" >= 138 m around site.center
 
 ## Entity counts (caps: entities + loot 800 per district / 2500 per server, 25 props per floor / 70 per tower)
@@ -28,7 +28,7 @@ map: chernarusplus  site: citylife-template  status: **PASS (with warnings)**
 - cutters: 0
 - tiles: 93
 - lights: 30
-- props: 2
+- props: 4
 - decals: 0
 - bridges: 1
 - furniture: 65
@@ -36,7 +36,7 @@ map: chernarusplus  site: citylife-template  status: **PASS (with warnings)**
 - parks: 33
 - roads: 14
 - underground: 23
-- **total: 495** entities, 113 loot items (max), server total 608
+- **total: 497** entities, 113 loot items (max), server total 610
 
 ## City buildings by type (intact / damaged / ruined)
 - AptBlock: 1 / 0 / 0
@@ -83,7 +83,7 @@ map: chernarusplus  site: citylife-template  status: **PASS (with warnings)**
 - clutter cutters: off (custom terrain: paint a no-clutter surface under the city)
 - vegetation: Veg_Bush 4, Veg_TreeDead 1, Veg_Weeds 9
 
-## Objects (495)
+## Objects (497)
 - Land_SKY_Street_Intersection at [-108.0, 0.0, -72.0] yaw 0.0
 - Land_SKY_Street_Straight at [-108.0, 0.0, -60.0] yaw 0.0
 - Land_SKY_StreetLight at [-112.5, 0.15, -60.0] yaw 0.0
@@ -510,6 +510,8 @@ map: chernarusplus  site: citylife-template  status: **PASS (with warnings)**
 - Land_Wreck_offroad02_aban1_DE at [112.5602, 0.0, -70.1636] yaw 109.8142
 - Land_SKY_SirenTower at [-46.0, 0.15, 5.0] yaw 0.0
 - Land_SKY_SirenTower at [58.0, 0.15, 5.0] yaw 0.0
+- Land_SKY_Wreck_CityBus at [30.0, 0.15, -64.0] yaw 90.0
+- Land_SKY_Wreck_CityBus at [-14.0, 0.15, -98.0] yaw 12.0
 - Land_SKY_Fair_Gate at [-78.0, 0.15, -58.0] yaw 0.0
 - Land_SKY_Fair_FerrisWheel at [-78.0, 0.15, -24.0] yaw 0.0
 - Land_SKY_Fair_Carousel at [-91.0, 0.15, -42.0] yaw 0.0

@@ -425,6 +425,8 @@ Land_SKY_Barrier_Concrete,105.902,0.000,-76.500,180.00
 Land_Wreck_offroad02_aban1_DE,112.560,0.000,-70.164,109.81
 Land_SKY_SirenTower,-46.000,0.150,5.000,0.00
 Land_SKY_SirenTower,58.000,0.150,5.000,0.00
+Land_SKY_Wreck_CityBus,30.000,0.150,-64.000,90.00
+Land_SKY_Wreck_CityBus,-14.000,0.150,-98.000,12.00
 Land_SKY_Fair_Gate,-78.000,0.150,-58.000,0.00
 Land_SKY_Fair_FerrisWheel,-78.000,0.150,-24.000,0.00
 Land_SKY_Fair_Carousel,-91.000,0.150,-42.000,0.00

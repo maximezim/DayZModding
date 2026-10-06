@@ -1,0 +1,26 @@
+{
+ "sky_wreck_citybus.p3d": {
+  "fire": 60,
+  "geo": 60,
+  "mem": 0,
+  "res0": 836,
+  "res1": 110,
+  "res2": 12,
+  "res3": 12,
+  "road": 0,
+  "shadow": 12,
+  "view": 12
+ },
+ "sky_wreck_garbagetruck.p3d": {
+  "fire": 108,
+  "geo": 108,
+  "mem": 0,
+  "res0": 902,
+  "res1": 162,
+  "res2": 36,
+  "res3": 12,
+  "road": 0,
+  "shadow": 36,
+  "view": 36
+ }
+}

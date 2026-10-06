@@ -6817,6 +6817,38 @@
    "customString": ""
   },
   {
+   "name": "Land_SKY_Wreck_CityBus",
+   "pos": [
+    30.0,
+    0.15,
+    -64.0
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Wreck_CityBus",
+   "pos": [
+    -14.0,
+    0.15,
+    -98.0
+   ],
+   "ypr": [
+    12.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
    "name": "Land_SKY_Fair_Gate",
    "pos": [
     -78.0,

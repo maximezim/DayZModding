@@ -1266,13 +1266,15 @@ LANDMARKS = [
     ("Hydrant_Wet", "sky_street", "small", (0.6, 0.6), "fire hydrant that still gives water (vanilla well behaviour)"),
     ("Hydrant_Dry", "sky_street", "small", (0.6, 0.6), "dry fire hydrant (decoration)"),
     ("SirenTower", "sky_street", "medium", (2.0, 2.0), "civil-defence siren on a 10 m pole (city alarm event)"),
-    ("Wreck_GarbageTruck", "sky_street", "medium", (2.6, 9.0), "abandoned garbage truck (rear hopper searchable)"),
+    ("Wreck_GarbageTruck", "sky_street", "vehicle", (2.6, 9.0), "abandoned rear-loader garbage truck: ZiL-like cab, compactor body, spilled bags (hopper searchable)"),
+    ("Wreck_CityBus", "sky_street", "vehicle", (2.6, 11.6), "abandoned LiAZ-style city bus: faded yellow, broken windows, flat tyres, seats inside"),
     ("Viaduct_Straight", "sky_roads", "road_struct", (12.0, 12.0), "elevated road, 12 m segment at 7 m, barriers, central pier"),
     ("Viaduct_Ramp", "sky_roads", "road_struct", (12.0, 48.0), "viaduct ramp: 0 -> 7 m over 48 m, retaining walls"),
     ("Tunnel_Straight", "sky_roads", "road_struct", (24.0, 12.0), "cut-and-cover road tunnel, 12 m segment, earth berms, deck on top"),
     ("Tunnel_Portal", "sky_roads", "road_struct", (24.0, 12.0), "tunnel end cell: headwall over the mouth at -Y, hazard band, sign"),
     ("Bridge_Long", "sky_roads", "landmark", (98.0, 16.0), "96 m truss bridge: checkpoint, convoy pile-up, sniper nests (the bridge)"),
 ]
+BUDGETS["vehicle"] = {"res0": 5000, "res1": 1200, "res2": 200, "geo_comps": 16, "geo_tris": 300, "sections_res0": 10}   # D64 wrecks
 LANDMARK_SIZE = {}
 for _n, _pbo, _cat, _fp, _d in LANDMARKS:
     kit(_n, _pbo, _cat, uses=["PENETRATION"], desc=_d)

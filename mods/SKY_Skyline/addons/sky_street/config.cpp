@@ -225,10 +225,16 @@ class CfgVehicles
 	};
 	class Land_SKY_Wreck_GarbageTruck: Land_SKY_Street_Base
 	{
-		// abandoned garbage truck (rear hopper searchable)
+		// abandoned rear-loader garbage truck: ZiL-like cab, compactor body, spilled bags (hopper searchable)
 		scope = 1;
 		model = "SKY_Skyline\sky_street\sky_wreck_garbagetruck.p3d";
 		skySearch = "trash";
+	};
+	class Land_SKY_Wreck_CityBus: Land_SKY_Street_Base
+	{
+		// abandoned LiAZ-style city bus: faded yellow, broken windows, flat tyres, seats inside
+		scope = 1;
+		model = "SKY_Skyline\sky_street\sky_wreck_citybus.p3d";
 	};
 	class Land_SKY_RatNest: Land_SKY_Street_Base
 	{

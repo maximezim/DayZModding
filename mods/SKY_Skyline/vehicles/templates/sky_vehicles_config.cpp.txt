@@ -1,0 +1,37 @@
+// TEMPLATE (D64) - not packed. Move to addons/sky_vehicles/config.cpp once the models exist (VEHICLE_SPEC.md).
+// Inherits the vanilla V3S config (Truck_01_Base, verify the class and its addon on P:\DZ\vehicles\wheeled\truck_01).
+class CfgPatches
+{
+	class SKY_Skyline_Vehicles
+	{
+		units[] = {"SKY_CityBus", "SKY_GarbageTruck"};
+		weapons[] = {};
+		requiredVersion = 0.1;
+		requiredAddons[] = {"DZ_Data", "DZ_Vehicles_Wheeled", "SKY_Skyline_Scripts"};	// verify the V3S addon name
+	};
+};
+
+class CfgVehicles
+{
+	class Truck_01_Base;
+	class SKY_CityBus: Truck_01_Base
+	{
+		scope = 2;
+		displayName = "City bus (LiAZ)";
+		descriptionShort = "A municipal city bus. Slow, thirsty, and it can carry the whole group.";
+		model = "SKY_Skyline\sky_vehicles\sky_citybus.p3d";
+		// SimulationModule: copy from the V3S config and adjust (axles = wheelbase from the model's memory points)
+		// class SimulationModule { ... };
+		// Crew: driver + codriver + passengers (proxies in the model) - V3S has 2 seats + cargo; add seats as proxies
+		// attachments[] = { ... }  // wheels (Truck_01_Wheel / Truck_01_WheelDouble), battery, radiator, plugs
+	};
+	class SKY_GarbageTruck: Truck_01_Base
+	{
+		scope = 2;
+		displayName = "Garbage truck";
+		descriptionShort = "A rear-loader garbage truck. Its compactor still holds whatever the city threw away.";
+		model = "SKY_Skyline\sky_vehicles\sky_garbagetruck.p3d";
+		// class SimulationModule { ... };
+		// itemsCargoSize[] = {10, 60};   // the compactor as a big cargo
+	};
+};

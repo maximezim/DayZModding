@@ -350,7 +350,7 @@ def skybridge_lanes():
 def main():
     self_check()
     builders = {}
-    for modname in ("build_kit", "build_props", "build_floors", "build_city", "build_landmarks", "build_creatures", "build_underground"):
+    for modname in ("build_kit", "build_props", "build_floors", "build_city", "build_landmarks", "build_creatures", "build_underground", "build_vehicles"):
         try:
             m = __import__(modname)
         except ImportError:

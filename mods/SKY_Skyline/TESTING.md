@@ -602,6 +602,13 @@ collision and looks.
 | UG-06 | Drive over the roof slabs (streets above sewer/metro) | No bumps, no fall-through; station stair opening has rails | | |
 | UG-07 | Vanilla map: try a layout with `underground` and target spawner | Refused (hatches stay sealed) | | |
 
+## 29. Vehicles (D64)
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| VH-01 | Spawn `Land_SKY_Wreck_CityBus` and `Land_SKY_Wreck_GarbageTruck` | Collision on body and wheels, cover from fire, no floating parts, garbage truck hopper searchable | | |
+| VH-02 | (when a modeller delivers, VEHICLE_SPEC.md) spawn `SKY_CityBus` / `SKY_GarbageTruck` with all parts | Drives, steers, brakes, 4 + passengers seats, lights, doors; no fall-through (P30, P31) | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -617,6 +624,7 @@ collision and looks.
 | City life §26 | | | |
 | Creatures §27 | | | |
 | Underground §28 | | | |
+| Vehicles §29 | | | |
 | Placement §9 | | | |
 | Roof drop §10 | | | |
 | Clean logs §11 | | | |

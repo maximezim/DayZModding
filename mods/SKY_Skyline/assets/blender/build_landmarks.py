@@ -811,37 +811,7 @@ def build_siren():
     return finish(L, 2000.0)
 
 
-def build_garbage_truck():
-    """Abandoned rear-loader garbage truck: cab, rounded compactor body, hopper with spilled bags."""
-    name = "Wreck_GarbageTruck"
-    L = prop_lods(name)
-    body = UVBand(S.MATERIALS["rust"]["bands"]["green"], 1.0)
-    cab = (-1.2, 1.2, -4.4, -2.4, 0.5, 2.9)
-    for k in ("res0", "res1", "res2", "geo", "fire", "view", "shadow"):
-        kw = kw_for(k, "paint", DT.paint_uv("white"), "metal") if k != "shadow" else {}
-        L[k].box(*cab, **kw)
-        kw2 = kw_for(k, "rust", body, "metal") if k != "shadow" else {}
-        L[k].box(-1.25, 1.25, -2.3, 3.0, 0.7, 3.4, **kw2)
-        L[k].box(-1.15, 1.15, 3.0, 4.4, 0.6, 2.6, **kw2)
-    for sgn in (-1, 1):                                                          # windscreen / windows (dirty)
-        L["res0"].quad([(-1.0, -4.41, 1.9), (1.0, -4.41, 1.9), (1.0, -4.41, 2.7), (-1.0, -4.41, 2.7)], (0, -1, 0), "glassfar", UV_GLASS)
-        L["res0"].quad([(sgn * 1.21, -4.2, 1.9), (sgn * 1.21, -2.7, 1.9), (sgn * 1.21, -2.7, 2.6), (sgn * 1.21, -4.2, 2.6)],
-                       (sgn, 0, 0), "glassfar", UV_GLASS)
-    for wy in (-3.4, 1.0, 2.6):                                                  # wheels (flat tyres)
-        for sx in (-1, 1):
-            L["res0"].extrude_x([(wy - 0.5, 0.0), (wy + 0.5, 0.0), (wy + 0.5, 0.95), (wy - 0.5, 0.95)], sx * 1.25 - (0.3 if sx > 0 else 0),
-                                sx * 1.25 + (0 if sx > 0 else 0.3), mat="rubble", uv=UV_RUBBLE)
-    L["res0"].box(-1.0, 1.0, 4.4, 4.5, 0.6, 1.4, mat="trash", uv=UV_TRASH)                   # hopper mouth full of bags
-    for i in range(5):                                                           # spilled bags behind
-        bx = -1.2 + 2.4 * h01(name, "bag", i)
-        by = 4.7 + 0.8 * h01(name, "bagy", i)
-        r = 0.25 + 0.15 * h01(name, "bagr", i)
-        L["res0"].prism(bx, by, r, 0.0, r * 1.2, n=8, mat="trash", uv=UV_TRASH)
-    for k in ("res0", "res1"):
-        L[k].box(-0.8, 0.8, 4.4, 4.45, 2.0, 2.4, mat="paint", uv=DT.paint_uv("terracotta"))
-    L["res3"].box(-1.25, 1.25, -4.4, 4.4, 0.5, 3.4, mat="rust", uv=body, skip=("-z",))
-    L["mem"].lod.point("search", (0.0, 5.2, 0.0))
-    return finish(L, 9000.0)
+# Wreck_GarbageTruck: build_vehicles.py (D64 parametric vehicle bodies)
 
 
 # ================================================================== roads (ideas 2, 23)
@@ -1124,7 +1094,7 @@ BUILDERS = {
     "ParkingLot_B": lambda: lot("ParkingLot_B", 12.0, 6.0, [(0.5, 1)]),
     "ParkingLot_Metro": lambda: lot("ParkingLot_Metro", 12.0, 12.0, [(-11.0, 1)], metro=True),
     "TrashBin": build_trash_bin, "Hydrant_Wet": lambda: build_hydrant(True), "Hydrant_Dry": lambda: build_hydrant(False),
-    "SirenTower": build_siren, "Wreck_GarbageTruck": build_garbage_truck,
+    "SirenTower": build_siren,
     "Viaduct_Straight": build_viaduct_straight, "Viaduct_Ramp": build_viaduct_ramp,
     "Tunnel_Straight": lambda: build_tunnel(False), "Tunnel_Portal": lambda: build_tunnel(True),
     "Bridge_Long": build_bridge,

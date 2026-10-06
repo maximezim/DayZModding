@@ -239,3 +239,13 @@ a vanilla map cannot be dug.
 Building the .wrp itself needs Terrain Builder on Windows and a map name (TESTING §28, P25-P29,
 `reviews/d63_gates.md`).
 
+## 16. Vehicles (D64)
+
+A drivable bus or garbage truck needs a model rigged on a vanilla vehicle's skeleton and physics. Those files
+are binarized game data, so a generated rig would be guessed, and the project does not ship guesses. D64
+delivers:
+- a parametric vehicle body generator: two new wrecks, a faded LiAZ-style city bus and the rebuilt garbage truck;
+- intact reference bodies, with documented selection and memory names, for a modeller;
+- a full pipeline spec (V3S donor) and config/script templates.
+Driving waits on a modeller (`vehicles/VEHICLE_SPEC.md`, TESTING §29, P30-P31).
+

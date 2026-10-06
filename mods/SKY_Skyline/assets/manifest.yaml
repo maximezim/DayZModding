@@ -1780,10 +1780,17 @@ generated_kit:
     uses: [PENETRATION]
     status: built-unverified
   - name: Land_SKY_Wreck_GarbageTruck
-    type: "abandoned garbage truck (rear hopper searchable)"
+    type: "abandoned rear-loader garbage truck: ZiL-like cab, compactor body, spilled bags (hopper searchable)"
     p3d: addons/sky_street/sky_wreck_garbagetruck.p3d
-    category: medium
-    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 5, shadow: 100}
+    category: vehicle
+    budget: {res0: 5000, res1: 1200, res2: 200, geo_comps: 16, geo_tris: 300, sections_res0: 10}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_Wreck_CityBus
+    type: "abandoned LiAZ-style city bus: faded yellow, broken windows, flat tyres, seats inside"
+    p3d: addons/sky_street/sky_wreck_citybus.p3d
+    category: vehicle
+    budget: {res0: 5000, res1: 1200, res2: 200, geo_comps: 16, geo_tris: 300, sections_res0: 10}
     uses: [PENETRATION]
     status: built-unverified
   - name: Land_SKY_Viaduct_Straight

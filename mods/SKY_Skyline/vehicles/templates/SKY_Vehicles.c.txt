@@ -1,0 +1,14 @@
+// TEMPLATE (D64) - not compiled. Move to sky_scripts/scripts/4_World/SKY/SKY_Vehicles.c once the models and
+// config exist (VEHICLE_SPEC.md). The vanilla V3S script (Truck_01_Base, truck_01_base.c) already provides
+// the anim instance, seat types, lights and engine sounds; only the camera changes for the longer bus.
+class SKY_CityBus extends Truck_01_Base
+{
+	override float GetTransportCameraDistance()
+	{
+		return 9.0;
+	}
+}
+
+class SKY_GarbageTruck extends Truck_01_Base
+{
+}
