@@ -570,6 +570,22 @@ For the alarm rows, temporarily set `ALARM_MIN_MS` / `ALARM_MAX_MS` to 60000 on 
 | CL-14 | Wait for the alarm (shortened timer) at 100 m, 1 km, 2 km (P14, P20) | Siren heard and fades with distance; infected within a few hundred metres converge; 3 extra groups arrive | | |
 | CL-15 | FPS: run S-rows of FPS_PROTOCOL with 2 towers awake and one alarm | Server frame time within budget; no per-frame script cost in the profiler | | |
 
+## 27. Creatures: guard kennel, rat nests (D62)
+
+Two players (owner O, stranger X). Spawn `SKY_Kennel`, `Land_SKY_RatNest` with the diag console, or use the
+landfill park of `placement/citylife_template.yaml`.
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| CR-01 | O places the kennel (hologram like a sea chest), stores items, stays online | X can open and take (guard off while O is online) | | |
+| CR-02 | O logs off; wait 30 s; X tries drag, swap, hotkey, split stack, combine stack, take the kennel, shoot it, grenade it | Nothing moves, no damage, cargo hidden; dog barks at X (sound, infected come) at most every 20 s (P21) | | |
+| CR-03 | Restart the server with O offline | Kennel guards straight after the restart | | |
+| CR-04 | O logs back in | Guard off within 30 s; O empties and picks the kennel up; a full kennel cannot be picked up | | |
+| CR-05 | Stand in a rat nest 60 s (P22) | Bites ~1 per 15 s, light foot bleeding sometimes, salmonella sometimes; nothing in a vehicle | | |
+| CR-06 | Same with a placed kennel within 15 m | No bites | | |
+| CR-07 | Fence + tent within 25 m of a nest, 1 h; then with a burning fireplace by the nest, and with a kennel by the fence | ~3 % health lost per hour without protection; none with the fire or the kennel | | |
+| CR-08 | Horse carcass and nests in the landfill | Collision as cover, no floating parts | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -583,6 +599,7 @@ For the alarm rows, temporarily set `ALARM_MIN_MS` / `ALARM_MAX_MS` to 60000 on 
 | AI §7 | | | |
 | Loot §8 | | | |
 | City life §26 | | | |
+| Creatures §27 | | | |
 | Placement §9 | | | |
 | Roof drop §10 | | | |
 | Clean logs §11 | | | |

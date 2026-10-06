@@ -350,7 +350,7 @@ def skybridge_lanes():
 def main():
     self_check()
     builders = {}
-    for modname in ("build_kit", "build_props", "build_floors", "build_city", "build_landmarks"):
+    for modname in ("build_kit", "build_props", "build_floors", "build_city", "build_landmarks", "build_creatures"):
         try:
             m = __import__(modname)
         except ImportError:
@@ -358,7 +358,7 @@ def main():
         for n, (fn, _pbo, _p3d) in m.modules().items():
             builders[n] = fn
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
-    names = argv[argv.index("--only") + 1].split(",") if "--only" in argv else list(builders)
+    names = argv[argv.index("--only") + 1].split(",") if "--only" in argv else [n for n in builders if n in S.KIT]
     convention_check()
     if "--only" not in argv:
         batch5_checks(builders)

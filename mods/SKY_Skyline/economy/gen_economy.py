@@ -52,6 +52,13 @@ def types_xml():
         out += "".join('        <usage name="%s"/>\n' % u for u in k["usages"])
         out += "".join('        <value name="%s"/>\n' % v for v in k["values"])
         out += "    </type>\n"
+    # D62 guard kennel: rare, rural; counted in cargo / hoarders so stockpiles cannot bypass nominal (security D62 M1); (vanilla SeaChest is tools / Industrial, Farm, Coast, Hunting; 20/10).
+    out += '    <type name="%s">\n' % S.KENNEL["cls"]
+    out += "        <nominal>4</nominal>\n        <lifetime>3888000</lifetime>\n        <restock>0</restock>\n"
+    out += "        <min>2</min>\n        <quantmin>-1</quantmin>\n        <quantmax>-1</quantmax>\n        <cost>100</cost>\n"
+    out += '        <flags count_in_cargo="1" count_in_hoarder="1" count_in_map="1" count_in_player="1" crafted="0" deloot="0"/>\n'
+    out += '        <category name="tools"/>\n        <usage name="Farm"/>\n        <usage name="Village"/>\n'
+    out += "    </type>\n"
     # D61 alcohol: CE floor loot in towns (category food like vanilla SodaCan_*); bars also hand
     # them out through the server search table (SKY_Search.c "alcohol").
     for name in sorted(S.ALCOHOL_ITEMS):

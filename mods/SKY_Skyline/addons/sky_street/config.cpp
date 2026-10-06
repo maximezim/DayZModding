@@ -230,4 +230,16 @@ class CfgVehicles
 		model = "SKY_Skyline\sky_street\sky_wreck_garbagetruck.p3d";
 		skySearch = "trash";
 	};
+	class Land_SKY_RatNest: Land_SKY_Street_Base
+	{
+		// rat nest: rubbish heap with 9 rats; bites and gnaws nearby bases (SKY_Rats.c)
+		scope = 1;
+		model = "SKY_Skyline\sky_street\sky_ratnest.p3d";
+	};
+	class Land_SKY_HorseCarcass: Land_SKY_Street_Base
+	{
+		// dead horse on its side, half hide half bone (horses are blocked, D62)
+		scope = 1;
+		model = "SKY_Skyline\sky_street\sky_horsecarcass.p3d";
+	};
 };

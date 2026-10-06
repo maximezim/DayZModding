@@ -479,7 +479,7 @@ def tower_cores_script():
 # ------------------------------------------------------------------ items
 def items_config():
     dpath = S.PREFIX_ITEMS + "\\data\\"
-    out = HEADER + patches("SKY_Skyline_Items", ["DZ_Data", "DZ_Gear_Drinks", "SKY_Skyline_Scripts"])
+    out = HEADER + patches("SKY_Skyline_Items", ["DZ_Data", "DZ_Gear_Drinks", "DZ_Gear_Camping", "SKY_Skyline_Scripts"])
     out += """
 class CfgVehicles
 {
@@ -527,6 +527,22 @@ class CfgVehicles
     # D61 bar alcohol (ROADMAP idea 10): vanilla glass bottle model with the vanilla liquids
     # LIQUID_VODKA / LIQUID_BEER (3_game/constants.c:546-547; varLiquidTypeInit read at itembase.c:3901).
     # Dose effects: modded PlayerBase.Consume (SKY_PlayerLife.c).
+    # D62 guard kennel: vanilla SeaChest (DeployableContainer_Base, camping.c:5) with our model; script
+    # class SKY_Kennel (SKY_Kennel.c) guards the cargo while the owner is offline.
+    k = S.KENNEL
+    out += """\tclass %s;
+\tclass %s: %s
+\t{
+\t\tscope = 2;
+\t\tdisplayName = "%s";
+\t\tdescriptionShort = "%s";
+\t\tmodel = "%s\\%s";
+\t\tweight = 18000;
+\t\titemSize[] = {10, 10};
+\t\titemsCargoSize[] = {10, 6};
+\t\tcanBeDigged = 0;
+\t};
+""" % (k["base"], k["cls"], k["base"], k["display"], k["desc"], S.PREFIX_ITEMS, k["p3d"])
     out += "\tclass GlassBottle;\n"
     for cls, (disp, desc, liquid, qty) in sorted(S.ALCOHOL_ITEMS.items()):
         out += """\tclass %s: GlassBottle
@@ -608,6 +624,9 @@ class CfgModels
 \tclass sky_keycard: Default
 \t{
 \t\tsections[] = {"camo"};
+\t};
+\tclass sky_kennel: Default
+\t{
 \t};
 };
 """,

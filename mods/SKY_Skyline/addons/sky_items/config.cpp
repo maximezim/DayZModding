@@ -6,7 +6,7 @@ class CfgPatches
 		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data", "DZ_Gear_Drinks", "SKY_Skyline_Scripts"};
+		requiredAddons[] = {"DZ_Data", "DZ_Gear_Drinks", "DZ_Gear_Camping", "SKY_Skyline_Scripts"};
 	};
 };
 
@@ -63,6 +63,18 @@ class CfgVehicles
 		displayName = "Access keycard (level 3)";
 		hiddenSelectionsTextures[] = {"SKY_Skyline\sky_items\data\sky_keycard_t3_co.paa"};
 		skyTier = 3;
+	};
+	class SeaChest;
+	class SKY_Kennel: SeaChest
+	{
+		scope = 2;
+		displayName = "Dog kennel";
+		descriptionShort = "A doghouse and its old guard dog. Place it by your stash: while you are away the dog keeps everyone out of it and barks at anyone who comes close.";
+		model = "SKY_Skyline\sky_items\sky_kennel.p3d";
+		weight = 18000;
+		itemSize[] = {10, 10};
+		itemsCargoSize[] = {10, 6};
+		canBeDigged = 0;
 	};
 	class GlassBottle;
 	class SKY_Bottle_Beer: GlassBottle

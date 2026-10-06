@@ -35,7 +35,7 @@ def main():
     optional_arma_toolbox()
     import build_kit
     register(build_kit)
-    for extra in ("build_props", "build_floors", "build_landmarks"):
+    for extra in ("build_props", "build_floors", "build_landmarks", "build_creatures"):
         try:
             register(__import__(extra))
         except ImportError:

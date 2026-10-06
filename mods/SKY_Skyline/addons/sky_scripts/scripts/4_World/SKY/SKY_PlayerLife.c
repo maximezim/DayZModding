@@ -11,7 +11,7 @@
 	  One synced int (m_SkyDrunk, 0..3, SetSynchDirty only on change); the client applies the
 	  PPERequester_SKY_Drunk blur for its own player in OnVariablesSynchronized. Not persisted:
 	  relogging sobers you up.
-	- the siren RPC (server -> client only): SKY_CityAlarm sends the siren position; the client plays
+	- the siren and kennel-bark RPCs (server -> client only): SKY_CityAlarm sends the siren position; the client plays
 	  the SKY_Siren_SoundSet there. A client cannot trigger anything with it (handled only on clients).
 */
 modded class PlayerBase
@@ -138,11 +138,14 @@ modded class PlayerBase
 	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
 	{
 		super.OnRPC(sender, rpc_type, ctx);
-		if (rpc_type != SKY_Life.RPC_SIREN || g_Game.IsDedicatedServer() || g_Game.IsServer())
+		if ((rpc_type != SKY_Life.RPC_SIREN && rpc_type != SKY_Beasts.RPC_BARK) || g_Game.IsDedicatedServer() || g_Game.IsServer())
 			return;									// server -> client only; never acted on by a server
 		Param1<vector> p = new Param1<vector>(vector.Zero);
 		if (!ctx.Read(p))
 			return;
-		SKY_CityAlarm.ClientPlaySiren(p.param1);
+		if (rpc_type == SKY_Life.RPC_SIREN)
+			SKY_CityAlarm.ClientPlaySiren(p.param1);
+		else
+			SKY_KennelSound.ClientPlayBark(p.param1);
 	}
 }

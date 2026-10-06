@@ -207,3 +207,19 @@ Creatures (dogs, rats, horses) wait on a decision: the public mods need the auth
 build our own. Sewers and the metro need a custom terrain. Drivable buses and trucks need a vehicle
 simulation. Gates PASS (`reviews/d61_gates.md`), renders `reviews/img/d61_*.png`, in-game rows TESTING §26,
 new pending checks P14-P20.
+
+## 14. Creatures (D62)
+
+Real animals need a rig, animations and an AI graph, which the procedural toolchain cannot make. Vanilla
+scripts cannot make an animal follow a player. D62 therefore delivers the friend's creature ideas as
+static models driven by server rules:
+- **Guard kennel**: a deployable doghouse with its dog. While the owner is offline (up to 48 h), nobody can
+  loot it, carry it or damage it, and strangers make the dog bark. The bark is a procedural sound that also
+  draws infected.
+- **Rat nests**: they bite players who stand in them (damage, bleeding, salmonella) and gnaw nearby bases. A
+  burning fire or a guard dog nearby stops them.
+- **Horse**: riding is blocked; a horse carcass sets the mood.
+
+Security and performance reviews ran on all D61-D62 scripts and every finding was fixed (`reviews/d62_gates.md`).
+In-game rows: TESTING §27; pending checks: P21-P24.
+

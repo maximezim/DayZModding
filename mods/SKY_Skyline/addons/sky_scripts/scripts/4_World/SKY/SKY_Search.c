@@ -37,8 +37,8 @@ class SKY_SearchService
 	protected static ref SKY_SearchService s_Instance;
 	//! type -> skySearch table name ("" = not searchable). Bounded by the number of config classes.
 	protected static ref map<string, string> s_TypeTable = new map<string, string>();
-	//! type -> search memory point names present in the model.
-	protected static ref map<string, ref array<string>> s_TypePoints = new map<string, ref array<string>>();
+	//! type -> model-space positions of the search memory points (read once per type).
+	protected static ref map<string, ref array<vector>> s_TypePoints = new map<string, ref array<vector>>();
 
 	protected ref map<string, ref SKY_SearchTable> m_Tables;
 	protected ref map<string, int> m_Spots;			//!< spot key -> time searched (ms)
@@ -94,20 +94,20 @@ class SKY_SearchService
 		return table;
 	}
 
-	protected static array<string> PointsOf(Object obj)
+	protected static array<vector> PointsOf(Object obj)
 	{
 		string type = obj.GetType();
-		array<string> pts;
+		array<vector> pts;
 		if (s_TypePoints.Find(type, pts))
 			return pts;
-		pts = new array<string>();
+		pts = new array<vector>();
 		if (obj.MemoryPointExists("search"))
-			pts.Insert("search");
+			pts.Insert(obj.GetMemoryPointPos("search"));
 		for (int i = 1; i <= SKY_Life.SEARCH_POINTS; i++)
 		{
 			string name = "search_" + i.ToString();
 			if (obj.MemoryPointExists(name))
-				pts.Insert(name);
+				pts.Insert(obj.GetMemoryPointPos(name));
 		}
 		s_TypePoints.Insert(type, pts);
 		return pts;
@@ -116,7 +116,7 @@ class SKY_SearchService
 	//! Nearest search spot within reach of `from`: world position and index (-1 = object origin).
 	static bool FindSpot(Object obj, vector from, out vector spot, out int idx)
 	{
-		array<string> pts = PointsOf(obj);
+		array<vector> pts = PointsOf(obj);
 		idx = -2;
 		if (pts.Count() == 0)
 		{
@@ -128,7 +128,7 @@ class SKY_SearchService
 		float best = SKY_Life.SEARCH_REACH;
 		for (int i = 0; i < pts.Count(); i++)
 		{
-			vector wp = obj.ModelToWorld(obj.GetMemoryPointPos(pts[i]));
+			vector wp = obj.ModelToWorld(pts[i]);
 			float d = vector.Distance(wp, from);
 			if (d <= best)
 			{

@@ -1285,6 +1285,15 @@ for _p in ("ParkingLot", "ParkingLotSmall"):
     CITY_ZONES["downtown"]["weights"][_p] = 1
     CITY_ZONES["midtown"]["weights"][_p] = 2
     CITY_ZONES["industrial"]["weights"][_p] = 1
+# D62 creatures (build_creatures.py): static pieces driven by server scripts (no AI rig possible, D62).
+kit("RatNest", "sky_street", "medium", uses=["P22"], desc="rat nest: rubbish heap with 9 rats; bites and gnaws nearby bases (SKY_Rats.c)")
+kit("HorseCarcass", "sky_street", "medium", desc="dead horse on its side, half hide half bone (horses are blocked, D62)")
+LANDMARK_SIZE["RatNest"] = (2.6, 2.6)
+LANDMARK_SIZE["HorseCarcass"] = (2.4, 2.8)
+# The guard kennel is an item (sky_items/sky_kennel.p3d), config in gen_configs.items_config.
+KENNEL = {"cls": "SKY_Kennel", "p3d": "sky_kennel.p3d", "base": "SeaChest",
+          "display": "Dog kennel", "desc": "A doghouse and its old guard dog. Place it by your stash: while you are away the "
+          "dog keeps everyone out of it and barks at anyone who comes close."}
 # CE loot of the two loot destinations (ROADMAP ideas 13, 23): the landfill has a bit of everything at the foot of
 # each rubbish mound; the bridge is the high-risk military drop (deck points + the two sniper nests).
 _LF_MOUNDS = [(-11.0, 8.0, 5.5), (2.0, 11.0, 5.0), (12.0, 6.0, 6.5), (-12.0, -6.0, 4.0), (9.5, -8.0, 4.5), (-2.0, 1.5, 3.5),
@@ -1333,7 +1342,8 @@ PARKS = {
         ("Veg_Birch", 26.0, 25.0, 0.0), ("Veg_Weeds", 17.0, 25.0, 0.0)]},
     "landfill": {"min": (48.0, 48.0), "pieces": [
         ("Landfill", 0.0, 0.0, 0.0), ("Wreck_GarbageTruck", 16.0, -22.0, 90.0), ("Dumpster", -8.0, -22.5, 0.0),
-        ("Dumpster", -5.5, -22.5, 0.0), ("Veg_Birch", 20.0, 22.0, 0.0), ("Veg_TreeDead", -20.0, 22.0, 0.0)]},
+        ("Dumpster", -5.5, -22.5, 0.0), ("Veg_Birch", 20.0, 22.0, 0.0), ("Veg_TreeDead", -20.0, 22.0, 0.0),
+        ("RatNest", -14.0, 22.5, 0.0), ("RatNest", 6.0, 22.5, 0.0), ("HorseCarcass", 2.0, -22.4, 90.0)]},
 }
 # Car jams (idea 2): blocking lines across straight street tiles from pieces with known Geometry
 # (our wrecks and jersey barriers), one pedestrian gap; vanilla wrecks (CE types, verified names)

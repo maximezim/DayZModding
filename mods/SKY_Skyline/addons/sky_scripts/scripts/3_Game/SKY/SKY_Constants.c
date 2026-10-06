@@ -91,7 +91,7 @@ class SKY_Life
 	static const int ALCOHOL_VOMIT_MS = 90000;		//!< min interval between vomits
 
 	// ---- hordes downtown - P15
-	static const int HORDE_TICK_MS = 20000;			//!< director period (server)
+	static const int HORDE_TICK_MS = 10000;			//!< director period (server; also the alarm pulse grain)
 	static const float HORDE_ACTIVATE = 350.0;		//!< a player this close wakes an anchor
 	static const float HORDE_DESPAWN = 550.0;		//!< no player this close: the horde despawns
 	static const float HORDE_MIN_PLAYER = 70.0;		//!< spawn at least this far from every player
@@ -117,3 +117,63 @@ class SKY_Life
 	static const float ALARM_RING_MAX = 320.0;
 	static const int ALARM_EXTRA_CAP = 36;			//!< global cap raised by this during an alarm
 }
+
+//! D62 creatures (ROADMAP ideas 5, 8, 9; DECISIONS D62). Hypotheses: PENDING_VERIFICATION P21-P24.
+class SKY_Beasts
+{
+	static const int RPC_BARK = 0x534B5902;			//!< server -> client: a kennel dog barks at a position
+
+	// ---- guard kennel - P21
+	static const int TICK_MS = 5000;				//!< creature director period (server)
+	static const int KENNEL_CHECK_EVERY = 6;		//!< kennel owner/guard check every 6 ticks (30 s)
+	static const int KENNEL_GUARD_S = 172800;		//!< guards for 48 h after the owner was last seen
+	static const float KENNEL_BARK_RADIUS = 8.0;	//!< a stranger this close makes the dog bark
+	static const int KENNEL_BARK_MS = 20000;		//!< min interval between barks per kennel
+	static const float KENNEL_BARK_HEAR = 150.0;	//!< players this close get the bark sound
+	static const float KENNEL_BARK_NOISE = 3.0;		//!< x vanilla alarm-clock noise (infected come to look)
+	static const int MAX_KENNELS = 1024;			//!< all kennels (placed or carried); see M1 in reviews/d62_gates.md
+	static const int KENNEL_STORE_VERSION = 1;
+
+	// ---- rats - P22
+	static const float RAT_BITE_RADIUS = 2.5;		//!< from the nest centre (rats sit up to 1.4 m out + 1.1 m reach)
+	static const float RAT_BITE_CHANCE = 0.3;		//!< per player standing in a nest, per tick
+	static const float RAT_DMG_MIN = 3.0;
+	static const float RAT_DMG_MAX = 6.0;
+	static const float RAT_BLEED_CHANCE = 0.2;		//!< 1 bite in 5
+	static const float RAT_DISEASE_CHANCE = 0.17;	//!< 1 bite in 6 -> SALMONELLA
+	static const float DOG_REPEL_PLAYER = 15.0;		//!< a guard dog this close: no bites
+	static const float DOG_REPEL_BASE = 30.0;		//!< a guard dog this close to a base part: no gnawing
+	static const int RAT_GNAW_EVERY = 120;			//!< ticks between base gnawing (10 min)
+	static const float RAT_GNAW_RADIUS = 25.0;
+	static const float RAT_GNAW_FRACTION = 0.005;	//!< of the part's max health per gnaw
+	static const float RAT_FIRE_BLOCK = 10.0;		//!< a burning fireplace this close to the nest stops the gnawing
+	static const int MAX_NESTS = 128;
+}
+
+//! UTC wall clock in seconds since 2020-01-01 (survives restarts; for persisted timers).
+class SKY_Time
+{
+	static int NowUtc()
+	{
+		int y, mo, d, h, mi, s;
+		GetYearMonthDayUTC(y, mo, d);
+		GetHourMinuteSecondUTC(h, mi, s);
+		return DaysFrom2020(y, mo, d) * 86400 + h * 3600 + mi * 60 + s;
+	}
+
+	static int DaysFrom2020(int y, int m, int d)
+	{
+		// days from civil (Howard Hinnant), shifted to 2020-01-01 = 0
+		if (m <= 2)
+			y = y - 1;
+		int era = y / 400;
+		int yoe = y - era * 400;
+		int mp = m + 9;
+		if (m > 2)
+			mp = m - 3;
+		int doy = (153 * mp + 2) / 5 + d - 1;
+		int doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
+		return era * 146097 + doe - 737730;
+	}
+}
+

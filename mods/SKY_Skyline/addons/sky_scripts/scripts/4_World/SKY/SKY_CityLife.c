@@ -8,7 +8,7 @@
 	  sound is sent (server -> client RPC) to players within ALARM_HEAR; an AI noise target is
 	  refreshed at the siren every ALARM_PULSE_MS (vanilla alarm clock noise x ALARM_NOISE_MULT, P14)
 	  and ALARM_HORDES extra groups spawn on a wider ring and walk in to the noise.
-	One repeating 10 s timer (CallLater, removed in Stop) does all of it: no per-frame work; bounded
+	One repeating HORDE_TICK_MS timer (CallLater, removed in Stop; at most one group spawned per tick) does all of it: no per-frame work; bounded
 	arrays (sirens <= HORDE_MAX_ANCHORS, members <= HORDE_GLOBAL_MAX + ALARM_EXTRA_CAP).
 	APIs: CGame.GetPlayers (3_game/global/game.c:947), CreateObjectEx + ECE_PLACE_ON_SURFACE |
 	ECE_INITAI | ECE_EQUIP_ATTACHMENTS (as plugindeveloper.c:405), SurfaceY / SurfaceIsSea / SurfaceIsPond
@@ -50,7 +50,6 @@ class SKY_CityLife
 {
 	static const bool HORDES_ENABLED = true;
 	static const bool ALARM_ENABLED = true;
-	static const int TICK_MS = 10000;
 
 	protected static ref array<Land_SKY_SirenTower> s_Sirens = new array<Land_SKY_SirenTower>();
 	protected static ref SKY_CityLife s_Instance;
@@ -63,6 +62,7 @@ class SKY_CityLife
 	protected int m_AlarmEnd;
 	protected int m_AlarmNextPulse;
 	protected Land_SKY_SirenTower m_AlarmSiren;
+	protected int m_AlarmGroupsLeft;		//!< alarm groups still to spawn, one per tick
 
 	static void RegisterSiren(Land_SKY_SirenTower siren)
 	{
@@ -81,7 +81,7 @@ class SKY_CityLife
 		if (!g_Game.IsServer() || s_Instance || !(HORDES_ENABLED || ALARM_ENABLED))
 			return;
 		s_Instance = new SKY_CityLife();
-		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(s_Instance.Tick, TICK_MS, true);
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(s_Instance.Tick, SKY_Life.HORDE_TICK_MS, true);
 		SKY_Log.Info("city life started (" + s_Sirens.Count().ToString() + " sirens)");
 	}
 
@@ -184,6 +184,7 @@ class SKY_CityLife
 				continue;
 			SpawnGroup(s, ap, SKY_Life.HORDE_RING_MIN, SKY_Life.HORDE_RING_MAX, SKY_Life.HORDE_GROUP, SKY_Life.HORDE_GLOBAL_MAX);
 			s.m_SkyNextHorde = now + SKY_Life.HORDE_RESPAWN_MS;
+			return;									// at most one group per tick (spawn hitch, perf review D62)
 		}
 	}
 
@@ -234,8 +235,17 @@ class SKY_CityLife
 	{
 		if (m_AlarmSiren)
 		{
+			if (m_AlarmGroupsLeft > 0)
+			{
+				m_AlarmGroupsLeft--;
+				SpawnGroup(m_AlarmSiren, m_AlarmSiren.GetPosition(), SKY_Life.ALARM_RING_MIN, SKY_Life.ALARM_RING_MAX, SKY_Life.HORDE_GROUP,
+					SKY_Life.HORDE_GLOBAL_MAX + SKY_Life.ALARM_EXTRA_CAP);
+			}
 			if (now >= m_AlarmEnd)
+			{
 				m_AlarmSiren = null;
+				m_AlarmGroupsLeft = 0;
+			}
 			else if (now >= m_AlarmNextPulse)
 				Pulse(now);
 			return;
@@ -257,18 +267,17 @@ class SKY_CityLife
 		m_AlarmSiren = live.GetRandomElement();
 		m_AlarmEnd = now + SKY_Life.ALARM_DURATION_MS;
 		vector sp = m_AlarmSiren.SkySirenPos();
+		Param1<vector> sirenParam = new Param1<vector>(sp);
 		foreach (Man m : m_Players)
 		{
 			PlayerBase pb = PlayerBase.Cast(m);
 			if (pb && pb.GetIdentity() && vector.DistanceSq(pb.GetPosition(), sp) <= SKY_Life.ALARM_HEAR * SKY_Life.ALARM_HEAR)
-				g_Game.RPCSingleParam(pb, SKY_Life.RPC_SIREN, new Param1<vector>(sp), true, pb.GetIdentity());
+				g_Game.RPCSingleParam(pb, SKY_Life.RPC_SIREN, sirenParam, true, pb.GetIdentity());
 		}
 		if (!g_Game.IsMultiplayer())
 			SKY_CityAlarm.ClientPlaySiren(sp);					// offline mission: same process
 		Pulse(now);
-		for (int i = 0; i < SKY_Life.ALARM_HORDES; i++)
-			SpawnGroup(m_AlarmSiren, m_AlarmSiren.GetPosition(), SKY_Life.ALARM_RING_MIN, SKY_Life.ALARM_RING_MAX, SKY_Life.HORDE_GROUP,
-				SKY_Life.HORDE_GLOBAL_MAX + SKY_Life.ALARM_EXTRA_CAP);
+		m_AlarmGroupsLeft = SKY_Life.ALARM_HORDES;			// spawned one per tick from the next tick
 		SKY_Log.Info("city alarm at " + sp.ToString());
 	}
 

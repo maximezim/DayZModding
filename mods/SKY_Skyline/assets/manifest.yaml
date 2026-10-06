@@ -99,6 +99,12 @@ props:
 
 # ---------------------------------------------------------------- E. items
 items:
+  - name: SKY_Kennel
+    type: guard kennel (D62) - deployable container (vanilla SeaChest base) with the guard dog in the model
+    p3d: addons/sky_items/sky_kennel.p3d
+    budget: {res0: 1200, geo_comps: 2}
+    generator: assets/blender/build_creatures.py
+    status: built-unverified
   - name: SKY_Keycard_T1 / T2 / T3
     type: keycard (config + model + texture; inventory uses the 3D model, DayZ has no separate icon texture)
     p3d: addons/sky_items/sky_keycard.p3d
@@ -1814,6 +1820,19 @@ generated_kit:
     category: landmark
     budget: {res0: 60000, res1: 15000, res2: 2500, res3: 300, shadow: 600, geo_comps: 400, geo_tris: 6000, sections_res0: 16}
     uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_RatNest
+    type: "rat nest: rubbish heap with 9 rats; bites and gnaws nearby bases (SKY_Rats.c)"
+    p3d: addons/sky_street/sky_ratnest.p3d
+    category: medium
+    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 5, shadow: 100}
+    uses: [P22]
+    status: built-unverified
+  - name: Land_SKY_HorseCarcass
+    type: "dead horse on its side, half hide half bone (horses are blocked, D62)"
+    p3d: addons/sky_street/sky_horsecarcass.p3d
+    category: medium
+    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 5, shadow: 100}
     status: built-unverified
   - name: Land_SKY_TowerA_Core15
     type: "stair + elevator core, 17 stops (lobby, 15 floors, roof), script Land_SKY_TowerA_Core subclass"

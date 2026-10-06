@@ -1,0 +1,36 @@
+{
+ "sky_horsecarcass.p3d": {
+  "fire": 12,
+  "geo": 12,
+  "mem": 0,
+  "res0": 744,
+  "res1": 304,
+  "res2": 72,
+  "res3": 12,
+  "road": 0,
+  "shadow": 12,
+  "view": 12
+ },
+ "sky_kennel.p3d": {
+  "fire": 20,
+  "geo": 20,
+  "mem": 0,
+  "res0": 734,
+  "res1": 216,
+  "res2": 44,
+  "shadow": 20,
+  "view": 20
+ },
+ "sky_ratnest.p3d": {
+  "fire": 72,
+  "geo": 72,
+  "mem": 0,
+  "res0": 896,
+  "res1": 184,
+  "res2": 72,
+  "res3": 14,
+  "road": 0,
+  "shadow": 18,
+  "view": 72
+ }
+}
