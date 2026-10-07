@@ -322,17 +322,42 @@ def build_streetlight():
 
 
 def build_trafficlight():
+    """5.8 m traffic light (D74 close-up pass): flanged foot with bolts, collared pole, push-button box,
+    braced arm with its cable, signal head with backplate and three visors (atlas face), pedestrian head
+    with a visor. Collision unchanged (pole + head)."""
     L = props_lods()
     face = UVRect(0, 2, (4.62, 4.62), (4.93, 5.58), S.atlas_uv("traffic"))
     for k, n in (("res0", 8), ("res1", 6), ("res2", 4)):
         L[k].prism(0.0, 0.0, 0.1, 0.0, 5.8, n=n, mat="rust", uv=UV_GREY)
+    L["res0"].prism(0.0, 0.0, 0.18, 0.0, 0.04, n=8, mat="rust", uv=UV_RUST)            # foot flange
+    for i in range(4):
+        a = math.pi / 4 + i * math.pi / 2
+        L["res0"].box(0.14 * math.cos(a) - 0.015, 0.14 * math.cos(a) + 0.015, 0.14 * math.sin(a) - 0.015,
+                      0.14 * math.sin(a) + 0.015, 0.04, 0.07, mat="rust", uv=UV_RUST)
+    for zz in (1.2, 3.6):
+        L["res0"].prism(0.0, 0.0, 0.12, zz, zz + 0.06, n=8, mat="rust", uv=UV_RUST)   # collars
+    L["res0"].box(-0.08, 0.08, -0.16, -0.1, 1.0, 1.25, mat="rust", uv=UV_BURNT)         # push-button box
     for k in ("res0", "res1"):
         L[k].box(0.0, 5.0, -0.05, 0.05, 5.6, 5.75, mat="rust", uv=UV_GREY)
         L[k].box(4.6, 4.95, -0.17, 0.17, 4.6, 5.6, mat="rust", uv=UV_BURNT)
-        L[k].quad([(4.62, -0.171, 4.62), (4.93, -0.171, 4.62), (4.93, -0.171, 5.58), (4.62, -0.171, 5.58)],
-                  (0, -1, 0), "atlas", face)
+        L[k].quad([(4.62, -0.195, 4.62), (4.93, -0.195, 4.62), (4.93, -0.195, 5.58), (4.62, -0.195, 5.58)],
+                  (0, -1, 0), "atlas", face)                                     # in front of the backplate (perf L)
+    _bar(L["res0"], (0.05, 0.0, 4.9), (1.8, 0.0, 5.6), 0.03, "rust", UV_GREY)        # arm brace
+    for k in ("res0", "res1"):
+        L[k].box(4.5, 5.05, -0.19, -0.17, 4.5, 5.7, mat="rust", uv=UV_BURNT)            # backplate (thin, in front)
+    _bar(L["res1"], (0.05, 0.0, 4.9), (1.8, 0.0, 5.6), 0.03, "rust", UV_GREY)           # Res1: brace too
+    for zz in (4.92, 5.22, 5.52):                                                 # visors over the three lamps
+        L["res0"].box(4.63, 4.92, -0.33, -0.19, zz - 0.02, zz, mat="rust", uv=UV_BURNT)
+        L["res0"].box(4.63, 4.65, -0.33, -0.19, zz - 0.22, zz, mat="rust", uv=UV_BURNT)
+        L["res0"].box(4.9, 4.92, -0.33, -0.19, zz - 0.22, zz, mat="rust", uv=UV_BURNT)
+    cable = [(0.0, 0.06, 5.55), (2.5, 0.07, 5.45), (4.6, 0.06, 5.55)]                 # sagging cable under the arm
+    for p0, p1 in zip(cable, cable[1:]):
+        _bar(L["res0"], p0, p1, 0.008, "rust", UV_BURNT)
     L["res0"].box(-0.3, -0.1, -0.12, 0.12, 2.4, 3.0, mat="rust", uv=UV_BURNT)       # pedestrian head
+    L["res0"].box(-0.32, -0.08, -0.16, -0.12, 2.98, 3.02, mat="rust", uv=UV_BURNT)    # its visor
+    L["res1"].box(-0.3, -0.1, -0.12, 0.12, 2.4, 3.0, mat="rust", uv=UV_BURNT)
     L["res2"].box(0.0, 5.0, -0.1, 0.1, 5.5, 5.75, mat="rust", uv=UV_GREY)
+    L["res2"].box(4.6, 4.95, -0.17, 0.17, 4.6, 5.6, mat="rust", uv=UV_BURNT)             # signal head stays (perf L)
     L["geo"].prism(0.0, 0.0, 0.1, 0.0, 5.8, n=6)
     L["fire"].prism(0.0, 0.0, 0.1, 0.0, 5.8, n=6, mat="pen_metal")
     L["fire"].box(4.6, 4.95, -0.17, 0.17, 4.6, 5.6, mat="pen_metal")
@@ -480,23 +505,28 @@ def wheels(L, keys, xs, ys, r=0.3, zc=0.28, n=8, width=0.2, uv=None):
                                mat="rust", uv=uv or UV_BURNT)
 
 
-def build_wreck_sedan():
+def build_wreck_sedan(variant="A"):
     """Rusted Soviet saloon hulk (D73 close-up pass, original shape): stepped body (bonnet, cabin, boot)
     with wheel arches, faded paint over rust, empty window frames, chrome bumpers, head and tail lamps,
     flat tyres on steel rims, the bonnet sprung open. Collision unchanged (body + cabin)."""
+    if variant == "C":
+        return build_wreck_sedan_overturned()
     L = props_lods(view=True)
     col = ("beige", "sage", "terracotta", "white")[int(h01_kit("sedan", "col") * 4)]
     paint = DT.paint_uv(col)
+    pm = "paint"
+    if variant == "B":                                                           # D74: burnt out - scorched shell
+        paint, pm = UV_BURNT, "rust"
     for k in ("res0", "res1"):
-        L[k].box(-0.9, 0.9, -2.1, 2.1, 0.25, 0.62, mat="paint", uv=paint)                 # sills to waist
+        L[k].box(-0.9, 0.9, -2.1, 2.1, 0.25, 0.62, mat=pm, uv=paint)                 # sills to waist
         if k == "res1":
-            L[k].box(-0.88, 0.88, -2.08, -1.0, 0.62, 0.85, mat="paint", uv=paint)         # bonnet (closed in Res1)
-        L[k].box(-0.88, 0.88, 1.15, 2.08, 0.62, 0.82, mat="paint", uv=paint)              # boot
-        L[k].box(-0.9, 0.9, -1.0, 1.15, 0.62, 0.86, mat="paint", uv=paint)                # waist under the windows
+            L[k].box(-0.88, 0.88, -2.08, -1.0, 0.62, 0.85, mat=pm, uv=paint)         # bonnet (closed in Res1)
+        L[k].box(-0.88, 0.88, 1.15, 2.08, 0.62, 0.82, mat=pm, uv=paint)              # boot
+        L[k].box(-0.9, 0.9, -1.0, 1.15, 0.62, 0.86, mat=pm, uv=paint)                # waist under the windows
     cab = [(-1.0, 0.86), (1.0, 0.86), (0.65, 1.38), (-0.6, 1.38)]                      # (y, z)
-    L["res0"].extrude_x(cab, -0.78, -0.72, mat="paint", uv=paint)                       # cabin sides as frames
-    L["res0"].extrude_x(cab, 0.72, 0.78, mat="paint", uv=paint)
-    L["res0"].box(-0.78, 0.78, -0.62, 0.68, 1.36, 1.4, mat="paint", uv=paint)            # roof
+    L["res0"].extrude_x(cab, -0.78, -0.72, mat=pm, uv=paint)                       # cabin sides as frames
+    L["res0"].extrude_x(cab, 0.72, 0.78, mat=pm, uv=paint)
+    L["res0"].box(-0.78, 0.78, -0.62, 0.68, 1.36, 1.4, mat=pm, uv=paint)            # roof
     for (ya, yb, f) in ((-1.0, -0.6, (0, -0.8, 0.6)), (1.0, 0.65, (0, 0.8, 0.6))):        # grimy windscreen / rear window
         q = [(-0.72, ya, 0.86), (0.72, ya, 0.86), (0.72, yb, 1.38), (-0.72, yb, 1.38)]
         L["res0"].quad(q, f, "glassfar", UV_GLASS, double=True)                         # (opaque: no see-through, sec M)
@@ -510,7 +540,7 @@ def build_wreck_sedan():
     L["res0"].box(-0.3, 0.3, -1.8, -1.25, 0.72, 0.82, mat="rust", uv=UV_RUST)            # what is left of the engine
     for (x0, x1, y0, y1, z) in ((-0.5, 0.2, -0.6, 0.4, 1.401), (-0.86, -0.2, -1.9, -1.4, 0.851), (0.1, 0.8, 1.3, 1.9, 0.821)):
         L["res0"].hquad(x0, x1, y0, y1, z, mat="rust", uv=UV_RUST)                     # rust through roof / wing / boot
-    L["res1"].extrude_x(cab, -0.8, 0.8, mat="paint", uv=paint)
+    L["res1"].extrude_x(cab, -0.8, 0.8, mat=pm, uv=paint)
     L["res2"].box(-0.9, 0.9, -2.1, 2.1, 0.0, 0.85, mat="rust", uv=UV_RUST)
     L["res2"].extrude_x(cab, -0.8, 0.8, mat="rust", uv=UV_RUST)
     for i, (y0, y1, z0, z1) in enumerate(((-1.9, -1.2, 0.3, 0.55), (0.3, 1.1, 0.28, 0.5), (1.4, 2.0, 0.45, 0.7))):
@@ -525,7 +555,7 @@ def build_wreck_sedan():
                           mat="glassfar" if s_ < 0 else "paint", uv=UV_GLASS if s_ < 0 else DT.paint_uv("terracotta"))
     L["res0"].solid([(-0.86, -1.02, 0.86), (0.86, -1.02, 0.86), (0.86, -1.04, 0.9), (-0.86, -1.04, 0.9),
                      (-0.86, -1.9, 1.15), (0.86, -1.9, 1.15), (0.86, -1.92, 1.19), (-0.86, -1.92, 1.19)],
-                    [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (2, 3, 7, 6), (0, 3, 7, 4), (1, 2, 6, 5)], "paint", paint)   # sprung bonnet
+                    [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (2, 3, 7, 6), (0, 3, 7, 4), (1, 2, 6, 5)], pm, paint)   # sprung bonnet
     wheels(L, ("res0",), (0.75, -0.75), (-1.3, 1.35), r=0.3, zc=0.24, uv=UV_BURNT)        # flat tyres
     wheels(L, ("res1",), (0.75, -0.75), (-1.3, 1.35), n=5, zc=0.24)
     cab_geo = [(-1.1, 0.85), (1.0, 0.85), (0.6, 1.4), (-0.7, 1.4)]                  # collision: one closed hull (sec H)
@@ -536,15 +566,82 @@ def build_wreck_sedan():
     return finish(L, 1100.0)
 
 
+def build_wreck_sedan_overturned():
+    """D74 Wreck_Sedan_C: the saloon on its crushed roof - flattened cabin on the ground, the body above it
+    showing the rusted underside, wheels in the air. New collision: crushed cabin (0..0.55) + body
+    (0.55..1.2) stacked without a gap (test_kit hull test)."""
+    L = props_lods(view=True)
+    paint = DT.paint_uv("white")
+    cab_c = [(-1.1, 0.55), (1.0, 0.55), (0.55, 0.0), (-0.65, 0.0)]                      # (y, z), roof on the ground
+    for k in ("res0", "res1"):
+        L[k].box(-0.9, 0.9, -2.1, 2.1, 0.55, 1.2, mat="paint", uv=paint)
+        L[k].extrude_x(cab_c, -0.78, 0.78, mat="paint", uv=paint)
+    L["res2"].box(-0.9, 0.9, -2.1, 2.1, 0.0, 1.2, mat="paint", uv=paint)
+    L["res0"].hquad(-0.85, 0.85, -2.05, 2.05, 1.201, mat="rust", uv=UV_BURNT)          # rusted underside
+    for x0, x1 in ((-0.55, -0.45), (0.45, 0.55)):                                   # chassis rails
+        L["res0"].box(x0, x1, -2.0, 2.0, 1.2, 1.3, mat="rust", uv=UV_RUST)
+    L["res0"].box(-0.12, 0.12, -1.9, 1.9, 1.2, 1.26, mat="rust", uv=UV_RUST)           # exhaust / tunnel
+    for sx in (-1, 1):                                                             # crushed side windows
+        x = sx * 0.781
+        q = [(x, -0.9, 0.05), (x, 0.85, 0.05), (x, 0.95, 0.5), (x, -1.0, 0.5)]
+        L["res0"].quad(q if sx > 0 else q[::-1], (sx, 0, 0), "glassfar", UV_GLASS)
+    for y, s_ in ((-2.1, -1), (2.1, 1)):                                             # bumpers (upside down)
+        L["res0"].box(-0.92, 0.92, min(y, y + s_ * 0.06), max(y, y + s_ * 0.06), 0.98, 1.1, mat="metal", uv=UV_STEEL)
+    prof = [(0.3 * math.cos(2 * math.pi * i / 8), 1.5 + 0.3 * math.sin(2 * math.pi * i / 8)) for i in range(8)]
+    for x in (0.75, -0.75):                                                        # wheels in the air
+        for y in (-1.3, 1.35):
+            for k, n in (("res0", 8), ("res1", 5)):
+                pr = prof if n == 8 else [(0.3 * math.cos(2 * math.pi * i / 5), 1.5 + 0.3 * math.sin(2 * math.pi * i / 5)) for i in range(5)]
+                L[k].extrude_x([(y + a, b) for a, b in pr], x, x + (0.2 if x > 0 else -0.2), mat="rust", uv=UV_BURNT)
+    for k in ("geo", "fire", "view"):                                           # closed block: no lying-in space under
+        kw = {"mat": "pen_metal"} if k == "fire" else {}                        # the overhangs (security D74 M)
+        L[k].box(-0.9, 0.9, -2.1, 2.1, 0.0, 1.2, **kw)
+        for x in (0.75, -0.75):                                                 # upturned wheels stop bullets too (sec L)
+            for y in (-1.3, 1.35):
+                xa, xb = sorted((x, x + (0.2 if x > 0 else -0.2)))
+                L[k].box(xa, xb, y - 0.3, y + 0.3, 1.2, 1.8, **kw)
+    return finish(L, 1100.0)
+
+
 def build_wreck_van():
+    """Burnt-out box van hulk (D74 close-up pass, original shape): cab with an empty windscreen frame and
+    side windows, ribbed cargo box, one rear door hanging open, bumpers, lamps, scorched paint, flat tyres.
+    Collision unchanged (chassis + box + cab)."""
     L = props_lods(view=True)
     cab = [(1.0, 0.9), (2.6, 0.9), (2.6, 1.5), (2.0, 2.1), (1.0, 2.1)]
-    for k in ("res0", "res1", "res2"):
-        L[k].box(-1.0, 1.0, -2.6, 2.6, 0.0 if k == "res2" else 0.3, 0.9, mat="rust", uv=UV_BURNT)
+    for k in ("res0", "res1"):
+        L[k].box(-1.0, 1.0, -2.6, 2.6, 0.3, 0.9, mat="rust", uv=UV_BURNT)
         L[k].box(-1.05, 1.05, -2.6, 1.0, 0.9, 2.6, mat="rust", uv=UV_BURNT)
         L[k].extrude_x(cab, -1.0, 1.0, mat="rust", uv=UV_RUST)
-    wheels(L, ("res0",), (0.85, -0.85), (-1.8, 1.7), r=0.35, zc=0.33)
-    wheels(L, ("res1",), (0.85, -0.85), (-1.8, 1.7), r=0.35, zc=0.33, n=6)
+    L["res2"].box(-1.0, 1.0, -2.6, 2.6, 0.0, 0.9, mat="rust", uv=UV_BURNT)
+    L["res2"].box(-1.05, 1.05, -2.6, 1.0, 0.9, 2.6, mat="rust", uv=UV_BURNT)
+    L["res2"].extrude_x(cab, -1.0, 1.0, mat="rust", uv=UV_RUST)
+    for i in range(7):                                                           # ribs on the cargo box
+        y = -2.4 + i * 0.55
+        for sx in (-1, 1):
+            L["res0"].box(sx * 1.05 - (0.03 if sx < 0 else 0), sx * 1.05 + (0.03 if sx > 0 else 0), y - 0.04, y + 0.04,
+                          0.95, 2.55, mat="rust", uv=UV_RUST)
+    for sx in (-1, 1):                                                           # cab side windows
+        x = sx * 1.001
+        q = [(x, 1.15, 1.55), (x, 1.95, 1.55), (x, 1.95, 2.0), (x, 1.15, 2.0)]
+        L["res0"].quad(q if sx > 0 else q[::-1], (sx, 0, 0), "glassfar", UV_GLASS)
+    L["res0"].quad([(-0.9, 2.62, 1.55), (0.9, 2.62, 1.55), (0.9, 2.05, 2.05), (-0.9, 2.05, 2.05)], (0, 0.7, 0.7),
+                   "glassfar", UV_GLASS, double=True)                             # windscreen (sooted)
+    L["res0"].box(-1.05, 1.05, 2.6, 2.68, 0.35, 0.5, mat="metal", uv=UV_STEEL)        # bumpers
+    L["res0"].box(-1.05, 1.05, -2.68, -2.6, 0.35, 0.5, mat="metal", uv=UV_STEEL)
+    for sx in (-1, 1):                                                           # lamps
+        L["res0"].box(sx * 0.75 - 0.12, sx * 0.75 + 0.12, 2.6, 2.62, 0.7, 0.85, mat="glassfar", uv=UV_GLASS)
+    L["res0"].quad([(-1.0, -2.61, 1.0), (0.0, -2.61, 1.0), (0.0, -2.61, 2.5), (-1.0, -2.61, 2.5)], (0, -1, 0),
+                   "rust", UV_BURNT)                                              # closed rear door
+    L["res0"].quad([(0.0, -2.62, 1.0), (0.3, -3.55, 1.0), (0.3, -3.55, 2.5), (0.0, -2.62, 2.5)], (0.95, -0.3, 0),
+                   "rust", UV_BURNT, double=True)                                 # the other hanging open
+    door = [(0.0, -2.6, 1.0), (0.3, -3.55, 1.0), (0.3, -3.55, 2.5), (0.0, -2.6, 2.5)]   # ...and solid (security D74 M)
+    slab = [(x + 0.012, y + 0.004, z) for x, y, z in door] + [(x - 0.012, y - 0.004, z) for x, y, z in door]
+    for k in ("geo", "fire", "view"):
+        L[k].solid(slab, [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)],
+                   **({"mat": "pen_metal"} if k == "fire" else {}))
+    wheels(L, ("res0",), (0.85, -0.85), (-1.8, 1.7), r=0.35, zc=0.28)
+    wheels(L, ("res1",), (0.85, -0.85), (-1.8, 1.7), r=0.35, zc=0.28, n=5)
     for k in ("geo", "fire", "view"):
         kw = {"mat": "pen_metal"} if k == "fire" else {}
         L[k].box(-1.0, 1.0, -2.6, 2.6, 0.0, 0.9, **kw)
@@ -555,24 +652,61 @@ def build_wreck_van():
 
 
 def build_billboard():
+    """6 x 3 m billboard (D74 close-up pass): I-beam posts with a ladder, a trussed back frame, a service
+    walkway with a railing, two lamp arms over the top, a framed poster (camo, variants) with one corner peeled
+    back. Collision unchanged (two posts + the panel)."""
     L = props_lods(view=True)
     poster = UVRect(0, 2, (-3.0, 4.0), (3.0, 7.0))
-    for k in ("res0", "res1", "res2", "geo", "fire"):
-        kw = {"mat": "rust", "uv": UV_GREY} if k.startswith("res") else ({"mat": "pen_metal"} if k == "fire" else {})
-        for x in (-2.1, 1.9):
-            if k == "res2":      # far LOD: posts as single back-facing quads
-                L[k].quad([(x, 0.0, 0.0), (x + 0.2, 0.0, 0.0), (x + 0.2, 0.0, 4.0), (x, 0.0, 4.0)], (0, -1, 0), **kw, double=True)
-            else:
-                L[k].box(x, x + 0.2, -0.1, 0.1, 0.0, 4.0, **kw)
-        L[k].box(-3.0, 3.0, -0.1, 0.1, 4.0, 7.0, **kw, **({"skip": ("-y",)} if k == "res2" else {}))
+    for x in (-2.1, 1.9):                                                        # I-beam posts (Res0), boxes (Res1)
+        L["res0"].box(x, x + 0.2, -0.1, -0.08, 0.0, 4.0, mat="rust", uv=UV_GREY)
+        L["res0"].box(x, x + 0.2, 0.08, 0.1, 0.0, 4.0, mat="rust", uv=UV_GREY)
+        L["res0"].box(x + 0.09, x + 0.11, -0.08, 0.08, 0.0, 4.0, mat="rust", uv=UV_GREY)
+        L["res0"].box(x - 0.1, x + 0.3, -0.2, 0.2, 0.0, 0.05, mat="rust", uv=UV_RUST)       # base plate
+        L["res1"].box(x, x + 0.2, -0.1, 0.1, 0.0, 4.0, mat="rust", uv=UV_GREY)
+        L["res2"].quad([(x, 0.0, 0.0), (x + 0.2, 0.0, 0.0), (x + 0.2, 0.0, 4.0), (x, 0.0, 4.0)], (0, -1, 0), "rust", UV_GREY, double=True)
+    for x in (-2.35, -2.15):                                                     # ladder on the left post
+        _bar(L["res0"], (x, 0.15, 0.3), (x, 0.15, 3.9), 0.015, "rust", UV_RUST)
+    for i in range(12):
+        _bar(L["res0"], (-2.35, 0.15, 0.4 + i * 0.3), (-2.15, 0.15, 0.4 + i * 0.3), 0.01, "rust", UV_RUST)
+    for k in ("res0", "res1"):
+        L[k].box(-3.0, 3.0, -0.1, 0.1, 4.0, 7.0, mat="rust", uv=UV_GREY)
+    L["res2"].box(-3.0, 3.0, -0.1, 0.1, 4.0, 7.0, mat="rust", uv=UV_GREY, skip=("-y",))
+    L["res2"].box(-3.0, 3.0, -0.75, -0.1, 3.88, 3.92, mat="rust", uv=UV_RUST)           # walkway keeps its silhouette (perf L)
+    for zz in (4.4, 5.5, 6.6):                                                   # back frame rails + braces
+        L["res0"].box(-3.0, 3.0, 0.1, 0.16, zz, zz + 0.08, mat="rust", uv=UV_GREY)
+    for x0, x1 in ((-2.9, -1.0), (-1.0, 1.0), (1.0, 2.9)):
+        _bar(L["res0"], (x0, 0.14, 4.45), (x1, 0.14, 6.65), 0.025, "rust", UV_RUST)
+    for k in ("res0", "res1"):                                                   # walkway grating + top rail (Res1 too)
+        L[k].box(-3.0, 3.0, -0.75, -0.1, 3.88, 3.92, mat="rust", uv=UV_RUST)
+        L[k].box(-3.0, 3.0, -0.75, -0.71, 4.86, 4.9, mat="rust", uv=UV_GREY)
+    for i in range(7):                                                           # railing posts + top rail
+        x = -2.95 + i * 0.98
+        L["res0"].box(x - 0.02, x + 0.02, -0.75, -0.71, 3.92, 4.9, mat="rust", uv=UV_GREY)
+    for x in (-1.8, 1.8):                                                        # lamp arms + heads
+        _bar(L["res0"], (x, 0.1, 7.0), (x, -0.9, 7.35), 0.025, "rust", UV_GREY)
+        for k in ("res0", "res1"):
+            L[k].box(x - 0.2, x + 0.2, -1.1, -0.8, 7.28, 7.42, mat="rust", uv=UV_BURNT)
+    for k in ("res0", "res1"):                                                   # poster frame
+        for (a0, a1, b0, b1) in ((-3.05, 3.05, 3.95, 4.05), (-3.05, 3.05, 6.95, 7.05), (-3.05, -2.95, 4.0, 7.0), (2.95, 3.05, 4.0, 7.0)):
+            L[k].box(a0, a1, -0.14, -0.1, b0, b1, mat="rust", uv=UV_GREY)
+    peel = [(2.95, -0.101, 6.3), (2.95, -0.101, 6.95), (2.2, -0.101, 6.95)]          # peeled corner: bare panel + flap
     for k in ("res0", "res1", "res2"):
-        L[k].quad([(-3.0, -0.101, 4.0), (3.0, -0.101, 4.0), (3.0, -0.101, 7.0), (-3.0, -0.101, 7.0)],
+        L[k].quad([(-2.95, -0.101, 4.05), (2.95, -0.101, 4.05), (2.95, -0.101, 6.3), (-2.95, -0.101, 6.3)],
                   (0, -1, 0), "billboard", poster, sel=["camo"])
+        L[k].quad([(-2.95, -0.101, 6.3), (2.95, -0.101, 6.3), (2.2, -0.101, 6.95), (-2.95, -0.101, 6.95)],
+                  (0, -1, 0), "billboard", poster, sel=["camo"])
+    L["res0"].quad([peel[0], peel[1], peel[2], (2.6, -0.101, 6.6)], (0, -1, 0), "rust", UV_RUST)          # bare corner
+    L["res0"].quad([(2.2, -0.101, 6.95), (2.95, -0.101, 6.3), (2.85, -0.45, 6.1), (2.05, -0.4, 6.7)], (0.5, -0.8, 0.2),
+                   "billboard", poster, sel=["camo"], double=True)                # the flap curling forward
+    for k in ("geo", "fire"):
+        kw = {"mat": "pen_metal"} if k == "fire" else {}
+        for x in (-2.1, 1.9):
+            L[k].box(x, x + 0.2, -0.1, 0.1, 0.0, 4.0, **kw)
+        L[k].box(-3.0, 3.0, -0.1, 0.1, 4.0, 7.0, **kw)
     L["view"].box(-3.0, 3.0, -0.1, 0.1, 4.0, 7.0)
     return finish(L, 1500.0)
 
 
-# ------------------------------------------------------------------ wall decals (batch 2)
 def build_decal(mat, w, h, camo=False):
     """Render-only quad facing -Y (offset from the wall: skyspec.DECAL_OFFSET); no collision LODs."""
     uv = UVRect(0, 2, (-w / 2, 0.0), (w / 2, h))
@@ -591,7 +725,8 @@ BUILDERS = {
     "Sidewalk": build_sidewalk, "Sidewalk_Corner": build_sidewalk_corner, "Curb": build_curb, "Manhole": build_manhole,
     "StreetLight": build_streetlight, "TrafficLight": build_trafficlight,
     "Barrier_Concrete": build_barrier_concrete, "Barrier_Steel": build_barrier_steel,
-    "Dumpster": build_dumpster, "Planter": build_planter, "Wreck_Sedan": build_wreck_sedan,
+    "Dumpster": build_dumpster, "Planter": build_planter, "Wreck_Sedan": build_wreck_sedan, "Wreck_Sedan_B": lambda: build_wreck_sedan("B"),
+    "Wreck_Sedan_C": lambda: build_wreck_sedan("C"),
     "Wreck_Van": build_wreck_van, "Billboard": build_billboard,
     "Decal_Dirt": lambda: build_decal("decal_dirt", *S.DECAL_SIZE["Decal_Dirt"]),
     "Decal_Cracks": lambda: build_decal("decal_cracks", *S.DECAL_SIZE["Decal_Cracks"]),

@@ -1944,6 +1944,18 @@ generated_kit:
     category: medium
     budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 5, shadow: 100}
     status: built-unverified
+  - name: Land_SKY_Wreck_Sedan_B
+    type: "burnt-out saloon hulk: scorched shell, sooted windows, flat tyres"
+    p3d: addons/sky_street/sky_wreck_sedan_b.p3d
+    category: medium
+    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 5, shadow: 100}
+    status: built-unverified
+  - name: Land_SKY_Wreck_Sedan_C
+    type: "saloon hulk on its crushed roof, rusted underside and wheels in the air"
+    p3d: addons/sky_street/sky_wreck_sedan_c.p3d
+    category: medium
+    budget: {res0: 1200, res1: 600, res2: 150, geo_comps: 12, geo_tris: 200, sections_res0: 5, shadow: 100}
+    status: built-unverified
   - name: Land_SKY_BusStop
     type: "Soviet bus shelter: sloped corrugated roof, smashed glass back wall, bench, route sign"
     p3d: addons/sky_street/sky_busstop.p3d

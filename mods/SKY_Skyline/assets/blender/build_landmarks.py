@@ -633,7 +633,7 @@ def build_pitch():
         for k in ("res0", "res1", "geo", "fire", "view"):
             L[k].box(dx - 3.0, dx + 3.0, py + 2.4, py + 2.6, 0.0, 2.2, **kw_for(k, "metal", DT.UV_PAINT, "metal"))
             L[k].box(dx - 3.0, dx + 3.0, py + 1.2, py + 2.6, 2.2, 2.35, **kw_for(k, "metal", DT.UV_PAINT, "metal"))
-        DT.bench(L, dx - 2.8, dx + 2.8, py + 1.9, py + 2.35)
+        DT.bench(L, dx - 2.8, dx + 2.8, py + 1.9, py + 2.4)                       # against the back wall (D74 hull)
     for k in ("res0", "res1", "res2", "geo", "fire", "view"):                    # scoreboard
         L[k].box(-3.0, 3.0, -hd + 0.6, -hd + 0.9, 0.0, 0.3, **kw_for(k, "concrete", UV_CONC, "concrete"))
         L[k].box(-2.6, 2.6, -hd + 0.65, -hd + 0.85, 2.5, 4.5, **kw_for(k, "paint", DT.paint_uv("slate"), "metal"))
@@ -972,7 +972,7 @@ def build_siren():
         L["res0"].prism(cx * 1.05, cy * 1.05, prof_r * 0.8, zt + 0.2, zt + 0.7, n=10, mat="paint", uv=DT.paint_uv("slate"), rot=ang)
     L["res0"].prism(0.0, 0.0, 0.5, zt + 0.9, zt + 1.05, n=12, mat="metal", uv=DT.UV_STEEL)
     for k in ("res0", "res1", "geo", "fire"):                                    # control box
-        L[k].box(-0.25, 0.25, -0.38, -0.16, 1.2, 1.9, **kw_for(k, "paint", DT.paint_uv("sage"), "metal"))
+        L[k].box(-0.25, 0.25, -0.38, -0.13, 1.2, 1.9, **kw_for(k, "paint", DT.paint_uv("sage"), "metal"))   # on the pole (D74)
     for i in range(int((zt - 2.5) / 0.4)):                                       # step bolts (visual)
         z = 2.5 + i * 0.4
         if i % 2:

@@ -18,6 +18,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(HERE)), "assets"
 import skyspec as S  # noqa: E402
 
 
+JAM_SEDANS = ("Land_SKY_Wreck_Sedan", "Land_SKY_Wreck_Sedan_B", "Land_SKY_Wreck_Sedan_C")   # D74 jam variants
+
 def survey(cx, cz, ground, objects=()):
     samples = []
     for i in range(-13, 14, 2):
@@ -85,7 +87,9 @@ def district_tests(expect):
         expect("city life: %d x %s" % (n, cls), names.count(cls) == n, str(names.count(cls)))
     expect("city life: car jams with vanilla wreck decor + our blockers",
            any(nm.startswith("Land_Wreck_") for nm in names) and names.count("Land_SKY_Barrier_Concrete") +
-           names.count("Land_SKY_Wreck_Sedan") + names.count("Land_SKY_Wreck_Van") >= 30 and "blocking lines" in rep, rep[-800:])
+           sum(names.count(c) for c in JAM_SEDANS) + names.count("Land_SKY_Wreck_Van") >= 30 and "blocking lines" in rep, rep[-800:])
+    expect("city life D74: jams mix the sedan variants (intact, burnt, overturned)",
+           all(names.count(c) > 0 for c in JAM_SEDANS), str([names.count(c) for c in JAM_SEDANS]))
     expect("city life: wet and dry hydrants, bins", "Land_SKY_Hydrant_Wet" in names and "Land_SKY_Hydrant_Dry" in names
            and "Land_SKY_TrashBin" in names)
     lay = yaml.safe_load(open(life))
@@ -115,7 +119,7 @@ def district_tests(expect):
     objs_l = json.load(open(os.path.join(od, "sky_objects.json")))["Objects"] if rc == 0 else []
     stops = [o for o in objs_l if o["name"] == "Land_SKY_BusStop"]
     lamps = [o for o in objs_l if o["name"] == "Land_SKY_StreetLight"]
-    jams = [o for o in objs_l if o["name"] in ("Land_SKY_Barrier_Concrete", "Land_SKY_Wreck_Sedan", "Land_SKY_Wreck_Van")]
+    jams = [o for o in objs_l if o["name"] in ("Land_SKY_Barrier_Concrete", "Land_SKY_Wreck_Van") + JAM_SEDANS]
     near = lambda a, b, r: (a["pos"][0] - b["pos"][0]) ** 2 + (a["pos"][2] - b["pos"][2]) ** 2 < r * r
     expect("street furniture D67: bus stops, ad columns, phone booths placed", stops and "Land_SKY_AdColumn" in names
            and "Land_SKY_PhoneBooth" in names)

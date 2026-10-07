@@ -242,6 +242,18 @@ class CfgVehicles
 		scope = 1;
 		model = "SKY_Skyline\sky_street\sky_horsecarcass.p3d";
 	};
+	class Land_SKY_Wreck_Sedan_B: Land_SKY_Street_Base
+	{
+		// burnt-out saloon hulk: scorched shell, sooted windows, flat tyres
+		scope = 1;
+		model = "SKY_Skyline\sky_street\sky_wreck_sedan_b.p3d";
+	};
+	class Land_SKY_Wreck_Sedan_C: Land_SKY_Street_Base
+	{
+		// saloon hulk on its crushed roof, rusted underside and wheels in the air
+		scope = 1;
+		model = "SKY_Skyline\sky_street\sky_wreck_sedan_c.p3d";
+	};
 	class Land_SKY_BusStop: Land_SKY_Street_Base
 	{
 		// Soviet bus shelter: sloped corrugated roof, smashed glass back wall, bench, route sign

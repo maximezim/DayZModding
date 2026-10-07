@@ -1333,6 +1333,9 @@ kit("RatNest", "sky_street", "medium", uses=["P22"], desc="rat nest: rubbish hea
 kit("HorseCarcass", "sky_street", "medium", desc="dead horse on its side, half hide half bone (horses are blocked, D62)")
 LANDMARK_SIZE["RatNest"] = (2.6, 2.6)
 LANDMARK_SIZE["HorseCarcass"] = (2.4, 2.8)
+# D74 sedan hulk variants for the car jams (build_kit.build_wreck_sedan): burnt out, overturned.
+kit("Wreck_Sedan_B", "sky_street", "medium", desc="burnt-out saloon hulk: scorched shell, sooted windows, flat tyres")
+kit("Wreck_Sedan_C", "sky_street", "medium", desc="saloon hulk on its crushed roof, rusted underside and wheels in the air")
 # D67 street props (build_streetprops.py), placed by streets.furniture on the -X sidewalk.
 kit("BusStop", "sky_street", "medium", desc="Soviet bus shelter: sloped corrugated roof, smashed glass back wall, bench, route sign")
 kit("AdColumn", "sky_street", "medium", desc="Morris advertising column wrapped in torn posters, domed cap")
@@ -1439,6 +1442,8 @@ PARKS = {
 # as decoration away from the line - their sizes are not verified (P19).
 JAM_BLOCKERS = {"Wreck_Van": (5.2, 2.1), "Wreck_Sedan": (4.2, 1.8), "Barrier_Concrete": (3.0, 0.6)}   # length, depth
 JAM_GAP = 1.0                       # m: people pass, vehicles (>= 1.8 m wide) do not
+# D74: a blocker slot is filled with one of these models (same footprint as the JAM_BLOCKERS key)
+JAM_VARIANTS = {"Wreck_Sedan": ["Wreck_Sedan", "Wreck_Sedan_B", "Wreck_Sedan_C"]}
 JAM_DECOR = ["Land_Wreck_Ikarus_DE", "Land_Wreck_V3S_DE", "Land_Wreck_sed01_aban1_black_DE", "Land_Wreck_hb01_aban1_blue_DE",
              "Land_wreck_truck01_aban1_blue_DE", "Land_Wreck_offroad02_aban1_DE", "Land_Wreck_sed02_aban1_red_DE",
              "Land_Wreck_Volha_Police"]

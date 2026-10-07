@@ -87,7 +87,7 @@ def body(L, kind, wreck, name, sel=False):
     if sp["cab"]:
         cy1 = -hy + sp["cab"]
         vols.append(("cab", (-hx, hx, -hy, cy1, fl, 2.9)))
-        vols.append(("body", (-hx - 0.05, hx + 0.05, cy1 + 0.15, hy - 0.9, fl + 0.2, top)))
+        vols.append(("body", (-hx - 0.05, hx + 0.05, cy1, hy - 0.9, fl + 0.2, top)))   # D74: no slit behind the cab
         vols.append(("hopper", (-hx + 0.1, hx - 0.1, hy - 0.9, hy, fl, top - 0.8)))
     else:
         vols.append(("body", (-hx, hx, -hy, hy, fl, top - 0.15)))
@@ -172,8 +172,8 @@ def body(L, kind, wreck, name, sel=False):
                                      for k in range(8)], *sorted((x_out + sx * 0.005, x_out - sx * 0.02)),
                                     mat="metal", uv=DT.UV_STEEL, sel=S_(wl))                          # hub
             for k in ("geo", "fire"):
-                L[k].lod.box(x0_, x1_, ay - r * 0.8, ay + r * 0.8, 0.0 if not flat else 0.0, r * 1.6,
-                             **({"mat": "pen_metal"} if k == "fire" else {}))
+                L[k].lod.box(x0_, x1_, ay - r * 0.8, ay + r * 0.8, 0.0, max(r * 1.6, fl + 0.2), # up to the body (D74:
+                             **({"mat": "pen_metal"} if k == "fire" else {}))                   # no slit under it)
             if sel:
                 mem = L["mem"].lod
                 mem.point(wl + "_axis", ((x0_ + x1_) / 2 - sx * 0.2, ay, r))

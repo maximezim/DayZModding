@@ -810,6 +810,7 @@ def place_jams(ctx, lay, tiles, world, site_yaw, street_y, skip):
         return
     import random
     rng = random.Random(int(jm.get("seed", 1)))
+    vrng = random.Random("%s:variant" % jm.get("seed", 1))                  # D74 (perf review M)
     density = float(jm.get("density", 0.4))
     half = TILE / 2
     gap_w = S.JAM_GAP
@@ -839,7 +840,9 @@ def place_jams(ctx, lay, tiles, world, site_yaw, street_y, skip):
                 off = 0.45 if row % 2 else -0.45
                 dx, dz = rot(uc, vb + off, yaw)
                 py = (yaw + 90.0 + (180.0 if rng.random() < 0.5 else 0.0)) % 360.0
-                ctx.add("jams", S.KIT[piece]["cls"], (wx + dx, street_y, wz + dz), py)
+                opts = S.JAM_VARIANTS.get(piece, [piece])                    # D74: sedan intact / burnt / overturned,
+                model = vrng.choice(opts) if len(opts) > 1 else piece          # own stream: the jam layout is unchanged
+                ctx.add("jams", S.KIT[model]["cls"], (wx + dx, street_y, wz + dz), py)
                 cover.append((start, start + ln))
                 row += 1
                 if start + ln >= b - 1e-6:                              # segment closed

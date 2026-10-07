@@ -221,7 +221,7 @@ def build_rat_nest():
     name = "RatNest"
     L = C.city_lods(C.Ruin(name, 0))
     for i, (x, y, rx, ry, h) in enumerate([(0.0, 0.0, 0.9, 0.7, 0.45), (0.5, 0.35, 0.5, 0.45, 0.3), (-0.55, 0.25, 0.45, 0.4, 0.28),
-                                            (0.2, -0.5, 0.45, 0.35, 0.22)]):
+                                            (0.25, -0.38, 0.45, 0.35, 0.22)]):   # heaps touch (D74 hull test)
         for k in ("res0", "res1", "res2", "geo", "fire", "view"):
             n = 10 if k == "res0" else (6 if k in ("res1", "geo") else 5)
             mat, uv = ("trash", UV_TRASH) if i % 2 == 0 else ("rubble", UV_RUBBLE)

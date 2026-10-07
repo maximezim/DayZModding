@@ -682,6 +682,14 @@ collision and looks.
 | SK-02 | Look along a lit street at night from 5 m to 120 m | Lamps light the road as before; no pole / head popping; barrier stripes stay visible at mid range | | |
 | SK-03 | Hide behind a planter and a barrier, a second player watches from 80 m | Same cover in every LOD (no shrub card hiding a crouched player from one side only) | | |
 
+## 39. Street kit pass 2 and jam variants (D74)
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| WV-01 | Walk a car jam: find intact, burnt and overturned sedans; try to crawl under the overturned one, shoot through the van's open rear door (P45) | No crawl space; bullets stop at the door; jam lines still leave one 1 m gap | | |
+| WV-02 | Look at a billboard (each poster variant) and a traffic light from 5 m to 200 m | Poster shows with its peeled corner; walkway and signal head do not vanish at mid range | | |
+| WV-03 | Shoot between the garbage truck cab and body, and under its body between the wheels | Bullets stop (no slit) | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -707,6 +715,7 @@ collision and looks.
 | Civic search §36 | | | |
 | Ruin exits / search UX §37 | | | |
 | Street kit §38 | | | |
+| Street kit 2 / jams §39 | | | |
 | Placement §9 | | | |
 | Roof drop §10 | | | |
 | Clean logs §11 | | | |

@@ -26,9 +26,9 @@
  "sky_billboard.p3d": {
   "fire": 36,
   "geo": 36,
-  "res0": 38,
-  "res1": 38,
-  "res2": 20,
+  "res0": 562,
+  "res1": 136,
+  "res2": 34,
   "shadow": 36,
   "view": 12
  },
@@ -358,9 +358,9 @@
  "sky_trafficlight.p3d": {
   "fire": 32,
   "geo": 20,
-  "res0": 66,
-  "res1": 46,
-  "res2": 24,
+  "res0": 378,
+  "res1": 82,
+  "res2": 36,
   "shadow": 20
  },
  "sky_vendingmachine.p3d": {
@@ -382,13 +382,31 @@
   "shadow": 24,
   "view": 24
  },
- "sky_wreck_van.p3d": {
-  "fire": 40,
-  "geo": 40,
-  "res0": 152,
-  "res1": 120,
-  "res2": 40,
-  "shadow": 40,
+ "sky_wreck_sedan_b.p3d": {
+  "fire": 24,
+  "geo": 24,
+  "res0": 326,
+  "res1": 124,
+  "res2": 24,
+  "shadow": 24,
   "view": 24
+ },
+ "sky_wreck_sedan_c.p3d": {
+  "fire": 60,
+  "geo": 60,
+  "res0": 202,
+  "res1": 88,
+  "res2": 12,
+  "shadow": 60,
+  "view": 60
+ },
+ "sky_wreck_van.p3d": {
+  "fire": 52,
+  "geo": 52,
+  "res0": 382,
+  "res1": 104,
+  "res2": 40,
+  "shadow": 52,
+  "view": 36
  }
 }

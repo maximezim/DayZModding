@@ -23,6 +23,7 @@ Rules that do not change (CLAUDE.md):
 | **D66** asset quality (built) | street urn, wheeled dumpster, detailed hydrants; underground signs, graffiti, cables | nothing new |
 | **D70** asset quality (built) | stadium stand mid LOD, fair booth and kennel close-up pass | nothing new |
 | **D71** civic search (built) | clinic cabinets, police lockers, post office sorting racks; search points tested reachable | nothing new |
+| **D74** street kit 2 (built) | billboard, traffic light, van; burnt and overturned sedans in the jams; test_kit hull test (no slits between stacked or adjacent collision parts) | nothing new |
 | **D73** street kit close-up (built) | street lamp, jersey barrier, planter, sedan hulk detailed; kennel mid-detail dog | nothing new |
 | **D72** ruin pockets (built) | rubble capped at 45 deg and walkable in the test, furniture slivers dropped; test_city fails on any pocket you can drop into but not leave (P39, P43); search hidden without line of sight | nothing new |
 | **D69** venue variants (built) | universam, TC Galaktika, kino Oktyabr, pivnaya, FC Torpedo; venues placed by city_fill (rare, once per block) | nothing new |

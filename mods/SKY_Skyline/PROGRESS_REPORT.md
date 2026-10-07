@@ -318,3 +318,11 @@ The pieces players walk past most were still simple boxes. Street lamps now have
 plinth and a cobra-head lamp; jersey barriers have faded hazard stripes and chipped ends; planters hold a dead
 shrub; sedan hulks have windows, chrome bumpers, flat tyres and a gutted engine under a sprung bonnet. The guard
 dog in the kennel keeps its shape at mid range. Renders and reviews: `reviews/d73_gates.md`.
+
+## 26. Street kit pass 2 and car-jam variety (D74)
+
+Billboards now stand on I-beams with a ladder, a walkway and lamps, their posters peeling at a corner; traffic
+lights got visors, a braced arm and a push-button box; the burnt box van has ribs, windows and a rear door
+hanging open. Car jams mix intact, burnt-out and overturned saloons. A new test checks every prop's collision
+for slits between its parts; it found and closed six, including a gap behind the garbage truck's cab.
+Reviews and renders: `reviews/d74_gates.md`.

@@ -163,7 +163,7 @@ def build_bed():
     L = props_lods()
     wood, fab = {"mat": "wood", "uv": UV_OAK}, {"mat": "fabric", "uv": UV_FBEIGE}
     solid(L, ALL, (-0.7, 0.7, -1.0, 1.0, 0.0, 0.3), wood, "wood")                    # frame
-    solid(L, ALL, (-0.68, 0.68, -0.98, 0.98, 0.3, 0.5), fab, "wood")                 # mattress
+    solid(L, ALL, (-0.68, 0.68, -0.98, 1.0, 0.3, 0.5), fab, "wood")                  # mattress (to the headboard, D74)
     solid(L, ("res0", "res1", "geo", "fire"), (-0.75, 0.75, 1.0, 1.06, 0.0, 1.0), wood, "wood")   # headboard
     solid(L, ("res0",), (-0.55, 0.55, 0.55, 0.9, 0.5, 0.62), fab, "wood")            # pillow
     return finish(L, 80.0, shadow=False)

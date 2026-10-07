@@ -96,6 +96,41 @@ def comp_boxes(lod):
     return out
 
 
+def hull_slits(lod, tol=0.001, max_gap=0.3, min_overlap=0.05):
+    """D74 hull test: two components stacked over each other (footprints overlap by more than min_overlap m on
+    both axes) must touch or overlap vertically within tol; a gap of tol..max_gap is a slit bullets, sight or
+    a camera pass through (the first D73 sedan draft had a 1 cm one between body and cabin). Vehicle-like props
+    (wrecks, sky_vehicles) use max_gap 0.3 m; other props 0.05 m (designed openings - the space under a bin's
+    bucket, a truck's wheel arches - are wider than that)."""
+    doors = [v for g, v in lod.groups.items() if not g.startswith("Component")]
+    boxes = [(g, b) for g, b in comp_boxes(lod)                                  # door leaves need clearance: skipped
+             if not any(lod.groups[g] <= d for d in doors)]
+    out = []
+    for i in range(len(boxes)):
+        for j in range(i + 1, len(boxes)):
+            (ga, a), (gb, b) = boxes[i], boxes[j]
+            ox = min(a[1], b[1]) - max(a[0], b[0])
+            oy = min(a[3], b[3]) - max(a[2], b[2])
+            if ox <= min_overlap or oy <= min_overlap:
+                continue
+            gap = max(b[4] - a[5], a[4] - b[5])
+            if tol < gap <= max_gap:
+                out.append("%.3f m slit between %s and %s" % (gap, ga, gb))
+    for i in range(len(boxes)):                                                  # side by side (security D74 L)
+        for j in range(i + 1, len(boxes)):
+            (ga, a), (gb, b) = boxes[i], boxes[j]
+            oz = min(a[5], b[5]) - max(a[4], b[4])
+            if oz <= min_overlap:
+                continue
+            for ax in (0, 1):
+                o = 1 - ax
+                ov = min(a[2 * o + 1], b[2 * o + 1]) - max(a[2 * o], b[2 * o])
+                gap = max(b[2 * ax] - a[2 * ax + 1], a[2 * ax] - b[2 * ax + 1])
+                if ov > min_overlap and tol < gap <= max_gap:
+                    out.append("%.3f m side slit between %s and %s" % (gap, ga, gb))
+    return out
+
+
 # Clear zones in front of the unchanged core's doors on every level (1.2 m deep, door
 # height + 0.1), plus the core footprint itself (the core P3D occupies it).
 _C = S.CORE
@@ -386,6 +421,10 @@ def main():
             check(comps, "%s %s: no components" % (n, k))
             for c in comps:
                 check(watertight(lods[k], c), "%s %s %s is not watertight" % (n, k, c))
+            if not S.KIT[n].get("city") and S.KIT[n]["category"] not in ("floor", "roof"):
+                vehicle = n.startswith("Wreck_") or S.KIT[n]["pbo"] == "sky_vehicles"
+                for why in hull_slits(lods[k], max_gap=0.3 if vehicle else 0.05):   # D74: stacked parts must touch
+                    check(False, "%s %s: %s" % (n, k, why))
         for d in S.KIT[n].get("doors", []):
             dn = d["name"]
             for k in ("res0", "res1", "geo", "fire"):
