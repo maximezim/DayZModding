@@ -138,7 +138,7 @@ def build_kennel():
         L.box(-hx, -0.17, y0, y0 + 0.04, 0.06, zw, mat="wood", uv=wood)              # front, door gap
         L.box(0.17, hx, y0, y0 + 0.04, 0.06, zw, mat="wood", uv=wood)
         L.box(-0.17, 0.17, y0, y0 + 0.04, 0.55, zw, mat="wood", uv=wood)
-        for s in (-1, 1):                                                             # gables + roof slopes
+        for s in ((-1, 1) if L is r1 else ()):                                        # Res1 roof slopes (Res0: shingles)
             L.solid([(0, y0 - 0.08, zr), (s * (hx + 0.08), y0 - 0.08, zw - 0.06), (0, y1 + 0.08, zr), (s * (hx + 0.08), y1 + 0.08, zw - 0.06),
                      (0, y0 - 0.08, zr + 0.03), (s * (hx + 0.08), y0 - 0.08, zw - 0.03), (0, y1 + 0.08, zr + 0.03),
                      (s * (hx + 0.08), y1 + 0.08, zw - 0.03)],
@@ -148,9 +148,37 @@ def build_kennel():
             L.solid([(-hx, ya, zw), (hx, ya, zw), (0, ya, zr), (-hx, yb, zw), (hx, yb, zw), (0, yb, zr)],
                     [(0, 1, 2), (3, 4, 5), (0, 1, 4, 3), (1, 2, 5, 4), (2, 0, 3, 5)], "wood", wood)
     r0.box(-0.22, 0.22, y0 - 0.01, y0, 0.78, 0.9, mat="paint", uv=DT.paint_uv("beige"))   # name board
+    # D70 close-up pass (ASSET_QUALITY_GUIDE section 8): wooden shingle courses with a ridge board, corner
+    # boards, a door frame, straw spilling out of the door and a gnawed bone by the bowl.
+    for sgn in (-1, 1):
+        for c in range(3):                                                            # 3 overlapping courses per slope
+            t0, t1 = c / 3.0, (c + 1) / 3.0 + 0.06
+            xa, xb = sgn * (hx + 0.08) * (1 - t0), sgn * (hx + 0.08) * (1 - min(t1, 1.0))
+            za, zb = (zw - 0.06) + (zr - zw + 0.06) * t0, (zw - 0.06) + (zr - zw + 0.06) * min(t1, 1.0)
+            th = 0.025
+            r0.solid([(xa, y0 - 0.08, za), (xb, y0 - 0.08, zb), (xa, y1 + 0.08, za), (xb, y1 + 0.08, zb),
+                      (xa, y0 - 0.08, za + th), (xb, y0 - 0.08, zb + th), (xa, y1 + 0.08, za + th), (xb, y1 + 0.08, zb + th)],
+                     [(0, 1, 3, 2), (4, 5, 7, 6), (0, 1, 5, 4), (2, 3, 7, 6), (0, 2, 6, 4), (1, 3, 7, 5)], "wood", UV_WALNUT)
+    r0.box(-0.04, 0.04, y0 - 0.1, y1 + 0.1, zr - 0.01, zr + 0.06, mat="wood", uv=wood)      # ridge board
+    for sx in (-1, 1):                                                                # corner boards
+        for yy in (y0, y1):
+            r0.box(sx * hx - 0.03, sx * hx + 0.03, yy - 0.03, yy + 0.03, 0.0, zw, mat="wood", uv=wood)
+    for xx in (-0.19, 0.17):                                                          # door frame
+        r0.box(xx, xx + 0.02, y0 - 0.025, y0, 0.06, 0.57, mat="wood", uv=wood)
+    r0.box(-0.19, 0.19, y0 - 0.025, y0, 0.55, 0.58, mat="wood", uv=wood)
+    for i in range(6):                                                                # straw spilling out
+        a = 0.6 * (h01("Kennel", "straw", i) - 0.5)
+        sx0 = -0.12 + 0.24 * h01("Kennel", "sx", i)
+        limb(r0, (sx0, y0 + 0.1, 0.07), (sx0 + 0.25 * math.sin(a), y0 - 0.12 - 0.08 * h01("Kennel", "sl", i), 0.03), 0.012, 0.004, 3,
+             "fur", FUR)
+    limb(r0, (0.25, -0.62, 0.025), (0.4, -0.7, 0.025), 0.018, 0.018, 4, "paint", DT.paint_uv("white"))   # bone
+    for e in ((0.25, -0.62), (0.4, -0.7)):
+        blob(r0, (e[0], e[1], 0.03), 0.03, 0.03, 0.025, 4, "paint", DT.paint_uv("white"))
     dog(r0, 0.0, -0.75, 0.0, 0.0, True)
     dog(r1, 0.0, -0.75, 0.0, 0.0, False)
     r0.prism(0.42, -0.45, 0.11, 0.0, 0.06, n=12, mat="paint", uv=DT.paint_uv("white"))   # enamel bowl
+    r1.prism(0.42, -0.45, 0.11, 0.0, 0.06, n=6, mat="paint", uv=DT.paint_uv("white"))    # Res1: bowl + name board (perf L)
+    r1.box(-0.22, 0.22, y0 - 0.01, y0, 0.78, 0.9, mat="paint", uv=DT.paint_uv("beige"))
     r0.prism(0.42, -0.45, 0.085, 0.06, 0.065, n=12, mat="metal", uv=DT.UV_STEEL)
     links = 9
     for i in range(links):                                                            # chain: ring bolt -> collar

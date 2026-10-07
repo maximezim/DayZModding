@@ -12,16 +12,16 @@
   "view": 584
  },
  "sky_fair_booth.p3d": {
-  "fire": 120,
-  "geo": 120,
+  "fire": 132,
+  "geo": 132,
   "mem": 0,
-  "res0": 234,
-  "res1": 138,
-  "res2": 72,
+  "res0": 1028,
+  "res1": 432,
+  "res2": 84,
   "res3": 10,
   "road": 2,
   "shadow": 12,
-  "view": 72
+  "view": 84
  },
  "sky_fair_bumpercars.p3d": {
   "fire": 324,
@@ -184,7 +184,7 @@
   "geo": 240,
   "mem": 0,
   "res0": 5560,
-  "res1": 252,
+  "res1": 682,
   "res2": 168,
   "res3": 22,
   "road": 18,

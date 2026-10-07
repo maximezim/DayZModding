@@ -649,6 +649,14 @@ collision and looks.
 | VV-02 | Search universam shelves, mall rails, pivnaya counter, Torpedo lockers | Same tables as the base venues (grocery, costume, alcohol, sport), cooldown as §26 | | |
 | VV-03 | Stand in the universam and in TC Galaktika | Tube hum / muzak as the base venues, gone outside the hall | | |
 
+## 35. Asset quality: stand, fair booth, kennel (D70)
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| AQ-03 | Walk away from the stadium stand and a fair booth from 5 m to 80 m (P40) | No popping seat rows or booth dressing; stand seats keep their colours | | |
+| AQ-04 | Lie prone in a missing-seat gap on the stand; a second player watches from 60 m | The viewer sees the gap (no solid row drawn over the player) | | |
+| AQ-05 | Drop an item on the booth counter; place a kennel and look at it from 1 m | The item lies on the counter top; kennel storage opens as before | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -670,6 +678,7 @@ collision and looks.
 | Variety §32 | | | |
 | Ambience §33 | | | |
 | Venue variants §34 | | | |
+| Stand / booth / kennel §35 | | | |
 | Placement §9 | | | |
 | Roof drop §10 | | | |
 | Clean logs §11 | | | |

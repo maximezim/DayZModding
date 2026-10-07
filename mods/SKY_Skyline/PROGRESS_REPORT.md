@@ -290,3 +290,10 @@ grey beer hall and a panel football clubhouse, each with its own weathered sign.
 hand-placed: the city generator now drops them into blocks where they fit, rarely (each block rolls once
 per venue type; a mall in about one large downtown block in eight). The test city now gets a bar from the fill. Renders and gates:
 `reviews/d69_gates.md`.
+
+## 22. Asset quality: stand, booth, kennel (D70)
+
+The fair booths became real shooting galleries (prize shelves with plush toys, tin ducks, chained air rifles,
+a valance and a dead bulb string), the guard kennel got a shingled roof, trims, straw and a bone, and the
+stadium stand gained a middle level of detail so its seats no longer vanish at once. Before/after renders:
+`reviews/d70_gates.md`.

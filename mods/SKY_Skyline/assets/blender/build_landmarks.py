@@ -342,7 +342,9 @@ def build_bumper_cars():
 
 
 def build_booth():
-    """Ticket / shooting-gallery booth: 4 x 3 m, open counter front, striped awning, TICKETS sign."""
+    """Ticket / shooting-gallery booth: 4 x 3 m, open counter front, striped awning, TICKETS sign.
+    D70: battens, corner posts, counter top, prize shelves with plush toys, tin ducks on a rail (some shot off),
+    two air rifles chained to the counter, awning valance, a dead bulb string."""
     name = "Fair_Booth"
     L = lods(name)
     hw, hd = 2.0, 1.5
@@ -362,9 +364,76 @@ def build_booth():
     for k in ("res0", "res1"):
         C.sign2_quad(L[k], [(-1.6, -hd - 0.005, 2.62), (1.6, -hd - 0.005, 2.62), (1.6, -hd - 0.005, 2.74), (-1.6, -hd - 0.005, 2.74)],
                      (0, -1, 0), "tickets", (0, 2), (-1.6, 2.62), (1.6, 2.74))
-    for i in range(6):                                                           # shooting-gallery targets on the back wall
-        tx = -1.5 + i * 0.6
-        L["res0"].box(tx - 0.15, tx + 0.15, hd - 0.13, hd - 0.1, 1.45, 1.75, mat="fair", uv=fair_uv("red" if i % 2 else "white"))
+    # D70 close-up pass: battens, corner posts, counter top, prize shelves, tin ducks on a rail, chained air rifles,
+    # awning valance and a bulb string. Res0 only except the posts and the counter top (Res1).
+    for sx in (-1, 1):                                                           # side battens (outside)
+        for i in range(5):
+            yy = -hd + 0.3 + i * 0.6
+            L["res0"].box(sx * hw - (0.03 if sx < 0 else 0), sx * hw + (0.03 if sx > 0 else 0), yy - 0.04, yy + 0.04, 0.1, 2.55,
+                          mat="fair", uv=fair_uv("white"), skip=("-z", "+z"))
+    for i in range(7):                                                           # back battens
+        xx = -hw + 0.5 + i * 0.5
+        L["res0"].box(xx - 0.04, xx + 0.04, hd, hd + 0.03, 0.1, 2.55, mat="fair", uv=fair_uv("white"), skip=("-z", "+z"))
+    for sx in (-1, 1):                                                           # Res1: battens as flat strips (perf M)
+        for i in range(5):
+            yy = -hd + 0.3 + i * 0.6
+            L["res1"].quad([(sx * (hw + 0.03), yy - 0.04, 0.1), (sx * (hw + 0.03), yy + 0.04, 0.1), (sx * (hw + 0.03), yy + 0.04, 2.55),
+                            (sx * (hw + 0.03), yy - 0.04, 2.55)], (sx, 0, 0), "fair", fair_uv("white"), double=True)
+    for i in range(7):
+        xx = -hw + 0.5 + i * 0.5
+        L["res1"].quad([(xx - 0.04, hd + 0.03, 0.1), (xx + 0.04, hd + 0.03, 0.1), (xx + 0.04, hd + 0.03, 2.55), (xx - 0.04, hd + 0.03, 2.55)],
+                       (0, 1, 0), "fair", fair_uv("white"), double=True)
+    for sx in (-1, 1):                                                           # corner posts
+        for sy in (-1, 1):
+            for k in ("res0", "res1"):
+                L[k].box(sx * hw - 0.07, sx * hw + 0.07, sy * hd - 0.07, sy * hd + 0.07, 0.0, 2.78, mat="fair", uv=fair_uv("red"),
+                         skip=("-z",))
+    box_all(L, ("res0", "res1", "res2"), (-hw + 0.05, hw - 0.05, -hd - 0.12, -hd + 0.55, 1.05, 1.1), "fair", fair_uv("white"), "wood")
+    box_all(L, ("geo", "view", "fire"), (-hw + 0.1, hw - 0.1, -hd, -hd + 0.5, 1.05, 1.1), "fair", fair_uv("white"), "wood")
+    # counter top: collides too, so items dropped on it rest on its top, not inside it (security review D70 L);
+    # the 12 cm overhang stays visual (Geometry keeps to the 4 x 3 footprint)
+    for i in range(5):                                                           # red stripes down the counter front
+        xx = -hw + 0.45 + i * 0.775
+        L["res1"].quad([(xx - 0.12, -hd - 0.015, 0.12), (xx + 0.12, -hd - 0.015, 0.12), (xx + 0.12, -hd - 0.015, 1.0),
+                        (xx - 0.12, -hd - 0.015, 1.0)], (0, -1, 0), "fair", fair_uv("red"))   # Res1: one quad (perf M)
+        L["res0"].box(xx - 0.12, xx + 0.12, -hd - 0.015, -hd, 0.12, 1.0, mat="fair", uv=fair_uv("red"), skip=("+y", "-z", "+z"))
+    for zz in (1.25, 1.75):                                                      # prize shelves + plush toys
+        for k in ("res0", "res1"):
+            L[k].box(-hw + 0.15, hw - 0.15, hd - 0.4, hd - 0.1, zz, zz + 0.03, mat="fair", uv=fair_uv("white"))
+        for i in range(5):
+            if h01(name, "toy", zz, i) < 0.3:
+                continue                                                         # won (or looted) long ago
+            tx = -1.5 + i * 0.75 + 0.2 * h01(name, "tx", zz, i)
+            s = 0.1 + 0.06 * h01(name, "ts", zz, i)
+            col = ("yellow", "red", "blue", "white")[int(h01(name, "tc", zz, i) * 4)]
+            for k in ("res0", "res1"):                                           # body (also Res1, perf M)
+                L[k].box(tx - s, tx + s, hd - 0.33, hd - 0.15, zz + 0.03, zz + 0.03 + 2.2 * s, mat="fair", uv=fair_uv(col))
+            L["res0"].box(tx - 0.6 * s, tx + 0.6 * s, hd - 0.3, hd - 0.18, zz + 0.03 + 2.2 * s, zz + 0.03 + 3.2 * s, mat="fair",
+                          uv=fair_uv(col))                                       # head
+    L["res0"].box(-hw + 0.2, hw - 0.2, hd - 0.6, hd - 0.56, 2.05, 2.08, mat="fair", uv=fair_uv("blue"))   # duck rail
+    for i in range(7):
+        if h01(name, "duck", i) < 0.25:
+            continue                                                             # shot off the rail
+        tx = -1.6 + i * 0.53
+        L["res0"].extrude_y([(tx - 0.12, 2.08), (tx + 0.1, 2.08), (tx + 0.12, 2.18), (tx + 0.05, 2.2), (tx + 0.06, 2.3),
+                             (tx - 0.02, 2.31), (tx - 0.05, 2.22), (tx - 0.13, 2.17)], hd - 0.6, hd - 0.58, mat="fair",
+                            uv=fair_uv("yellow"))
+    for i, xx in enumerate((-0.9, 0.7)):                                         # air rifles chained to the counter
+        a = 0.25 * (h01(name, "rifle", i) - 0.5)
+        C.bar(L["res0"], (xx, -hd + 0.15, 1.13), (xx + 0.75 * math.cos(a), -hd + 0.15 + 0.75 * math.sin(a), 1.13), 0.012,
+              "fair", fair_uv("blue"))                                           # blued barrel (fair trim: 5 sections)
+        C.bar(L["res0"], (xx - 0.3, -hd + 0.15, 1.13), (xx, -hd + 0.15, 1.13), 0.03, "fair", fair_uv("white"))   # stock
+        C.bar(L["res0"], (xx - 0.15, -hd + 0.15, 1.12), (xx - 0.1, -hd + 0.25, 1.1), 0.006, "fair", fair_uv("white"))   # chain
+    for i in range(8):                                                           # awning valance (scallops)
+        a0, a1 = -hw + i * (2 * hw) / 8, -hw + (i + 1) * (2 * hw) / 8
+        band = "red" if i % 2 else "white"
+        for k in ("res0", "res1"):
+            L[k].quad([(a0 + 0.08, -hd - 0.93, 1.95), (a1 - 0.08, -hd - 0.93, 1.95), (a1, -hd - 0.9, 2.1), (a0, -hd - 0.9, 2.1)],
+                      (0, -1, 0), "fair", fair_uv(band), double=True)     # wound counter-clockwise seen from the front
+    L["res1"].box(-hw + 0.15, hw - 0.15, -hd - 0.07, -hd + 0.01, 2.52, 2.6, mat="fair", uv=fair_uv("white"))   # Res1 bulb strip
+    for i in range(10):                                                          # dead bulb string under the fascia
+        bx = -hw + 0.2 + i * (2 * hw - 0.4) / 9
+        L["res0"].prism(bx, -hd - 0.03, 0.035, 2.52, 2.6, n=4, mat="fair", uv=fair_uv("white"))
     weeds(L, name, -hw, hw, -hd - 0.1, -hd + 0.2, 3)
     L["mem"].lod.point("center", (0.0, 0.0, 0.0))
     return finish(L, 4000.0)
@@ -595,6 +664,28 @@ def build_stand():
         zt = 0.45 * (i + 1)
         box_all(L, ("res0", "res1", "res2", "geo", "view", "fire"), (-hw + 1.2, hw - 1.2, y0, hd - 0.3, 0.0, zt), "concrete", UV_CONC)
         L["road"].hquad(-hw + 1.2, hw - 1.2, y0, y0 + 0.9, zt, mat="road_ext", uv=UV_TILE)
+        # D70 mid LOD: runs of up to 6 existing seats merged into one seat-pan block; a run breaks at every missing
+        # seat (same hash as Res0) and Res1 has no backrests, so the far LOD never draws cover the near LOD lacks
+        # (security review D70 M: a solid row over a gap hid prone players that bullets still hit).
+        run, xr, jr, j0 = None, -hw + 1.5, 0, 0
+        while True:
+            more = xr + 0.45 < hw - 1.4
+            seat = more and h01(name, "seat", i, jr) > 0.15
+            if seat and run is None:
+                run, j0 = xr, jr
+            if run is not None and (not seat or xr + 0.5 - run > 3.0):
+                end = xr - 0.08 if not seat else xr + 0.42
+                col = ("blue", "red", "white")[int(h01(name, "sc", i, j0) * 3)]   # = Res0 colour of the first seat (perf M)
+                L["res1"].box(run, end, y0 + 0.35, y0 + 0.75, zt, zt + 0.42, mat="fair", uv=fair_uv(col), skip=("-z",))
+                run = None
+                if seat:
+                    xr += 0.5
+                    jr += 1
+                    continue
+            if not more:
+                break
+            xr += 0.5
+            jr += 1
         x = -hw + 1.5
         j = 0
         while x + 0.45 < hw - 1.4:
