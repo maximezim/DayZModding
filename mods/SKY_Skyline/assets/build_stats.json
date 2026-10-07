@@ -55,8 +55,8 @@
   "view": 2644
  },
  "sky_towera_floor_office.p3d": {
-  "fire": 352,
-  "geo": 288,
+  "fire": 416,
+  "geo": 352,
   "mem": 0,
   "res0": 1876,
   "res1": 944,
@@ -67,8 +67,8 @@
   "view": 200
  },
  "sky_towera_lobby.p3d": {
-  "fire": 504,
-  "geo": 444,
+  "fire": 536,
+  "geo": 476,
   "mem": 0,
   "res0": 3476,
   "res1": 1292,
@@ -79,8 +79,8 @@
   "view": 284
  },
  "sky_towera_lobby_b.p3d": {
-  "fire": 504,
-  "geo": 444,
+  "fire": 536,
+  "geo": 476,
   "mem": 0,
   "res0": 3620,
   "res1": 1436,
@@ -91,8 +91,8 @@
   "view": 284
  },
  "sky_towera_roof_helipad.p3d": {
-  "fire": 132,
-  "geo": 120,
+  "fire": 188,
+  "geo": 176,
   "mem": 0,
   "res0": 742,
   "res1": 210,
@@ -100,6 +100,6 @@
   "res3": 48,
   "road": 8,
   "shadow": 96,
-  "view": 128
+  "view": 184
  }
 }

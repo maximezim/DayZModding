@@ -39,7 +39,8 @@ Rules that do not change (CLAUDE.md):
 | **D79** hull test 2 | one-way concealment gate (render volumes a head fits in with no Fire / View), 13 models fixed | built-unverified |
 | **D80** texture depth 2 | brick, stucco, panel facade maps (mortar, bevels, cracks, sockets), shared stucco normal map | built-unverified |
 | **D81** night lights | billboard / traffic-light night lights | dropped (D80 note): one point light per street prop multiplies client lights, and dead street power is the setting; emissive faces stay off |
-| **D82** texture depth 3 | baked AO for hero props, grime macro maps (B3), limestone / concpanel / brick trim maps; ray-grid slit test | planned (after T1 shows what reads in game) |
+| **D82** gates + texture depth 3 | concealment gate on all 191 city buildings and modules (ruin cut fix, furniture collision), slit gate (D74 ray-grid item), limestone / concpanel / brick trim maps | built-unverified |
+| **D83** city slits + texture depth 4 | triage the 14 ADVISORY city slit findings (partition ends 3-5 cm past their Fire boxes); baked AO for hero props, grime macro maps (B3) | planned |
 | **T2** terrain | survey a site or build the custom terrain (Terrain Builder import of `terrain/out`, P11), open the metro hatches | planned (after T1) |
 | **T3** perf | FPS protocol, server perf probe (B11), merged furniture if needed (D43) | planned (after T1) |
 
@@ -111,10 +112,10 @@ P14 alarm noise reach, P15 horde caps, P16 drunk thresholds, P17 search cooldown
 P18 wet hydrant = vanilla well behaviour on a spawned object, P19 jam density (are vehicles really blocked?),
 P20 siren sound config (range, loudness). All are in the PENDING_VERIFICATION.md table with their fix.
 
-## Status (after D80)
+## Status (after D82)
 
-Every phase from D61 to D80 is built and passes the offline gates (`reviews/d61_gates.md` ...
-`reviews/d80_gates.md`). Nothing has run in DayZ: no TESTING sign-off row is filled and every `P`
-parameter (P1-P51) is still an assumption. About 58 % of a releasable v1.0 (PROGRESS_REPORT "Status at a
+Every phase from D61 to D82 is built and passes the offline gates (`reviews/d61_gates.md` ...
+`reviews/d82_gates.md`). Nothing has run in DayZ: no TESTING sign-off row is filled and every `P`
+parameter (P1-P52) is still an assumption. About 58 % of a releasable v1.0 (PROGRESS_REPORT "Status at a
 glance"). The next step that unblocks the most is **T1**, the first test session on the Windows machine.
-Further content (D81-D82) is worth less until T1 shows what reads and runs in game.
+Further content (D83+) is worth less until T1 shows what reads and runs in game.

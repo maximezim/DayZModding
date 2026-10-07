@@ -687,8 +687,10 @@ def windows(size, out):
 
 
 def brick(size, out):
-    """Brick facade trim: V 0-0.6 running bond, 0.6-0.8 soldier course, 0.8-1 stone sill."""
-    n = fbm(size, 181, octaves=4, base=8)
+    """Brick facade trim: V 0-0.6 running bond, 0.6-0.8 soldier course, 0.8-1 stone sill.
+    D82: running bond with bevelled arrises, firing tones, face pits and soft joints (as wall_brick D80);
+    tileable noise; tooled sill with a drip groove."""
+    n = tfbm(size, 181, octaves=4, base=8)
     col = np.zeros((size, size, 3), np.float32)
     h = 0.1 * n
     ao = np.ones((size, size), np.float32)
@@ -697,26 +699,42 @@ def brick(size, out):
     r0, r1 = band_rows(size, 0.0, 0.6)
     # 16 bricks across U; with MATERIALS["brick"]["sheet_m"] = 3.44 m per U tile a brick is
     # 21.5 x 6.6 cm at ~595 px/m (perf batch-2 L3).
-    bw, bh = size // 16, size // 52
-    for row, y in enumerate(range(r0, r1, bh)):
-        off = (bw // 2) * (row % 2)
-        for x in range(-bw, size, bw):
-            tint = np.array([0.45, 0.22, 0.15]) * (0.8 + 0.4 * rng.random())
-            xa, xb = max(0, x + off + 2), min(size, x + off + bw - 2)
-            if xb > xa:
-                col[y + 2:min(y + bh - 2, r1), xa:xb] = tint
-        col[y:y + 2, :] = mortar
-        h[y:y + 2, :] -= 0.8
-        ao[y:y + 2, :] *= 0.8
-    m = col[r0:r1].sum(-1) == 0
-    col[r0:r1][m] = mortar
+    bw, bh = size / 16.0, size / 52.0
+    yy, xx = np.mgrid[r0:r1, 0:size].astype(np.float32)
+    rr = np.floor((yy - r0) / bh).astype(int)
+    fy = (yy - r0) / bh - rr
+    u = (xx - (rr % 2) * bw / 2) / bw
+    cc = np.floor(u).astype(int) % 16
+    fx = u - np.floor(u)
+    m = max(1.0, size / 1024.0)
+    e = np.minimum(np.minimum(fx, 1 - fx) * bw, np.minimum(fy, 1 - fy) * bh)
+    joint = e < m
+    bevel = np.clip((e - m) / (2.5 * m), 0, 1)
+    T = rng.random((int(rr.max()) + 1, 16)).astype(np.float32)[rr, cc]
+    tint = np.array([0.45, 0.22, 0.15], np.float32) * (0.8 + 0.4 * T[..., None])
+    tint = np.where((T < 0.06)[..., None], np.array([0.25, 0.13, 0.11], np.float32), tint)
+    pits = np.clip((tnoise(size, max(64, size // 6), 193) - 0.8) * 5, 0, 1)[r0:r1]
+    band = tint * gray(0.84 + 0.16 * bevel) * gray(1 - 0.22 * pits)
+    col[r0:r1] = np.where(joint[..., None], mortar, band)
+    sj = 1.0 - np.clip((e - (m - 1.0)) / 2.0, 0, 1)
+    h[r0:r1] += 0.3 * bevel - 0.25 * pits - 0.8 * sj
+    ao[r0:r1] *= 1 - 0.2 * joint
     r0, r1 = band_rows(size, 0.6, 0.8)                   # soldier course
-    for x in range(0, size, bh):
+    ns = max(1, int(round(size / bh)))                                           # whole soldiers per sheet (no cut one at the seam)
+    for i in range(ns):
+        xa_, xb_ = int(round(i * size / ns)), int(round((i + 1) * size / ns))
         tint = np.array([0.40, 0.20, 0.14]) * (0.85 + 0.3 * rng.random())
-        col[r0 + 2:r1 - 2, x + 2:x + bh - 2] = tint
+        col[r0 + 2:r1 - 2, xa_ + 2:xb_ - 2] = tint
     col[r0:r1][col[r0:r1].sum(-1) == 0] = mortar
     r0, r1 = band_rows(size, 0.8, 1.0)                   # stone sill
     col[r0:r1] = np.array([0.66, 0.64, 0.60]) + 0.04 * gray(n[r0:r1] - 0.5)
+    g0, gw = r0 + int((r1 - r0) * 0.8), max(4, size // 256)                       # drip groove under the sill nose:
+    prof = 0.5 - 0.5 * np.cos(np.linspace(0, 2 * np.pi, gw, dtype=np.float32))  # cosine profile (perf D82 L)
+    h[g0:g0 + gw, :] -= prof[:, None]
+    col[g0:g0 + gw, :] *= gray(1 - 0.3 * prof[:, None])
+    tooled = tstreak(size, max(32, size // 16), 64, 195)[r0:r1]                  # tooled stone face
+    col[r0:r1] *= gray(0.96 + 0.06 * tooled)
+    h[r0:r1] += 0.05 * tooled
     col += 0.04 * gray(n - 0.5)
     col *= gray(0.8 + 0.2 * ao)          # AO folded into _co; _as/_smdi are procedural (perf batch-2 M1)
     eff = np.clip((tfbm(size, 197, octaves=4, base=8) - 0.66) * 4, 0, 1)[..., None] * 0.35   # efflorescence
@@ -729,9 +747,11 @@ def brick(size, out):
 def concpanel(size, out):
     """Precast concrete panel facade: 2 x 2 panels per sheet with deep window
     reveal band at the top (V 0-0.2) and panel joints."""
-    n = fbm(size, 197, octaves=5, base=8)
+    n = tfbm(size, 197, octaves=5, base=8)                      # D82: tileable (fbm left a seam every sheet)
     col = gray(0.66 + 0.06 * (n - 0.5))
-    h = 0.15 * n
+    pores = np.clip((tnoise(size, max(64, size // 6), 201) - 0.9) * 10, 0, 1)   # blowholes
+    col *= gray(1 - 0.28 * pores)
+    h = 0.15 * n - 0.3 * pores                                     # halved nohq: gentle (perf D82 L)
     ao = np.ones((size, size), np.float32)
     j = max(3, size // 256)
     for p in (0, size // 2):
@@ -1541,31 +1561,52 @@ def wall_panel(size, out):
 
 
 def wall_limestone(size, out):
-    """Limestone ashlar, 3.0 m sheet: 4 courses of 0.75 m, blocks 1.0 / 1.5 m staggered, tileable."""
+    """Limestone ashlar, 3.0 m sheet: 4 courses of 0.75 m, blocks 1.0 / 0.75 m staggered, tileable.
+    D82: bevelled arrises, tooled (drafted) faces, fossil specks, darker weathered blocks, a few lighter
+    replacement blocks; soft joints in the height; real _as (512)."""
     rng = np.random.default_rng(741)
     n = tfbm(size, 743, octaves=5, base=12)
-    col = np.zeros((size, size, 3), np.float32)
-    h = 0.05 * n
+    yy, xx = np.mgrid[0:size, 0:size].astype(np.float32)
     rows = _rows(size, 4)
     j = max(3, size // 375)
+    col = np.zeros((size, size, 3), np.float32) + np.array([0.62, 0.60, 0.55], np.float32)   # mortar where no block lands
+    e = np.zeros((size, size), np.float32)                                      # distance to the nearest joint (px)
+    tone = np.ones((size, size), np.float32)
     for r in range(4):
         y0, y1 = rows[r], rows[r + 1]
-        widths = [3, 2, 3, 2, 2] if r % 2 == 0 else [2, 3, 2, 3, 2]          # eighths of the sheet (1.0 / 0.75 m)
-        x = (size // 16) * (r % 2)
+        widths = [3, 2, 3, 2, 2] if r % 2 == 0 else [2, 3, 2, 3, 2]
+        x0_ = (size // 16) * (r % 2)
+        x = x0_
+        cum = 0
         for w in widths:
-            x1 = x + w * size // 12
-            tint = np.array([0.76, 0.72, 0.62], np.float32) * (0.93 + 0.1 * rng.random())
+            cum += w
+            x1 = x0_ + int(round(cum * size / 12.0))                            # exact edges: no unwritten column (perf D82 M)
+            k = rng.random()
+            base = np.array([0.76, 0.72, 0.62], np.float32) * (0.93 + 0.1 * rng.random())
+            if k < 0.08:
+                base = np.array([0.84, 0.81, 0.72], np.float32)                 # newer replacement block
+            elif k > 0.9:
+                base = base * 0.86                                              # weathered, darker
             xs = np.arange(x, x1) % size
-            col[y0:y1, xs] = tint
-            col[y0:y1, xs[:j]] *= 0.55
-            h[y0:y1, xs[:j]] -= 1
+            col[y0:y1, xs] = base
+            ex = np.minimum(np.arange(x1 - x) - 0.0, (x1 - x) - 1 - np.arange(x1 - x)).astype(np.float32)
+            ey = np.minimum(np.arange(y1 - y0), (y1 - y0) - 1 - np.arange(y1 - y0)).astype(np.float32)
+            e[y0:y1][:, xs] = np.minimum(ey[:, None], ex[None, :])
             x = x1
-        col[y0:y0 + j, :] *= 0.55
-        h[y0:y0 + j, :] -= 1
+    joint = e < j / 2.0
+    bevel = np.clip((e - j / 2.0) / (2.0 * j), 0, 1)
+    tool = tstreak(size, max(64, size // 6), 16, 749)                              # drafted / tooled face
+    fos = np.clip((tnoise(size, max(64, size // 10), 751) - 0.9) * 8, 0, 1)
+    col = col * gray(0.9 + 0.1 * bevel) * gray(0.97 + 0.05 * (tool - 0.5)) * gray(1 - 0.18 * fos)
+    col = np.where(joint[..., None], np.array([0.62, 0.60, 0.55], np.float32), col)
     col += 0.05 * gray(n - 0.5)
     col = weather(col, 747, dirt=0.2, desat=0.1, moss=0.06, streaks=0.14, spots=0.06)
+    sj = 1.0 - np.clip((e - (j / 2.0 - 1.0)) / 2.0, 0, 1)
+    h = 0.05 * n + 0.3 * bevel + 0.04 * tool - 0.2 * fos - 1.0 * sj
     save(to_rgb(col), out, "sky_wall_limestone_co")
     save(normal_from_height(h, 2.0), out, "sky_wall_limestone_nohq")
+    ao = to_rgb(gray(np.clip(1.0 - 0.3 * joint - 0.1 * (1 - bevel), 0, 1)))
+    ao.resize((min(size, 512),) * 2, Image.BILINEAR).save(os.path.join(out, "sky_wall_limestone_as.png"))
 
 
 WALL_RENDER = {"cream": (0.78, 0.73, 0.60), "ochre": (0.72, 0.57, 0.38), "grey": (0.62, 0.62, 0.59), "white": (0.80, 0.79, 0.74)}

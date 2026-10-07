@@ -78,7 +78,7 @@ def build_bus_stop():
         L[k].box(-hx, hx, y_back - 0.03, y_back + 0.03, 0.25, 2.15, **({"mat": "pen_glass"} if k == "fire" else {}))
     for sx in (-1, 1):                                                            # side panels
         for k in SOLID:
-            L[k].box(sx * hx - 0.02, sx * hx + 0.02, y_front + 0.25, y_back, 0.3, 2.0, **kw_for(k, "paint", DT.paint_uv("sage"), "metal"))
+            L[k].box(sx * hx - 0.02, sx * hx + 0.02, y_front + 0.18, y_back, 0.3, 2.0, **kw_for(k, "paint", DT.paint_uv("sage"), "metal"))
     gx = -hx - 0.025
     L["res0"].quad([(gx, y_front + 0.35, 0.6), (gx, y_back - 0.1, 0.6), (gx, y_back - 0.1, 1.6), (gx, y_front + 0.35, 1.6)],
                    (-1, 0, 0), "decal_graffiti", UVRect(1, 2, (y_front + 0.35, 0.6), (y_back - 0.1, 1.6), (1, 0, 0, 1)))

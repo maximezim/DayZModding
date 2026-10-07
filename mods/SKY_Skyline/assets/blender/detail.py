@@ -434,6 +434,8 @@ def unit(L, x0, x1, y0, y1, h, grille=None, fan=True, far=False):
         cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
         rr = min(0.6, (min(x1 - x0, y1 - y0)) / 2 - 0.1)
         r0.prism(cx, cy, rr, h, h + 0.3, n=12, mat="metal", uv=UV_ALU)
+        for k in ("geo", "fire", "view"):                                        # D82: the fan drum on a climbable
+            L[k].prism(cx, cy, rr, h, h + 0.3, n=8, **_kw(k, "metal", UV_ALU, "metal"))   # unit collides (head fit in)
         r0.prism(cx, cy, rr * 0.25, h + 0.3, h + 0.36, n=6, mat="metal", uv=UV_PAINT)
         L["res1"].prism(cx, cy, rr, h, h + 0.3, n=6, mat="metal", uv=UV_ALU)
 
@@ -556,10 +558,11 @@ def downlight(L, x, y, z, r=0.09, mat="lamp"):
 def pendant(L, x, y, z_top, drop, r=0.25, mat="lamp"):
     """Pendant lamp: rod, metal shade, emissive diffuser (Res0); shade only in Res1."""
     zb = z_top - drop
-    L["res0"].box(x - 0.008, x + 0.008, y - 0.008, y + 0.008, zb + 0.25, z_top, mat="metal", uv=UV_STEEL, skip=("+z",))
-    L["res0"].prism(x, y, r, zb + 0.02, zb + 0.25, n=16, mat="metal", uv=UV_PAINT)
+    sh = 0.14                         # D82: shallow shade - a 0.25 m drum was a render-only volume a head fit in
+    L["res0"].box(x - 0.008, x + 0.008, y - 0.008, y + 0.008, zb + sh, z_top, mat="metal", uv=UV_STEEL, skip=("+z",))
+    L["res0"].prism(x, y, r, zb + 0.02, zb + sh, n=16, mat="metal", uv=UV_PAINT)
     L["res0"].prism(x, y, r * 0.85, zb, zb + 0.02, n=16, mat=mat)
-    L["res1"].prism(x, y, r, zb, zb + 0.25, n=8, mat="metal", uv=UV_PAINT)
+    L["res1"].prism(x, y, r, zb, zb + sh, n=8, mat="metal", uv=UV_PAINT)
 
 
 def sconce(L, x, y, z, face, mat="lamp"):
@@ -621,10 +624,9 @@ def potted_plant(L, x, y, h=1.6, r=0.28, big=False, collide=True, pot_mat="stone
                   UVRect(0, 2, (x - w, ph), (x + w, top), (0, 0, 1, 1)), double=True)
         L[k].quad([(x, y - w, ph), (x, y + w, ph), (x, y + w, top), (x, y - w, top)], (1, 0, 0), "foliage",
                   UVRect(1, 2, (y - w, ph), (y + w, top), (1, 0, 2, 1)), double=True)
-    if collide:
-        b = r * 0.9
-        L["geo"].box(x - b, x + b, y - b, y + b, 0.0, ph)
-        L["fire"].box(x - b, x + b, y - b, y + b, 0.0, ph, mat="pen_concrete")
+    if collide:                                       # prism like the render pot: a ruin cut keeps or drops both (D82)
+        L["geo"].prism(x, y, r, 0.0, ph, n=8)
+        L["fire"].prism(x, y, r, 0.0, ph, n=8, mat="pen_concrete")
 
 
 def rug(L, x0, x1, y0, y1, band="rug_a", z=0.006):

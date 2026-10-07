@@ -71,7 +71,8 @@ if ($Models) {
         if (Test-Path (Join-Path $mod "assets\blender\$gen")) { Run-Gen $gen @('--out', $addons) }
     }
     Run-Gen 'test_kit.py' @()
-    Run-Py @((Join-Path $mod 'assets\blender\test_conceal.py'))    # D79: one-way concealment gate
+    Run-Py @((Join-Path $mod 'assets\blender\test_conceal.py'), '--city', '--jobs', '4')    # D79/D82: one-way concealment gate, city included
+    Run-Py @((Join-Path $mod 'assets\blender\test_slits.py'), '--city')      # D82: Fire slits where the render looks solid
     Run-Gen 'test_city.py' @()
     Run-Py @((Join-Path $mod 'assets\city_progress.py'))
 }

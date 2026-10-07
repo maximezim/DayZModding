@@ -61,7 +61,10 @@ class Ruin:
 
     def cut(self, x, y):
         zc = self.region[4]
-        return zc + 0.35 + 2.2 * h01(self.name, "cut", round(x, 1), round(y, 1))
+        # D82: one cut height per CUT_CELL cell of a global grid (was per 0.1 m of each piece's centre), so a small
+        # render box and the larger collision box over the same spot cut to the same height (a lintel's render
+        # stayed while its collision fell - bullets through a visible wall)
+        return zc + 0.35 + 2.2 * h01(self.name, "cut", math.floor(x / CUT_CELL), math.floor(y / CUT_CELL))
 
     def window(self, *key):
         """Window state: glass / broken / boarded."""
@@ -71,6 +74,9 @@ class Ruin:
         if self.state == 1:
             return "broken" if r < 0.35 else ("boarded" if r < 0.5 else "glass")
         return "boarded" if r < 0.2 else "broken"
+
+
+CUT_CELL = 5.0   # D82: ruin cut-height cell (m); 2 m and 4 m pushed ruined blocks over the geo budget
 
 
 class RLod:
@@ -83,10 +89,17 @@ class RLod:
     def __getattr__(self, k):
         return getattr(self.lod, k)
 
-    def _splits(self, a0, a1, b0, b1):
+    def _splits(self, a0, a1, b0, b1, z1=None):
         r = self.ruin.region
-        xs = sorted({a0, a1} | {v for v in (r[0], r[1]) if a0 + 1e-6 < v < a1 - 1e-6})
-        ys = sorted({b0, b1} | {v for v in (r[2], r[3]) if b0 + 1e-6 < v < b1 - 1e-6})
+        # region edges + the CUT_CELL cut-cell lines inside the region (sec D82 H2): every piece is cut per cut cell,
+        # so a long collision box and the shorter render pieces over it always get the same height
+        fine = getattr(self.lod, "name", "") not in ("res2", "res3", "shadow")   # far LODs: region edges only (budget)
+        fine = fine and (z1 is None or z1 > r[4] + 0.35 - 1e-6)   # never reaches the lowest cut: no cell lines (geo budget)
+        C = CUT_CELL
+        gx = {C * k for k in range(int(math.floor(max(a0, r[0]) / C)), int(math.ceil(min(a1, r[1]) / C)) + 1)} if fine else set()
+        gy = {C * k for k in range(int(math.floor(max(b0, r[2]) / C)), int(math.ceil(min(b1, r[3]) / C)) + 1)} if fine else set()
+        xs = sorted({a0, a1} | {v for v in {r[0], r[1]} | gx if a0 + 1e-6 < v < a1 - 1e-6 and r[0] - 1e-6 <= v <= r[1] + 1e-6})
+        ys = sorted({b0, b1} | {v for v in {r[2], r[3]} | gy if b0 + 1e-6 < v < b1 - 1e-6 and r[2] - 1e-6 <= v <= r[3] + 1e-6})
         return [(xa, xb, ya, yb) for xa, xb in zip(xs, xs[1:]) for ya, yb in zip(ys, ys[1:])]
 
     def _affected(self, x0, x1, y0, y1, z1):
@@ -97,7 +110,7 @@ class RLod:
         if not self._affected(x0, x1, y0, y1, z1):
             return self.lod.box(x0, x1, y0, y1, z0, z1, **kw)
         zc = self.ruin.region[4]
-        for a, b, c, d in self._splits(x0, x1, y0, y1):
+        for a, b, c, d in self._splits(x0, x1, y0, y1, z1):
             cx, cy = (a + b) / 2, (c + d) / 2
             if not self.ruin.inside(cx, cy):
                 self.lod.box(a, b, c, d, z0, z1, **kw)
@@ -122,7 +135,7 @@ class RLod:
             if not (self.ruin.inside(c[0], c[1]) and c[2] > self.ruin.cut(c[0], c[1])):
                 self.lod.quad(pts, facing, mat, uv, sel, double)
             return
-        for a, b, c, d in self._splits(x0, x1, y0, y1):
+        for a, b, c, d in self._splits(x0, x1, y0, y1, -1e9 if flat_z else z1):   # flat quads never use the cut
             cx, cy = (a + b) / 2, (c + d) / 2
             inside = self.ruin.inside(cx, cy)
             if flat_z:
@@ -693,10 +706,10 @@ def rubble_pile(L, x, y, z, rx, ry, h, key, collide=True):
             road.quad([top[0], top[k], top[k + 1]], (0, 0, 1), "road_ext", UV_TILE)
     for i in range(6):
         a = 2 * math.pi * h01("chunk", key, i)
-        d = 0.5 + 0.6 * h01("chunkd", key, i)
+        d = 1.0 + 0.4 * h01("chunkd", key, i)                         # D82: round the foot, not half inside the mound
         cx, cy = x + math.cos(a) * rx * d, y + math.sin(a) * ry * d
         s = 0.12 + 0.25 * h01("chunks", key, i)
-        L["res0"].box(cx - s, cx + s, cy - s * 0.7, cy + s * 0.7, z, z + s * 0.8,
+        L["res0"].box(cx - s, cx + s, cy - s * 0.7, cy + s * 0.7, z, z + min(s * 0.8, 0.18),   # <= 18 cm: no head fits (D82)
                       mat="brick" if i % 2 else "concrete", uv=UV_REVEAL if i % 2 == 0 else UVWorld(2.0))
 
 
@@ -1325,7 +1338,7 @@ def furnish(L, P, l, r, kind, z, top):
         if lamp:
             DT.pendant(L, cx, cy, top - 0.02, 0.55 if kind != "hall" else 0.35, r=0.22)
         else:
-            L["res0"].prism(cx, cy, 0.22, top - 0.6, top - 0.35, n=12, mat="metal", uv=DT.UV_PAINT)
+            L["res0"].prism(cx, cy, 0.22, top - 0.6, top - 0.46, n=12, mat="metal", uv=DT.UV_PAINT)   # dead shade, shallow (D82)
     if kind == "living" and w > 2.6 and d > 2.6:
         DT.rug(Lz, cx - 1.0, cx + 1.0, cy - 0.7, cy + 0.7, "rug_b" if h01(P.name, l, cx) < 0.5 else "rug_a")
         # lounge set along the axis that leaves a 0.9 m passage on both sides (walkability)
@@ -1646,7 +1659,8 @@ def furnish(L, P, l, r, kind, z, top):
                 box = (mx, mx + 2.2, my - 0.7, my + 0.7)
                 if clear(zones, box) and h01(P.name, "mach", row, round(mx, 1)) < 0.8:
                     piece(L, box + (z, z + 1.6), "metal", DT.UV_PAINT, pen="metal", view=True)
-                    L["res0"].box(mx + 0.3, mx + 1.0, my - 0.3, my + 0.3, z + 1.6, z + 2.3, mat="metal", uv=DT.UV_STEEL)
+                    piece(L, (mx + 0.3, mx + 1.0, my - 0.3, my + 0.3, z + 1.6, z + 2.3), "metal", DT.UV_STEEL, pen="metal",
+                          res1=False, view=True)                                 # head unit collides (D82: climbable machine)
                 mx += 4.5
         n_racks = max(1, int((x1 - x0 - 8.0) / 6.0))
         for i in range(n_racks):
@@ -2500,7 +2514,8 @@ def build_substation(state):
             fy = y0 + 0.15 + j * (y1 - y0 - 0.3) / 5
             for fx in (x0 - 0.18, x1):
                 L["res0"].box(fx, fx + 0.18, fy - 0.02, fy + 0.02, 0.5, 1.9, mat=tmat, uv=tuv)
-        L["res0"].box(x0 + 0.2, x1 - 0.2, y1 - 0.45, y1 - 0.05, 2.35, 2.75, mat=tmat, uv=tuv)        # conservator
+        for k in ("res0", "geo", "fire", "view"):                                  # conservator (collides, D82)
+            L[k].box(x0 + 0.2, x1 - 0.2, y1 - 0.45, y1 - 0.05, 2.35, 2.75, **kw_for(k, tmat, tuv, "metal"))
         for bx in (x0 + 0.35, tx, x1 - 0.35):                                   # bushings
             for k in ("res0", "res1"):
                 L[k].prism(bx, (y0 + y1) / 2 - 0.2, 0.09, 2.1, 2.9, n=8, mat="paint", uv=porcelain)
@@ -2863,13 +2878,18 @@ def furnish_venue(L, P, l, r, kind, z, top, zones):
             box = (xk - 0.35, xk + 0.35, y0 + 2.2, y0 + 4.8)
             if clear(zones, box):
                 kitchen_run(L, *box, z)
-                L["res0"].box(xk + 0.4, xk + 0.85, y0 + 2.6, y0 + 3.0, z, z + 0.5, mat="metal", uv=DT.UV_PAINT)    # cashier seat
+                piece(L, (xk + 0.4, xk + 0.85, y0 + 2.6, y0 + 3.0, z, z + 0.5), "metal", DT.UV_PAINT, pen="metal",
+                      res1=False, view=True)                                     # cashier seat (collides, D82)
                 L["res0"].prism(xk - 0.3, y0 + 4.7, 0.025, z + 0.9, z + 2.1, n=4, mat="metal", uv=DT.UV_STEEL)
                 L["res0"].box(xk - 0.42, xk - 0.18, y0 + 4.68, y0 + 4.72, z + 2.0, z + 2.25,
                               mat="lamp_cool" if lit else "metal", uv=None if lit else DT.UV_STEEL)
         for i in range(5):                                                      # trolleys (Res0)
             tx = x0 + 1.2 + i * 0.55
             L["res0"].box(tx, tx + 0.5, y0 + 1.0, y0 + 1.95, z + 0.25, z + 0.95, mat="metal", uv=DT.UV_STEEL)
+        tb_ = (x0 + 1.2, x0 + 1.2 + 4 * 0.55 + 0.5, y0 + 1.0, y0 + 1.95)
+        if clear(zones, tb_):                                                   # the nested trolley row collides down to
+            for k in ("geo", "fire", "view"):                                   # the floor (D82; no loot gap under it)
+                L[k].box(*tb_, z, z + 0.95, **({"mat": "pen_metal"} if k == "fire" else {}))
         # tall racking: rows across the hall, main aisle in the middle, cross aisle halfway
         ry = y0 + 7.0
         while ry + 0.9 < y1 - 1.6:
@@ -2889,6 +2909,8 @@ def furnish_venue(L, P, l, r, kind, z, top, zones):
                 for j in range(3):
                     L["res0"].box(px - 0.55 + 0.02 * j, px + 0.55 - 0.02 * j, py - 0.35, py + 0.35, z + 0.15 + 0.3 * j,
                                   z + 0.44 + 0.3 * j, mat="wood", uv=UV_LAMINATE)
+                for k in ("geo", "fire", "view"):                               # the stacked goods collide (D82)
+                    L[k].box(px - 0.51, px + 0.51, py - 0.35, py + 0.35, z + 0.15, z + 1.04, **({"mat": "pen_wood"} if k == "fire" else {}))
         # aisle signs hung over the main aisle
         for i, sg in enumerate(("food", "electro", "fashion", "tickets")[:3]):
             sy = y0 + 9.0 + i * 7.0
@@ -2918,14 +2940,16 @@ def furnish_venue(L, P, l, r, kind, z, top, zones):
                             (tb[0], tb[2] - 0.01, z + 2.0)], (0, -1, 0), "glass" if lit else "glassfar", UV_GLASS, double=True)
             for k in ("res0", "res1"):
                 L[k].box(tb[0], tb[1], tb[2], tb[3], z + 2.0, z + 2.5, mat="wood", uv=UV_WALNUT)
+            for k in ("geo", "fire", "view"):                                   # header collides (D82); with the glass
+                L[k].box(tb[0], tb[1], tb[2], tb[3], z + 2.0, z + 2.5, **({"mat": "pen_wood"} if k == "fire" else {}))
             sign2_quad(L["res0"], [(tb[0] + 0.2, tb[2] - 0.012, z + 2.05), (tb[1] - 0.2, tb[2] - 0.012, z + 2.05),
                                     (tb[1] - 0.2, tb[2] - 0.012, z + 2.45), (tb[0] + 0.2, tb[2] - 0.012, z + 2.45)],
                        (0, -1, 0), "tickets", (0, 2), (tb[0] + 0.2, z + 2.05), (tb[1] - 0.2, z + 2.45))
         sc = (x1 - 5.0, x1 - 0.4, y1 - 2.2, y1 - 1.5)                           # snack counter + popcorn machine
         if clear(zones, sc):
             kitchen_run(L, *sc, z)
-            L["res0"].box(sc[0] + 0.3, sc[0] + 0.9, sc[2] + 0.1, sc[3] - 0.1, z + 0.93, z + 1.6, mat="paint",
-                          uv=DT.paint_uv("terracotta"))
+            piece(L, (sc[0] + 0.3, sc[0] + 0.9, sc[2] + 0.1, sc[3] - 0.1, z + 0.93, z + 1.6), "paint",
+                  DT.paint_uv("terracotta"), pen="metal", res1=False, view=True)                   # popcorn machine collides (D82)
             L["res0"].box(sc[0] + 0.35, sc[0] + 0.85, sc[2] + 0.09, sc[2] + 0.1, z + 1.0, z + 1.5, mat="glassfar", uv=UV_GLASS)
         for i, cell in enumerate(("art_a", "art_b", "art_c", "art_d")):          # film posters on the side walls
             yy = y0 + 2.0 + i * 1.6

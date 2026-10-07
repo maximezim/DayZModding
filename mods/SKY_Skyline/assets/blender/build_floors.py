@@ -286,6 +286,8 @@ def garden_decor(L, beds):
         L["res1"].box(x0, x1, -10.7, -9.0, 0.0, 0.4, mat="wood", uv=DT.UV_OAK, skip=("-z",))
         L["geo"].box(x0, x1, -10.7, -9.0, 0.0, 0.35)
         L["fire"].box(x0, x1, -10.7, -9.0, 0.0, 0.35, mat="pen_wood")
+        for k in ("geo", "fire"):                                               # backrest collides (D82: a head fit inside)
+            L[k].box(x0, x1, -9.35, -9.0, 0.32, 0.75, **({"mat": "pen_wood"} if k == "fire" else {}))
     for y in (-11.0, -8.6):
         for i in range(9):
             L["res0"].prism(-2.8 + i * 0.7, y, 0.035, 2.38, 2.45, n=6, mat="lamp")

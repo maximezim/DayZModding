@@ -739,6 +739,15 @@ collision and looks.
 | FT-01 | Look at brick, stucco and panel facades at 1-80 m, strafing at grazing angles (P51) | Mortar, bevels, cracks and sockets read; no flicker or sparkle; no seam at sheet repeats | | |
 | FT-02 | Grep the client RPT after loading citylife | No missing `sky_wall_*` textures | | |
 
+## 46. City concealment and ruin fixes (D82)
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| CC-01 | In a ruined building, shoot at the tops of cut walls and lintels over windows (P52) | Bullets stop at the visible wall top; nothing stops them above it | | |
+| CC-02 | Try to hide your head in a lampshade (from a table), a rubble chunk, a pallet stack, a factory machine top, a roof HVAC fan drum, a roof-garden lounger | Collision stops you, or the object is too small to hide a head | | |
+| CC-03 | Shoot between a bus-stop side panel and its front post | Bullets stop (closed) | | |
+| CC-04 | Look at limestone, concrete-panel and brick-trim facades at 1-80 m | Block bevels, tooling, blowholes, sill groove read; no seam, no black line on limestone | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -771,6 +780,7 @@ collision and looks.
 | Street kit 3 §43 | | | |
 | Concealment fixes §44 | | | |
 | Facade textures §45 | | | |
+| City concealment / ruins §46 | | | |
 | Placement §9 | | | |
 | Roof drop §10 | | | |
 | Clean logs §11 | | | |

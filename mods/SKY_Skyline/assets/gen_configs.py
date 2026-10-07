@@ -54,7 +54,7 @@ PROCEDURAL_MAPS = {
     "sky_render": ("as", "smdi"), "sky_rubble": ("as",), "sky_signs": ("nohq", "as", "smdi"),   # D56
     "sky_decal_grime": ("nohq", "as", "smdi"), "sky_vegetation": ("nohq", "as", "smdi"),          # D59
     "sky_wall_brick": ("smdi",), "sky_wall_panel": ("smdi",),          # D80: real as (+ brick nohq)
-    "sky_wall_limestone": ("as", "smdi"),
+    "sky_wall_limestone": ("smdi",),
     "sky_wall_render_cream": ("as", "smdi"), "sky_wall_render_ochre": ("as", "smdi"),          # D80: shared real nohq
     "sky_wall_render_grey": ("as", "smdi"), "sky_wall_render_white": ("as", "smdi"),
     "sky_hq_facade": ("as",),                                                  # D60: 4K co, 2K nohq, 1K smdi

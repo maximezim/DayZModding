@@ -121,8 +121,8 @@
   "view": 944
  },
  "sky_floor_hq.p3d": {
-  "fire": 352,
-  "geo": 288,
+  "fire": 416,
+  "geo": 352,
   "mem": 0,
   "res0": 2412,
   "res1": 1280,
@@ -145,8 +145,8 @@
   "view": 152
  },
  "sky_floor_office_brick.p3d": {
-  "fire": 1168,
-  "geo": 240,
+  "fire": 1232,
+  "geo": 304,
   "mem": 0,
   "res0": 2660,
   "res1": 816,
@@ -157,8 +157,8 @@
   "view": 680
  },
  "sky_floor_office_concrete.p3d": {
-  "fire": 1168,
-  "geo": 240,
+  "fire": 1232,
+  "geo": 304,
   "mem": 0,
   "res0": 2596,
   "res1": 816,
@@ -255,8 +255,8 @@
   "view": 152
  },
  "sky_roof_garden.p3d": {
-  "fire": 240,
-  "geo": 240,
+  "fire": 264,
+  "geo": 264,
   "mem": 0,
   "res0": 1290,
   "res1": 314,
@@ -267,8 +267,8 @@
   "view": 152
  },
  "sky_roof_mechanical.p3d": {
-  "fire": 184,
-  "geo": 172,
+  "fire": 296,
+  "geo": 284,
   "mem": 0,
   "res0": 920,
   "res1": 288,
@@ -276,7 +276,7 @@
   "res3": 10,
   "road": 8,
   "shadow": 96,
-  "view": 180
+  "view": 292
  },
  "sky_serverrack.p3d": {
   "fire": 12,

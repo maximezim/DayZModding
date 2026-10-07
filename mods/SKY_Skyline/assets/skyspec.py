@@ -942,7 +942,7 @@ CITY_CATALOG = [
 BUDGETS["city"] = {"res0": 30000, "res1": 9000, "res2": 1500, "res3": 200, "shadow": 600, "geo_comps": 240,
                    "geo_tris": 3000, "sections_res0": 24}
 BUDGETS["city_tall"] = {"res0": 50000, "res1": 15000, "res2": 2000, "res3": 200, "shadow": 800, "geo_comps": 340,
-                        "geo_tris": 4200, "sections_res0": 24}            # 7+ storeys (scales per storey)
+                        "geo_tris": 4500, "sections_res0": 24}            # 7+ storeys (scales per storey); D82: 4200 -> 4500 (ruin cut cells)
 # Footprints >= 600 m2 (hospital, department store, courtyard block, factory, large warehouse): one
 # object like the large vanilla buildings (hospital / school), more rooms and parts (D58 hypothesis).
 BUDGETS["city_large"] = {"res0": 80000, "res1": 24000, "res2": 2500, "res3": 300, "shadow": 1000, "geo_comps": 640,
