@@ -758,6 +758,11 @@ MATERIALS.update({"signs3": {"rvmat": rvmat("sky_signs3"), "co": tex("sky_signs3
 SIGN3_NAMES = ["st_pobedy", "st_vokzal", "st_stadion", "st_teatr", "exit_r", "exit_l", "line1", "sewer_warn"]
 SIGN_MAT.update({k: "signs3" for k in SIGN3_NAMES})
 SIGN_BAND.update({k: (i / float(len(SIGN3_NAMES)), (i + 1) / float(len(SIGN3_NAMES))) for i, k in enumerate(SIGN3_NAMES)})
+# D69 venue variant sign sheet (gen_textures.signs4; band order = SIGNS4 there)
+MATERIALS.update({"signs4": {"rvmat": rvmat("sky_signs4"), "co": tex("sky_signs4_co")}})
+SIGN4_NAMES = ["hyper2", "kino2", "mall2", "bar2", "club2", "spare4_6", "spare4_7", "spare4_8"]   # 8 x 128 px bands (perf L)
+SIGN_MAT.update({k: "signs4" for k in SIGN4_NAMES})
+SIGN_BAND.update({k: (i / float(len(SIGN4_NAMES)), (i + 1) / float(len(SIGN4_NAMES))) for i, k in enumerate(SIGN4_NAMES)})
 # Night light per archetype ("light"): hyper = cold, over-bright, also on by day (idea 4: "une lumiere
 # blanche qui fait mal aux yeux"); warm = interior light; default by group (gen_configs.city_lit_script).
 CITY_LIGHT = {"hyper": "SKY_HyperLight", "warm": "SKY_InteriorLight", "cool": "SKY_OfficeLight"}
@@ -791,6 +796,20 @@ CITY_ARCHETYPES.update({
                   "blank": (), "stair": None, "bay": 2.67, "door_bay": "center", "sign": "club", "parapet": 0.5,
                   "roof_gear": False, "light": "warm", "usage": ["Town"], "cats": ["clothes", "containers"],
                   "desc": "football clubhouse: home and away changing rooms with benches, lockers and showers"},
+})
+# D69 venue variants: a second look per venue (catalog = base type; same room grammar, own skin, size and sign).
+# Placed by city_fill through the zone weights below (once per block), like the base venues.
+CITY_ARCHETYPES.update({
+    "HypermarketB": _variant("Hypermarket", w=36.0, d=28.0, skin=("brick", None), sign="hyper2", sign_w=12.0,
+                             parapet=0.6, desc="Soviet universam: 36 x 28 m brick supermarket hall, racks, checkouts"),
+    "MallB": _variant("Mall", w=48.0, d=34.0, levels=[("mall", 5.0)] * 2, skin=("panel", None), atrium=(16.0, 10.0),
+                      sign="mall2", sign_w=10.0, desc="2-level panel shopping centre round a glazed atrium"),
+    "CinemaB": _variant("Cinema", w=20.0, d=30.0, skin=("render", "ochre"), marquee="kino2",
+                        desc="cinema OKTYABR: ochre render, marquee, foyer, raked auditorium"),
+    "BarB": _variant("Bar", w=10.0, d=10.0, skin=("render", "grey"), sign="bar2",
+                     desc="beer hall PIVNAYA: grey render, counter, bottle wall, booths"),
+    "ClubhouseB": _variant("Clubhouse", w=18.0, d=8.0, skin=("panel", None), sign="club2",
+                           desc="FC TORPEDO clubhouse: panel walls, two changing rooms with lockers and showers"),
 })
 CITY_ARCHETYPES["ChurchHanged"] = _variant("Church", decor="hanged",
                                            desc="stone church: hanged shrouded bodies from the trusses, toppled pews, candles")
@@ -962,6 +981,21 @@ CITY_ZONES = {
                   "corner": ["CornerShop", "CornerHardware"], "ruin": (0.10, 0.40, 0.50), "lots": 0.20, "gap": 1.5,
                   "small_cap": 1, "once": ["CourtyardBlock", "Police", "Substation"]},
 }
+# D69: venues (D61 types and their B variants) join the fill. "rare" = chance a block even tries the type
+# (the draw order alone would put a mall in most big downtown blocks); all venues are "once" per block.
+_VENUES = {
+    "downtown": {"Hypermarket": 0.2, "HypermarketB": 0.2, "Mall": 0.12, "MallB": 0.12, "Cinema": 0.3, "CinemaB": 0.3,
+                 "Bar": 0.5, "BarB": 0.5},
+    "midtown": {"HypermarketB": 0.2, "Cinema": 0.2, "CinemaB": 0.2, "Bar": 0.4, "BarB": 0.4},
+    "residential": {"BarB": 0.3, "Clubhouse": 0.15, "ClubhouseB": 0.15},
+    "industrial": {"HypermarketB": 0.15},
+}
+for _z, _vs in _VENUES.items():
+    for _a, _p in _vs.items():
+        CITY_ZONES[_z]["weights"][_a] = 1
+        CITY_ZONES[_z].setdefault("rare", {})[_a] = _p
+        if _a not in CITY_ZONES[_z]["once"]:
+            CITY_ZONES[_z]["once"].append(_a)
 # Spawned city buildings are replicated entities (objectSpawnersArr): a layout with target
 # "spawner" obeys ENTITY_CAP; target "terrain" (a whole city baked into a custom map, Level 2 in
 # MOD_DEVELOPMENT_GUIDE 4.3) writes an object list instead and is not capped.
@@ -1306,7 +1340,8 @@ kit("PhoneBooth", "sky_street", "medium", desc="Soviet street phone booth (taxof
 LANDMARK_SIZE.update({"BusStop": (4.4, 1.9), "AdColumn": (1.4, 1.4), "PhoneBooth": (1.0, 1.0)})
 # D65/D68 ambience of intact city archetypes: (sound set, range m, emitter height m), registered by the generated
 # SKY_CityLit.c. The mall emitter sits on the middle floor so all three floors stay within SKY_Ambience.MAX_DY.
-CITY_AMBIENCE = {"Hypermarket": ("SKY_Hum_SoundSet", 30.0, 0.0), "Mall": ("SKY_Muzak_SoundSet", 35.0, 6.5)}
+CITY_AMBIENCE = {"Hypermarket": ("SKY_Hum_SoundSet", 30.0, 0.0), "Mall": ("SKY_Muzak_SoundSet", 35.0, 6.5),
+                 "HypermarketB": ("SKY_Hum_SoundSet", 25.0, 0.0), "MallB": ("SKY_Muzak_SoundSet", 30.0, 4.0)}   # D69
 # The guard kennel is an item (sky_items/sky_kennel.p3d), config in gen_configs.items_config.
 KENNEL = {"cls": "SKY_Kennel", "p3d": "sky_kennel.p3d", "base": "SeaChest",
           "display": "Dog kennel", "desc": "A doghouse and its old guard dog. Place it by your stash: while you are away the "
@@ -1369,9 +1404,9 @@ for _n, _e in KIT.items():
         SEARCH_TABLE[_n] = "costume"                     # mall rails, cinema costume trunks (idea 19)
     elif _arch and _arch.get("alcohol"):
         SEARCH_TABLE[_n] = "alcohol"                     # behind-the-bar stock (idea 10)
-    elif _c.get("archetype") == "Hypermarket":
+    elif _arch and _arch.get("catalog", _c.get("archetype")) == "Hypermarket":
         SEARCH_TABLE[_n] = "grocery"                     # shelf ends (D65)
-    elif _c.get("archetype") == "Clubhouse":
+    elif _arch and _arch.get("catalog", _c.get("archetype")) == "Clubhouse":
         SEARCH_TABLE[_n] = "sport"                       # changing-room lockers (D65)
 for _n, _t in SEARCH_TABLE.items():
     assert _t in SEARCH_TABLES, (_n, _t)

@@ -18,6 +18,9 @@ class Land_SKY_City_Bank_Intact extends SKY_LitBuilding
 	}
 }
 
+class Land_SKY_City_BarB_Intact extends SKY_LitBuilding
+{}
+
 class Land_SKY_City_Bar_Intact extends SKY_LitBuilding
 {}
 
@@ -53,6 +56,9 @@ class Land_SKY_City_Church_Intact extends SKY_LitBuilding
 	}
 }
 
+class Land_SKY_City_CinemaB_Intact extends SKY_LitBuilding
+{}
+
 class Land_SKY_City_Cinema_Intact extends SKY_LitBuilding
 {}
 
@@ -63,6 +69,9 @@ class Land_SKY_City_Clinic_Intact extends SKY_LitBuilding
 		return SKY_OfficeLight;
 	}
 }
+
+class Land_SKY_City_ClubhouseB_Intact extends SKY_LitBuilding
+{}
 
 class Land_SKY_City_Clubhouse_Intact extends SKY_LitBuilding
 {}
@@ -130,6 +139,29 @@ class Land_SKY_City_Hospital_Intact extends SKY_LitBuilding
 	}
 }
 
+class Land_SKY_City_HypermarketB_Intact extends SKY_LitBuilding
+{
+	override protected typename SkyLightType()
+	{
+		return SKY_HyperLight;
+	}
+
+	override protected int SkyLightCount()
+	{
+		return 4;
+	}
+
+	void Land_SKY_City_HypermarketB_Intact()
+	{
+		SKY_Ambience.Register(this, "SKY_Hum_SoundSet", 25.0);
+	}
+
+	void ~Land_SKY_City_HypermarketB_Intact()
+	{
+		SKY_Ambience.Unregister(this);
+	}
+}
+
 class Land_SKY_City_Hypermarket_Intact extends SKY_LitBuilding
 {
 	override protected typename SkyLightType()
@@ -161,6 +193,19 @@ class Land_SKY_City_KioskCafe_Intact extends SKY_LitBuilding
 
 class Land_SKY_City_Kiosk_Intact extends SKY_LitBuilding
 {}
+
+class Land_SKY_City_MallB_Intact extends SKY_LitBuilding
+{
+	void Land_SKY_City_MallB_Intact()
+	{
+		SKY_Ambience.Register(this, "SKY_Muzak_SoundSet", 30.0, "0 4 0");
+	}
+
+	void ~Land_SKY_City_MallB_Intact()
+	{
+		SKY_Ambience.Unregister(this);
+	}
+}
 
 class Land_SKY_City_Mall_Intact extends SKY_LitBuilding
 {

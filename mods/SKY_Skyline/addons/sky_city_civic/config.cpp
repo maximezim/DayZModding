@@ -1020,6 +1020,109 @@ class CfgVehicles
 		model = "SKY_Skyline\sky_city_civic\sky_city_clubhouse_ruined.p3d";
 		skySearch = "sport";
 	};
+	class Land_SKY_City_ClubhouseB_Intact: Land_SKY_CityCivic_Base
+	{
+		// FC TORPEDO clubhouse: panel walls, two changing rooms with lockers and showers (intact)
+		scope = 1;
+		model = "SKY_Skyline\sky_city_civic\sky_city_clubhouseb_intact.p3d";
+		skySearch = "sport";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_ClubhouseB_Damaged: Land_SKY_CityCivic_Base
+	{
+		// FC TORPEDO clubhouse: panel walls, two changing rooms with lockers and showers (damaged)
+		scope = 1;
+		model = "SKY_Skyline\sky_city_civic\sky_city_clubhouseb_damaged.p3d";
+		skySearch = "sport";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_ClubhouseB_Ruined: Land_SKY_CityCivic_Base
+	{
+		// FC TORPEDO clubhouse: panel walls, two changing rooms with lockers and showers (ruined)
+		scope = 1;
+		model = "SKY_Skyline\sky_city_civic\sky_city_clubhouseb_ruined.p3d";
+		skySearch = "sport";
+	};
 	class Land_SKY_City_ChurchHanged_Intact: Land_SKY_CityCivic_Base
 	{
 		// stone church: hanged shrouded bodies from the trusses, toppled pews, candles (intact)

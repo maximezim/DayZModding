@@ -61,11 +61,12 @@ PROCEDURAL_MAPS = {
     "sky_fair": ("as", "smdi"), "sky_trash": ("as", "smdi"), "sky_turf": ("nohq", "as", "smdi"),
     "sky_fur": ("as", "smdi"),                                                 # D65
     "sky_signs3": ("nohq", "as", "smdi"),                                      # D66
+    "sky_signs4": ("nohq", "as", "smdi"),                                      # D69
 }
 # Constant specular/gloss for procedural _smdi stages (default PROC["smdi"] otherwise).
 PROC_SMDI = {"sky_wall_brick": (0.08, 0.15), "sky_wall_panel": (0.1, 0.2), "sky_wall_limestone": (0.12, 0.2),
              "sky_wall_render_cream": (0.05, 0.1), "sky_wall_render_ochre": (0.05, 0.1), "sky_wall_render_grey": (0.05, 0.1),
-             "sky_wall_render_white": (0.05, 0.1), "sky_decal_grime": (0.02, 0.05), "sky_vegetation": (0.08, 0.15), "sky_render": (0.05, 0.1), "sky_signs": (0.3, 0.4), "sky_signs2": (0.3, 0.4), "sky_fair": (0.25, 0.3), "sky_trash": (0.1, 0.2), "sky_turf": (0.02, 0.05), "sky_fur": (0.03, 0.08), "sky_signs3": (0.3, 0.4), "sky_paint": (0.06, 0.12), "sky_textile": (0.02, 0.05), "sky_ceiling": (0.05, 0.1), "sky_brick": (0.08, 0.15), "sky_concpanel": (0.1, 0.2), "sky_wood": (0.25, 0.35), "sky_fabric": (0.03, 0.1)}
+             "sky_wall_render_white": (0.05, 0.1), "sky_decal_grime": (0.02, 0.05), "sky_vegetation": (0.08, 0.15), "sky_render": (0.05, 0.1), "sky_signs": (0.3, 0.4), "sky_signs2": (0.3, 0.4), "sky_fair": (0.25, 0.3), "sky_trash": (0.1, 0.2), "sky_turf": (0.02, 0.05), "sky_fur": (0.03, 0.08), "sky_signs3": (0.3, 0.4), "sky_signs4": (0.3, 0.4), "sky_paint": (0.06, 0.12), "sky_textile": (0.02, 0.05), "sky_ceiling": (0.05, 0.1), "sky_brick": (0.08, 0.15), "sky_concpanel": (0.1, 0.2), "sky_wood": (0.25, 0.35), "sky_fabric": (0.03, 0.1)}
 
 
 def rvmat_super(base, spec_power=40, emissive=(0, 0, 0)):
@@ -145,6 +146,7 @@ RVMATS = {
     "sky_fair": ("sky_fair", 25), "sky_trash": ("sky_trash", 10), "sky_turf": ("sky_turf", 5),
     "sky_fur": ("sky_fur", 6),                                                 # D65 creatures
     "sky_signs3": ("sky_signs3", 40),                                          # D66 underground signs
+    "sky_signs4": ("sky_signs4", 40),                                          # D69 venue variants
     "sky_wall_limestone": ("sky_wall_limestone", 20),
     "sky_wall_render_cream": ("sky_wall_render_cream", 8), "sky_wall_render_ochre": ("sky_wall_render_ochre", 8),
     "sky_wall_render_grey": ("sky_wall_render_grey", 8), "sky_wall_render_white": ("sky_wall_render_white", 8),

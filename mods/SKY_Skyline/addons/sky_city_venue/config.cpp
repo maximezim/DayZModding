@@ -326,4 +326,313 @@ class CfgVehicles
 		model = "SKY_Skyline\sky_city_venue\sky_city_cinema_ruined.p3d";
 		skySearch = "costume";
 	};
+	class Land_SKY_City_HypermarketB_Intact: Land_SKY_CityVenue_Base
+	{
+		// Soviet universam: 36 x 28 m brick supermarket hall, racks, checkouts (intact)
+		scope = 1;
+		model = "SKY_Skyline\sky_city_venue\sky_city_hypermarketb_intact.p3d";
+		skySearch = "grocery";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_HypermarketB_Damaged: Land_SKY_CityVenue_Base
+	{
+		// Soviet universam: 36 x 28 m brick supermarket hall, racks, checkouts (damaged)
+		scope = 1;
+		model = "SKY_Skyline\sky_city_venue\sky_city_hypermarketb_damaged.p3d";
+		skySearch = "grocery";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_HypermarketB_Ruined: Land_SKY_CityVenue_Base
+	{
+		// Soviet universam: 36 x 28 m brick supermarket hall, racks, checkouts (ruined)
+		scope = 1;
+		model = "SKY_Skyline\sky_city_venue\sky_city_hypermarketb_ruined.p3d";
+		skySearch = "grocery";
+	};
+	class Land_SKY_City_MallB_Intact: Land_SKY_CityVenue_Base
+	{
+		// 2-level panel shopping centre round a glazed atrium (intact)
+		scope = 1;
+		model = "SKY_Skyline\sky_city_venue\sky_city_mallb_intact.p3d";
+		skySearch = "costume";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_MallB_Damaged: Land_SKY_CityVenue_Base
+	{
+		// 2-level panel shopping centre round a glazed atrium (damaged)
+		scope = 1;
+		model = "SKY_Skyline\sky_city_venue\sky_city_mallb_damaged.p3d";
+		skySearch = "costume";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_MallB_Ruined: Land_SKY_CityVenue_Base
+	{
+		// 2-level panel shopping centre round a glazed atrium (ruined)
+		scope = 1;
+		model = "SKY_Skyline\sky_city_venue\sky_city_mallb_ruined.p3d";
+		skySearch = "costume";
+	};
+	class Land_SKY_City_CinemaB_Intact: Land_SKY_CityVenue_Base
+	{
+		// cinema OKTYABR: ochre render, marquee, foyer, raked auditorium (intact)
+		scope = 1;
+		model = "SKY_Skyline\sky_city_venue\sky_city_cinemab_intact.p3d";
+		skySearch = "costume";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_CinemaB_Damaged: Land_SKY_CityVenue_Base
+	{
+		// cinema OKTYABR: ochre render, marquee, foyer, raked auditorium (damaged)
+		scope = 1;
+		model = "SKY_Skyline\sky_city_venue\sky_city_cinemab_damaged.p3d";
+		skySearch = "costume";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_CinemaB_Ruined: Land_SKY_CityVenue_Base
+	{
+		// cinema OKTYABR: ochre render, marquee, foyer, raked auditorium (ruined)
+		scope = 1;
+		model = "SKY_Skyline\sky_city_venue\sky_city_cinemab_ruined.p3d";
+		skySearch = "costume";
+	};
 };

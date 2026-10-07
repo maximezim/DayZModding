@@ -18,13 +18,13 @@ map: chernarusplus  site: citylife-template  status: **PASS (with warnings)**
 - block LAND: park landfill (9 pieces)
 - block STAD: park stadium (9 pieces)
 - bridge at [6.0, -132.0], deck y 0.00: checkpoint + convoy loot mid-span
-- target terrain: ENTITY_CAP not applied (521 objects + 110 loot would be within the spawner cap 800); deploy through a custom terrain, city_objects.csv
+- target terrain: ENTITY_CAP not applied (513 objects + 103 loot would be within the spawner cap 800); deploy through a custom terrain, city_objects.csv
 - loot export: survey request "exportRadius" >= 140 m around site.center
 
 ## Entity counts (caps: entities + loot 800 per district / 2500 per server, 25 props per floor / 70 per tower)
 - modules: 0
-- buildings: 21
-- vegetation: 22
+- buildings: 20
+- vegetation: 15
 - cutters: 0
 - tiles: 93
 - lights: 30
@@ -36,55 +36,55 @@ map: chernarusplus  site: citylife-template  status: **PASS (with warnings)**
 - parks: 33
 - roads: 14
 - underground: 22
-- **total: 521** entities, 110 loot items (max), server total 631
+- **total: 513** entities, 103 loot items (max), server total 616
 
 ## City buildings by type (intact / damaged / ruined)
 - AptBlock: 1 / 0 / 0
-- AptBlockBrick: 0 / 1 / 0
-- Bar: 1 / 0 / 0
-- Cafe: 0 / 0 / 1
+- Bar: 1 / 0 / 1
 - ChurchHanged: 1 / 0 / 0
 - Cinema: 1 / 0 / 0
+- Clinic: 1 / 0 / 0
+- GasStation: 0 / 1 / 0
 - Hypermarket: 1 / 0 / 0
 - Kindergarten: 0 / 1 / 0
-- Kiosk: 2 / 1 / 0
+- Kiosk: 0 / 1 / 1
+- KioskCafe: 0 / 1 / 0
 - Mall: 0 / 1 / 0
 - MetroEntrance: 1 / 0 / 0
-- Rowhouse: 0 / 1 / 0
-- RubbleLot: 0 / 0 / 2
-- ShopRow: 2 / 0 / 1
-- ShopRowMarket: 0 / 1 / 0
-- SupermarketSmall: 1 / 0 / 0
-- **all: 11 / 6 / 4** (21 buildings)
+- Rowhouse: 0 / 1 / 1
+- ShopRow: 0 / 1 / 0
+- ShopRowMarket: 2 / 0 / 0
+- SupermarketSmall: 0 / 1 / 0
+- **all: 9 / 8 / 3** (20 buildings)
 
 ## Terrain fit and overgrowth (D59)
-- lots the terrain could not take (given to a smaller type or left as yard): 142
+- lots the terrain could not take (given to a smaller type or left as yard): 140
+  - Kiosk: tower tunnel cell (-8, 0)
   - KioskCafe: tower tunnel cell (-8, 0)
   - MetroEntrance: tower tunnel cell (-8, 0)
-  - Kiosk: tower tunnel cell (-8, 0)
-  - Kiosk: tower tunnel cell (-8, 0)
   - MetroEntrance: tower tunnel cell (-8, 0)
   - KioskCafe: tower tunnel cell (-8, 0)
-  - MetroEntrance: tower tunnel cell (-8, 0)
-  - KioskCafe: tower tunnel cell (-8, 0)
-  - Kiosk: tower tunnel cell (-8, 0)
   - Kiosk: tower tunnel cell (-8, 0)
   - MetroEntrance: tower tunnel cell (-8, 0)
   - KioskCafe: tower tunnel cell (-8, 0)
   - Kiosk: tower tunnel cell (-8, 0)
+  - Kiosk: tower tunnel cell (-8, 0)
+  - MetroEntrance: tower tunnel cell (-8, 0)
   - KioskCafe: tower tunnel cell (-8, 0)
   - MetroEntrance: tower tunnel cell (-8, 0)
+  - KioskCafe: tower tunnel cell (-8, 0)
+  - Kiosk: tower tunnel cell (-8, 0)
+  - MetroEntrance: tower tunnel cell (-8, 0)
+  - KioskCafe: tower tunnel cell (-8, 0)
   - Kiosk: tower tunnel cell (-8, 0)
   - KioskCafe: tower tunnel cell (-8, 0)
   - MetroEntrance: tower tunnel cell (-8, 0)
-  - Kiosk: tower tunnel cell (-8, 0)
-  - KioskCafe: tower tunnel cell (-8, 0)
-- slivers avoided (gap < 0.8 m between buildings): 18
+- slivers avoided (gap < 0.8 m between buildings): 19
 - deepest ground drop under a city building: 0.00 m (skirt 1.5 m)
 - clutter cutters: off (custom terrain: paint a no-clutter surface under the city)
-- vegetation: Veg_Bush 13, Veg_TreeDead 1, Veg_Weeds 8
+- vegetation: Veg_Bush 5, Veg_Weeds 10
 
-## Objects (521)
+## Objects (513)
 - Land_SKY_Street_Intersection at [-108.0, 0.0, -72.0] yaw 0.0
 - Land_SKY_Street_Straight at [-108.0, 0.0, -60.0] yaw 0.0
 - Land_SKY_StreetLight at [-112.5, 0.15, -60.0] yaw 0.0
@@ -567,42 +567,34 @@ map: chernarusplus  site: citylife-template  status: **PASS (with warnings)**
 - Land_SKY_City_Kindergarten_Damaged at [-66.0, 0.15, 28.5] yaw 0.0
 - Land_SKY_City_ChurchHanged_Intact at [-66.0, 0.15, 53.0] yaw 180.0
 - Land_SKY_City_Bar_Intact at [-90.0, 0.15, 58.0] yaw 180.0
-- Land_SKY_City_Kiosk_Damaged at [-56.0, 0.15, 64.3] yaw 180.0
-- Land_SKY_City_ShopRow_Ruined at [-77.5, 0.15, 58.5] yaw 180.0
-- Land_SKY_City_MetroEntrance_A at [-99.5, 0.15, 62.5] yaw 180.0
-- Land_SKY_Veg_Weeds at [-76.5159, 0.15, 39.6459] yaw 0.0
+- Land_SKY_City_KioskCafe_Damaged at [-56.0, 0.15, 64.3] yaw 180.0
+- Land_SKY_City_ShopRowMarket_Intact at [-77.5, 0.15, 58.5] yaw 180.0
+- Land_SKY_City_MetroEntrance_B at [-99.5, 0.15, 62.5] yaw 180.0
+- Land_SKY_Veg_Weeds at [-67.9905, 0.15, 37.7256] yaw 180.0
+- Land_SKY_Veg_Weeds at [-56.6994, 0.15, 52.178] yaw 90.0
 - Land_SKY_City_Hypermarket_Intact at [-18.0, 0.15, 22.5] yaw 0.0
-- Land_SKY_City_RubbleLot_C at [-0.5, 0.15, 59.5] yaw 180.0
-- Land_SKY_City_AptBlockBrick_Damaged at [-17.0, 0.15, 59.5] yaw 180.0
-- Land_SKY_City_ShopRowMarket_Damaged at [-32.0, 0.15, 58.5] yaw 180.0
-- Land_SKY_City_Kiosk_Intact at [-39.5, 0.15, 64.3] yaw 180.0
-- Land_SKY_City_Rowhouse_Damaged at [-35.5, 0.15, 46.4] yaw 90.0
-- Land_SKY_City_RubbleLot_B at [-0.5, 0.15, 46.0] yaw 270.0
-- Land_SKY_Veg_Weeds at [-39.2914, 0.15, 58.414] yaw 180.0
-- Land_SKY_Veg_Weeds at [-12.8412, 0.15, 40.794] yaw 0.0
-- Land_SKY_Veg_TreeDead at [-12.942, 0.15, 48.2893] yaw 90.0
-- Land_SKY_Veg_Bush at [-23.4226, 0.15, 48.101] yaw 0.0
-- Land_SKY_Veg_Bush at [-19.3135, 0.15, 42.5635] yaw 0.0
-- Land_SKY_Veg_Weeds at [-9.5087, 0.15, 50.2966] yaw 180.0
+- Land_SKY_City_Kiosk_Damaged at [4.0, 0.15, 64.3] yaw 180.0
+- Land_SKY_City_GasStation_Damaged at [-9.0, 0.15, 55.0] yaw 180.0
+- Land_SKY_City_Clinic_Intact at [-28.5, 0.15, 58.5] yaw 180.0
+- Land_SKY_City_Rowhouse_Ruined at [-35.5, 0.15, 46.4] yaw 90.0
+- Land_SKY_City_ShopRow_Damaged at [-1.5, 0.15, 44.5] yaw 270.0
+- Land_SKY_Veg_Weeds at [-19.616, 0.15, 43.5659] yaw 90.0
+- Land_SKY_Veg_Weeds at [-16.5318, 0.15, 47.9527] yaw 0.0
+- Land_SKY_Veg_Weeds at [-38.6309, 0.15, 55.3447] yaw 0.0
+- Land_SKY_Veg_Weeds at [-25.0249, 0.15, 42.6805] yaw 0.0
 - Land_SKY_City_Mall_Damaged at [54.0, 0.15, 26.5] yaw 0.0
-- Land_SKY_City_Kiosk_Intact at [20.0, 0.15, 7.7] yaw 0.0
-- Land_SKY_City_Cafe_Ruined at [83.5, 0.15, 58.5] yaw 180.0
-- Land_SKY_City_SupermarketSmall_Intact at [67.0, 0.15, 58.5] yaw 180.0
-- Land_SKY_City_AptBlock_Intact at [47.5, 0.15, 59.5] yaw 180.0
-- Land_SKY_City_ShopRow_Intact at [32.5, 0.15, 58.5] yaw 180.0
-- Land_SKY_City_ShopRow_Intact at [23.5, 0.15, 58.5] yaw 180.0
-- Land_SKY_Veg_Bush at [23.3478, 0.15, 34.6486] yaw 90.0
-- Land_SKY_Veg_Bush at [20.2535, 0.15, 44.247] yaw 180.0
-- Land_SKY_Veg_Bush at [19.9399, 0.15, 48.9378] yaw 0.0
-- Land_SKY_Veg_Bush at [41.0384, 0.15, 49.6017] yaw 180.0
-- Land_SKY_Veg_Bush at [50.5814, 0.15, 49.2914] yaw 270.0
-- Land_SKY_Veg_Weeds at [57.0024, 0.15, 49.6513] yaw 180.0
-- Land_SKY_Veg_Bush at [67.0375, 0.15, 48.8337] yaw 180.0
-- Land_SKY_Veg_Weeds at [79.5398, 0.15, 48.822] yaw 180.0
-- Land_SKY_Veg_Bush at [80.5795, 0.15, 52.7061] yaw 0.0
-- Land_SKY_Veg_Weeds at [85.4992, 0.15, 8.4659] yaw 90.0
-- Land_SKY_Veg_Bush at [85.5346, 0.15, 14.5732] yaw 90.0
-- Land_SKY_Veg_Bush at [85.6082, 0.15, 22.9157] yaw 90.0
-- Land_SKY_Veg_Bush at [85.9044, 0.15, 30.08] yaw 180.0
-- Land_SKY_Veg_Weeds at [85.3404, 0.15, 43.2508] yaw 180.0
-- Land_SKY_Veg_Bush at [85.0607, 0.15, 47.9586] yaw 0.0
+- Land_SKY_City_Kiosk_Ruined at [20.0, 0.15, 7.7] yaw 0.0
+- Land_SKY_City_Bar_Ruined at [83.5, 0.15, 60.5] yaw 180.0
+- Land_SKY_City_Rowhouse_Damaged at [72.4, 0.15, 59.5] yaw 180.0
+- Land_SKY_City_AptBlock_Intact at [58.3, 0.15, 59.5] yaw 180.0
+- Land_SKY_City_SupermarketSmall_Damaged at [38.8, 0.15, 58.5] yaw 180.0
+- Land_SKY_City_ShopRowMarket_Intact at [23.8, 0.15, 58.5] yaw 180.0
+- Land_SKY_Veg_Bush at [21.3636, 0.15, 33.5622] yaw 180.0
+- Land_SKY_Veg_Weeds at [84.2061, 0.15, 17.1385] yaw 90.0
+- Land_SKY_Veg_Bush at [21.2334, 0.15, 18.786] yaw 180.0
+- Land_SKY_Veg_Weeds at [21.1051, 0.15, 23.5231] yaw 90.0
+- Land_SKY_Veg_Bush at [19.9602, 0.15, 38.7675] yaw 180.0
+- Land_SKY_Veg_Bush at [29.8945, 0.15, 48.8734] yaw 90.0
+- Land_SKY_Veg_Weeds at [70.0925, 0.15, 50.1677] yaw 0.0
+- Land_SKY_Veg_Weeds at [79.5403, 0.15, 48.7963] yaw 90.0
+- Land_SKY_Veg_Bush at [86.2323, 0.15, 23.7177] yaw 270.0

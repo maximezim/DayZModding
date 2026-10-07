@@ -27,6 +27,9 @@ import skyspec as S  # noqa: E402
 from test_kit import comp_boxes, dist, rotate, watertight  # noqa: E402
 
 FAIL = []
+# Sealed pockets excused next to a collapse but open to the floor above (a player could drop in and be stuck):
+# reported, not failed - pre-existing in the ruin generator, fix tracked as P39 (security review D69 L).
+POCKETS = []
 NEED = ("res0", "res1", "res2", "res3", "shadow", "geo", "view", "fire", "road", "mem")
 
 
@@ -95,6 +98,8 @@ def flood(P, lods, l, cell=0.1, radius=0.3):
             cx = x0 + sum(c[0] for c in region) / len(region) * cell
             cy = y0 + sum(c[1] for c in region) / len(region) * cell
             if P.near_collapse(cx, cy, l):
+                if any(P.collapsed(x0 + (c[0] + 0.5) * cell, y0 + (c[1] + 0.5) * cell, l + 1) for c in region):
+                    POCKETS.append("%s level %d (%.1f m2)" % (P.name, l, len(region) * cell * cell))
                 continue                                  # sealed by the collapse (allowed, no loot there)
             check(False, "%s level %d: %.1f m2 unreachable (near x %.1f, y %.1f)"
                   % (P.name, l, len(region) * cell * cell, x0 + i * cell, y0 + j * cell))
@@ -246,6 +251,9 @@ def main():
         cur = json.load(open(C.LOOT_JSON)) if os.path.exists(C.LOOT_JSON) else {}
         norm = {k: [list(p) for p in v] for k, v in fresh.items()}
         check(cur == norm, "assets/city_loot.json is stale - re-run build_city.py")
+    if POCKETS:
+        print("WARN: %d sealed ruin pockets open from above (P39): %s" % (len(POCKETS), ", ".join(POCKETS[:6])
+                                                                         + (" ..." if len(POCKETS) > 6 else "")))
     if FAIL:
         print("CITY GEOMETRY TESTS: %d FAILED" % len(FAIL))
         for f in FAIL:

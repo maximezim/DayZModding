@@ -127,6 +127,8 @@ def fill_block(S, block, rect, setback, ground=None, stats=None):
     u0, u1, v0, v1 = rect[0] + setback, rect[1] - setback, rect[2] + setback, rect[3] - setback
     starts = {"S": (u0, v0, u1 - u0), "N": (u1, v1, u1 - u0), "W": (u0, v1, v1 - v0), "E": (u1, v0, v1 - v0)}
     placed, quads, used = [], [], set()
+    # D69 (perf review M): venues behind a "rare" chance are rolled once per block, not on every slot draw
+    allowed = {a for a, p in sorted((zone or {}).get("rare", {}).items()) if rng.random() < p}
     for b in block.get("buildings", []) or []:                              # explicit buildings first
         state = {"intact": 0, "damaged": 1, "ruined": 2}[b.get("ruin", "intact")]
         w, d = dims(S, b["type"])
@@ -158,6 +160,8 @@ def fill_block(S, block, rect, setback, ground=None, stats=None):
                 if small_one and small[0] >= zone.get("small_cap", 1):
                     continue
                 if arch in zone.get("once", ()) and arch in used:          # landmarks: one per block
+                    continue
+                if arch in zone.get("rare", {}) and arch not in allowed:    # D69 venues: only in blocks that rolled them
                     continue
                 w, d = dims(S, arch)
                 gap = 0.0 if (a == 0.0 or (prev_party and party(S, arch))) else zone["gap"]

@@ -1720,4 +1720,107 @@ class CfgVehicles
 		model = "SKY_Skyline\sky_city_com\sky_city_bar_ruined.p3d";
 		skySearch = "alcohol";
 	};
+	class Land_SKY_City_BarB_Intact: Land_SKY_CityCom_Base
+	{
+		// beer hall PIVNAYA: grey render, counter, bottle wall, booths (intact)
+		scope = 1;
+		model = "SKY_Skyline\sky_city_com\sky_city_barb_intact.p3d";
+		skySearch = "alcohol";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_BarB_Damaged: Land_SKY_CityCom_Base
+	{
+		// beer hall PIVNAYA: grey render, counter, bottle wall, booths (damaged)
+		scope = 1;
+		model = "SKY_Skyline\sky_city_com\sky_city_barb_damaged.p3d";
+		skySearch = "alcohol";
+		class Doors
+		{
+			class door_front
+			{
+				displayName = "Door";
+				component = "door_front";
+				soundPos = "door_front_action";
+				animPeriod = 0.8;
+				initPhase = 0.0;
+				initOpened = 0.0;
+				soundOpen = "doorMetalSmallOpen";
+				soundClose = "doorMetalSmallClose";
+				soundLocked = "doorMetalSmallRattle";
+				soundOpenABit = "doorMetalSmallOpenABit";
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth { class Health { hitpoints = 1000; }; };
+			class GlobalArmor
+			{
+				class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+				class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+			};
+			class DamageZones
+			{
+				class door_front
+				{
+					class Health { hitpoints = 1000; transferToGlobalCoef = 0; };
+					componentNames[] = {"door_front"};
+					fatalInjuryCoef = -1;
+					class ArmorType
+					{
+						class Projectile { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class Melee { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+						class FragGrenade { class Health { damage = 0; }; class Blood { damage = 0; }; class Shock { damage = 0; }; };
+					};
+				};
+			};
+		};
+	};
+	class Land_SKY_City_BarB_Ruined: Land_SKY_CityCom_Base
+	{
+		// beer hall PIVNAYA: grey render, counter, bottle wall, booths (ruined)
+		scope = 1;
+		model = "SKY_Skyline\sky_city_com\sky_city_barb_ruined.p3d";
+		skySearch = "alcohol";
+	};
 };

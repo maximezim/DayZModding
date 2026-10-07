@@ -7713,7 +7713,7 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_Kiosk_Damaged",
+   "name": "Land_SKY_City_KioskCafe_Damaged",
    "pos": [
     -56.0,
     0.15,
@@ -7729,7 +7729,7 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_ShopRow_Ruined",
+   "name": "Land_SKY_City_ShopRowMarket_Intact",
    "pos": [
     -77.5,
     0.15,
@@ -7745,7 +7745,7 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_MetroEntrance_A",
+   "name": "Land_SKY_City_MetroEntrance_B",
    "pos": [
     -99.5,
     0.15,
@@ -7763,12 +7763,28 @@
   {
    "name": "Land_SKY_Veg_Weeds",
    "pos": [
-    -76.5159,
+    -67.9905,
     0.15,
-    39.6459
+    37.7256
    ],
    "ypr": [
+    180.0,
     0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Veg_Weeds",
+   "pos": [
+    -56.6994,
+    0.15,
+    52.178
+   ],
+   "ypr": [
+    90.0,
     0.0,
     0.0
    ],
@@ -7793,57 +7809,9 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_RubbleLot_C",
+   "name": "Land_SKY_City_Kiosk_Damaged",
    "pos": [
-    -0.5,
-    0.15,
-    59.5
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_AptBlockBrick_Damaged",
-   "pos": [
-    -17.0,
-    0.15,
-    59.5
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_ShopRowMarket_Damaged",
-   "pos": [
-    -32.0,
-    0.15,
-    58.5
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_Kiosk_Intact",
-   "pos": [
-    -39.5,
+    4.0,
     0.15,
     64.3
    ],
@@ -7857,7 +7825,39 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_Rowhouse_Damaged",
+   "name": "Land_SKY_City_GasStation_Damaged",
+   "pos": [
+    -9.0,
+    0.15,
+    55.0
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_City_Clinic_Intact",
+   "pos": [
+    -28.5,
+    0.15,
+    58.5
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_City_Rowhouse_Ruined",
    "pos": [
     -35.5,
     0.15,
@@ -7873,11 +7873,11 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_RubbleLot_B",
+   "name": "Land_SKY_City_ShopRow_Damaged",
    "pos": [
-    -0.5,
+    -1.5,
     0.15,
-    46.0
+    44.5
    ],
    "ypr": [
     270.0,
@@ -7891,41 +7891,9 @@
   {
    "name": "Land_SKY_Veg_Weeds",
    "pos": [
-    -39.2914,
+    -19.616,
     0.15,
-    58.414
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Veg_Weeds",
-   "pos": [
-    -12.8412,
-    0.15,
-    40.794
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Veg_TreeDead",
-   "pos": [
-    -12.942,
-    0.15,
-    48.2893
+    43.5659
    ],
    "ypr": [
     90.0,
@@ -7937,27 +7905,11 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_Veg_Bush",
+   "name": "Land_SKY_Veg_Weeds",
    "pos": [
-    -23.4226,
+    -16.5318,
     0.15,
-    48.101
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Veg_Bush",
-   "pos": [
-    -19.3135,
-    0.15,
-    42.5635
+    47.9527
    ],
    "ypr": [
     0.0,
@@ -7971,12 +7923,28 @@
   {
    "name": "Land_SKY_Veg_Weeds",
    "pos": [
-    -9.5087,
+    -38.6309,
     0.15,
-    50.2966
+    55.3447
    ],
    "ypr": [
-    180.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Veg_Weeds",
+   "pos": [
+    -25.0249,
+    0.15,
+    42.6805
+   ],
+   "ypr": [
+    0.0,
     0.0,
     0.0
    ],
@@ -8001,7 +7969,7 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_Kiosk_Intact",
+   "name": "Land_SKY_City_Kiosk_Ruined",
    "pos": [
     20.0,
     0.15,
@@ -8017,11 +7985,11 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_Cafe_Ruined",
+   "name": "Land_SKY_City_Bar_Ruined",
    "pos": [
     83.5,
     0.15,
-    58.5
+    60.5
    ],
    "ypr": [
     180.0,
@@ -8033,25 +8001,9 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_SupermarketSmall_Intact",
+   "name": "Land_SKY_City_Rowhouse_Damaged",
    "pos": [
-    67.0,
-    0.15,
-    58.5
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_City_AptBlock_Intact",
-   "pos": [
-    47.5,
+    72.4,
     0.15,
     59.5
    ],
@@ -8065,9 +8017,25 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_ShopRow_Intact",
+   "name": "Land_SKY_City_AptBlock_Intact",
    "pos": [
-    32.5,
+    58.3,
+    0.15,
+    59.5
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_City_SupermarketSmall_Damaged",
+   "pos": [
+    38.8,
     0.15,
     58.5
    ],
@@ -8081,9 +8049,9 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_City_ShopRow_Intact",
+   "name": "Land_SKY_City_ShopRowMarket_Intact",
    "pos": [
-    23.5,
+    23.8,
     0.15,
     58.5
    ],
@@ -8099,9 +8067,25 @@
   {
    "name": "Land_SKY_Veg_Bush",
    "pos": [
-    23.3478,
+    21.3636,
     0.15,
-    34.6486
+    33.5622
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Veg_Weeds",
+   "pos": [
+    84.2061,
+    0.15,
+    17.1385
    ],
    "ypr": [
     90.0,
@@ -8115,9 +8099,41 @@
   {
    "name": "Land_SKY_Veg_Bush",
    "pos": [
-    20.2535,
+    21.2334,
     0.15,
-    44.247
+    18.786
+   ],
+   "ypr": [
+    180.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Veg_Weeds",
+   "pos": [
+    21.1051,
+    0.15,
+    23.5231
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Veg_Bush",
+   "pos": [
+    19.9602,
+    0.15,
+    38.7675
    ],
    "ypr": [
     180.0,
@@ -8131,9 +8147,25 @@
   {
    "name": "Land_SKY_Veg_Bush",
    "pos": [
-    19.9399,
+    29.8945,
     0.15,
-    48.9378
+    48.8734
+   ],
+   "ypr": [
+    90.0,
+    0.0,
+    0.0
+   ],
+   "scale": 1.0,
+   "enableCEPersistency": 0,
+   "customString": ""
+  },
+  {
+   "name": "Land_SKY_Veg_Weeds",
+   "pos": [
+    70.0925,
+    0.15,
+    50.1677
    ],
    "ypr": [
     0.0,
@@ -8145,14 +8177,14 @@
    "customString": ""
   },
   {
-   "name": "Land_SKY_Veg_Bush",
+   "name": "Land_SKY_Veg_Weeds",
    "pos": [
-    41.0384,
+    79.5403,
     0.15,
-    49.6017
+    48.7963
    ],
    "ypr": [
-    180.0,
+    90.0,
     0.0,
     0.0
    ],
@@ -8163,172 +8195,12 @@
   {
    "name": "Land_SKY_Veg_Bush",
    "pos": [
-    50.5814,
+    86.2323,
     0.15,
-    49.2914
+    23.7177
    ],
    "ypr": [
     270.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Veg_Weeds",
-   "pos": [
-    57.0024,
-    0.15,
-    49.6513
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Veg_Bush",
-   "pos": [
-    67.0375,
-    0.15,
-    48.8337
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Veg_Weeds",
-   "pos": [
-    79.5398,
-    0.15,
-    48.822
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Veg_Bush",
-   "pos": [
-    80.5795,
-    0.15,
-    52.7061
-   ],
-   "ypr": [
-    0.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Veg_Weeds",
-   "pos": [
-    85.4992,
-    0.15,
-    8.4659
-   ],
-   "ypr": [
-    90.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Veg_Bush",
-   "pos": [
-    85.5346,
-    0.15,
-    14.5732
-   ],
-   "ypr": [
-    90.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Veg_Bush",
-   "pos": [
-    85.6082,
-    0.15,
-    22.9157
-   ],
-   "ypr": [
-    90.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Veg_Bush",
-   "pos": [
-    85.9044,
-    0.15,
-    30.08
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Veg_Weeds",
-   "pos": [
-    85.3404,
-    0.15,
-    43.2508
-   ],
-   "ypr": [
-    180.0,
-    0.0,
-    0.0
-   ],
-   "scale": 1.0,
-   "enableCEPersistency": 0,
-   "customString": ""
-  },
-  {
-   "name": "Land_SKY_Veg_Bush",
-   "pos": [
-    85.0607,
-    0.15,
-    47.9586
-   ],
-   "ypr": [
-    0.0,
     0.0,
     0.0
    ],

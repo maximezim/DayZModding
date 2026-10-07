@@ -641,6 +641,14 @@ collision and looks.
 | AM-03 | Walk all three mall floors | Quiet muzak on every floor, gone ~35 m outside | | |
 | AM-04 | Search a metro ticket kiosk and a bus-stop bin (P36) | Kiosk: papers / snacks / torch etc. on the platform floor; bin: trash table; cooldown and rate limit as §26 | | |
 
+## 34. Venue variants (D69)
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| VV-01 | Walk through each B venue (universam, TC Galaktika both floors, kino Oktyabr, pivnaya, FC Torpedo) in all three states (P38) | Signs readable, doors open, every floor reachable, no sealed rooms, ruins climbable | | |
+| VV-02 | Search universam shelves, mall rails, pivnaya counter, Torpedo lockers | Same tables as the base venues (grocery, costume, alcohol, sport), cooldown as §26 | | |
+| VV-03 | Stand in the universam and in TC Galaktika | Tube hum / muzak as the base venues, gone outside the hall | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -661,6 +669,7 @@ collision and looks.
 | Asset quality §31 | | | |
 | Variety §32 | | | |
 | Ambience §33 | | | |
+| Venue variants §34 | | | |
 | Placement §9 | | | |
 | Roof drop §10 | | | |
 | Clean logs §11 | | | |

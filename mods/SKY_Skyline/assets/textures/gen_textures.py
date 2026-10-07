@@ -1103,6 +1103,41 @@ def signs3(size, out):
     save(to_rgb(np.clip(arr, 0, 1)), out, "sky_signs3_co")
 
 
+SIGNS4 = ["UNIVERSAM  RASSVET", "KINO  OKTYABR", "TC  GALAKTIKA", "PIVNAYA  No 1", "FC  TORPEDO", "MOLOKO", "REMONT  OBUVI",
+          "SBERKASSA"]                                       # 6-8: spare bands for later variants
+
+
+def signs4(size, out):
+    """Venue variant sign sheet (1024, D69): 8 bands = skyspec.SIGN4_NAMES (6-8 spare). Older Soviet look than signs2:
+    painted sheet metal, serif-free capitals, a thin keyline; weathered like the facades."""
+    size = min(size, 1024)
+    img = Image.new("RGB", (size, size), (30, 30, 34))
+    d = ImageDraw.Draw(img)
+    styles = [((30, 90, 60), (240, 236, 220)), ((150, 30, 25), (250, 225, 150)), ((35, 40, 90), (240, 200, 70)),
+              ((95, 55, 25), (245, 230, 200)), ((15, 15, 15), (240, 240, 240)), ((235, 235, 225), (30, 70, 150)),
+              ((60, 60, 65), (240, 200, 60)), ((30, 60, 110), (240, 240, 235))]
+    n = len(SIGNS4)
+    for i, txt in enumerate(SIGNS4):
+        bg, fg = styles[i]
+        y0 = int(i * size / n)                                # same band edges as skyspec.SIGN_BAND (signs4)
+        bh = int((i + 1) * size / n) - y0
+        d.rectangle([0, y0, size, y0 + bh - 1], fill=bg)
+        d.rectangle([6, y0 + 6, size - 7, y0 + bh - 7], outline=fg, width=3)
+        if i == 1:                                            # marquee bulbs (cinema)
+            for x in range(18, size - 10, 32):
+                for yy in (y0 + 16, y0 + bh - 17):
+                    d.ellipse([x - 5, yy - 5, x + 5, yy + 5], fill=(255, 236, 170))
+        if i == 4:                                            # club stripes: black / white
+            for x in range(0, size, 64):
+                d.rectangle([x, y0 + bh - 18, x + 31, y0 + bh - 8], fill=(240, 240, 240))
+        f = _font(int(bh * 0.5))
+        tb = d.textbbox((0, 0), txt, font=f)
+        d.text(((size - (tb[2] - tb[0])) // 2 - tb[0], y0 + (bh - (tb[3] - tb[1])) // 2 - tb[1]), txt, fill=fg, font=f)
+    arr = np.asarray(img).astype(np.float32) / 255.0
+    arr = weather(arr, 1901, dirt=0.35, desat=0.25, moss=0.05, streaks=0.35, spots=0.25)
+    save(to_rgb(np.clip(arr, 0, 1)), out, "sky_signs4_co")
+
+
 def fair(size, out):
     """Fairground paint trim (1024, D61): V 0-0.25 Pripyat yellow, 0.25-0.5 signal red, 0.5-0.75 fair
     blue, 0.75-1 cream white. Chalked, flaking to grey primer and rust, rust runs from the top."""
@@ -1545,6 +1580,7 @@ GENERATORS = {
     "hq_facade": hq_facade, "signs2": signs2, "fair": fair, "trash": trash, "turf": turf,
     "fur": lambda s, o: fur(min(s, 1024), o),                                  # D65 creatures
     "signs3": signs3,                                                          # D66 underground signs
+    "signs4": signs4,                                                          # D69 venue variants
 }
 
 

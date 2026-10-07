@@ -145,6 +145,7 @@ textures:
   - {name: sky_wall_render_cream|ochre|grey|white, maps: [co], size: 2048, use: tileable stucco walls in the 4 city colours (4 m sheet), status: built-unverified}
   - {name: sky_hq_facade, maps: [co, nohq(2048), smdi(1024)], size: 4096, use: "HQ facade atlas (D60) - brushed bronze / ribbed bronze spandrel / flamed granite / bronze louvre bands, 6 m sheet; the only 4K texture", status: built-unverified}
 
+  - {name: sky_signs4, maps: [co], size: 1024, use: "venue variant signs (D69): universam, kino Oktyabr, TC Galaktika, pivnaya, FC Torpedo (+3 spare bands)", status: built-unverified}
   - {name: sky_signs3, maps: [co], size: 1024, use: "underground signs (D66): 4 station names, exits, line board, sewer warning", status: built-unverified}
   - {name: sky_fur, maps: [co, nohq], size: 1024, use: "creature fur (D65): tan / black saddle / rat grey / chestnut bands", status: built-unverified}
 
@@ -1531,6 +1532,111 @@ generated_kit:
   - name: Land_SKY_City_Clubhouse_Ruined
     type: "football clubhouse: home and away changing rooms with benches, lockers and showers (ruined)"
     p3d: addons/sky_city_civic/sky_city_clubhouse_ruined.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_City_HypermarketB_Intact
+    type: "Soviet universam: 36 x 28 m brick supermarket hall, racks, checkouts (intact)"
+    p3d: addons/sky_city_venue/sky_city_hypermarketb_intact.p3d
+    category: city_large
+    budget: {res0: 80000, res1: 24000, res2: 2500, res3: 300, shadow: 1000, geo_comps: 640, geo_tris: 8000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_HypermarketB_Damaged
+    type: "Soviet universam: 36 x 28 m brick supermarket hall, racks, checkouts (damaged)"
+    p3d: addons/sky_city_venue/sky_city_hypermarketb_damaged.p3d
+    category: city_large
+    budget: {res0: 80000, res1: 24000, res2: 2500, res3: 300, shadow: 1000, geo_comps: 640, geo_tris: 8000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_HypermarketB_Ruined
+    type: "Soviet universam: 36 x 28 m brick supermarket hall, racks, checkouts (ruined)"
+    p3d: addons/sky_city_venue/sky_city_hypermarketb_ruined.p3d
+    category: city_large
+    budget: {res0: 80000, res1: 24000, res2: 2500, res3: 300, shadow: 1000, geo_comps: 640, geo_tris: 8000, sections_res0: 24}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_City_MallB_Intact
+    type: "2-level panel shopping centre round a glazed atrium (intact)"
+    p3d: addons/sky_city_venue/sky_city_mallb_intact.p3d
+    category: city_large
+    budget: {res0: 80000, res1: 24000, res2: 2500, res3: 300, shadow: 1000, geo_comps: 640, geo_tris: 8000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_MallB_Damaged
+    type: "2-level panel shopping centre round a glazed atrium (damaged)"
+    p3d: addons/sky_city_venue/sky_city_mallb_damaged.p3d
+    category: city_large
+    budget: {res0: 80000, res1: 24000, res2: 2500, res3: 300, shadow: 1000, geo_comps: 640, geo_tris: 8000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_MallB_Ruined
+    type: "2-level panel shopping centre round a glazed atrium (ruined)"
+    p3d: addons/sky_city_venue/sky_city_mallb_ruined.p3d
+    category: city_large
+    budget: {res0: 80000, res1: 24000, res2: 2500, res3: 300, shadow: 1000, geo_comps: 640, geo_tris: 8000, sections_res0: 24}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_City_CinemaB_Intact
+    type: "cinema OKTYABR: ochre render, marquee, foyer, raked auditorium (intact)"
+    p3d: addons/sky_city_venue/sky_city_cinemab_intact.p3d
+    category: city_large
+    budget: {res0: 80000, res1: 24000, res2: 2500, res3: 300, shadow: 1000, geo_comps: 640, geo_tris: 8000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_CinemaB_Damaged
+    type: "cinema OKTYABR: ochre render, marquee, foyer, raked auditorium (damaged)"
+    p3d: addons/sky_city_venue/sky_city_cinemab_damaged.p3d
+    category: city_large
+    budget: {res0: 80000, res1: 24000, res2: 2500, res3: 300, shadow: 1000, geo_comps: 640, geo_tris: 8000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_CinemaB_Ruined
+    type: "cinema OKTYABR: ochre render, marquee, foyer, raked auditorium (ruined)"
+    p3d: addons/sky_city_venue/sky_city_cinemab_ruined.p3d
+    category: city_large
+    budget: {res0: 80000, res1: 24000, res2: 2500, res3: 300, shadow: 1000, geo_comps: 640, geo_tris: 8000, sections_res0: 24}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_City_BarB_Intact
+    type: "beer hall PIVNAYA: grey render, counter, bottle wall, booths (intact)"
+    p3d: addons/sky_city_com/sky_city_barb_intact.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_BarB_Damaged
+    type: "beer hall PIVNAYA: grey render, counter, bottle wall, booths (damaged)"
+    p3d: addons/sky_city_com/sky_city_barb_damaged.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_BarB_Ruined
+    type: "beer hall PIVNAYA: grey render, counter, bottle wall, booths (ruined)"
+    p3d: addons/sky_city_com/sky_city_barb_ruined.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION]
+    status: built-unverified
+  - name: Land_SKY_City_ClubhouseB_Intact
+    type: "FC TORPEDO clubhouse: panel walls, two changing rooms with lockers and showers (intact)"
+    p3d: addons/sky_city_civic/sky_city_clubhouseb_intact.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_ClubhouseB_Damaged
+    type: "FC TORPEDO clubhouse: panel walls, two changing rooms with lockers and showers (damaged)"
+    p3d: addons/sky_city_civic/sky_city_clubhouseb_damaged.p3d
+    category: city
+    budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
+    uses: [PENETRATION, DOOR_SWING_SIGN]
+    status: built-unverified
+  - name: Land_SKY_City_ClubhouseB_Ruined
+    type: "FC TORPEDO clubhouse: panel walls, two changing rooms with lockers and showers (ruined)"
+    p3d: addons/sky_city_civic/sky_city_clubhouseb_ruined.p3d
     category: city
     budget: {res0: 30000, res1: 9000, res2: 1500, res3: 200, shadow: 600, geo_comps: 240, geo_tris: 3000, sections_res0: 24}
     uses: [PENETRATION]

@@ -531,6 +531,37 @@
             <point pos="4.800000 7.500000 -3.300000" range="0.600000" height="1.500000" />
         </container>
     </group>
+    <group name="Land_SKY_City_BarB_Damaged" lootmax="1">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="1">
+            <category name="food" />
+            <category name="containers" />
+            <tag name="floor" />
+            <point pos="-1.300000 0.000000 -1.300000" range="0.600000" height="1.500000" />
+            <point pos="-1.300000 0.000000 -3.900000" range="0.600000" height="1.500000" />
+            <point pos="-0.000000 0.000000 -3.900000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_BarB_Intact" lootmax="1">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="1">
+            <category name="food" />
+            <category name="containers" />
+            <tag name="floor" />
+            <point pos="-1.300000 0.000000 -1.300000" range="0.600000" height="1.500000" />
+            <point pos="-0.000000 0.000000 -3.900000" range="0.600000" height="1.500000" />
+            <point pos="3.900000 0.000000 -0.000000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_BarB_Ruined" lootmax="1">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="1">
+            <category name="food" />
+            <category name="containers" />
+            <tag name="floor" />
+            <point pos="3.900000 0.000000 -1.300000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
     <group name="Land_SKY_City_Bar_Damaged" lootmax="1">
         <usage name="Town" />
         <container name="lootFloor" lootmax="1">
@@ -720,6 +751,53 @@
             <point pos="-4.600000 0.000000 -9.600000" range="0.600000" height="1.500000" />
         </container>
     </group>
+    <group name="Land_SKY_City_CinemaB_Damaged" lootmax="4">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="4">
+            <category name="clothes" />
+            <category name="food" />
+            <category name="containers" />
+            <tag name="floor" />
+            <point pos="-1.100000 0.000000 -7.400000" range="0.600000" height="1.500000" />
+            <point pos="-8.900000 0.000000 -6.100000" range="0.600000" height="1.500000" />
+            <point pos="-1.100000 0.000000 -10.000000" range="0.600000" height="1.500000" />
+            <point pos="8.000000 0.000000 -10.000000" range="0.600000" height="1.500000" />
+            <point pos="6.700000 0.000000 -8.700000" range="0.600000" height="1.500000" />
+            <point pos="0.200000 0.000000 -12.600000" range="0.600000" height="1.500000" />
+            <point pos="-6.300000 0.000000 -8.700000" range="0.600000" height="1.500000" />
+            <point pos="1.500000 0.000000 -7.400000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_CinemaB_Intact" lootmax="4">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="4">
+            <category name="clothes" />
+            <category name="food" />
+            <category name="containers" />
+            <tag name="floor" />
+            <point pos="-3.700000 0.000000 -13.900000" range="0.600000" height="1.500000" />
+            <point pos="-5.000000 0.000000 -11.300000" range="0.600000" height="1.500000" />
+            <point pos="2.800000 0.000000 -8.700000" range="0.600000" height="1.500000" />
+            <point pos="4.100000 0.000000 -2.200000" range="0.600000" height="1.500000" />
+            <point pos="5.400000 0.000000 -12.600000" range="0.600000" height="1.500000" />
+            <point pos="6.700000 0.000000 -13.900000" range="0.600000" height="1.500000" />
+            <point pos="5.400000 0.000000 -8.700000" range="0.600000" height="1.500000" />
+            <point pos="0.200000 0.000000 -7.400000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_CinemaB_Ruined" lootmax="2">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="2">
+            <category name="clothes" />
+            <category name="food" />
+            <category name="containers" />
+            <tag name="floor" />
+            <point pos="-2.400000 0.000000 -12.600000" range="0.600000" height="1.500000" />
+            <point pos="-6.300000 0.000000 -12.600000" range="0.600000" height="1.500000" />
+            <point pos="-5.000000 0.000000 -13.900000" range="0.600000" height="1.500000" />
+            <point pos="-3.700000 0.000000 -11.300000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
     <group name="Land_SKY_City_Cinema_Damaged" lootmax="4">
         <usage name="Town" />
         <container name="lootFloor" lootmax="4">
@@ -826,6 +904,40 @@
             <point pos="-3.000000 3.500000 0.600000" range="0.600000" height="1.500000" />
             <point pos="-6.900000 3.500000 0.600000" range="0.600000" height="1.500000" />
             <point pos="-5.600000 3.500000 -5.900000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_ClubhouseB_Damaged" lootmax="2">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="2">
+            <category name="clothes" />
+            <category name="containers" />
+            <tag name="floor" />
+            <point pos="-4.000000 0.000000 1.000000" range="0.600000" height="1.500000" />
+            <point pos="-7.900000 0.000000 -2.900000" range="0.600000" height="1.500000" />
+            <point pos="5.100000 0.000000 -0.300000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 0.000000 1.000000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_ClubhouseB_Intact" lootmax="2">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="2">
+            <category name="clothes" />
+            <category name="containers" />
+            <tag name="floor" />
+            <point pos="-1.400000 0.000000 2.300000" range="0.600000" height="1.500000" />
+            <point pos="6.400000 0.000000 2.300000" range="0.600000" height="1.500000" />
+            <point pos="-2.700000 0.000000 1.000000" range="0.600000" height="1.500000" />
+            <point pos="-5.300000 0.000000 2.300000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_ClubhouseB_Ruined" lootmax="1">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="1">
+            <category name="clothes" />
+            <category name="containers" />
+            <tag name="floor" />
+            <point pos="-7.900000 0.000000 -2.900000" range="0.600000" height="1.500000" />
+            <point pos="-6.600000 0.000000 2.300000" range="0.600000" height="1.500000" />
         </container>
     </group>
     <group name="Land_SKY_City_Clubhouse_Damaged" lootmax="2">
@@ -1684,6 +1796,56 @@
             <point pos="-18.900000 14.500000 2.100000" range="0.600000" height="1.500000" />
         </container>
     </group>
+    <group name="Land_SKY_City_HypermarketB_Damaged" lootmax="4">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="4">
+            <category name="food" />
+            <category name="containers" />
+            <category name="tools" />
+            <category name="clothes" />
+            <tag name="floor" />
+            <point pos="3.900000 0.000000 -11.600000" range="0.600000" height="1.500000" />
+            <point pos="-13.000000 0.000000 -7.700000" range="0.600000" height="1.500000" />
+            <point pos="9.100000 0.000000 -6.400000" range="0.600000" height="1.500000" />
+            <point pos="15.600000 0.000000 9.200000" range="0.600000" height="1.500000" />
+            <point pos="-2.600000 0.000000 -12.900000" range="0.600000" height="1.500000" />
+            <point pos="2.600000 0.000000 5.300000" range="0.600000" height="1.500000" />
+            <point pos="15.600000 0.000000 2.700000" range="0.600000" height="1.500000" />
+            <point pos="5.200000 0.000000 -9.000000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_HypermarketB_Intact" lootmax="4">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="4">
+            <category name="food" />
+            <category name="containers" />
+            <category name="tools" />
+            <category name="clothes" />
+            <tag name="floor" />
+            <point pos="1.300000 0.000000 -7.700000" range="0.600000" height="1.500000" />
+            <point pos="16.900000 0.000000 -11.600000" range="0.600000" height="1.500000" />
+            <point pos="0.000000 0.000000 -2.500000" range="0.600000" height="1.500000" />
+            <point pos="0.000000 0.000000 -9.000000" range="0.600000" height="1.500000" />
+            <point pos="-13.000000 0.000000 -3.800000" range="0.600000" height="1.500000" />
+            <point pos="14.300000 0.000000 -3.800000" range="0.600000" height="1.500000" />
+            <point pos="-15.600000 0.000000 -5.100000" range="0.600000" height="1.500000" />
+            <point pos="-3.900000 0.000000 1.400000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_HypermarketB_Ruined" lootmax="2">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="2">
+            <category name="food" />
+            <category name="containers" />
+            <category name="tools" />
+            <category name="clothes" />
+            <tag name="floor" />
+            <point pos="-1.300000 0.000000 -3.800000" range="0.600000" height="1.500000" />
+            <point pos="-11.700000 0.000000 -5.100000" range="0.600000" height="1.500000" />
+            <point pos="-16.900000 0.000000 -1.200000" range="0.600000" height="1.500000" />
+            <point pos="15.600000 0.000000 10.500000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
     <group name="Land_SKY_City_Hypermarket_Damaged" lootmax="4">
         <usage name="Town" />
         <container name="lootFloor" lootmax="4">
@@ -1848,6 +2010,79 @@
             <category name="food" />
             <category name="books" />
             <tag name="floor" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_MallB_Damaged" lootmax="8">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="8">
+            <category name="clothes" />
+            <category name="containers" />
+            <category name="food" />
+            <category name="tools" />
+            <category name="books" />
+            <tag name="floor" />
+            <point pos="-9.900000 0.000000 15.300000" range="0.600000" height="1.500000" />
+            <point pos="5.700000 0.000000 4.900000" range="0.600000" height="1.500000" />
+            <point pos="-21.600000 0.000000 1.000000" range="0.600000" height="1.500000" />
+            <point pos="14.800000 0.000000 10.100000" range="0.600000" height="1.500000" />
+            <point pos="-6.000000 0.000000 7.500000" range="0.600000" height="1.500000" />
+            <point pos="-2.100000 0.000000 -5.500000" range="0.600000" height="1.500000" />
+            <point pos="17.400000 0.000000 2.300000" range="0.600000" height="1.500000" />
+            <point pos="21.300000 0.000000 6.200000" range="0.600000" height="1.500000" />
+            <point pos="-19.000000 5.000000 -9.400000" range="0.600000" height="1.500000" />
+            <point pos="-7.300000 5.000000 -15.900000" range="0.600000" height="1.500000" />
+            <point pos="-22.900000 5.000000 15.300000" range="0.600000" height="1.500000" />
+            <point pos="21.300000 5.000000 -9.400000" range="0.600000" height="1.500000" />
+            <point pos="-20.300000 5.000000 12.700000" range="0.600000" height="1.500000" />
+            <point pos="-9.900000 5.000000 1.000000" range="0.600000" height="1.500000" />
+            <point pos="14.800000 5.000000 3.600000" range="0.600000" height="1.500000" />
+            <point pos="-2.100000 5.000000 8.800000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_MallB_Intact" lootmax="8">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="8">
+            <category name="clothes" />
+            <category name="containers" />
+            <category name="food" />
+            <category name="tools" />
+            <category name="books" />
+            <tag name="floor" />
+            <point pos="20.000000 0.000000 -0.300000" range="0.600000" height="1.500000" />
+            <point pos="9.600000 0.000000 -12.000000" range="0.600000" height="1.500000" />
+            <point pos="14.800000 0.000000 -8.100000" range="0.600000" height="1.500000" />
+            <point pos="13.500000 0.000000 4.900000" range="0.600000" height="1.500000" />
+            <point pos="7.000000 0.000000 -8.100000" range="0.600000" height="1.500000" />
+            <point pos="-15.100000 0.000000 -0.300000" range="0.600000" height="1.500000" />
+            <point pos="9.600000 0.000000 4.900000" range="0.600000" height="1.500000" />
+            <point pos="7.000000 0.000000 8.800000" range="0.600000" height="1.500000" />
+            <point pos="9.600000 5.000000 12.700000" range="0.600000" height="1.500000" />
+            <point pos="21.300000 5.000000 11.400000" range="0.600000" height="1.500000" />
+            <point pos="3.100000 5.000000 6.200000" range="0.600000" height="1.500000" />
+            <point pos="-16.400000 5.000000 14.000000" range="0.600000" height="1.500000" />
+            <point pos="5.700000 5.000000 -12.000000" range="0.600000" height="1.500000" />
+            <point pos="-17.700000 5.000000 -10.700000" range="0.600000" height="1.500000" />
+            <point pos="-13.800000 5.000000 -1.600000" range="0.600000" height="1.500000" />
+            <point pos="10.900000 5.000000 -13.300000" range="0.600000" height="1.500000" />
+        </container>
+    </group>
+    <group name="Land_SKY_City_MallB_Ruined" lootmax="4">
+        <usage name="Town" />
+        <container name="lootFloor" lootmax="4">
+            <category name="clothes" />
+            <category name="containers" />
+            <category name="food" />
+            <category name="tools" />
+            <category name="books" />
+            <tag name="floor" />
+            <point pos="5.700000 0.000000 11.400000" range="0.600000" height="1.500000" />
+            <point pos="-22.900000 0.000000 -0.300000" range="0.600000" height="1.500000" />
+            <point pos="-9.900000 0.000000 11.400000" range="0.600000" height="1.500000" />
+            <point pos="-0.800000 0.000000 -10.700000" range="0.600000" height="1.500000" />
+            <point pos="-13.800000 5.000000 4.900000" range="0.600000" height="1.500000" />
+            <point pos="-20.300000 5.000000 -6.800000" range="0.600000" height="1.500000" />
+            <point pos="-11.200000 5.000000 14.000000" range="0.600000" height="1.500000" />
+            <point pos="-8.600000 5.000000 -8.100000" range="0.600000" height="1.500000" />
         </container>
     </group>
     <group name="Land_SKY_City_Mall_Damaged" lootmax="12">

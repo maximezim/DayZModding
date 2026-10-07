@@ -3260,9 +3260,9 @@ def marquee(L, P):
     for k in ("res0", "res1", "res2", "geo", "fire", "view", "shadow"):
         L[k].box(-5.5, 5.5, y - 2.6, y, zc, zc + 0.7, **kw_for(k, "metal", DT.UV_PAINT, "metal"))
     sign2_quad(L["res0"], [(-5.3, y - 2.61, zc + 0.08), (5.3, y - 2.61, zc + 0.08), (5.3, y - 2.61, zc + 0.62),
-                            (-5.3, y - 2.61, zc + 0.62)], (0, -1, 0), "kino", (0, 2), (-5.3, zc + 0.08), (5.3, zc + 0.62))
+                            (-5.3, y - 2.61, zc + 0.62)], (0, -1, 0), P.A.get("marquee", "kino"), (0, 2), (-5.3, zc + 0.08), (5.3, zc + 0.62))
     sign2_quad(L["res1"], [(-5.3, y - 2.61, zc + 0.08), (5.3, y - 2.61, zc + 0.08), (5.3, y - 2.61, zc + 0.62),
-                            (-5.3, y - 2.61, zc + 0.62)], (0, -1, 0), "kino", (0, 2), (-5.3, zc + 0.08), (5.3, zc + 0.62))
+                            (-5.3, y - 2.61, zc + 0.62)], (0, -1, 0), P.A.get("marquee", "kino"), (0, 2), (-5.3, zc + 0.08), (5.3, zc + 0.62))
     if P.state == 0:                                                              # bulbs round the canopy edge
         for i in range(23):
             bx = -5.4 + i * 10.8 / 22
@@ -3280,7 +3280,7 @@ def marquee(L, P):
     for s_ in (-1, 1):
         xx = bx + s_ * 0.61
         sign2_quad(L["res0"], [(xx, y - 0.85, bz0 + 0.1), (xx, y - 0.15, bz0 + 0.1), (xx, y - 0.15, bz1 - 0.1),
-                                (xx, y - 0.85, bz1 - 0.1)], (s_, 0, 0), "kino", (2, 1), (bz0 + 0.1, y - 0.85), (bz1 - 0.1, y - 0.15))
+                                (xx, y - 0.85, bz1 - 0.1)], (s_, 0, 0), P.A.get("marquee", "kino"), (2, 1), (bz0 + 0.1, y - 0.85), (bz1 - 0.1, y - 0.15))
     for x_ in (-3.6, 3.6):                                                        # poster cases
         for k in ("res0", "res1"):
             L[k].box(x_ - 0.6, x_ + 0.6, y - 0.12, y, 0.6, 2.4, mat="metal", uv=DT.UV_ALU)

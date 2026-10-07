@@ -282,3 +282,11 @@ stadium stand (which now flies three ragged club flags) and tinny muzak still pl
 up showed that the sewer drips were playing at street level; every underground sound now comes from the
 tunnel floor and stays underground. Players can also search the metro ticket kiosks (papers, snacks, a torch)
 and the bin at every bus stop. Gates and reviews: `reviews/d68_gates.md`.
+
+## 21. Venue variants (D69)
+
+Every venue now has a second look: a brick universam, a two-floor panel shopping centre, an ochre cinema, a
+grey beer hall and a panel football clubhouse, each with its own weathered sign. Venues are no longer only
+hand-placed: the city generator now drops them into blocks where they fit, rarely (each block rolls once
+per venue type; a mall in about one large downtown block in eight). The test city now gets a bar from the fill. Renders and gates:
+`reviews/d69_gates.md`.
