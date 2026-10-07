@@ -1,6 +1,6 @@
 # SKY_Skyline progress report
 
-## Status at a glance (after D82, 2026-10-07)
+## Status at a glance (after D83, 2026-10-07)
 
 **Overall: about 60 % of a releasable v1.0.** About 92 % of the content is authored and every offline gate
 passes. But nothing has been packed, signed or run in DayZ yet. In-game verification is 0 % and carries the
@@ -8,12 +8,12 @@ most weight of what remains.
 
 | Area | Weight | Done | Why |
 |---|---|---|---|
-| Design and spec (23 ideas, city catalog, decisions D1-D82) | 10 % | 100 % | every idea has a design or a documented block |
+| Design and spec (23 ideas, city catalog, decisions D1-D83) | 10 % | 100 % | every idea has a design or a documented block |
 | Content authored (models, scripts, configs, economy, layouts) | 30 % | 92 % | 21 of 23 ideas built; horses and drivable vehicles blocked on Workbench skills; the underground needs a custom terrain |
-| Offline quality gates (tests, budgets, generators, script xref, reviews) | 10 % | 100 % | test_city 191, test_kit 279 (with hull and wiring checks), check_assets 289 / 0 over, layout 0 failed, texture references 76 / 0 missing, concealment gate over kit + city 0 open findings, slit gate PASS, perf + security reviews on every batch |
-| Asset quality to ASSET_QUALITY_GUIDE section 8 | 15 % | 70 % | street kit (three passes), street surfaces, car parks and hulks, the interior room kit, venues and underground passed close-up passes; wood, fabric, paver, concrete, brick, stucco, panel, limestone and trim maps have real depth (D77, D80, D82); no baked AO on hero props yet; building interiors repeat their room kits |
+| Offline quality gates (tests, budgets, generators, script xref, reviews) | 10 % | 100 % | test_city 191, test_kit 279 (with hull and wiring checks), check_assets 289 / 0 over, layout 0 failed, texture references 76 / 0 missing, concealment gate over kit + city 0 open findings, slit gate PASS (depth-checked, city blocking), ruin cut gate PASS, perf + security reviews on every batch |
+| Asset quality to ASSET_QUALITY_GUIDE section 8 | 15 % | 70 % | street kit (three passes), street surfaces, car parks and hulks, the interior room kit, venues and underground passed close-up passes; wood, fabric, paver, concrete, brick, stucco, panel, limestone and trim maps have real depth (D77, D80, D82, D83 soldier course and sill); no baked AO on hero props yet; building interiors repeat their room kits |
 | Pack, sign, PAA on Windows (full mod) | 10 % | 10 % | toolchain verified with the empty template only (SETUP_REPORT); the 18 SKY packages were never packed |
-| In-game verification (TESTING sign-off, P-parameters) | 20 % | 0 % | 0 of 48 sign-off rows, 0 of 53 `P` assumptions, `CITY_TESTED` empty |
+| In-game verification (TESTING sign-off, P-parameters) | 20 % | 0 % | 0 of 49 sign-off rows, 0 of 53 `P` assumptions, `CITY_TESTED` empty |
 | Release prep (real site / terrain, FPS numbers, server-owner docs) | 5 % | 20 % | layouts and terrain generator ready; no surveyed site, no Terrain Builder import, no FPS run, no perf probe |
 
 Weighted: 10 + 27.6 + 10 + 10.5 + 1 + 0 + 1 = **60.1 %**.
@@ -419,3 +419,12 @@ Reviews and renders: `reviews/d80_gates.md`.
 
 The no-hiding check now covers all 191 city buildings too. It found lampshades, debris, pallet stacks, machines, roof equipment and cinema fittings a head could hide inside - all fixed - and a real bug in ruined buildings: the top of a wall could be drawn where its collision had been cut away, so bullets passed through visible brick. Ruin cuts now use one height per 5 m patch for both. A second check looks for slits where bullets pass but the model looks solid (one bus-stop gap closed). Limestone, concrete-panel and brick-trim facades got the same depth treatment as the other walls.
 Reviews: `reviews/d82_gates.md`.
+
+
+## 34. Slits and ruin cuts (D83)
+
+The 14 suspected slits in city buildings were all false alarms: the check flattened a whole building onto one plane
+and paired walls metres apart around a thin window frame. It now looks at each spot at the depth of the surface you
+actually see, and city buildings block the build if it finds anything. A new check makes sure every ruined gable,
+cornice and roof piece that stays standing has collision, and nothing invisible is left where the render fell.
+Brick soldier courses and stone sills over windows now have relief in the normal map. Reviews: `reviews/d83_gates.md`.

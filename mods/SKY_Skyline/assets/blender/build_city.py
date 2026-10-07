@@ -169,12 +169,20 @@ class RLod:
         if self._centroid_ok([(cx, cy, (z0 + z1) / 2)]):
             self.lod.prism(cx, cy, r, z0, z1, n, mat, uv, sel, component, rot)
 
+    @staticmethod
+    def _pc(profile):
+        """Profile bounding-box centre (D83, sec review: profile[0] is an arbitrary corner, so a render cornice and
+        its narrower collision could fall on opposite sides of a cut)."""
+        u, z = [p[0] for p in profile], [p[1] for p in profile]
+        return (min(u) + max(u)) / 2, (min(z) + max(z)) / 2
+
     def extrude_x(self, profile, x0, x1, **kw):
-        if self._centroid_ok([((x0 + x1) / 2, profile[0][0], profile[0][1])]):
+        if self._centroid_ok([((x0 + x1) / 2,) + self._pc(profile)]):
             self.lod.extrude_x(profile, x0, x1, **kw)
 
     def extrude_y(self, profile, y0, y1, **kw):
-        if self._centroid_ok([(profile[0][0], (y0 + y1) / 2, profile[0][1])]):
+        pu, pz = self._pc(profile)
+        if self._centroid_ok([(pu, (y0 + y1) / 2, pz)]):
             self.lod.extrude_y(profile, y0, y1, **kw)
 
 

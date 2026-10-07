@@ -72,7 +72,9 @@ if ($Models) {
     }
     Run-Gen 'test_kit.py' @()
     Run-Py @((Join-Path $mod 'assets\blender\test_conceal.py'), '--city', '--jobs', '4')    # D79/D82: one-way concealment gate, city included
-    Run-Py @((Join-Path $mod 'assets\blender\test_slits.py'), '--city')      # D82: Fire slits where the render looks solid
+    Run-Py @((Join-Path $mod 'assets\blender\test_slits.py'), '--selftest')  # D83: the slit test still finds a real slit
+    Run-Py @((Join-Path $mod 'assets\blender\test_slits.py'), '--city')      # D82/D83: Fire slits where the render looks solid (depth-checked)
+    Run-Py @((Join-Path $mod 'assets\blender\test_ruin_cuts.py'))          # D83 (P53): whole-kept ruin pieces have render AND collision
     Run-Gen 'test_city.py' @()
     Run-Py @((Join-Path $mod 'assets\city_progress.py'))
 }

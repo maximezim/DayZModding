@@ -40,7 +40,10 @@ def fbm(size, seed, octaves=5, base=4):
 
 
 def normal_from_height(h, strength):
-    gy, gx = np.gradient(h)
+    # D83: wrapped central differences, so the normals match across the sheet seam (np.gradient is one-sided
+    # at the edges - perf review L)
+    gx = 0.5 * (np.roll(h, -1, 1) - np.roll(h, 1, 1))
+    gy = 0.5 * (np.roll(h, -1, 0) - np.roll(h, 1, 0))
     nx, ny, nz = -gx * strength, -gy * strength, np.ones_like(h)
     n = np.sqrt(nx * nx + ny * ny + nz * nz)
     rgb = np.stack([nx / n, ny / n, nz / n], -1) * 0.5 + 0.5
@@ -689,7 +692,7 @@ def windows(size, out):
 def brick(size, out):
     """Brick facade trim: V 0-0.6 running bond, 0.6-0.8 soldier course, 0.8-1 stone sill.
     D82: running bond with bevelled arrises, firing tones, face pits and soft joints (as wall_brick D80);
-    tileable noise; tooled sill with a drip groove."""
+    tileable noise; tooled sill with a drip groove. D83: soldier course and sill carry relief in _nohq."""
     n = tfbm(size, 181, octaves=4, base=8)
     col = np.zeros((size, size, 3), np.float32)
     h = 0.1 * n
@@ -699,7 +702,8 @@ def brick(size, out):
     r0, r1 = band_rows(size, 0.0, 0.6)
     # 16 bricks across U; with MATERIALS["brick"]["sheet_m"] = 3.44 m per U tile a brick is
     # 21.5 x 6.6 cm at ~595 px/m (perf batch-2 L3).
-    bw, bh = size / 16.0, size / 52.0
+    bw, bh = size / 16.0, (r1 - r0) / 31.0          # D83: 31 whole courses in the band (was size / 52: a 7 px sliver
+                                                    # under the soldier course, perf review M)
     yy, xx = np.mgrid[r0:r1, 0:size].astype(np.float32)
     rr = np.floor((yy - r0) / bh).astype(int)
     fy = (yy - r0) / bh - rr
@@ -721,13 +725,37 @@ def brick(size, out):
     ao[r0:r1] *= 1 - 0.2 * joint
     r0, r1 = band_rows(size, 0.6, 0.8)                   # soldier course
     ns = max(1, int(round(size / bh)))                                           # whole soldiers per sheet (no cut one at the seam)
-    for i in range(ns):
-        xa_, xb_ = int(round(i * size / ns)), int(round((i + 1) * size / ns))
-        tint = np.array([0.40, 0.20, 0.14]) * (0.85 + 0.3 * rng.random())
-        col[r0 + 2:r1 - 2, xa_ + 2:xb_ - 2] = tint
-    col[r0:r1][col[r0:r1].sum(-1) == 0] = mortar
+    # D83: vectorised like the running bond - bevelled arrises, soft recessed joints, pits, per-brick tone - so
+    # the course reads in _nohq too (it was flat colour blocks)
+    yy, xx = np.mgrid[r0:r1, 0:size].astype(np.float32)
+    us = xx * ns / size
+    ci = np.floor(us).astype(int) % ns
+    fx, fy = us - np.floor(us), (yy - r0) / max(1, r1 - r0)
+    e = np.minimum(np.minimum(fx, 1 - fx) * size / ns, np.minimum(fy, 1 - fy) * (r1 - r0))
+    joint = e < m
+    bevel = np.clip((e - m) / (2.5 * m), 0, 1)
+    Ts = rng.random(ns).astype(np.float32)[ci]
+    tint = np.array([0.40, 0.20, 0.14], np.float32) * (0.85 + 0.3 * Ts[..., None])
+    pits = np.clip((tnoise(size, max(64, size // 6), 194) - 0.8) * 5, 0, 1)[r0:r1]
+    col[r0:r1] = np.where(joint[..., None], mortar, tint * gray(0.84 + 0.16 * bevel) * gray(1 - 0.22 * pits))
+    sj = 1.0 - np.clip((e - (m - 1.0)) / 2.0, 0, 1)
+    h[r0:r1] += 0.3 * bevel - 0.25 * pits - 0.8 * sj
+    ao[r0:r1] *= 1 - 0.2 * joint
     r0, r1 = band_rows(size, 0.8, 1.0)                   # stone sill
     col[r0:r1] = np.array([0.66, 0.64, 0.60]) + 0.04 * gray(n[r0:r1] - 0.5)
+    # D83: sill relief - rounded nose along the top arris, three stones per sheet with mortar joints, a bed
+    # joint under the sill
+    hs = r1 - r0
+    yv = (np.arange(hs, dtype=np.float32) + 0.5) / hs
+    xs_ = np.arange(size, dtype=np.float32)
+    ej = np.abs(((xs_ / (size / 3.0)) + 0.5) % 1.0 - 0.5) * (size / 3.0)           # px to the nearest stone joint
+    sjx = 1.0 - np.clip((ej - (m - 1.0)) / 2.0, 0, 1)
+    h[r0:r1] -= 0.6 * sjx[None, :]
+    col[r0:r1] = col[r0:r1] * (1 - sjx[None, :, None]) + mortar * sjx[None, :, None]
+    bed = max(2, int(round(m * 1.5)))
+    h[r0:r1] += (0.5 * np.clip((yv - bed / hs) / 0.12, 0, 1) ** 0.5)[:, None]     # nose: rounded over 12 % below the bed joint
+    h[r0:r0 + bed, :] -= 0.6
+    col[r0:r0 + bed, :] = mortar
     g0, gw = r0 + int((r1 - r0) * 0.8), max(4, size // 256)                       # drip groove under the sill nose:
     prof = 0.5 - 0.5 * np.cos(np.linspace(0, 2 * np.pi, gw, dtype=np.float32))  # cosine profile (perf D82 L)
     h[g0:g0 + gw, :] -= prof[:, None]

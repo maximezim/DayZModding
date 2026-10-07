@@ -748,6 +748,14 @@ collision and looks.
 | CC-03 | Shoot between a bus-stop side panel and its front post | Bullets stop (closed) | | |
 | CC-04 | Look at limestone, concrete-panel and brick-trim facades at 1-80 m | Block bevels, tooling, blowholes, sill groove read; no seam, no black line on limestone | | |
 
+## 47. Slits and ruin cuts (D83)
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| SC-01 | In ruined churches, town halls and stone villas, shoot at the gables, cornices and roof pieces still standing over a collapse (P53) | Bullets stop on everything visible; nothing invisible stops them | | |
+| SC-02 | In a damaged OfficeTall, shoot through the shopfront corner mullion with a broken pane | Bullets pass the 8 cm mullion (accepted, thin aluminium); the wall beside it stops them | | |
+| SC-03 | Look at brick soldier courses and stone sills over windows at 1-30 m in raking light | Soldier bricks and sill joints show relief; no seam or step where the sheet repeats | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -781,6 +789,7 @@ collision and looks.
 | Concealment fixes §44 | | | |
 | Facade textures §45 | | | |
 | City concealment / ruins §46 | | | |
+| Slits and ruin cuts §47 | | | |
 | Placement §9 | | | |
 | Roof drop §10 | | | |
 | Clean logs §11 | | | |
