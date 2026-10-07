@@ -31,10 +31,11 @@ UVT = ("\tclass uvTransform\n\t{\n\t\taside[] = {1, 0, 0};\n\t\tup[] = {0, 1, 0}
        "\t\tdir[] = {0, 0, 1};\n\t\tpos[] = {0, 0, 0};\n\t};\n")
 
 
-def stage(n, texture, uv_source="tex", extra=""):
+def stage(n, texture, uv_source="tex", extra="", scale=1.0):
     body = '\ttexture = "%s";\n\tuvSource = "%s";\n' % (texture, uv_source)
     if uv_source == "tex":
-        body += UVT
+        body += UVT if scale == 1.0 else UVT.replace("aside[] = {1, 0, 0}", "aside[] = {%g, 0, 0}" % scale).replace(
+            "up[] = {0, 1, 0}", "up[] = {0, %g, 0}" % scale)
     return "class Stage%d\n{\n%s%s};\n" % (n, body, extra)
 
 
@@ -67,6 +68,11 @@ PROCEDURAL_MAPS = {
 # Maps several rvmats share (one file, no per-colour copies): base -> {map: shared texture stem} (D80).
 SHARED_MAPS = {"sky_wall_render_%s" % c: {"nohq": "sky_wall_render"} for c in ("cream", "ochre", "grey", "white")}
 # Constant specular/gloss for procedural _smdi stages (default PROC["smdi"] otherwise).
+# D84 (B3): world-scale wall materials get the shared grime macro on Stage3, tiled MACRO_SCALE times their own UV
+# (1/8: one macro sheet over 24-32 m of wall) so the 3-4 m base repeat breaks up at distance. P54.
+MACRO = {"sky_wall_brick", "sky_wall_panel", "sky_wall_limestone"} | {"sky_wall_render_%s" % c for c in
+                                                                    ("cream", "ochre", "grey", "white")}
+MACRO_SCALE = 0.125
 PROC_SMDI = {"sky_wall_brick": (0.08, 0.15), "sky_wall_panel": (0.1, 0.2), "sky_wall_limestone": (0.12, 0.2),
              "sky_wall_render_cream": (0.05, 0.1), "sky_wall_render_ochre": (0.05, 0.1), "sky_wall_render_grey": (0.05, 0.1),
              "sky_wall_render_white": (0.05, 0.1), "sky_decal_grime": (0.02, 0.05), "sky_vegetation": (0.08, 0.15), "sky_render": (0.05, 0.1), "sky_signs": (0.3, 0.4), "sky_signs2": (0.3, 0.4), "sky_fair": (0.25, 0.3), "sky_trash": (0.1, 0.2), "sky_turf": (0.02, 0.05), "sky_fur": (0.03, 0.08), "sky_signs3": (0.3, 0.4), "sky_signs4": (0.3, 0.4), "sky_paint": (0.06, 0.12), "sky_textile": (0.02, 0.05), "sky_ceiling": (0.05, 0.1), "sky_brick": (0.08, 0.15), "sky_concpanel": (0.1, 0.2), "sky_fabric": (0.03, 0.1)}
@@ -93,7 +99,10 @@ def rvmat_super(base, spec_power=40, emissive=(0, 0, 0)):
         return PROC[m]
     out += stage(1, pick("nohq"))
     out += stage(2, "#(argb,8,8,3)color(0.5,0.5,0.5,1,DT)")
-    out += stage(3, "#(argb,8,8,3)color(0,0,0,0,MC)")
+    if base in MACRO:
+        out += stage(3, S.PREFIX_TEX + "\\data\\sky_grime_mc.paa", scale=MACRO_SCALE)
+    else:
+        out += stage(3, "#(argb,8,8,3)color(0,0,0,0,MC)")
     out += stage(4, pick("as"))
     out += stage(5, pick("smdi"))
     out += stage(6, "#(ai,64,64,1)fresnel(1.5,0.8)", "none")

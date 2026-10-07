@@ -33,12 +33,12 @@ class Stage2
 };
 class Stage3
 {
-	texture = "#(argb,8,8,3)color(0,0,0,0,MC)";
+	texture = "SKY_Skyline\sky_textures\data\sky_grime_mc.paa";
 	uvSource = "tex";
 	class uvTransform
 	{
-		aside[] = {1, 0, 0};
-		up[] = {0, 1, 0};
+		aside[] = {0.125, 0, 0};
+		up[] = {0, 0.125, 0};
 		dir[] = {0, 0, 1};
 		pos[] = {0, 0, 0};
 	};

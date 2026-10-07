@@ -756,6 +756,14 @@ collision and looks.
 | SC-02 | In a damaged OfficeTall, shoot through the shopfront corner mullion with a broken pane | Bullets pass the 8 cm mullion (accepted, thin aluminium); the wall beside it stops them | | |
 | SC-03 | Look at brick soldier courses and stone sills over windows at 1-30 m in raking light | Soldier bricks and sill joints show relief; no seam or step where the sheet repeats | | |
 
+## 48. Grime macro and furnished rooms (D84)
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| GM-01 | Look along a street of brick, panel, limestone and stucco buildings from 30, 80 and 150 m (P54) | Soft soot, rain runs and wash patches; no 3-4 m tiling, no seams every 24-32 m, no black / pink walls, no RPT texture errors | | |
+| GM-02 | Walk through 5 apartment blocks and 2 office buildings | Living rooms, bedrooms, kitchens and offices vary between flats; sofas, beds, tables and cabinets collide; no piece blocks a door or traps you behind a fridge or bookcase | | |
+| GM-03 | Try to hide your head in a sofa back, TV, bookcase, fridge or filing cabinet | Collision stops you or the part is too thin to hide in | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -790,6 +798,7 @@ collision and looks.
 | Facade textures §45 | | | |
 | City concealment / ruins §46 | | | |
 | Slits and ruin cuts §47 | | | |
+| Grime macro / rooms §48 | | | |
 | Placement §9 | | | |
 | Roof drop §10 | | | |
 | Clean logs §11 | | | |

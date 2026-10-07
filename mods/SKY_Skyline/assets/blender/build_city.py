@@ -618,6 +618,69 @@ def wardrobe(L, x0, x1, y0, y1, z):
     piece(L, (x0, x1, y0, y1, z, z + 2.1), "wood", UV_OAK, view=True)
 
 
+def sofa(L, x0, x1, y0, y1, z, back, fabric="grey"):
+    """D84 three-seat sofa: collision block to 0.6 m over the whole footprint (no head pocket), cushions, arms
+    and a back rest (Res0 detail <= 0.18 m thick above it). back = the side against the wall: '+y' / '-y'."""
+    fuv = UV_FAB[fabric]
+    L["res0"].box(x0, x1, y0, y1, z, z + 0.42, mat="fabric", uv=fuv)
+    L["res1"].box(x0, x1, y0, y1, z, z + 0.6, mat="fabric", uv=fuv, skip=("-z",))
+    L["geo"].box(x0, x1, y0, y1, z, z + 0.5)            # one collision part, at the cushion top (sec review L)
+    L["fire"].box(x0, x1, y0, y1, z, z + 0.5, mat="pen_wood")
+    by = (y1 - 0.18, y1) if back == "+y" else (y0, y0 + 0.18)
+    L["res0"].box(x0, x1, by[0], by[1], z + 0.42, z + 0.85, mat="fabric", uv=fuv)
+    for (a, b) in ((x0, x0 + 0.16), (x1 - 0.16, x1)):
+        L["res0"].box(a, b, y0, y1, z + 0.42, z + 0.62, mat="fabric", uv=fuv)
+    n = 3 if x1 - x0 > 1.6 else 2
+    cw = (x1 - x0 - 0.32) / n
+    for i in range(n):                                                         # seat cushions with a gap line
+        a = x0 + 0.16 + i * cw
+        L["res0"].box(a + 0.01, a + cw - 0.01, y0 + 0.05, y1 - 0.2, z + 0.42, z + 0.5, mat="fabric", uv=fuv)
+
+
+def tv_unit(L, x0, x1, y0, y1, z, wall):
+    """D84 low cabinet with an old CRT-era flat TV on it (render-only screen, 6 cm). wall = '+y' / '-y'."""
+    piece(L, (x0, x1, y0, y1, z, z + 0.5), "wood", UV_WALNUT)
+    cx = (x0 + x1) / 2
+    ty = (y1 - 0.12, y1 - 0.06) if wall == "+y" else (y0 + 0.06, y0 + 0.12)
+    L["res0"].box(cx - 0.45, cx + 0.45, ty[0], ty[1], z + 0.56, z + 1.1, mat="metal", uv=DT.paint_uv("slate"))
+    L["res0"].box(cx - 0.12, cx + 0.12, ty[0] - 0.06, ty[1] + 0.06, z + 0.5, z + 0.56, mat="metal", uv=DT.UV_STEEL)
+
+
+def bookshelf(L, x0, x1, y0, y1, z, wall, key=()):
+    """D84 full-height bookcase (collides like the wardrobe) with book rows as front quads (perf: no boxes)."""
+    piece(L, (x0, x1, y0, y1, z, z + 1.9), "wood", UV_WALNUT, view=True)
+    fy, nrm = (y0 - 0.002, (0, -1, 0)) if wall == "+y" else (y1 + 0.002, (0, 1, 0))
+    for k in range(4):
+        zz = z + 0.15 + k * 0.45
+        nb = int((x1 - x0 - 0.1) / 0.18)
+        for i in range(nb):
+            if h01("books", key, k, i) < 0.2:
+                continue
+            bx = x0 + 0.05 + i * (x1 - x0 - 0.1) / nb
+            hb = 0.22 + 0.12 * h01("bookh", key, k, i)
+            band = ("terracotta", "sage", "beige", "slate", "white")[int(h01("bookc", key, k, i) * 5)]
+            pts = [(bx, fy, zz), (bx + 0.16, fy, zz), (bx + 0.16, fy, zz + hb), (bx, fy, zz + hb)]
+            L["res0"].quad(pts if wall == "+y" else pts[::-1], nrm, "paint", DT.paint_uv(band))
+
+
+def sideboard(L, x0, x1, y0, y1, z):
+    """D84 dining-room sideboard: walnut cabinet 0.85 m with a laminate top."""
+    piece(L, (x0, x1, y0, y1, z, z + 0.85), "wood", UV_WALNUT)
+    L["res0"].box(x0 - 0.02, x1 + 0.02, y0 - 0.02, y1 + 0.02, z + 0.85, z + 0.88, mat="wood", uv=UV_LAMINATE)
+
+
+def fridge(L, x0, x1, y0, y1, z):
+    """D84 kitchen fridge (collides, View blocks like the wardrobe), handle on the front."""
+    piece(L, (x0, x1, y0, y1, z, z + 1.75), "paint", DT.paint_uv("white"), pen="metal", view=True)
+    L["res0"].box(x0 - 0.04, x0 - 0.01, (y0 + y1) / 2 - 0.2, (y0 + y1) / 2 + 0.2, z + 0.9, z + 0.93, mat="metal",
+                  uv=DT.UV_STEEL)                                                # handle on the room side (-x)
+
+
+def filing_cabinet(L, x0, x1, y0, y1, z):
+    """D84 four-drawer steel filing cabinet (collides: a 0.5 m block is a head pocket otherwise)."""
+    piece(L, (x0, x1, y0, y1, z, z + 1.32), "paint", DT.paint_uv("slate"), pen="metal")
+
+
 def kitchen_run(L, x0, x1, y0, y1, z):
     """Counter with worktop, sink and upper cabinets (wall side = the thin side touching the wall)."""
     piece(L, (x0, x1, y0, y1, z, z + 0.88), "wood", UV_LAMINATE)
@@ -1347,7 +1410,34 @@ def furnish(L, P, l, r, kind, z, top):
             DT.pendant(L, cx, cy, top - 0.02, 0.55 if kind != "hall" else 0.35, r=0.22)
         else:
             L["res0"].prism(cx, cy, 0.22, top - 0.6, top - 0.46, n=12, mat="metal", uv=DT.UV_PAINT)   # dead shade, shallow (D82)
-    if kind == "living" and w > 2.6 and d > 2.6:
+    # D84: seeded layout variant per room (0 = the original kit, unchanged); swaps pieces, at most one collision
+    # part more than the original layout (geo budgets)
+    var = int(h01(P.name, l, kind, "var", round(cx, 1), round(cy, 1)) * 3)
+    if kind == "living" and w > 2.6 and d > 2.6 and var == 1 and w > 3.2:
+        # sofa against the far wall facing a TV unit, a bookcase in a side corner
+        if clear(zones, (cx - 1.0, cx + 1.0, y1 - 0.95, y1)):
+            sofa(L, cx - 1.0, cx + 1.0, y1 - 0.9, y1 - 0.05, z, "+y", fabric="beige" if h01(P.name, l, "sf") < 0.5 else "grey")
+        if clear(zones, (cx - 0.7, cx + 0.7, y0, y0 + 0.5)):
+            tv_unit(L, cx - 0.7, cx + 0.7, y0 + 0.05, y0 + 0.47, z, "-y")
+        for (bx0, bx1) in ((x0 + 0.05, x0 + 0.95), (x1 - 0.95, x1 - 0.05)):
+            if clear(zones, (bx0, bx1, y1 - 0.4, y1)) and (bx1 < cx - 1.0 or bx0 > cx + 1.0):
+                bookshelf(L, bx0, bx1, y1 - 0.37, y1 - 0.02, z, "+y", key=(P.name, l, round(cx, 1)))
+                break
+        DT.rug(Lz, cx - 0.9, cx + 0.9, cy - 0.6, cy + 0.6, "rug_a")
+        if clear(zones, (x0, x0 + 0.1, cy - 0.45, cy + 0.45)):                  # not in a side door (sec review M)
+            DT.wall_art(L, x0, cy, z + 1.6, 0.7, 0.5, "+x", "art_%s" % "abcd"[int(h01(P.name, l, "art2", cx) * 4)])
+    elif kind == "living" and w > 2.6 and d > 2.6 and var == 2 and d > 3.0:
+        # dining room: table with chairs, a sideboard on the far wall
+        if clear(zones, (cx - 0.9, cx + 0.9, cy - 0.95, cy + 0.95)):
+            table(L, cx - 0.6, cx + 0.6, cy - 0.45, cy + 0.45, z)
+            for (chx, chy, f) in ((cx - 0.3, cy - 0.7, "+y"), (cx + 0.3, cy - 0.7, "+y"), (cx - 0.3, cy + 0.7, "-y"),
+                                  (cx + 0.3, cy + 0.7, "-y")):
+                if h01(P.name, l, "chair", chx, chy) < 0.85:
+                    chair(L, chx, chy, z, f, mat="wood", uv=UV_OAK)
+        if clear(zones, (cx - 0.8, cx + 0.8, y1 - 0.5, y1)):
+            sideboard(L, cx - 0.8, cx + 0.8, y1 - 0.47, y1 - 0.02, z)
+        DT.wall_art(L, cx, y1 - 0.0 if y1 < P.iy1 - 0.01 else y1, z + 1.7, 0.6, 0.6, "-y", "art_%s" % "abcd"[int(h01(P.name, l, "art", cx) * 4)])
+    elif kind == "living" and w > 2.6 and d > 2.6:
         DT.rug(Lz, cx - 1.0, cx + 1.0, cy - 0.7, cy + 0.7, "rug_b" if h01(P.name, l, cx) < 0.5 else "rug_a")
         # lounge set along the axis that leaves a 0.9 m passage on both sides (walkability)
         if w >= 2.84 + 1.8 and clear(zones, (cx - 1.5, cx + 1.5, cy - 0.5, cy + 0.5)):
@@ -1365,6 +1455,23 @@ def furnish(L, P, l, r, kind, z, top):
                 DT.potted_plant(Lz, px, py, collide=True)
                 break
         DT.wall_art(L, cx, y1 - 0.0 if y1 < P.iy1 - 0.01 else y1, z + 1.6, 0.8, 0.8, "-y", "art_%s" % "abcd"[int(h01(P.name, l, "art", cx) * 4)])
+    elif kind == "bedroom" and w > 3.0 and d >= 3.45 and var == 1:              # desk leaves a way in (sec review L)
+        # children's room: two single beds along the side walls, a desk under the window wall
+        for (a, b) in ((x0 + 0.05, x0 + 0.95), (x1 - 0.95, x1 - 0.05)):
+            if clear(zones, (a, b, y1 - 2.1, y1)):
+                bed(L, a, b, y1 - 2.05, y1 - 0.05, z, fabric="blue" if a < cx else "beige")
+        if clear(zones, (cx - 0.6, cx + 0.6, y0, y0 + 0.65)):
+            table(L, cx - 0.6, cx + 0.6, y0 + 0.05, y0 + 0.65, z)
+            chair(L, cx, y0 + 0.9, z, "-y", mat="wood", uv=UV_OAK)
+    elif kind == "bedroom" and w > 2.2 and d > 2.6 and var == 2 and w >= 3.15:  # bed-bookcase gap >= 0.75 m (sec L)
+        # bed against a side wall, chest of drawers + bookcase
+        if clear(zones, (x0, x0 + 1.5, y1 - 2.1, y1)):
+            bed(L, x0 + 0.05, x0 + 1.45, y1 - 2.05, y1 - 0.05, z, fabric="beige")
+        if clear(zones, (x1 - 0.95, x1, y1 - 0.4, y1)):
+            bookshelf(L, x1 - 0.95, x1 - 0.05, y1 - 0.37, y1 - 0.02, z, "+y", key=(P.name, l, "bed", round(cx, 1)))
+        if clear(zones, (x1 - 0.5, x1, cy - 0.5, cy + 0.5)) and x1 - 0.5 > x0 + 1.45 + 0.75:
+            sideboard(L, x1 - 0.47, x1 - 0.02, cy - 0.5, cy + 0.5, z)
+        DT.rug(Lz, x0 + 1.5, min(x1 - 0.6, x0 + 2.7), cy - 0.6, cy + 0.6, "rug_b")
     elif kind == "bedroom" and w > 2.2 and d > 2.6:
         bw = 1.6 if w > 3.0 else 0.95
         if clear(zones, (cx - bw / 2, cx + bw / 2, y1 - 2.1, y1)):
@@ -1372,6 +1479,18 @@ def furnish(L, P, l, r, kind, z, top):
         if w > 3.4 and clear(zones, (x0, x0 + 0.65, y1 - 1.7, y1)) and cx - bw / 2 - (x0 + 0.65) > 0.75:
             wardrobe(L, x0 + 0.05, x0 + 0.65, y1 - 1.7, y1 - 0.05, z)
         DT.rug(Lz, cx - 0.9, cx + 0.9, y1 - 3.0, y1 - 2.2, "rug_a")
+    elif kind == "kitchen" and w > 2.0 and var == 1 and d > 2.4:
+        # galley: the run along the side wall, a fridge at its end, a small table by the window
+        run = (x1 - 0.62, x1 - 0.02, y0 + 0.1, y0 + 0.1 + min(d - 1.2, 2.6))
+        if clear(zones, run):
+            kitchen_run(L, *run, z)
+            f0, f1 = run[3] + 0.02, run[3] + 0.69
+            gap = y1 - f1                                         # slot behind the fridge: closed or walkable (sec M)
+            if clear(zones, (x1 - 0.67, x1, f0, f1)) and gap >= -1e-6 and (gap <= 0.05 or gap >= 0.75):
+                fridge(L, x1 - 0.67, x1 - 0.02, f0, f1, z)
+        if w > 2.6 and clear(zones, (x0, x0 + 0.9, cy - 0.45, cy + 0.45)):
+            table(L, x0 + 0.05, x0 + 0.75, cy - 0.4, cy + 0.4, z)
+            chair(L, x0 + 1.0, cy, z, "-x", mat="wood", uv=UV_OAK)
     elif kind == "kitchen" and w > 2.0:
         for (ka, kb) in ((y1 - 0.62, y1 - 0.02), (y0 + 0.02, y0 + 0.62)):
             box = (x1 - min(w - 0.2, 3.1) - 0.1, x1 - 0.1, ka, kb)
@@ -1436,7 +1555,21 @@ def furnish(L, P, l, r, kind, z, top):
                 for gy in (cy - 2.0, cy + 1.0):
                     L["res0"].hquad(gx - 0.3, gx + 0.3, gy - 0.6, gy + 0.6, top - 0.025, mat="lamp_cool", up=False)
     elif kind in ("office", "site_office"):
-        if clear(zones, (cx - 0.9, cx + 0.9, cy - 1.2, cy + 0.6)):
+        office_b = var == 1 and kind == "office" and w > 3.2 and d > 3.2 and not (
+            l == 0 and P.A.get("catalog", P.arch) == "Police")                      # police offices keep the lockers
+        if office_b:
+            # D84: two desks facing each other, a filing cabinet in a corner, chairs
+            if clear(zones, (cx - 0.9, cx + 0.9, cy - 1.5, cy + 1.5)):
+                table(L, cx - 0.8, cx + 0.8, cy - 0.8, cy + 0.8, z)          # two facing workstations, one block (perf M)
+                for (my, f) in ((cy - 0.35, "+y"), (cy + 0.35, "-y")):
+                    L["res0"].box(cx - 0.25, cx + 0.25, my - 0.05, my + 0.05, z + 0.76, z + 1.1, mat="metal", uv=DT.UV_PAINT)
+                chair(L, cx, cy - 1.15, z, "+y")
+                chair(L, cx, cy + 1.15, z, "-y")
+            for (a, b) in ((x0 + 0.05, x0 + 0.55), (x1 - 0.55, x1 - 0.05)):
+                if clear(zones, (a, b, y1 - 0.65, y1)):
+                    filing_cabinet(L, a, b, y1 - 0.62, y1 - 0.02, z)
+                    break
+        elif clear(zones, (cx - 0.9, cx + 0.9, cy - 1.2, cy + 0.6)):
             desk(L, cx, cy - 0.3, z, rot=(w < d))
         if (l == 0 and P.A.get("catalog", P.arch) == "Police" and w > 2.4
                 and not getattr(P, "sky_lockers", False)):                      # D71 gear lockers (table police), one bank

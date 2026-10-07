@@ -1,22 +1,22 @@
 # SKY_Skyline progress report
 
-## Status at a glance (after D83, 2026-10-07)
+## Status at a glance (after D84, 2026-10-07)
 
-**Overall: about 60 % of a releasable v1.0.** About 92 % of the content is authored and every offline gate
+**Overall: about 61 % of a releasable v1.0.** About 92 % of the content is authored and every offline gate
 passes. But nothing has been packed, signed or run in DayZ yet. In-game verification is 0 % and carries the
 most weight of what remains.
 
 | Area | Weight | Done | Why |
 |---|---|---|---|
-| Design and spec (23 ideas, city catalog, decisions D1-D83) | 10 % | 100 % | every idea has a design or a documented block |
+| Design and spec (23 ideas, city catalog, decisions D1-D84) | 10 % | 100 % | every idea has a design or a documented block |
 | Content authored (models, scripts, configs, economy, layouts) | 30 % | 92 % | 21 of 23 ideas built; horses and drivable vehicles blocked on Workbench skills; the underground needs a custom terrain |
 | Offline quality gates (tests, budgets, generators, script xref, reviews) | 10 % | 100 % | test_city 191, test_kit 279 (with hull and wiring checks), check_assets 289 / 0 over, layout 0 failed, texture references 76 / 0 missing, concealment gate over kit + city 0 open findings, slit gate PASS (depth-checked, city blocking), ruin cut gate PASS, perf + security reviews on every batch |
-| Asset quality to ASSET_QUALITY_GUIDE section 8 | 15 % | 70 % | street kit (three passes), street surfaces, car parks and hulks, the interior room kit, venues and underground passed close-up passes; wood, fabric, paver, concrete, brick, stucco, panel, limestone and trim maps have real depth (D77, D80, D82, D83 soldier course and sill); no baked AO on hero props yet; building interiors repeat their room kits |
+| Asset quality to ASSET_QUALITY_GUIDE section 8 | 15 % | 73 % | street kit (three passes), street surfaces, car parks and hulks, the interior room kit, venues and underground passed close-up passes; wood, fabric, paver, concrete, brick, stucco, panel, limestone and trim maps have real depth (D77, D80, D82, D83 soldier course and sill); grime macro on the wall materials (D84); rooms vary per flat (D84); no baked AO on hero props yet (needs unique UVs) |
 | Pack, sign, PAA on Windows (full mod) | 10 % | 10 % | toolchain verified with the empty template only (SETUP_REPORT); the 18 SKY packages were never packed |
-| In-game verification (TESTING sign-off, P-parameters) | 20 % | 0 % | 0 of 49 sign-off rows, 0 of 53 `P` assumptions, `CITY_TESTED` empty |
+| In-game verification (TESTING sign-off, P-parameters) | 20 % | 0 % | 0 of 50 sign-off rows, 0 of 54 `P` assumptions, `CITY_TESTED` empty |
 | Release prep (real site / terrain, FPS numbers, server-owner docs) | 5 % | 20 % | layouts and terrain generator ready; no surveyed site, no Terrain Builder import, no FPS run, no perf probe |
 
-Weighted: 10 + 27.6 + 10 + 10.5 + 1 + 0 + 1 = **60.1 %**.
+Weighted: 10 + 27.6 + 10 + 10.95 + 1 + 0 + 1 = **60.6 %**.
 
 ### Built (offline-verified, `built-unverified`)
 - **City**: 35 building types and 60 variants, 156 procedural models in 3 ruin states, plus 15 venue
@@ -428,3 +428,11 @@ and paired walls metres apart around a thin window frame. It now looks at each s
 actually see, and city buildings block the build if it finds anything. A new check makes sure every ruined gable,
 cornice and roof piece that stays standing has collision, and nothing invisible is left where the render fell.
 Brick soldier courses and stone sills over windows now have relief in the normal map. Reviews: `reviews/d83_gates.md`.
+
+## 35. Weathered walls and lived-in flats (D84)
+
+Brick, panel, stone and stucco walls now carry a large shared grime layer (soot, rain runs, damp, washed-out
+patches) stretched over 24-32 m, so the small texture repeat no longer shows from down the street. Flats are no
+longer all furnished the same way: living rooms can have a sofa, TV and bookcase or a dining table, bedrooms twin
+beds or a bookcase and chest, kitchens a galley with a fridge, offices shared desks with a filing cabinet. Baked
+shadows on individual props wait for a texture-bake setup. Reviews: `reviews/d84_gates.md`.

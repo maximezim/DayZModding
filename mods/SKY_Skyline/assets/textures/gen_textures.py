@@ -1640,6 +1640,32 @@ def wall_limestone(size, out):
 WALL_RENDER = {"cream": (0.78, 0.73, 0.60), "ochre": (0.72, 0.57, 0.38), "grey": (0.62, 0.62, 0.59), "white": (0.80, 0.79, 0.74)}
 
 
+def grime_macro(size, out):
+    """D84 (B3): shared grime macro map for the world-scale wall materials (Super Stage3 `_mc`; alpha = how much
+    of the macro colour replaces the base, 0 = base only). Tiled 8x larger than the wall sheets in the rvmats, so
+    the base repeat (3-4 m) breaks up at 30 m: soft soot / damp patches and vertical rain-wash streaks (grime
+    follows gravity, ASSET_QUALITY_GUIDE section 5). Tileable; alpha <= 0.45 (soot, rain runs, damp green, pale
+    lime-wash patches) so the brick / stone still reads."""
+    patch = tfbm(size, 401, octaves=4, base=3)
+    damp = tfbm(size, 407, octaves=3, base=2)
+    streak = tstreak(size, 5, max(48, size // 16), 409)                     # few rows, many columns: vertical runs
+    fall = tstreak(size, 3, max(24, size // 32), 411)                       # where a run starts / how far it reaches
+    runs = np.clip((streak - 0.55) * 4, 0, 1) * np.clip((fall - 0.35) * 3, 0, 1)
+    soot = np.clip((patch - 0.5) * 3.0, 0, 1)
+    wash = np.clip((0.4 - patch) * 3.0, 0, 1) * np.clip((damp - 0.35) * 3, 0, 1)   # pale lime-washed / bleached areas
+    wet = np.clip((damp - 0.62) * 4, 0, 1)
+    a = np.clip(0.34 * soot + 0.2 * runs + 0.1 * wet + 0.22 * wash, 0, 0.45)
+    dark = np.array([0.15, 0.14, 0.13], np.float32)
+    green = np.array([0.19, 0.21, 0.16], np.float32)
+    pale = np.array([0.66, 0.64, 0.60], np.float32)
+    w = (wet / np.maximum(1e-3, wet + soot + runs))[..., None]
+    p_ = (wash / np.maximum(1e-3, wash + soot + runs + wet))[..., None]
+    rgb = (dark * (1 - w) + green * w) * (1 - p_) + pale * p_
+    rgb = rgb * (0.9 + 0.2 * tfbm(size, 413, octaves=3, base=16)[..., None])
+    img = np.concatenate([rgb, a[..., None]], -1)
+    save(Image.fromarray((np.clip(img, 0, 1) * 255).astype(np.uint8), "RGBA"), out, "sky_grime_mc")
+
+
 def wall_render(size, out):
     """Stucco in the 4 Chernarus colours, 4 m sheet, tileable: float texture, hairline cracks,
     plaster loss showing brick, grime, streaks and moss (one sheet per colour)."""
@@ -1649,7 +1675,7 @@ def wall_render(size, out):
     # D80: hairline crack network (masked periodic Voronoi) instead of sine bands; plaster loss with a dirty rim
     crack_s = crack_field(size, 769, cells=5, width=0.0025, warp=0.03) * np.clip((tfbm(size, 765, octaves=3, base=3) - 0.5) * 4, 0, 1)
     crack = crack_s > 0.35
-    loss = tfbm(size, 767, octaves=5, base=6) > 0.72
+    loss = tfbm(size, 767, octaves=5, base=6) > 0.79          # D84: small losses only - at 0.72 one big spall per sheet was the 4 m repeat cue
     rim = (np.roll(loss, 3, 0) | np.roll(loss, -3, 0) | np.roll(loss, 3, 1) | np.roll(loss, -3, 1)) & ~loss
     bw, bh = max(4, size // 24), max(2, size // 80)
     mortar = ((yy_i % bh) < 2) | (((xx_i + (yy_i // bh % 2) * bw // 2) % bw) < 2)
@@ -1856,6 +1882,7 @@ GENERATORS = {
     "marble": marble, "parquet": parquet, "paint": paint, "stone": stone, "textile": textile,
     "render": render, "rubble": rubble, "signs": signs, "grime": grime, "vegetation": vegetation,
     "wall_brick": wall_brick, "wall_panel": wall_panel, "wall_limestone": wall_limestone, "wall_render": wall_render,
+    "grime_macro": lambda s, o: grime_macro(min(s, 1024), o),                 # D84 (B3): shared _mc for wall materials
     "hq_facade": hq_facade, "signs2": signs2, "fair": fair, "trash": trash, "turf": turf,
     "fur": lambda s, o: fur(min(s, 1024), o),                                  # D65 creatures
     "signs3": signs3,                                                          # D66 underground signs
