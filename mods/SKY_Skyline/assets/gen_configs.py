@@ -53,9 +53,10 @@ PROCEDURAL_MAPS = {
     "sky_paint": ("as", "smdi"), "sky_textile": ("as", "smdi"), "sky_parquet": ("as",),   # D55
     "sky_render": ("as", "smdi"), "sky_rubble": ("as",), "sky_signs": ("nohq", "as", "smdi"),   # D56
     "sky_decal_grime": ("nohq", "as", "smdi"), "sky_vegetation": ("nohq", "as", "smdi"),          # D59
-    "sky_wall_brick": ("as", "smdi"), "sky_wall_panel": ("as", "smdi"), "sky_wall_limestone": ("as", "smdi"),
-    "sky_wall_render_cream": ("nohq", "as", "smdi"), "sky_wall_render_ochre": ("nohq", "as", "smdi"),
-    "sky_wall_render_grey": ("nohq", "as", "smdi"), "sky_wall_render_white": ("nohq", "as", "smdi"),
+    "sky_wall_brick": ("smdi",), "sky_wall_panel": ("smdi",),          # D80: real as (+ brick nohq)
+    "sky_wall_limestone": ("as", "smdi"),
+    "sky_wall_render_cream": ("as", "smdi"), "sky_wall_render_ochre": ("as", "smdi"),          # D80: shared real nohq
+    "sky_wall_render_grey": ("as", "smdi"), "sky_wall_render_white": ("as", "smdi"),
     "sky_hq_facade": ("as",),                                                  # D60: 4K co, 2K nohq, 1K smdi
     "sky_signs2": ("nohq", "as", "smdi"),                                      # D61
     "sky_fair": ("as", "smdi"), "sky_trash": ("as", "smdi"), "sky_turf": ("nohq", "as", "smdi"),
@@ -63,6 +64,8 @@ PROCEDURAL_MAPS = {
     "sky_signs3": ("nohq", "as", "smdi"),                                      # D66
     "sky_signs4": ("nohq", "as", "smdi"),                                      # D69
 }
+# Maps several rvmats share (one file, no per-colour copies): base -> {map: shared texture stem} (D80).
+SHARED_MAPS = {"sky_wall_render_%s" % c: {"nohq": "sky_wall_render"} for c in ("cream", "ochre", "grey", "white")}
 # Constant specular/gloss for procedural _smdi stages (default PROC["smdi"] otherwise).
 PROC_SMDI = {"sky_wall_brick": (0.08, 0.15), "sky_wall_panel": (0.1, 0.2), "sky_wall_limestone": (0.12, 0.2),
              "sky_wall_render_cream": (0.05, 0.1), "sky_wall_render_ochre": (0.05, 0.1), "sky_wall_render_grey": (0.05, 0.1),
@@ -81,6 +84,8 @@ def rvmat_super(base, spec_power=40, emissive=(0, 0, 0)):
     proc = PROCEDURAL_MAPS.get(base, ())
 
     def pick(m):
+        if m in SHARED_MAPS.get(base, {}):
+            return S.PREFIX_TEX + "\\data\\" + SHARED_MAPS[base][m] + "_%s.paa" % m
         if m not in proc:
             return d + "_%s.paa" % m
         if m == "smdi" and base in PROC_SMDI:

@@ -123,7 +123,7 @@ textures:
   - {name: sky_wallpaper, maps: [co, nohq, smdi, as], size: 2048, status: built-unverified, note: mapped at 4 m (512 px/m)}
   - {name: sky_asphalt, maps: [co, nohq, smdi, as], size: 2048, status: built-unverified, use: street kit}
   - {name: sky_roofmark, maps: [ca, nohq, smdi, as], size: 1024, use: generic helipad decal, status: built-unverified}
-  - {name: sky_paver, maps: [co, nohq, smdi, as(1024)], size: 2048, use: sidewalks / garden roof, status: built-unverified}
+  - {name: sky_paver, maps: [co, nohq(1024), smdi(256), as(1024)], size: 2048, use: sidewalks / garden roof, status: built-unverified}
   - {name: sky_roadmark, maps: [ca], size: 512, use: road paint (alpha-tested, tiles along U), status: built-unverified}
   - {name: sky_rust, maps: [co, nohq, smdi], size: 1024, use: weathered paint bands (green/grey/rust/burnt), status: built-unverified}
   - {name: sky_foliage, maps: [ca], size: 512, use: shrub cards (alpha-tested), status: built-unverified}
@@ -135,14 +135,14 @@ textures:
   - {name: sky_windows, maps: [co], size: 1024, use: window sets atlas 4x4 (unlit rvmat sky_windows, emissive rvmat sky_windows_lit; never both in one LOD, D23), status: built-unverified, note: no model uses it (city and tower facades use real glazing instead); kept for lit window sets}
   - {name: sky_brick, maps: [co, nohq], size: 2048, use: brick facade trim (bond / soldier / sill), mapped at 3.44 m per U (D20), status: built-unverified, note: Floor_Apartments, Floor_Office_Brick, city sills / soldier courses}
   - {name: sky_concpanel, maps: [co, nohq(1024)], size: 2048, use: precast panel facade trim (reveal / panel), status: built-unverified, note: Floor_Hotel, Floor_Office_Concrete}
-  - {name: sky_wood, maps: [co], size: 1024, use: furniture trim (oak / walnut / laminate / monitor screen band); nohq/smdi/as procedural, status: built-unverified}
+  - {name: sky_wood, maps: [co, nohq, smdi(512)], size: 1024, use: furniture trim (oak / walnut / laminate / monitor screen band); grain, pores, scratches (D77); as procedural, status: built-unverified}
   - {name: sky_fabric, maps: [co, nohq], size: 512, use: upholstery trim (grey / blue / beige), 8 px weave, status: built-unverified}
   - {name: sky_decal_grime, maps: [ca], size: 1024, use: facade weathering overlay - rising damp / run-off / window streaks / moss bands, tileable along U (alpha-blended), status: built-unverified}
   - {name: sky_vegetation, maps: [ca], size: 2048, use: vegetation atlas 4x4 - grass, weeds, ivy, shrub, birch, bark, litter, moss (alpha-tested), status: built-unverified}
-  - {name: sky_wall_brick, maps: [co, nohq], size: 2048, use: tileable brick wall at world scale (3.44 m sheet), status: built-unverified}
-  - {name: sky_wall_panel, maps: [co, nohq(1024)], size: 2048, use: tileable precast panel wall (3 m sheet), status: built-unverified}
+  - {name: sky_wall_brick, maps: [co, nohq, as(1024)], size: 2048, use: tileable brick wall at world scale (3.44 m sheet), status: built-unverified}
+  - {name: sky_wall_panel, maps: [co, nohq(1024), as(512)], size: 2048, use: tileable precast panel wall (3 m sheet), status: built-unverified}
   - {name: sky_wall_limestone, maps: [co, nohq], size: 2048, use: tileable limestone ashlar wall (3 m sheet), status: built-unverified}
-  - {name: sky_wall_render_cream|ochre|grey|white, maps: [co], size: 2048, use: tileable stucco walls in the 4 city colours (4 m sheet), status: built-unverified}
+  - {name: sky_wall_render_cream|ochre|grey|white, maps: [co, shared sky_wall_render_nohq(1024)], size: 2048, use: tileable stucco walls in the 4 city colours (4 m sheet), status: built-unverified}
   - {name: sky_hq_facade, maps: [co, nohq(2048), smdi(1024)], size: 4096, use: "HQ facade atlas (D60) - brushed bronze / ribbed bronze spandrel / flamed granite / bronze louvre bands, 6 m sheet; the only 4K texture", status: built-unverified}
 
   - {name: sky_signs4, maps: [co], size: 1024, use: "venue variant signs (D69): universam, kino Oktyabr, TC Galaktika, pivnaya, FC Torpedo (+3 spare bands)", status: built-unverified}

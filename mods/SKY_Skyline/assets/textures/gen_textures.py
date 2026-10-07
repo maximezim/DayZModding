@@ -1445,36 +1445,52 @@ def _rows(size, n):
 
 
 def wall_brick(size, out):
-    """Running-bond brick wall, 3.44 m sheet (16 bricks x 46 courses), tileable, sooty and weathered."""
+    """Running-bond brick wall, 3.44 m sheet (16 bricks x 46 courses), tileable, sooty and weathered.
+    D80: per-brick firing tones (burnt headers, pale bricks), bevelled arrises, raked sandy mortar, face pits,
+    chipped corners and a few spalled bricks; real _as (1024) from the same fields (_smdi stays procedural, perf D80 M1)."""
     rng = np.random.default_rng(701)
-    col = np.zeros((size, size, 3), np.float32)
-    h = np.zeros((size, size), np.float32)
-    mortar = np.array([0.50, 0.48, 0.45], np.float32)
-    rows = _rows(size, 46)
-    m = max(1, size // 512)
-    for r in range(46):
-        y0, y1 = rows[r], rows[r + 1]
-        off = (size // 32) * (r % 2)
-        cols = _rows(size, 16)
-        for c in range(16):
-            x0, x1 = (cols[c] + off) % size, (cols[c + 1] + off) % size
-            tint = np.array([0.44, 0.22, 0.15], np.float32) * (0.78 + 0.4 * rng.random())
-            if x1 > x0:
-                col[y0 + m:y1 - m, x0 + m:x1 - m] = tint
-            else:                                                       # brick wrapping round the edge
-                col[y0 + m:y1 - m, x0 + m:] = tint
-                col[y0 + m:y1 - m, :max(0, x1 - m)] = tint
-        h[y0:y0 + m + 1, :] -= 0.8
-    hole = col.sum(-1) == 0
-    col[hole] = mortar
-    h[hole] -= 0.5
+    rows, nb = 46, 16
+    yy, xx = np.mgrid[0:size, 0:size].astype(np.float32)
+    ch, bw = size / rows, size / nb
+    r = np.floor(yy / ch).astype(int) % rows
+    fy = yy / ch - np.floor(yy / ch)
+    off = (r % 2) * (bw / 2)
+    u = (xx - off) / bw
+    c = np.floor(u).astype(int) % nb
+    fx = u - np.floor(u)
+    m = max(1.0, size / 680.0)                                                  # mortar half-joint: ~10 mm joint
+    ex, ey = np.minimum(fx, 1 - fx) * bw, np.minimum(fy, 1 - fy) * ch
+    e = np.minimum(ex, ey)
+    joint = e < m
+    bevel = np.clip((e - m) / (2.5 * m), 0, 1)
+    R = rng.random((rows, nb, 6)).astype(np.float32)[r, c]
+    base = np.array([0.44, 0.22, 0.15], np.float32) * (0.78 + 0.4 * R[..., 0:1])
+    burnt = (R[..., 1] < 0.07)[..., None]
+    pale = (R[..., 1] > 0.95)[..., None]
+    col = np.where(burnt, np.array([0.24, 0.13, 0.11], np.float32) * (0.9 + 0.2 * R[..., 0:1]), base)
+    col = np.where(pale, np.array([0.56, 0.38, 0.27], np.float32), col)
     n = tfbm(size, 703, octaves=5, base=8)
+    pits = np.clip((tnoise(size, max(64, size // 6), 711) - 0.8) * 5, 0, 1)
+    face = tnoise(size, max(64, size // 12), 713)
+    cx = np.where(R[..., 2] < 0.5, fx, 1 - fx) * bw / ch                       # corner distance in course units
+    cy = np.where(R[..., 3] < 0.5, fy, 1 - fy)
+    chip = (R[..., 4] < 0.08) & (cx + cy < 0.3 + 0.2 * face)
+    spall = (R[..., 5] < 0.03) & ~joint
+    col = col * gray(0.9 + 0.12 * face - 0.25 * pits) * gray(0.82 + 0.18 * bevel)
+    col = np.where(spall[..., None], np.array([0.52, 0.30, 0.20], np.float32) * gray(0.8 + 0.3 * face), col)
+    mortar = np.array([0.50, 0.48, 0.45], np.float32) * gray(0.88 + 0.2 * tnoise(size, max(64, size // 4), 715))
+    col = np.where(chip[..., None], col * 0.72, col)                            # chipped: broken, shadowed brick
+    col = np.where(joint[..., None], mortar, col)
     col += 0.05 * gray(n - 0.5)
     eff = np.clip((tfbm(size, 707, octaves=4, base=8) - 0.66) * 4, 0, 1)[..., None] * 0.3
     col = col * (1 - eff) + np.array([0.70, 0.68, 0.64], np.float32) * eff
     col = weather(col, 709, dirt=0.22, desat=0.2, moss=0.05, streaks=0.15, spots=0.12)
+    sj = 1.0 - np.clip((e - (m - 1.0)) / 2.0, 0, 1)                              # soft joint edge for the normals (perf D80 M2)
+    h = 0.35 * bevel + 0.08 * face - 0.3 * pits - 0.9 * sj - 0.6 * chip - 0.5 * spall + 0.1 * n
     save(to_rgb(col), out, "sky_wall_brick_co")
-    save(normal_from_height(h + 0.1 * n, 2.0), out, "sky_wall_brick_nohq")
+    save(normal_from_height(h, 2.0), out, "sky_wall_brick_nohq")
+    ao = to_rgb(gray(np.clip(1.0 - 0.35 * joint - 0.12 * (1 - bevel) - 0.2 * chip - 0.15 * spall, 0, 1)))
+    ao.resize((min(size, 1024),) * 2, Image.BILINEAR).save(os.path.join(out, "sky_wall_brick_as.png"))
 
 
 def wall_panel(size, out):
@@ -1483,12 +1499,35 @@ def wall_panel(size, out):
     col = gray(0.64 + 0.06 * (n - 0.5))
     h = 0.15 * n
     j = max(3, size // 256)
-    yy = np.mgrid[0:size, 0:size][0]
-    for p in (0, size // 2):
+    yy, xx = np.mgrid[0:size, 0:size]
+    half = size // 2
+    rng = np.random.default_rng(727)
+    for py in (0, half):                                     # D80: each casting its own tone
+        for px in (0, half):
+            col[py:py + half, px:px + half] *= 0.94 + 0.12 * rng.random()
+    pores = np.clip((tnoise(size, max(64, size // 6), 729) - 0.9) * 10, 0, 1)
+    col *= gray(1 - 0.3 * pores)
+    h -= 0.6 * pores
+    ao = np.ones((size, size), np.float32)
+    for cy in (half // 4, 3 * half // 4):                     # 4 lifting / tie sockets per panel
+        for cx in (half // 4, 3 * half // 4):
+            for oy in (0, half):
+                for ox in (0, half):
+                    hole = (yy - cy - oy) ** 2 + (xx - cx - ox) ** 2 < (size * 0.006) ** 2
+                    col[hole] *= 0.55
+                    h[hole] -= 0.9
+                    ao[hole] *= 0.6
+    de = np.minimum(np.minimum(xx % half, half - 1 - xx % half), np.minimum(yy % half, half - 1 - yy % half))
+    chip = (de < j + max(2, size // 400)) & (tfbm(size, 731, octaves=3, base=16) > 0.68)   # chipped arrises at the joints
+    col[chip] *= 0.82
+    h[chip] -= 0.5
+    for p in (0, half):
         col[:, p:p + j] *= 0.6
         col[p:p + j, :] *= 0.6
         h[:, p:p + j] -= 1
         h[p:p + j, :] -= 1
+        ao[:, p:p + j] *= 0.6
+        ao[p:p + j, :] *= 0.6
     below = ((yy % (size // 2)) / (size / 2.0)).astype(np.float32)          # 0 just under a joint
     st = np.repeat(tnoise(size, 64, 723, aspect=64)[:1, :], size, 0)
     weep = np.clip((st - 0.5) * 3, 0, 1) * np.clip(1 - below * 2.2, 0, 1) * 0.35
@@ -1497,6 +1536,8 @@ def wall_panel(size, out):
     save(to_rgb(col), out, "sky_wall_panel_co")
     nh = normal_from_height(h, 2.5)
     save(nh.resize((max(1, size // 2),) * 2, Image.BILINEAR) if size > 1024 else nh, out, "sky_wall_panel_nohq")
+    a = to_rgb(gray(0.75 + 0.25 * ao))                                           # D80: real AO (joints, sockets)
+    a.resize((min(size, 512),) * 2, Image.BILINEAR).save(os.path.join(out, "sky_wall_panel_as.png"))      # 512 (perf D80 L1)
 
 
 def wall_limestone(size, out):
@@ -1536,17 +1577,25 @@ def wall_render(size, out):
     fine = tfbm(size, 761, octaves=3, base=64)
     n = tfbm(size, 763, octaves=6, base=8)
     yy_i, xx_i = np.mgrid[0:size, 0:size]
-    crack = np.abs(np.sin(((yy_i / size) * 9 + n * 6) * np.pi)) < 0.01
+    # D80: hairline crack network (masked periodic Voronoi) instead of sine bands; plaster loss with a dirty rim
+    crack_s = crack_field(size, 769, cells=5, width=0.0025, warp=0.03) * np.clip((tfbm(size, 765, octaves=3, base=3) - 0.5) * 4, 0, 1)
+    crack = crack_s > 0.35
     loss = tfbm(size, 767, octaves=5, base=6) > 0.72
+    rim = (np.roll(loss, 3, 0) | np.roll(loss, -3, 0) | np.roll(loss, 3, 1) | np.roll(loss, -3, 1)) & ~loss
     bw, bh = max(4, size // 24), max(2, size // 80)
     mortar = ((yy_i % bh) < 2) | (((xx_i + (yy_i // bh % 2) * bw // 2) % bw) < 2)
     brick_rgb = np.where(mortar[..., None], np.array([0.50, 0.48, 0.44], np.float32), np.array([0.46, 0.27, 0.19], np.float32))
     for i, (name, rgb) in enumerate(WALL_RENDER.items()):
         col = np.array(rgb, np.float32) * (1 + 0.06 * gray(n - 0.5)) + 0.03 * gray(fine - 0.5)
         col[crack] *= 0.72
+        col[rim] *= 0.8
         col = np.where(loss[..., None], brick_rgb, col)
         col = weather(col, 771 + i, dirt=0.18, desat=0.12, moss=0.08, streaks=0.2, spots=0.1)
         save(to_rgb(col), out, "sky_wall_render_%s_co" % name)
+    # one nohq for the four colours (gen_configs SHARED_MAPS): float texture, cracks, the plaster step at losses
+    h = 0.12 * fine + 0.05 * n - 0.7 * crack_s - 0.8 * loss - 0.3 * (loss & mortar) + 0.15 * rim
+    nh = normal_from_height(h.astype(np.float32), 2.0)
+    (nh.resize((1024, 1024), Image.BILINEAR) if size > 1024 else nh).save(os.path.join(out, "sky_wall_render_nohq.png"))
 
 
 VEG_CELLS = ["grass", "weeds", "burdock", "shrub", "ivy", "ivy_hang", "birch_crown", "dead_branches",
