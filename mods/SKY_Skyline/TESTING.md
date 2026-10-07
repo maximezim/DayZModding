@@ -666,6 +666,14 @@ collision and looks.
 | CS-03 | Search the cinema costume trunks from the stage | Action available on the stage | | |
 | CS-04 | Stand outside a police office / clinic exam room wall, within 2 m of the locker or cabinet, and search (P42) | Nothing happens (no loot, no cooldown used); from inside the room it works | | |
 
+## 37. Ruin exits and search UX (D72)
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| RX-01 | In 3 ruins (rowhouse, villa, shop row): drop into the collapse and climb out over the rubble (P43) | The pile can be climbed and left on every side; no room you cannot leave | | |
+| RX-02 | Aim at a police locker through the office wall, then from inside the room | No Search prompt through the wall; prompt inside | | |
+| RX-03 | Start a search, step behind the door frame before it ends | "Something is in the way.", no loot, the spot is not on cooldown | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -689,6 +697,7 @@ collision and looks.
 | Venue variants §34 | | | |
 | Stand / booth / kennel §35 | | | |
 | Civic search §36 | | | |
+| Ruin exits / search UX §37 | | | |
 | Placement §9 | | | |
 | Roof drop §10 | | | |
 | Clean logs §11 | | | |

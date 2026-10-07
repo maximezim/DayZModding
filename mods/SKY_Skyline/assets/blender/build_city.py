@@ -105,6 +105,8 @@ class RLod:
             if z0 >= zc - 1e-6 and z1 - z0 <= 0.45:          # floors, sills, copings: fell
                 continue
             cut = self.ruin.cut(cx, cy)
+            if z0 >= zc - 1e-6 and min(z1, cut) - z0 < 0.25:  # D72: no sliver of furniture floating over the hole
+                continue
             if z0 < cut:
                 self.lod.box(a, b, c, d, z0, min(z1, cut), **kw)
 
@@ -666,8 +668,11 @@ def bars(L, axis, c, a0, a1, z0, z1, openings=()):
 
 
 def rubble_pile(L, x, y, z, rx, ry, h, key, collide=True):
-    """Collapse debris mound: convex elliptic frustum (collides) + loose chunks (Res0)."""
+    """Collapse debris mound: convex elliptic frustum (collides) + loose chunks (Res0).
+    D72: never steeper than 45 deg (or low enough to vault, 0.6 m) so it is always a way out of the room it lies
+    in; its Geometry carries the named selection "rubble" so test_city walks over it instead of around it."""
     n = 8
+    h = min(h, max(0.6, 0.575 * min(rx, ry)))       # slope run >= (1 - top radius 0.35 - top offset 0.075) * r (sec L)
     rot = h01("rub", key) * math.pi
     base = [(x + rx * math.cos(rot + 2 * math.pi * k / n), y + ry * math.sin(rot + 2 * math.pi * k / n), z) for k in range(n)]
     tx, ty = x + 0.15 * rx * (h01("rubx", key) - 0.5), y + 0.15 * ry * (h01("ruby", key) - 0.5)
@@ -677,6 +682,8 @@ def rubble_pile(L, x, y, z, rx, ry, h, key, collide=True):
     faces = [tuple(range(n)), tuple(range(n, 2 * n))] + [(k, (k + 1) % n, n + (k + 1) % n, n + k) for k in range(n)]
     for k in ("res0", "res1", "res2") + (("geo", "fire", "view") if collide else ()):
         kw = {"mat": "rubble", "uv": UV_RUBBLE} if k.startswith("res") else ({"mat": "pen_concrete"} if k == "fire" else {})
+        if k == "geo":
+            kw["sel"] = ("rubble",)
         L[k].solid(base + top, faces, **kw)
     if collide:                                                         # walkable rubble (Roadway on the slopes)
         road = L["road"]

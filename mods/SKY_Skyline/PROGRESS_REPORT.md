@@ -304,3 +304,10 @@ Clinics now have medicine cabinets, police stations steel gear lockers and post 
 old letters, each searchable for its own kind of loot (medical supplies, police kit without weapons, paper and
 tools). A new check proves every search spot in every building can be reached; it caught locker spots that had
 been sealed inside ruined clubhouses. Gates and reviews: `reviews/d71_gates.md`.
+
+## 24. Ruin exits and search UX (D72)
+
+No ruin can trap a player any more: rubble heaps are now gentle enough to climb out over, a floating sliver of
+shelving was cleared from a collapsed department store, and the city test fails if any ruin room can be dropped
+into but not left. The Search prompt no longer shows through walls, and a blocked search says why. Gates and
+reviews: `reviews/d72_gates.md`.

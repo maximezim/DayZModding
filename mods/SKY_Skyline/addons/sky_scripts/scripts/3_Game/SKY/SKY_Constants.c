@@ -68,6 +68,7 @@ class SKY_Life
 	//! Max distance (m) from the player to a search memory point (client condition + server check).
 	static const float SEARCH_REACH = 2.0;
 	static const float SEARCH_EYE = 1.5;			//!< D71: line-of-sight ray height over the player and over the search spot
+	static const int SEARCH_LOS_CACHE_MS = 500;		//!< D72: client action condition re-raycasts at most this often
 	//! A searched spot stays empty this long (ms): 30 min.
 	static const int SEARCH_COOLDOWN_MS = 1800000;
 	//! Per-player minimum interval between searches (ms), on top of the 6 s action.

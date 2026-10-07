@@ -173,7 +173,7 @@ class SKY_SearchService
 	//! D71: a search spot is where the player stands; nothing solid may lie between the player's eyes and head
 	//! height over that spot (a wall, a cell's bars). DayZPhysics.RaycastRV (3_game/global/dayzphysics.c:199),
 	//! Geometry LOD (ObjIntersectGeom), the player ignored. Without it the 2 m reach worked through 0.2 m walls.
-	protected static bool InSight(PlayerBase player, vector spot)
+	static bool InSight(PlayerBase player, vector spot)
 	{
 		vector from = player.GetPosition() + Vector(0, SKY_Life.SEARCH_EYE, 0);
 		vector to = spot + Vector(0, SKY_Life.SEARCH_EYE, 0);
@@ -201,7 +201,10 @@ class SKY_SearchService
 		if (!FindSpot(obj, player.GetPosition(), spot, idx))
 			return;
 		if (idx >= 0 && !InSight(player, spot))
+		{
+			player.MessageStatus("Something is in the way.");			// D72: tell the player why (no cooldown used)
 			return;													// D71 security M: no searching through a wall
+		}
 		int now = g_Game.GetTime();
 		if (!m_Rate.Allow(identity.GetId(), now))
 			return;

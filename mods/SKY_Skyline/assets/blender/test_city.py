@@ -27,8 +27,8 @@ import skyspec as S  # noqa: E402
 from test_kit import comp_boxes, dist, rotate, watertight  # noqa: E402
 
 FAIL = []
-# Sealed pockets excused next to a collapse but open to the floor above (a player could drop in and be stuck):
-# reported, not failed - pre-existing in the ruin generator, fix tracked as P39 (security review D69 L).
+# Sealed pockets excused next to a collapse, open to the floor above and with no edge on the hole to drop out of
+# (a player could drop in and be stuck). D69 reported them; D72 fixed the generator and fails the test (P39).
 POCKETS = []
 NEED = ("res0", "res1", "res2", "res3", "shadow", "geo", "view", "fire", "road", "mem")
 
@@ -39,7 +39,7 @@ def check(c, m):
 
 
 def door_comps(geo):
-    names = [g for g in geo.groups if not g.startswith("Component")]
+    names = [g for g in geo.groups if not g.startswith("Component") and g != "rubble"]
     out = set()
     for g, v in geo.groups.items():
         if g.startswith("Component") and any(v <= geo.groups[n] for n in names):
@@ -47,10 +47,19 @@ def door_comps(geo):
     return out
 
 
+def rubble_comps(geo):
+    r = geo.groups.get("rubble", set())
+    comps = {g for g, v in geo.groups.items() if g.startswith("Component") and r and v <= r}
+    for g in comps:                                             # walked over only while it stays climbable (sec L)
+        zs = [geo.verts[i][2] for i in geo.groups[g]]
+        check(max(zs) - min(zs) <= 1.1 + 1e-6, "rubble pile %s is %.2f m high (max 1.1)" % (g, max(zs) - min(zs)))
+    return comps
+
+
 def flood(P, lods, l, cell=0.1, radius=0.3):
     """Reachable cells of level l (set of (i, j)) and the free-but-unreached regions."""
     geo = lods["geo"]
-    skip = door_comps(geo)
+    skip = door_comps(geo) | rubble_comps(geo)                  # D72: rubble (<= 45 deg, Roadway) is walked over
     boxes = [(g, b) for g, b in comp_boxes(geo)]
     use, fh, z = P.levels[l]
     floor = [b for g, b in boxes if abs(b[5] - z) < 0.05]
@@ -98,7 +107,17 @@ def flood(P, lods, l, cell=0.1, radius=0.3):
             cx = x0 + sum(c[0] for c in region) / len(region) * cell
             cy = y0 + sum(c[1] for c in region) / len(region) * cell
             if P.near_collapse(cx, cy, l):
-                if any(P.collapsed(x0 + (c[0] + 0.5) * cell, y0 + (c[1] + 0.5) * cell, l + 1) for c in region):
+                # D72 (P39): a trap = open to the floor above (a player can drop in) and no edge on the hole of this
+                # level to drop out of; rubble is walkable (rubble_comps), so most pockets connect over it
+                pts = [(x0 + (c[0] + 0.5) * cell, y0 + (c[1] + 0.5) * cell) for c in region]
+                open_above = any(P.collapsed(x, y, l + 1) for x, y in pts)
+                # exit = a step off the edge (no wall stub there) onto the floor one storey down (security D72 M)
+                drop_ok = l > 0 and P.levels[l][2] - P.levels[l - 1][2] <= 4.6
+                exit_down = drop_ok and any(
+                    P.collapsed(x + dx, y + dy, l) and not P.collapsed(x + dx, y + dy, l - 1)
+                    and not any(b[0] < x + dx < b[1] and b[2] < y + dy < b[3] for b in block)
+                    for x, y in pts for dx, dy in ((0.4, 0), (-0.4, 0), (0, 0.4), (0, -0.4)))
+                if open_above and not exit_down:
                     POCKETS.append("%s level %d (%.1f m2)" % (P.name, l, len(region) * cell * cell))
                 continue                                  # sealed by the collapse (allowed, no loot there)
             check(False, "%s level %d: %.1f m2 unreachable (near x %.1f, y %.1f)"
@@ -266,9 +285,8 @@ def main():
         cur = json.load(open(C.LOOT_JSON)) if os.path.exists(C.LOOT_JSON) else {}
         norm = {k: [list(p) for p in v] for k, v in fresh.items()}
         check(cur == norm, "assets/city_loot.json is stale - re-run build_city.py")
-    if POCKETS:
-        print("WARN: %d sealed ruin pockets open from above (P39): %s" % (len(POCKETS), ", ".join(POCKETS[:6])
-                                                                         + (" ..." if len(POCKETS) > 6 else "")))
+    for p in POCKETS:
+        check(False, "ruin pocket a player can drop into but not leave: %s (P39)" % p)
     if FAIL:
         print("CITY GEOMETRY TESTS: %d FAILED" % len(FAIL))
         for f in FAIL:
