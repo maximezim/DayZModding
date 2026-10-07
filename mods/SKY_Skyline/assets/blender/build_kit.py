@@ -29,6 +29,28 @@ B_MARK = S.MATERIALS["roadmark"]["bands"]
 ST = S.STREET
 
 
+def h01_kit(*key):
+    """Deterministic 0..1 hash (kit pieces, D73)."""
+    import zlib
+    return (zlib.crc32(repr(key).encode()) & 0xFFFFFF) / float(0x1000000)
+
+
+def _bar(lod, p0, p1, r, mat=None, uv=None):
+    """Square-section strut between two points (same as build_city.bar; build_city imports this module)."""
+    d = [p1[i] - p0[i] for i in range(3)]
+    ln = math.sqrt(sum(v * v for v in d)) or 1.0
+    d = [v / ln for v in d]
+    a = (0, 0, 1) if abs(d[2]) < 0.9 else (1, 0, 0)
+    u = [d[1] * a[2] - d[2] * a[1], d[2] * a[0] - d[0] * a[2], d[0] * a[1] - d[1] * a[0]]
+    un = math.sqrt(sum(v * v for v in u))
+    u = [v / un * r for v in u]
+    w = [d[1] * u[2] - d[2] * u[1], d[2] * u[0] - d[0] * u[2], d[0] * u[1] - d[1] * u[0]]
+    ring = [(u[0] + w[0], u[1] + w[1], u[2] + w[2]), (u[0] - w[0], u[1] - w[1], u[2] - w[2]),
+            (-u[0] - w[0], -u[1] - w[1], -u[2] - w[2]), (-u[0] + w[0], -u[1] + w[1], -u[2] + w[2])]
+    verts = [tuple(p0[i] + c[i] for i in range(3)) for c in ring] + [tuple(p1[i] + c[i] for i in range(3)) for c in ring]
+    lod.solid(verts, [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)], mat, uv)
+
+
 def props_lods(view=False, road=False, mem=False):
     L = {"res0": Lod("res0", LOD_RES, 0.0), "res1": Lod("res1", LOD_RES, 1.0), "res2": Lod("res2", LOD_RES, 2.0),
          "geo": Lod("geo", LOD_GEOMETRY), "fire": Lod("fire", LOD_FIREGEO)}
@@ -259,15 +281,37 @@ def build_manhole():
 
 # ------------------------------------------------------------------ street furniture
 def build_streetlight():
+    """8 m Soviet street light (D73 close-up pass): bolted base plinth, tapered octagonal pole in three
+    sections with collars, service hatch, curved arm in three segments, cobra-head lamp housing with a
+    cracked diffuser, a sagging feed cable. Same collision, Fire and light memory points as before."""
     L = props_lods(mem=True)
-    for k, n in (("res0", 8), ("res1", 6), ("res2", 4)):
-        L[k].prism(0.0, 0.0, 0.08, 0.0, 8.0, n=n, mat="rust", uv=UV_GREY)
+    for k, n in (("res0", 8), ("res1", 6)):                                      # tapered pole, 3 sections + collars
+        for i, (z0, z1, r) in enumerate(((0.45, 3.0, 0.095), (3.0, 5.6, 0.08), (5.6, 8.0, 0.065))):
+            L[k].prism(0.0, 0.0, r, z0, z1, n=n, mat="rust", uv=UV_GREY)
+            if k == "res0" and i:
+                L[k].prism(0.0, 0.0, r + 0.025, z0 - 0.04, z0 + 0.04, n=n, mat="rust", uv=UV_RUST)
+    L["res2"].prism(0.0, 0.0, 0.08, 0.0, 8.0, n=4, mat="rust", uv=UV_GREY)
     for k in ("res0", "res1"):
-        L[k].prism(0.0, 0.0, 0.16, 0.0, 0.45, n=8, mat="rust", uv=UV_GREY)
-        L[k].box(0.0, 1.6, -0.04, 0.04, 7.8, 7.88, mat="rust", uv=UV_GREY)
-        L[k].box(1.2, 1.8, -0.17, 0.17, 7.7, 7.85, mat="rust", uv=UV_GREY, skip=("-z",))
-        L[k].hquad(1.22, 1.78, -0.15, 0.15, 7.699, mat="lamp", uv=UVWorld(1.0), up=False)
+        L[k].prism(0.0, 0.0, 0.16, 0.0, 0.45, n=8, mat="concrete", uv=UV_CONC_REVEAL)  # plinth
+    for i in range(4):                                                           # anchor bolts
+        a = math.pi / 4 + i * math.pi / 2
+        L["res0"].prism(0.13 * math.cos(a), 0.13 * math.sin(a), 0.015, 0.45, 0.5, n=4, mat="rust", uv=UV_RUST)
+    L["res0"].box(-0.06, 0.06, -0.1, -0.09, 1.0, 1.35, mat="rust", uv=UV_BURNT)    # service hatch
+    arm = [(0.0, 7.6), (0.55, 7.92), (1.15, 7.98), (1.55, 7.9)]                    # curved arm (x, z)
+    for k, r in (("res0", 0.035), ("res1", 0.035)):
+        for (x0, z0), (x1, z1) in zip(arm, arm[1:]):
+            _bar(L[k], (x0, 0.0, z0), (x1, 0.0, z1), r, "rust", UV_GREY)
     L["res2"].box(0.0, 1.8, -0.1, 0.1, 7.7, 7.88, mat="rust", uv=UV_GREY)
+    head = [(1.2, 7.72), (1.85, 7.7), (1.9, 7.78), (1.75, 7.9), (1.3, 7.92)]       # cobra head profile (x, z)
+    L["res0"].extrude_y(head, -0.17, 0.17, mat="rust", uv=UV_GREY)
+    L["res1"].box(1.2, 1.85, -0.17, 0.17, 7.7, 7.85, mat="rust", uv=UV_GREY, skip=("-z",))
+    for k in ("res0", "res1"):
+        L[k].hquad(1.22, 1.78, -0.15, 0.15, 7.699, mat="lamp", uv=UVWorld(1.0), up=False)
+    L["res0"].box(1.25, 1.8, -0.13, 0.13, 7.85, 7.9, mat="rust", uv=UV_RUST)       # domed cap
+    L["res0"].box(1.45, 1.55, -0.155, 0.155, 7.69, 7.693, mat="rust", uv=UV_BURNT)    # crack 6 mm under the diffuser
+    pts = [(0.08, -0.02, 7.5), (0.3, -0.05, 6.9), (0.12, -0.04, 6.2)]             # sagging feed cable
+    for p0, p1 in zip(pts, pts[1:]):
+        _bar(L["res0"], p0, p1, 0.01, "rust", UV_BURNT)
     L["geo"].prism(0.0, 0.0, 0.16, 0.0, 0.45, n=8)
     L["geo"].prism(0.0, 0.0, 0.08, 0.45, 8.0, n=6)
     L["fire"].prism(0.0, 0.0, 0.08, 0.0, 8.0, n=6, mat="pen_metal")
@@ -299,10 +343,32 @@ JERSEY = [(-0.3, 0.0), (0.3, 0.0), (0.1, 0.3), (0.08, 0.8), (-0.08, 0.8), (-0.1,
 
 
 def build_barrier_concrete():
+    """3 m jersey barrier (D73 close-up pass): chamfered ends, chipped edges with rebar showing, a lifting
+    loop, faded red / white hazard stripes on the slope, drainage slots at the foot. Collision unchanged."""
     L = props_lods(view=True)
-    for k in ("res0", "res1"):
-        L[k].extrude_y(JERSEY, -1.5, 1.5, mat="concrete", uv=UV_CONC_REVEAL)
+    L["res0"].extrude_y(JERSEY, -1.45, 1.45, mat="concrete", uv=UV_CONC_REVEAL)
+    for s_ in (-1, 1):                                                           # chamfered ends (Res0 only)
+        prof = [(x * 0.9, z) for x, z in JERSEY]
+        L["res0"].extrude_y(prof, 1.45 if s_ > 0 else -1.5, 1.5 if s_ > 0 else -1.45, mat="concrete", uv=UV_CONC_REVEAL)
+    L["res1"].extrude_y(JERSEY, -1.5, 1.5, mat="concrete", uv=UV_CONC_REVEAL)    # Res1: one extrusion (perf M)
     L["res2"].extrude_y([(-0.3, 0.0), (0.3, 0.0), (0.08, 0.8), (-0.08, 0.8)], -1.5, 1.5, mat="concrete", uv=UV_CONC_REVEAL)
+    for i, y in enumerate((-0.9, -0.3, 0.3, 0.9)):                               # hazard stripes (both faces)
+        band = "red" if i % 2 == 0 else "white"
+        for sx in (-1, 1):
+            q = [(sx * 0.101, y - 0.28, 0.32), (sx * 0.101, y + 0.28, 0.32), (sx * 0.081, y + 0.28, 0.78), (sx * 0.081, y - 0.28, 0.78)]
+            for k in ("res0", "res1"):                                           # stripes stay in Res1 (no pop)
+                L[k].quad(q if sx > 0 else q[::-1], (sx, 0, 0.1), "fair", UVBand(S.MATERIALS["fair"]["bands"][band], 1.0))
+    for y in (-1.0, 0.0, 1.0):                                                    # drainage slots (dark)
+        for sx in (-1, 1):
+            q = [(sx * 0.301, y - 0.15, 0.02), (sx * 0.301, y + 0.15, 0.02), (sx * 0.29, y + 0.15, 0.1), (sx * 0.29, y - 0.15, 0.1)]
+            L["res0"].quad(q if sx > 0 else q[::-1], (sx, 0, 0.3), "rust", UV_BURNT)
+    L["res0"].box(-0.02, 0.02, -0.12, 0.12, 0.8, 0.86, mat="rust", uv=UV_RUST)      # lifting loop
+    L["res0"].box(-0.02, 0.02, -0.12, -0.08, 0.76, 0.8, mat="rust", uv=UV_RUST)
+    L["res0"].box(-0.02, 0.02, 0.08, 0.12, 0.76, 0.8, mat="rust", uv=UV_RUST)
+    for i, (y, z) in enumerate(((1.42, 0.7), (-1.42, 0.2))):                     # chips + rebar stubs
+        L["res0"].box(-0.06, 0.06, y - 0.05, y + 0.05, z, z + 0.08, mat="concrete", uv=UV_CONC_REVEAL)
+        _bar(L["res0"], (0.0, y, z + 0.04),
+              (0.03, y + (0.12 if y > 0 else -0.12), z + 0.1), 0.006, "rust", UV_RUST)
     L["geo"].extrude_y(JERSEY, -1.5, 1.5)
     L["view"].extrude_y(JERSEY, -1.5, 1.5)
     L["fire"].extrude_y(JERSEY, -1.5, 1.5, mat="pen_concrete")
@@ -367,22 +433,38 @@ def build_dumpster():
 
 
 def build_planter():
+    """1.5 m concrete street planter (D73 close-up pass): rolled rim, chamfered foot, a crack, soil with a
+    dead shrub (trunk, forked branches, a few leaf cards) gone to weeds, a cigarette-butt litter of chips."""
     L = props_lods()
     uv_soil = UVBand(S.MATERIALS["concrete"]["bands"]["board"], 1.4)
     for k in ("res0", "res1", "res2"):
         L[k].box(-0.75, 0.75, -0.75, 0.75, 0.0, 0.6, mat="concrete", uv=UV_CONC_REVEAL, skip=("-z", "+z"))
         L[k].hquad(-0.7, 0.7, -0.7, 0.7, 0.55, mat="concrete", uv=uv_soil)
-    L["res2"].quad([(-0.7, 0.0, 0.5), (0.7, 0.0, 0.5), (0.7, 0.0, 1.7), (-0.7, 0.0, 1.7)], (0, -1, 0), "foliage",
-                   UVRect(0, 2, (-0.7, 0.5), (0.7, 1.7)))
-    for k in ("res0", "res1"):
+    for k in ("res0", "res1"):                                                   # rolled rim + chamfered foot
+        for (a0, a1, b0, b1) in ((-0.8, 0.8, -0.8, -0.68), (-0.8, 0.8, 0.68, 0.8), (-0.8, -0.68, -0.68, 0.68), (0.68, 0.8, -0.68, 0.68)):
+            L[k].box(a0, a1, b0, b1, 0.6, 0.66, mat="concrete", uv=UV_CONC_REVEAL)
+    for (a0, a1, b0, b1) in ((-0.79, 0.79, -0.79, -0.75), (-0.79, 0.79, 0.75, 0.79), (-0.79, -0.75, -0.75, 0.75), (0.75, 0.79, -0.75, 0.75)):
+        L["res0"].box(a0, a1, b0, b1, 0.0, 0.08, mat="concrete", uv=UV_CONC_REVEAL)
+    L["res0"].quad([(0.2, -0.752, 0.1), (0.24, -0.752, 0.1), (0.36, -0.752, 0.58), (0.32, -0.752, 0.58)], (0, -1, 0),
+                   "concrete", uv_soil)                                          # crack (dark board band: no extra section)
+    trunk = [(0.05, 0.0, 0.55), (0.02, 0.03, 0.95), (-0.05, 0.02, 1.3)]           # dead shrub
+    for p0, p1 in zip(trunk, trunk[1:]):
+        _bar(L["res0"], p0, p1, 0.03, "wood", DT.UV_OAK)
+        _bar(L["res1"], p0, p1, 0.03, "wood", DT.UV_OAK)
+    for i, (dx, dy, dz) in enumerate(((0.35, 0.1, 0.35), (-0.3, 0.25, 0.4), (0.1, -0.35, 0.3), (-0.2, -0.2, 0.45))):
+        base = trunk[1] if i % 2 else trunk[2]
+        _bar(L["res0"], base, (base[0] + dx, base[1] + dy, base[2] + dz), 0.012, "wood", DT.UV_OAK)
+    for k in ("res0", "res1"):                                                   # what is left of the leaves
         for axis in ("x", "y"):
             if axis == "x":
-                q = [(-0.7, 0.0, 0.5), (0.7, 0.0, 0.5), (0.7, 0.0, 1.7), (-0.7, 0.0, 1.7)]
-                uv, fac = UVRect(0, 2, (-0.7, 0.5), (0.7, 1.7)), (0, -1, 0)
+                q = [(-0.55, 0.0, 0.9), (0.55, 0.0, 0.9), (0.55, 0.0, 1.65), (-0.55, 0.0, 1.65)]
+                uv, fac = UVRect(0, 2, (-0.55, 0.9), (0.55, 1.65)), (0, -1, 0)
             else:
-                q = [(0.0, -0.7, 0.5), (0.0, 0.7, 0.5), (0.0, 0.7, 1.7), (0.0, -0.7, 1.7)]
-                uv, fac = UVRect(1, 2, (-0.7, 0.5), (0.7, 1.7)), (1, 0, 0)
+                q = [(0.0, -0.55, 0.9), (0.0, 0.55, 0.9), (0.0, 0.55, 1.65), (0.0, -0.55, 1.65)]
+                uv, fac = UVRect(1, 2, (-0.55, 0.9), (0.55, 1.65)), (1, 0, 0)
             L[k].quad(q, fac, "foliage", uv, double=True)
+    L["res2"].quad([(-0.55, 0.0, 0.9), (0.55, 0.0, 0.9), (0.55, 0.0, 1.65), (-0.55, 0.0, 1.65)], (0, -1, 0), "foliage",
+                   UVRect(0, 2, (-0.55, 0.9), (0.55, 1.65)), double=True)        # same card as Res1, both sides (sec M)
     L["geo"].box(-0.75, 0.75, -0.75, 0.75, 0.0, 0.6)
     L["fire"].box(-0.75, 0.75, -0.75, 0.75, 0.0, 0.6, mat="pen_concrete")
     return finish(L, 900.0)
@@ -399,17 +481,58 @@ def wheels(L, keys, xs, ys, r=0.3, zc=0.28, n=8, width=0.2, uv=None):
 
 
 def build_wreck_sedan():
+    """Rusted Soviet saloon hulk (D73 close-up pass, original shape): stepped body (bonnet, cabin, boot)
+    with wheel arches, faded paint over rust, empty window frames, chrome bumpers, head and tail lamps,
+    flat tyres on steel rims, the bonnet sprung open. Collision unchanged (body + cabin)."""
     L = props_lods(view=True)
-    cab = [(-1.1, 0.85), (1.0, 0.85), (0.6, 1.4), (-0.7, 1.4)]          # (y, z) trapezoid
-    for k in ("res0", "res1", "res2"):
-        L[k].box(-0.9, 0.9, -2.1, 2.1, 0.0 if k == "res2" else 0.25, 0.85, mat="rust", uv=UV_RUST)
-        L[k].extrude_x(cab, -0.8, 0.8, mat="rust", uv=UV_RUST)
-    wheels(L, ("res0",), (0.75, -0.75), (-1.3, 1.35))
-    wheels(L, ("res1",), (0.75, -0.75), (-1.3, 1.35), n=6)
+    col = ("beige", "sage", "terracotta", "white")[int(h01_kit("sedan", "col") * 4)]
+    paint = DT.paint_uv(col)
+    for k in ("res0", "res1"):
+        L[k].box(-0.9, 0.9, -2.1, 2.1, 0.25, 0.62, mat="paint", uv=paint)                 # sills to waist
+        if k == "res1":
+            L[k].box(-0.88, 0.88, -2.08, -1.0, 0.62, 0.85, mat="paint", uv=paint)         # bonnet (closed in Res1)
+        L[k].box(-0.88, 0.88, 1.15, 2.08, 0.62, 0.82, mat="paint", uv=paint)              # boot
+        L[k].box(-0.9, 0.9, -1.0, 1.15, 0.62, 0.86, mat="paint", uv=paint)                # waist under the windows
+    cab = [(-1.0, 0.86), (1.0, 0.86), (0.65, 1.38), (-0.6, 1.38)]                      # (y, z)
+    L["res0"].extrude_x(cab, -0.78, -0.72, mat="paint", uv=paint)                       # cabin sides as frames
+    L["res0"].extrude_x(cab, 0.72, 0.78, mat="paint", uv=paint)
+    L["res0"].box(-0.78, 0.78, -0.62, 0.68, 1.36, 1.4, mat="paint", uv=paint)            # roof
+    for (ya, yb, f) in ((-1.0, -0.6, (0, -0.8, 0.6)), (1.0, 0.65, (0, 0.8, 0.6))):        # grimy windscreen / rear window
+        q = [(-0.72, ya, 0.86), (0.72, ya, 0.86), (0.72, yb, 1.38), (-0.72, yb, 1.38)]
+        L["res0"].quad(q, f, "glassfar", UV_GLASS, double=True)                         # (opaque: no see-through, sec M)
+    for sx in (-1, 1):                                                                 # window openings (dark)
+        x = sx * 0.781
+        for (y0, y1) in ((-0.85, 0.02), (0.08, 0.9)):
+            z0, z1 = 0.9, 1.32
+            q = [(x, y0 + 0.05, z0), (x, y1 - 0.05, z0), (x, min(y1, 0.6) - 0.05, z1), (x, max(y0, -0.55) + 0.05, z1)]
+            L["res0"].quad(q if sx > 0 else q[::-1], (sx, 0, 0), "glassfar", UV_GLASS)
+    L["res0"].box(-0.86, 0.86, -2.06, -1.02, 0.62, 0.72, mat="rust", uv=UV_BURNT)       # gutted engine bay
+    L["res0"].box(-0.3, 0.3, -1.8, -1.25, 0.72, 0.82, mat="rust", uv=UV_RUST)            # what is left of the engine
+    for (x0, x1, y0, y1, z) in ((-0.5, 0.2, -0.6, 0.4, 1.401), (-0.86, -0.2, -1.9, -1.4, 0.851), (0.1, 0.8, 1.3, 1.9, 0.821)):
+        L["res0"].hquad(x0, x1, y0, y1, z, mat="rust", uv=UV_RUST)                     # rust through roof / wing / boot
+    L["res1"].extrude_x(cab, -0.8, 0.8, mat="paint", uv=paint)
+    L["res2"].box(-0.9, 0.9, -2.1, 2.1, 0.0, 0.85, mat="rust", uv=UV_RUST)
+    L["res2"].extrude_x(cab, -0.8, 0.8, mat="rust", uv=UV_RUST)
+    for i, (y0, y1, z0, z1) in enumerate(((-1.9, -1.2, 0.3, 0.55), (0.3, 1.1, 0.28, 0.5), (1.4, 2.0, 0.45, 0.7))):
+        for sx in (-1, 1):                                                             # rust patches on the flanks
+            x = sx * 0.901
+            q = [(x, y0, z0), (x, y1, z0), (x, y1, z1), (x, y0, z1)]
+            L["res0"].quad(q if sx > 0 else q[::-1], (sx, 0, 0), "rust", UV_RUST)
+    for y, s_ in ((-2.1, -1), (2.1, 1)):                                               # chrome bumpers + lamps
+        L["res0"].box(-0.92, 0.92, min(y, y + s_ * 0.06), max(y, y + s_ * 0.06), 0.3, 0.42, mat="metal", uv=UV_STEEL)
+        for sx in (-1, 1):
+            L["res0"].box(sx * 0.62 - 0.12, sx * 0.62 + 0.12, y - 0.02 if s_ < 0 else y, y if s_ < 0 else y + 0.02, 0.6, 0.72,
+                          mat="glassfar" if s_ < 0 else "paint", uv=UV_GLASS if s_ < 0 else DT.paint_uv("terracotta"))
+    L["res0"].solid([(-0.86, -1.02, 0.86), (0.86, -1.02, 0.86), (0.86, -1.04, 0.9), (-0.86, -1.04, 0.9),
+                     (-0.86, -1.9, 1.15), (0.86, -1.9, 1.15), (0.86, -1.92, 1.19), (-0.86, -1.92, 1.19)],
+                    [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (2, 3, 7, 6), (0, 3, 7, 4), (1, 2, 6, 5)], "paint", paint)   # sprung bonnet
+    wheels(L, ("res0",), (0.75, -0.75), (-1.3, 1.35), r=0.3, zc=0.24, uv=UV_BURNT)        # flat tyres
+    wheels(L, ("res1",), (0.75, -0.75), (-1.3, 1.35), n=5, zc=0.24)
+    cab_geo = [(-1.1, 0.85), (1.0, 0.85), (0.6, 1.4), (-0.7, 1.4)]                  # collision: one closed hull (sec H)
     for k in ("geo", "fire", "view"):
         kw = {"mat": "pen_metal"} if k == "fire" else {}
         L[k].box(-0.9, 0.9, -2.1, 2.1, 0.0, 0.85, **kw)
-        L[k].extrude_x(cab, -0.8, 0.8, **kw)
+        L[k].extrude_x(cab_geo, -0.8, 0.8, **kw)
     return finish(L, 1100.0)
 
 

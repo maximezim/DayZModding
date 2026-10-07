@@ -2,8 +2,8 @@
  "sky_barrier_concrete.p3d": {
   "fire": 20,
   "geo": 20,
-  "res0": 20,
-  "res1": 20,
+  "res0": 172,
+  "res1": 36,
   "res2": 12,
   "shadow": 20,
   "view": 20
@@ -212,9 +212,9 @@
  "sky_planter.p3d": {
   "fire": 12,
   "geo": 12,
-  "res0": 18,
-  "res1": 18,
-  "res2": 12,
+  "res0": 188,
+  "res1": 90,
+  "res2": 14,
   "shadow": 12
  },
  "sky_receptiondesk.p3d": {
@@ -350,8 +350,8 @@
   "fire": 32,
   "geo": 48,
   "mem": 0,
-  "res0": 80,
-  "res1": 72,
+  "res0": 330,
+  "res1": 136,
   "res2": 24,
   "shadow": 48
  },
@@ -376,8 +376,8 @@
  "sky_wreck_sedan.p3d": {
   "fire": 24,
   "geo": 24,
-  "res0": 136,
-  "res1": 104,
+  "res0": 326,
+  "res1": 124,
   "res2": 24,
   "shadow": 24,
   "view": 24

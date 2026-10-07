@@ -81,13 +81,24 @@ def dog(lod, x, y, z, yaw=0.0, detail=True, mat="fur", uv=FUR):
 
     def P(px, py, pz):
         return (x + px * ca - py * sa, y + px * sa + py * ca, z + pz)
-    n = 8 if detail else 5
+    mid = detail == "mid"                                                           # D73: mid LOD (kennel Res1)
+    if mid:
+        detail = False
+    n = 8 if detail else (6 if mid else 5)
     limb(lod, P(0, 0.42, 0.2), P(0, -0.12, 0.24), 0.17, 0.19, n, mat, uv)          # torso
     blob(lod, P(0, 0.42, 0.18), 0.18, 0.16, 0.16, n, mat, uv)                       # haunch
     if detail:                                                                       # dark saddle (shepherd)
         limb(lod, P(0, 0.35, 0.31), P(0, -0.05, 0.36), 0.1, 0.11, n, "fur", FUR_SADDLE)
     limb(lod, P(0, -0.12, 0.3), P(0, -0.3, 0.48), 0.1, 0.075, n, mat, uv)           # neck
     blob(lod, P(0, -0.34, 0.5), 0.09, 0.11, 0.08, n, mat, uv)                       # skull
+    if mid:                                                                          # muzzle, ears, legs, tail: low sides
+        limb(lod, P(0, -0.42, 0.48), P(0, -0.55, 0.45), 0.05, 0.035, 4, mat, uv)
+        for s in (-1, 1):
+            limb(lod, P(s * 0.05, -0.31, 0.55), P(s * 0.07, -0.29, 0.66), 0.035, 0.008, 3, mat, uv)
+            limb(lod, P(s * 0.1, -0.12, 0.08), P(s * 0.1, -0.42, 0.04), 0.045, 0.035, 4, mat, uv)
+            limb(lod, P(s * 0.16, 0.42, 0.08), P(s * 0.13, 0.18, 0.04), 0.05, 0.035, 4, mat, uv)
+        limb(lod, P(0, 0.56, 0.18), P(0.18, 0.8, 0.04), 0.045, 0.02, 4, mat, uv)
+        return
     if not detail:
         return
     limb(lod, P(0, -0.42, 0.48), P(0, -0.55, 0.45), 0.05, 0.035, 6, mat, uv)        # muzzle
@@ -175,7 +186,7 @@ def build_kennel():
     for e in ((0.25, -0.62), (0.4, -0.7)):
         blob(r0, (e[0], e[1], 0.03), 0.03, 0.03, 0.025, 4, "paint", DT.paint_uv("white"))
     dog(r0, 0.0, -0.75, 0.0, 0.0, True)
-    dog(r1, 0.0, -0.75, 0.0, 0.0, False)
+    dog(r1, 0.0, -0.75, 0.0, 0.0, "mid")                                              # D73: mid-detail dog
     r0.prism(0.42, -0.45, 0.11, 0.0, 0.06, n=12, mat="paint", uv=DT.paint_uv("white"))   # enamel bowl
     r1.prism(0.42, -0.45, 0.11, 0.0, 0.06, n=6, mat="paint", uv=DT.paint_uv("white"))    # Res1: bowl + name board (perf L)
     r1.box(-0.22, 0.22, y0 - 0.01, y0, 0.78, 0.9, mat="paint", uv=DT.paint_uv("beige"))

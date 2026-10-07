@@ -311,3 +311,10 @@ No ruin can trap a player any more: rubble heaps are now gentle enough to climb 
 shelving was cleared from a collapsed department store, and the city test fails if any ruin room can be dropped
 into but not left. The Search prompt no longer shows through walls, and a blocked search says why. Gates and
 reviews: `reviews/d72_gates.md`.
+
+## 25. Street kit close-up (D73)
+
+The pieces players walk past most were still simple boxes. Street lamps now have a tapered pole, a bolted
+plinth and a cobra-head lamp; jersey barriers have faded hazard stripes and chipped ends; planters hold a dead
+shrub; sedan hulks have windows, chrome bumpers, flat tyres and a gutted engine under a sprung bonnet. The guard
+dog in the kennel keeps its shape at mid range. Renders and reviews: `reviews/d73_gates.md`.

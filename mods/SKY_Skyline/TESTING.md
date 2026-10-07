@@ -674,6 +674,14 @@ collision and looks.
 | RX-02 | Aim at a police locker through the office wall, then from inside the room | No Search prompt through the wall; prompt inside | | |
 | RX-03 | Start a search, step behind the door frame before it ends | "Something is in the way.", no loot, the spot is not on cooldown | | |
 
+## 38. Street kit close-up pass (D73)
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| SK-01 | Walk a car jam: shoot through a sedan hulk's windows and between cabin and body (P44) | Bullets stop on the hulk; no slit in its collision | | |
+| SK-02 | Look along a lit street at night from 5 m to 120 m | Lamps light the road as before; no pole / head popping; barrier stripes stay visible at mid range | | |
+| SK-03 | Hide behind a planter and a barrier, a second player watches from 80 m | Same cover in every LOD (no shrub card hiding a crouched player from one side only) | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -698,6 +706,7 @@ collision and looks.
 | Stand / booth / kennel §35 | | | |
 | Civic search §36 | | | |
 | Ruin exits / search UX §37 | | | |
+| Street kit §38 | | | |
 | Placement §9 | | | |
 | Roof drop §10 | | | |
 | Clean logs §11 | | | |
