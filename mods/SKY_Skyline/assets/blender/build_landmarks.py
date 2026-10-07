@@ -584,7 +584,7 @@ def build_pitch():
 
 def build_stand():
     """Covered stand 24 x 7: 6 concrete terraces with plastic seats (some missing), back wall,
-    steel roof on columns, stairs at both ends (walkable)."""
+    steel roof on columns, stairs at both ends (walkable), three ragged club flags on the roof (D68)."""
     name = "Stadium_Stand"
     L = lods(name)
     hw, hd = 12.0, 3.5
@@ -623,6 +623,19 @@ def build_stand():
     for i in range(5):                                                           # roof struts
         x = -hw + 0.3 + i * (2 * hw - 0.6) / 4
         bar(L["res0"], (x, hd - 0.45, 3.5), (x, -hd - 0.3, 5.2), 0.06, "metal", DT.UV_PAINT)
+    for i, (x, col) in enumerate(((-8.0, "blue"), (0.0, "red"), (8.0, "white"))):   # D68: club flags on the roof (flag loop)
+        for k in ("res0", "res1"):
+            L[k].prism(x, hd - 0.15, 0.04, 5.85, 9.0, n=6 if k == "res0" else 4, mat="metal", uv=DT.UV_PAINT)
+        torn = 0.35 + 0.4 * h01(name, "flag", i)                                  # ragged fly end
+        segs = [(0.0, 0.0), (0.6, 0.12), (1.2, -0.05), (1.6 + torn, 0.1)]         # cloth ripples along -Y
+        for j in range(len(segs) - 1):
+            (u0, w0), (u1, w1) = segs[j], segs[j + 1]
+            drop = 0.15 * j                                                       # sags towards the fly end
+            L["res0"].quad([(x + w0, hd - 0.15 - u0, 8.9 - drop), (x + w1, hd - 0.15 - u1, 8.9 - drop - 0.15),
+                            (x + w1, hd - 0.15 - u1, 8.0 - drop * 0.5), (x + w0, hd - 0.15 - u0, 8.0 - drop * 0.5 + 0.05)],
+                           (1, 0, 0), "fair", fair_uv(col), double=True)
+        L["res1"].quad([(x, hd - 0.15, 8.9), (x, hd - 1.75 - torn, 8.45), (x, hd - 1.75 - torn, 7.75), (x, hd - 0.15, 8.0)],
+                       (1, 0, 0), "fair", fair_uv(col), double=True)                  # one flat sheet in Res1 (perf L)
     L["res3"].box(-hw, hw, -hd, hd, 0.0, 2.7, mat="concrete", uv=UV_CONC, skip=("-z",))
     weeds(L, name, -hw + 1.3, hw - 1.3, -hd + 0.6, hd - 0.4, 14, z=0.0)
     L["mem"].lod.point("center", (0.0, 0.0, 0.0))

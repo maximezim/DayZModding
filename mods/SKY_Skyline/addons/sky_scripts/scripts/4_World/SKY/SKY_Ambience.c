@@ -1,6 +1,7 @@
 /*
 	Client ambience director (D65): procedural loops (assets/sounds/gen_ambience.py, sky_sounds config)
-	on nearby sources - hypermarket tube hum, sewer drips, Ferris-wheel creak.
+	on nearby sources - hypermarket tube hum, sewer drips, Ferris-wheel creak; D68: metro wind
+	(SKY_Underground.c), stadium flags (below), mall muzak (generated SKY_CityLit.c).
 	Sources register on clients only (static, bounded MAX_SOURCES). One 2 s timer (CallLater, removed in
 	StopClient) picks the MAX_ACTIVE nearest sources within their range of the camera
 	(CGame.GetCurrentCameraPosition game.c:730), starts looped EffectSounds for new ones
@@ -11,9 +12,11 @@ class SKY_AmbientSource
 {
 	Object m_Obj;
 	string m_SoundSet;
+	vector m_Offset;		//!< model-space emitter position (underground pieces: their floor, not the street-level origin)
 	vector m_Pos;			//!< cached on the first tick after the object got its position (static map objects)
 	bool m_PosSet;
 	float m_Range2;			//!< range squared
+	float m_MaxDy;			//!< vertical cut-off (D68)
 	EffectSound m_Sound;
 }
 
@@ -22,18 +25,22 @@ class SKY_Ambience
 	static const int MAX_SOURCES = 2048;
 	static const int MAX_ACTIVE = 3;
 	static const int TICK_MS = 2000;
+	static const float MAX_DY = 5.5;		//!< D68: no loops through a floor / the ground (street vs sewer 6.1 m, metro 8.1 m)
+	static const float UNDER_DY = 1.8;		//!< D68: underground sources - sewer ear vs metro emitter is 2 m (perf review L)
 	protected static ref array<ref SKY_AmbientSource> s_Sources = new array<ref SKY_AmbientSource>();
 	protected static bool s_Running;
 	protected static ref array<int> s_Best = new array<int>();		//!< reused per tick (perf review D65)
 	protected static ref array<float> s_BestD = new array<float>();
 
-	static void Register(Object obj, string soundSet, float range)
+	static void Register(Object obj, string soundSet, float range, vector offset = "0 0 0", float maxDy = 5.5)	// 5.5 = MAX_DY (literal default)
 	{
 		if (g_Game.IsDedicatedServer() || !obj || s_Sources.Count() >= MAX_SOURCES)
 			return;
 		SKY_AmbientSource s = new SKY_AmbientSource();
 		s.m_Obj = obj;
 		s.m_SoundSet = soundSet;
+		s.m_Offset = offset;
+		s.m_MaxDy = maxDy;
 		s.m_Range2 = range * range;					// position: lazily, constructors run before placement
 		s_Sources.Insert(s);
 	}
@@ -88,11 +95,13 @@ class SKY_Ambience
 				continue;
 			if (!s.m_PosSet)
 			{
-				s.m_Pos = s.m_Obj.GetPosition();
-				s.m_PosSet = s.m_Pos != vector.Zero;
+				s.m_PosSet = s.m_Obj.GetPosition() != vector.Zero;
 				if (!s.m_PosSet)
 					continue;
+				s.m_Pos = s.m_Obj.ModelToWorld(s.m_Offset);		// object.c:869
 			}
+			if (Math.AbsFloat(s.m_Pos[1] - cam[1]) > s.m_MaxDy)
+				continue;
 			float d = vector.DistanceSq(s.m_Pos, cam);
 			if (d > s.m_Range2)
 				continue;
@@ -135,6 +144,20 @@ class Land_SKY_Fair_FerrisWheel extends House
 	}
 
 	void ~Land_SKY_Fair_FerrisWheel()
+	{
+		SKY_Ambience.Unregister(this);
+	}
+}
+
+//! Stadium stand (D61 landmark, flags D68): flags flapping on the roof.
+class Land_SKY_Stadium_Stand extends House
+{
+	void Land_SKY_Stadium_Stand()
+	{
+		SKY_Ambience.Register(this, "SKY_Flags_SoundSet", 50.0, "0 4 1.5");		// between the terraces and the roof
+	}
+
+	void ~Land_SKY_Stadium_Stand()
 	{
 		SKY_Ambience.Unregister(this);
 	}

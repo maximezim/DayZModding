@@ -100,24 +100,28 @@ class CfgVehicles
 		// metro station PLOSHCHAD POBEDY: island platform, columns, tiles, benches, kiosk, stair to the street (+Y)
 		scope = 1;
 		model = "SKY_Skyline\sky_underground\sky_metro_station.p3d";
+		skySearch = "kiosk";
 	};
 	class Land_SKY_Metro_Station_B: Land_SKY_Underground_Base
 	{
 		// metro station VOKZALNAYA (same plan)
 		scope = 1;
 		model = "SKY_Skyline\sky_underground\sky_metro_station_b.p3d";
+		skySearch = "kiosk";
 	};
 	class Land_SKY_Metro_Station_C: Land_SKY_Underground_Base
 	{
 		// metro station STADION (same plan)
 		scope = 1;
 		model = "SKY_Skyline\sky_underground\sky_metro_station_c.p3d";
+		skySearch = "kiosk";
 	};
 	class Land_SKY_Metro_Station_D: Land_SKY_Underground_Base
 	{
 		// metro station TEATRALNAYA (same plan)
 		scope = 1;
 		model = "SKY_Skyline\sky_underground\sky_metro_station_d.p3d";
+		skySearch = "kiosk";
 	};
 	class Land_SKY_Sewer_Collapsed: Land_SKY_Underground_Base
 	{

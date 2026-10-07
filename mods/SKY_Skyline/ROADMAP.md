@@ -21,6 +21,7 @@ Rules that do not change (CLAUDE.md):
 | **D62** creatures (built) | dogs (guard + logout), rats (bites, disease, base damage, dog repels), horses | decision below: external mod (licence) or own animated creatures (needs an animator, skeleton + animation graph) |
 | **D63** underground (built) | sewers that flood in heavy rain, metro tunnels and a station; terrain generator (heightmap, masks, trenches) | custom terrain (MOD_DEVELOPMENT_GUIDE 4.3 Level 2); objectSpawnersArr cannot cut the terrain |
 | **D66** asset quality (built) | street urn, wheeled dumpster, detailed hydrants; underground signs, graffiti, cables | nothing new |
+| **D68** ambience + search (built) | metro wind, stadium flags, mall muzak; kiosk and bus-stop search; underground sounds stay underground | nothing new |
 | **D67** variety (built) | bus stop, ad column, phone booth on streets; metro stations B/C/D, collapsed metro and sewer, flooded sewer dead end | nothing new |
 | **D65** refinement (built) | grocery and sportswear search, procedural ambience (hum, drips, creak) | nothing new |
 | **D64** vehicles (wrecks built, drivable blocked) | drivable bus and garbage truck | a vehicle model with a working `CarScript` simulation (model.cfg, physics, damage zones) made on a V3S donor by a modeller: `vehicles/VEHICLE_SPEC.md` |

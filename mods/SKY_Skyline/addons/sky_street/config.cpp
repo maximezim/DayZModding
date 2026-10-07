@@ -247,6 +247,7 @@ class CfgVehicles
 		// Soviet bus shelter: sloped corrugated roof, smashed glass back wall, bench, route sign
 		scope = 1;
 		model = "SKY_Skyline\sky_street\sky_busstop.p3d";
+		skySearch = "trash";
 	};
 	class Land_SKY_AdColumn: Land_SKY_Street_Base
 	{

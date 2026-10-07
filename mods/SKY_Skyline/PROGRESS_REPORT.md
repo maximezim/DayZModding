@@ -274,3 +274,11 @@ phone booths, placed along the sidewalk away from lamps and car jams (citylife: 
 14 booths; 521 entities). Underground, every station now carries its own name (four variants), and seeded
 dead ends break the routine: a collapsed sewer vault and metro tunnel you climb over, and a flooded sewer
 dead end. Renders and gates: `reviews/d67_gates.md`.
+
+## 20. Ambience and search (D68)
+
+The city got three more procedural loops: wind breathing through the metro tunnels, flags flapping on the
+stadium stand (which now flies three ragged club flags) and tinny muzak still playing in the mall. Wiring them
+up showed that the sewer drips were playing at street level; every underground sound now comes from the
+tunnel floor and stays underground. Players can also search the metro ticket kiosks (papers, snacks, a torch)
+and the bin at every bus stop. Gates and reviews: `reviews/d68_gates.md`.

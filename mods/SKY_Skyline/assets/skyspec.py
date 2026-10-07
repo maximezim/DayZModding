@@ -1304,6 +1304,9 @@ kit("BusStop", "sky_street", "medium", desc="Soviet bus shelter: sloped corrugat
 kit("AdColumn", "sky_street", "medium", desc="Morris advertising column wrapped in torn posters, domed cap")
 kit("PhoneBooth", "sky_street", "medium", desc="Soviet street phone booth (taxofon), a pane gone, handset hanging")
 LANDMARK_SIZE.update({"BusStop": (4.4, 1.9), "AdColumn": (1.4, 1.4), "PhoneBooth": (1.0, 1.0)})
+# D65/D68 ambience of intact city archetypes: (sound set, range m, emitter height m), registered by the generated
+# SKY_CityLit.c. The mall emitter sits on the middle floor so all three floors stay within SKY_Ambience.MAX_DY.
+CITY_AMBIENCE = {"Hypermarket": ("SKY_Hum_SoundSet", 30.0, 0.0), "Mall": ("SKY_Muzak_SoundSet", 35.0, 6.5)}
 # The guard kennel is an item (sky_items/sky_kennel.p3d), config in gen_configs.items_config.
 KENNEL = {"cls": "SKY_Kennel", "p3d": "sky_kennel.p3d", "base": "SeaChest",
           "display": "Dog kennel", "desc": "A doghouse and its old guard dog. Place it by your stash: while you are away the "
@@ -1355,8 +1358,10 @@ LOOT.update({
 # stands; the server loot table lives in SKY_SearchTable (scripts), not in config.
 SEARCHABLE = ["Dumpster", "TrashBin", "Wreck_GarbageTruck", "Landfill"]
 # config value skySearch = <table> (read by SKY_SearchService; the tables themselves are server script)
-SEARCH_TABLES = ["trash", "landfill", "costume", "alcohol", "grocery", "sport"]
-SEARCH_TABLE = {"Dumpster": "trash", "TrashBin": "trash", "Wreck_GarbageTruck": "trash", "Landfill": "landfill"}
+SEARCH_TABLES = ["trash", "landfill", "costume", "alcohol", "grocery", "sport", "kiosk"]
+SEARCH_TABLE = {"Dumpster": "trash", "TrashBin": "trash", "Wreck_GarbageTruck": "trash", "Landfill": "landfill",
+                "BusStop": "trash"}                      # D68: the shelter bin
+SEARCH_TABLE.update({_n: "kiosk" for _n in METRO_STATIONS})   # D68: metro ticket kiosk (papers, snacks, torch)
 for _n, _e in KIT.items():
     _c = _e.get("city") or {}
     _arch = CITY_ARCHETYPES.get(_c.get("archetype")) if _c.get("archetype") else None

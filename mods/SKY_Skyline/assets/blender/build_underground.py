@@ -510,6 +510,7 @@ def build_metro_station(variant="A"):
     for k in ("res0", "res1", "geo", "fire"):                                                      # ticket kiosk
         L[k].box(-1.2, 1.2, -11.6, -10.0, zp, zp + 2.4, **kw_for(k, "paint", DT.paint_uv("sage"), "wood"))
     L["res0"].box(-1.0, 1.0, -10.02, -10.0, zp + 1.0, zp + 1.8, mat="glass", uv=C.UV_GLASS)
+    C.search_point(L, 0.0, -9.3, zp)                                              # D68: search the kiosk (table kiosk)
     for sx in (-1, 1):                                                            # station name boards (D66)
         for yy in (-6.0, 6.0):
             sign_quad(L, sign, sx * hx, yy - 2.0, yy + 2.0, zf + 2.8, zf + 3.3, -sx)

@@ -440,5 +440,30 @@ def main():
     print("KIT GEOMETRY TESTS: PASS (%d assets)" % len(names))
 
 
+def check_wiring():
+    """D68: every sound set a script plays exists in sky_sounds config (with its .ogg), and every search
+    table skyspec assigns is defined in SKY_Search.c (a missing one would make a spot silently empty)."""
+    import glob
+    import re
+    addons = os.path.join(HERE, "..", "..", "addons")
+    cfg = open(os.path.join(addons, "sky_sounds", "config.cpp")).read()
+    sets = set(re.findall(r"class (SKY_\w+_SoundSet)", cfg))
+    for m in re.findall(r'"SKY_Skyline\\sky_sounds\\data\\(\w+)"', cfg):
+        check(os.path.isfile(os.path.join(addons, "sky_sounds", "data", m + ".ogg")), "sound %s.ogg missing" % m)
+    used = set()
+    for f in glob.glob(os.path.join(addons, "sky_scripts", "scripts", "*", "SKY", "*.c")):
+        used |= set(re.findall(r'"(SKY_\w+_SoundSet)"', open(f).read()))
+    for u in sorted(used):
+        check(u in sets, "script plays %s, not in sky_sounds config" % u)
+    search = open(os.path.join(addons, "sky_scripts", "scripts", "4_World", "SKY", "SKY_Search.c")).read()
+    defined = set(re.findall(r'm_Tables\.Insert\("(\w+)"', search))
+    for t in sorted(set(S.SEARCH_TABLE.values())):
+        check(t in defined, "search table %s used in skyspec, not defined in SKY_Search.c" % t)
+    oggs = re.findall(r'"SKY_Skyline\\sky_sounds\\data\\(\w+)"', cfg)
+    check(len(oggs) == len(sets), "sky_sounds: %d samples for %d sound sets" % (len(oggs), len(sets)))
+    return len(used), len(defined)
+
+
 if __name__ == "__main__":
+    print("WIRING: %d sound sets used, %d search tables" % check_wiring())
     main()

@@ -18,7 +18,7 @@ class Land_SKY_Sewer_Base extends House
 	{
 		if (g_Game.IsServer())
 			SKY_Underground.Register(this);
-		SKY_Ambience.Register(this, "SKY_Drips_SoundSet", 25.0);			// client only (D65)
+		SKY_Ambience.Register(this, "SKY_Drips_SoundSet", 25.0, Vector(0, SKY_Under.WALKWAY + SKY_Under.EAR, 0), SKY_Ambience.UNDER_DY);	// client only (D65; floor D68)
 	}
 
 	void ~Land_SKY_Sewer_Base()
@@ -51,6 +51,28 @@ class Land_SKY_Sewer_Junction extends Land_SKY_Sewer_Base
 		return SKY_Under.HALF_LENGTH;
 	}
 }
+
+//! Metro pieces (D68): no flooding (dry, deeper than the sewers), only the tunnel draught loop on clients.
+class Land_SKY_Metro_Base extends House
+{
+	void Land_SKY_Metro_Base()
+	{
+		SKY_Ambience.Register(this, "SKY_Wind_SoundSet", 40.0, Vector(0, SKY_Under.METRO_FLOOR + SKY_Under.EAR, 0), SKY_Ambience.UNDER_DY);	// client only
+	}
+
+	void ~Land_SKY_Metro_Base()
+	{
+		SKY_Ambience.Unregister(this);
+	}
+}
+
+class Land_SKY_Metro_Tunnel extends Land_SKY_Metro_Base {}
+class Land_SKY_Metro_End extends Land_SKY_Metro_Base {}
+class Land_SKY_Metro_Collapsed extends Land_SKY_Metro_Base {}
+class Land_SKY_Metro_Station extends Land_SKY_Metro_Base {}
+class Land_SKY_Metro_Station_B extends Land_SKY_Metro_Base {}
+class Land_SKY_Metro_Station_C extends Land_SKY_Metro_Base {}
+class Land_SKY_Metro_Station_D extends Land_SKY_Metro_Base {}
 
 class SKY_Underground
 {

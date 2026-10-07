@@ -100,6 +100,7 @@ def build_bus_stop():
     L["res2"].box(-hx, hx, y_front, y_back, 0.0, 2.5, mat="rust", uv=RUST_GREY, skip=("-y",))
     L["res3"].box(-hx, hx, y_front, y_back, 0.0, 2.5, mat="rust", uv=RUST_GREY)
     L["mem"].lod.point("center", (0.0, 0.0, 0.0))
+    C.search_point(L, -hx + 0.4, y_back - 1.45, 0.0)                              # D68: search the bin (table trash)
     return C._finish(L, 600.0)
 
 

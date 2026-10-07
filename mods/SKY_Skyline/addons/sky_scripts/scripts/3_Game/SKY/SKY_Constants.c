@@ -191,6 +191,8 @@ class SKY_Under
 	static const float HALF_WIDTH = 2.4;			//!< sewer piece half width (model X)
 	static const float HALF_LENGTH = 6.0;			//!< sewer piece half length (model Y; junction = square)
 	static const float WALKWAY = -6.0;				//!< = skyspec UNDERGROUND sewer_floor (model)
+	static const float METRO_FLOOR = -8.0;			//!< = skyspec UNDERGROUND metro_floor (model)
+	static const float EAR = 1.6;					//!< ambience emitters sit this far above the floor (D68: not at the street-level origin)
 	static const float WET_DEPTH = 0.3;				//!< water this deep over the feet soaks legs and feet
 	static const float BODY_DEPTH = 1.0;			//!< ... and the body
 	static const float DROWN_DEPTH = 1.55;			//!< over the head: damage

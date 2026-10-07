@@ -632,6 +632,15 @@ collision and looks.
 | VA-03 | Stand in Sewer_FloodedEnd during heavy rain (P35) | One water surface; drowning grace and damage as §28 | | |
 | VA-04 | Visit both citylife metro stations | Different name boards (Pobedy, Vokzal), not mirrored | | |
 
+## 33. Ambience and search: metro, stadium, mall (D68)
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| AM-01 | Walk a metro tunnel and station, then climb to the street above it (P37) | Tunnel wind in the metro; on the street and in the sewer above it: no wind, no drips | | |
+| AM-02 | Stand in front of the stadium stand, then on its terraces | Flags flap on the roof (model) and are heard within ~50 m | | |
+| AM-03 | Walk all three mall floors | Quiet muzak on every floor, gone ~35 m outside | | |
+| AM-04 | Search a metro ticket kiosk and a bus-stop bin (P36) | Kiosk: papers / snacks / torch etc. on the platform floor; bin: trash table; cooldown and rate limit as §26 | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -651,6 +660,7 @@ collision and looks.
 | Refinement §30 | | | |
 | Asset quality §31 | | | |
 | Variety §32 | | | |
+| Ambience §33 | | | |
 | Placement §9 | | | |
 | Roof drop §10 | | | |
 | Clean logs §11 | | | |

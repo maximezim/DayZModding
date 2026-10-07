@@ -163,7 +163,17 @@ class Land_SKY_City_Kiosk_Intact extends SKY_LitBuilding
 {}
 
 class Land_SKY_City_Mall_Intact extends SKY_LitBuilding
-{}
+{
+	void Land_SKY_City_Mall_Intact()
+	{
+		SKY_Ambience.Register(this, "SKY_Muzak_SoundSet", 35.0, "0 6.5 0");
+	}
+
+	void ~Land_SKY_City_Mall_Intact()
+	{
+		SKY_Ambience.Unregister(this);
+	}
+}
 
 class Land_SKY_City_OfficeMid_Intact extends SKY_LitBuilding
 {
