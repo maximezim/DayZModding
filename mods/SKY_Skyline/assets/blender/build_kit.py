@@ -440,17 +440,35 @@ def build_barrier_concrete():
 
 
 def build_barrier_steel():
+    """2.4 m steel crowd-control barrier. D78 close-up: round-tube frame and 11 ladder bars, flat feet with
+    rubber pads, hook and eye couplers. Collision unchanged (one slab, rails in Fire: bullets pass the bars)."""
     L = props_lods()
     vis = {"mat": "rust", "uv": UV_GREY}
-    for k in ("res0", "res1"):
+    steel = {"mat": "metal", "uv": UV_STEEL}
+    for k in ("res1",):
         for z0, z1 in ((0.15, 0.2), (1.05, 1.1)):
             L[k].box(-0.025, 0.025, -1.2, 1.2, z0, z1, **vis)
         for y in (-1.2, 1.15):
             L[k].box(-0.025, 0.025, y, y + 0.05, 0.05, 1.1, **vis)
             L[k].box(-0.35, 0.35, y, y + 0.05, 0.0, 0.05, **vis)
-    for i in range(1, 12):                                                  # bars, res0 only
+    r0 = L["res0"]
+    oct8 = [(0.021 * math.cos(a), 0.021 * math.sin(a)) for a in (math.pi * (i + 0.5) / 4 for i in range(8))]
+    for zc in (0.175, 1.075):                                                     # top and bottom rails (42 mm tube)
+        r0.extrude_y([(x, zc + z) for x, z in oct8], -1.175, 1.175, **vis)
+    for yc in (-1.175, 1.175):                                                    # end posts with bent shoulders
+        r0.prism(0.0, yc, 0.021, 0.06, 1.05, n=8, **vis)
+        _bar(r0, (0.0, yc, 1.05), (0.0, yc * 0.985, 1.075), 0.019, "rust", UV_GREY)
+        r0.box(-0.35, 0.35, yc - 0.025, yc + 0.025, 0.012, 0.03, **steel)        # flat foot
+        for x in (-0.31, 0.31):
+            r0.box(x - 0.03, x + 0.03, yc - 0.03, yc + 0.03, 0.0, 0.012, skip=("-z",), mat="rust", uv=UV_BURNT)   # rubber pad
+        _bar(r0, (0.0, yc, 0.03), (0.0, yc, 0.07), 0.03, "metal", UV_STEEL)        # foot socket
+    for i in range(1, 12):                                                        # 16 mm ladder bars
         y = -1.2 + i * 0.2
-        L["res0"].box(-0.01, 0.01, y - 0.01, y + 0.01, 0.2, 1.05, **vis)
+        r0.prism(0.0, y, 0.011, 0.196, 1.054, n=4, rot=math.pi / 4, **vis)          # square: reads the same (perf D78 L)
+    _bar(r0, (0.0, 1.196, 0.95), (0.0, 1.24, 0.95), 0.008, "metal", UV_STEEL)     # hook (+y) and eye (-y)
+    _bar(r0, (0.0, 1.24, 0.95), (0.0, 1.24, 0.88), 0.008, "metal", UV_STEEL)
+    _bar(r0, (0.0, -1.196, 0.93), (0.0, -1.235, 0.93), 0.008, "metal", UV_STEEL)
+    _bar(r0, (0.0, -1.235, 0.9), (0.0, -1.235, 0.96), 0.008, "metal", UV_STEEL)
     L["res2"].box(-0.025, 0.025, -1.2, 1.2, 0.05, 1.1, **vis)
     L["geo"].box(-0.03, 0.03, -1.2, 1.2, 0.05, 1.1)
     for y in (-1.2, 1.15):

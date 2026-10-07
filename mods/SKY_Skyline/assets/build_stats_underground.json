@@ -132,16 +132,16 @@
   "view": 84
  },
  "sky_sewer_junction.p3d": {
-  "fire": 168,
-  "geo": 168,
+  "fire": 216,
+  "geo": 216,
   "mem": 0,
-  "res0": 272,
-  "res1": 192,
+  "res0": 840,
+  "res1": 240,
   "res2": 12,
   "res3": 12,
   "road": 24,
   "shadow": 12,
-  "view": 168
+  "view": 216
  },
  "sky_sewer_stair.p3d": {
   "fire": 144,

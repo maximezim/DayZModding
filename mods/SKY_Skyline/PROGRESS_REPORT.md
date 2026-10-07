@@ -1,6 +1,6 @@
 # SKY_Skyline progress report
 
-## Status at a glance (after D77, 2026-10-07)
+## Status at a glance (after D78, 2026-10-07)
 
 **Overall: about 59 % of a releasable v1.0.** About 92 % of the content is authored and every offline gate
 passes. But nothing has been packed, signed or run in DayZ yet. In-game verification is 0 % and carries the
@@ -8,15 +8,15 @@ most weight of what remains.
 
 | Area | Weight | Done | Why |
 |---|---|---|---|
-| Design and spec (23 ideas, city catalog, decisions D1-D77) | 10 % | 100 % | every idea has a design or a documented block |
+| Design and spec (23 ideas, city catalog, decisions D1-D78) | 10 % | 100 % | every idea has a design or a documented block |
 | Content authored (models, scripts, configs, economy, layouts) | 30 % | 92 % | 21 of 23 ideas built; horses and drivable vehicles blocked on Workbench skills; the underground needs a custom terrain |
 | Offline quality gates (tests, budgets, generators, script xref, reviews) | 10 % | 100 % | test_city 191, test_kit 279 (with hull and wiring checks), check_assets 289 / 0 over, layout 0 failed, texture references 72 / 0 missing, perf + security reviews on every batch |
-| Asset quality to ASSET_QUALITY_GUIDE section 8 | 15 % | 63 % | street kit, street surfaces, the interior room kit, venues and underground passed close-up passes; wood, fabric, paver and concrete maps have real depth (D77); facades still use flat procedural maps (no baked AO); building interiors repeat their room kits |
+| Asset quality to ASSET_QUALITY_GUIDE section 8 | 15 % | 65 % | street kit (three passes), street surfaces, car parks and hulks, the interior room kit, venues and underground passed close-up passes; wood, fabric, paver and concrete maps have real depth (D77); facades still use flat procedural maps (no baked AO); building interiors repeat their room kits |
 | Pack, sign, PAA on Windows (full mod) | 10 % | 10 % | toolchain verified with the empty template only (SETUP_REPORT); the 18 SKY packages were never packed |
-| In-game verification (TESTING sign-off, P-parameters) | 20 % | 0 % | 0 of 44 sign-off rows, 0 of 48 `P` assumptions, `CITY_TESTED` empty |
+| In-game verification (TESTING sign-off, P-parameters) | 20 % | 0 % | 0 of 45 sign-off rows, 0 of 49 `P` assumptions, `CITY_TESTED` empty |
 | Release prep (real site / terrain, FPS numbers, server-owner docs) | 5 % | 20 % | layouts and terrain generator ready; no surveyed site, no Terrain Builder import, no FPS run, no perf probe |
 
-Weighted: 10 + 27.6 + 10 + 9.5 + 1 + 0 + 1 = **59.1 %**.
+Weighted: 10 + 27.6 + 10 + 9.75 + 1 + 0 + 1 = **59.4 %**.
 
 ### Built (offline-verified, `built-unverified`)
 - **City**: 35 building types and 60 variants, 156 procedural models in 3 ruin states, plus 15 venue
@@ -399,3 +399,8 @@ Reviews and renders: `reviews/d76_gates.md`.
 
 Wood shows boards, grain and pores; fabrics have a twill weave; sidewalk slabs have bevelled edges, chips, mossy joints and the odd cracked or sunken slab; concrete gets blowholes and hairline cracks and, like metal and stone, no longer shows a seam every texture repeat. A new check found that the stone cladding referenced an ambient-occlusion map that was never generated (a missing texture in game); it is generated now and the check runs on every asset build.
 Reviews and renders: `reviews/d77_gates.md`.
+
+## 30. Street kit pass 3 (D78)
+
+Crowd barriers are now proper tube-steel barriers with feet and couplers. Car parks got worn bay lines, wheel stops, lamp arms and a pay machine, and every car wreck baked into car parks, the long bridge and the parking garages now has a saloon's shape instead of two boxes - with its collision lowered to match, so nobody is shot at through what looks like air. The sewer junction got corner quoins, a well grating, pipes and junk. A bug that made car-park lines look dashed is fixed.
+Reviews and renders: `reviews/d78_gates.md`.

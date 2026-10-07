@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.dirname(HERE))
 import build_city as C  # noqa: E402
 import detail as DT  # noqa: E402
 import skyspec as S  # noqa: E402
-from build_kit import KIT_MATS  # noqa: E402
+from build_kit import KIT_MATS, line_quad  # noqa: E402
 from skygeo import UVBand, UVRect, UVWorld, run_cli  # noqa: E402
 
 h01, bar, rail, kw_for = C.h01, C.bar, C.rail, C.kw_for
@@ -769,6 +769,11 @@ def build_floodlight():
 
 
 # ================================================================== car parks (idea 22)
+def yb_ok(back, hd):
+    """Wheel stop at this bay end would sit in the entrance booth corner (y near -hd)."""
+    return back < -hd + 2.0
+
+
 def lot(name, hw, hd, rows, metro=False):
     L = lods(name)
     for k in ALL:
@@ -783,29 +788,50 @@ def lot(name, hw, hd, rows, metro=False):
                 kw["skip"] = ("+z", "-z")
             L[k].box(x0, x1, y0, y1, -SKIRT, -S.SLAB_T, **kw)
         L["res0"].box(x0, x1, y0, y1, 0.0, 0.15, mat="concrete", uv=UV_CONC, skip=("-z",))    # kerb (visual)
-    mark = UVRect(0, 1, (0, 0), (1, 1), (0.0, 1 - S.MATERIALS["roadmark"]["bands"]["solid"][1], 1.0,
-                                         1 - S.MATERIALS["roadmark"]["bands"]["solid"][0]))
     wrecks = []
     for r_i, (yc, face) in enumerate(rows):                                      # bay rows: 2.5 m bays, 5 m deep
         y0, y1 = (yc, yc + 5.0) if face > 0 else (yc - 5.0, yc)
         x = -hw + 1.0
         b = 0
+        back = y0 if abs(y0) > abs(y1) else y1                                   # bay end at the lot edge
         while x + 2.5 <= hw - 1.0 + 1e-6:
-            for k in ("res0", "res1"):
-                L[k].hquad(x - 0.06, x + 0.06, y0, y1, 0.01, mat="roadmark", uv=mark)
+            gap = h01(name, "worn", r_i, b)                                      # D78: worn lines, some broken
+            if gap < 0.3:
+                g0 = y0 + (y1 - y0) * (0.25 + 0.4 * gap)
+                line_quad(L, ("res0",), x - 0.06, x + 0.06, y0, g0, "solid")
+                line_quad(L, ("res0",), x - 0.06, x + 0.06, g0 + 0.6 + gap, y1, "solid")
+            else:
+                line_quad(L, ("res0",), x - 0.06, x + 0.06, y0, y1, "solid")
+            line_quad(L, ("res1",), x - 0.06, x + 0.06, y0, y1, "solid")
+            ws = h01(name, "stop", r_i, b)                                       # D78: concrete wheel stop (10 cm, render)
+            if ws > 0.12 and not (x + 0.35 < -hw + 2.6 and yb_ok(back, hd)):
+                yb = back - 0.6 * (1 if back > 0 else -1)
+                sh = (ws - 0.5) * 0.3 if ws < 0.25 else 0.0                       # a few knocked askew
+                L["res0"].box(x + 0.35 + sh, x + 2.15 + sh, yb - 0.075, yb + 0.075, 0.0, 0.1, mat="concrete", uv=UV_CONC, skip=("-z",))
             if h01(name, "car", r_i, b) < 0.4:
                 wrecks.append((x + 1.25, (y0 + y1) / 2))
             x += 2.5
             b += 1
-        for k in ("res0", "res1"):
-            L[k].hquad(x - 0.06, x + 0.06, y0, y1, 0.01, mat="roadmark", uv=mark)
+        line_quad(L, ("res0", "res1"), x - 0.06, x + 0.06, y0, y1, "solid")     # D78: UV per line (was 0-1 per metre)
     for (wx, wy) in wrecks:
+        if wx - 0.95 < -hw + 2.6 and wy - 2.1 < -hd + 1.9:                       # bay beside the booth stays empty (D78 M2)
+            continue
         C.wreck(L, wx, wy, 0.0, name, round(wx, 1), round(wy, 1))
     for i in range(int(2 * hw / 12)):                                            # lamp posts down the middle (dead)
         lx = -hw + 6.0 + i * 12.0
         for k in ("res0", "res1", "geo", "fire"):
             L[k].prism(lx, 0.0, 0.1, 0.0, 6.5, n=8 if k == "res0" else 4, **kw_for(k, "metal", DT.UV_PAINT, "metal"))
-        L["res0"].box(lx - 0.15, lx + 0.15, -1.1, 1.1, 6.4, 6.55, mat="metal", uv=DT.UV_PAINT)
+        L["res1"].box(lx - 0.15, lx + 0.15, -1.1, 1.1, 6.4, 6.55, mat="metal", uv=DT.UV_PAINT)
+        # D78: twin outreach arms with cobra heads (dead lamps), base plate with bolts, service hatch
+        for sy in (-1, 1):
+            bar(L["res0"], (lx, 0.0, 6.2), (lx, sy * 0.9, 6.55), 0.035, "metal", DT.UV_PAINT)
+            L["res0"].extrude_y([(lx - 0.13, 6.5), (lx + 0.13, 6.5), (lx + 0.1, 6.6), (lx - 0.1, 6.6)],
+                                *sorted((sy * 0.85, sy * 1.35)), mat="metal", uv=DT.UV_PAINT)
+            L["res0"].hquad(lx - 0.1, lx + 0.1, *sorted((sy * 0.9, sy * 1.3)), 6.494, mat="glassfar", uv=UV_GLASS, up=False)
+        L["res0"].box(lx - 0.22, lx + 0.22, -0.22, 0.22, 0.0, 0.03, skip=("-z",), mat="metal", uv=DT.UV_STEEL)
+        L["res0"].quad([(lx - 0.05, -0.106, 0.5), (lx + 0.05, -0.106, 0.5), (lx + 0.05, -0.106, 0.8), (lx - 0.05, -0.106, 0.8)],
+                       (0, -1, 0), "metal", DT.UV_STEEL)                                   # service hatch
+        L["res2"].prism(lx, 0.0, 0.1, 0.0, 6.5, n=4, mat="metal", uv=DT.UV_PAINT)       # far LOD post (perf D78 M5)
     for i in range(10):                                                          # oil stains, cracks with weeds
         sx_ = -hw + 2.0 + (2 * hw - 4.0) * h01(name, "oil", i)
         sy_ = -hd + 2.0 + (2 * hd - 4.0) * h01(name, "oily", i)
@@ -820,6 +846,14 @@ def lot(name, hw, hd, rows, metro=False):
         C.sign2_quad(L[k], [(-hw + 0.55, -hd + 0.39, 2.0), (-hw + 2.05, -hd + 0.39, 2.0), (-hw + 2.05, -hd + 0.39, 2.35),
                             (-hw + 0.55, -hd + 0.39, 2.35)], (0, -1, 0), "parking", (0, 2), (-hw + 0.55, 2.0), (-hw + 2.05, 2.35))
     bar(L["res0"], (-hw + 2.1, -hd + 1.1, 1.0), (-hw + 5.6, -hd + 1.6, 1.0), 0.04, "fair", fair_uv("red"))     # broken boom
+    # D78: pay-and-display machine beside the booth (collides: 35 x 30 cm pillar)
+    px, py = -hw + 2.175, -hd + 0.8                                              # flush with the booth (security D78 M2)
+    for k in ("res0", "res1", "geo", "fire", "view"):
+        L[k].box(px - 0.175, px + 0.175, py - 0.15, py + 0.15, 0.0, 1.55, **kw_for(k, "rust", RUST_GREY, "metal"))
+    L["res0"].box(px - 0.19, px + 0.19, py - 0.165, py + 0.165, 1.55, 1.62, mat="rust", uv=RUST_GREY)          # hood
+    L["res0"].quad([(px - 0.12, py - 0.157, 1.15), (px + 0.12, py - 0.157, 1.15), (px + 0.12, py - 0.157, 1.4), (px - 0.12, py - 0.157, 1.4)],
+                   (0, -1, 0), "glassfar", UV_GLASS)                                                                  # dead display
+    L["res0"].box(px - 0.1, px + 0.1, py - 0.17, py - 0.15, 0.9, 1.05, skip=("+y",), mat="metal", uv=DT.UV_STEEL)     # coin / ticket slot
     if metro:
         # sealed metro service head-house + floor hatch half hidden behind a burnt van (D63 opens it)
         mx, my = hw - 4.0, hd - 3.5

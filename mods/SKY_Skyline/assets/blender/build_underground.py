@@ -312,6 +312,42 @@ def build_sewer_junction():
     for (a, b) in ((-hy, -SW_IN - w), (SW_IN + w, hy)):
         lamp(L, (a + b) / 2, 0.0, zc, False)
     flood_plane(L, -hy, hy, -hy, hy, zf - 0.45)
+    # D78 close-up: brick pilasters at the four inner corners (solid), a grated collecting well where the
+    # channels cross, pipes and cables along the arms, a dislodged walkway grating, graffiti, silt junk
+    ci = SW_IN + w
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            xa, xb = sorted((sx * (ci - 0.1), sx * (ci + 0.15)))                                     # quoin wrapping the corner
+            ya, yb = sorted((sy * (ci - 0.1), sy * (ci + 0.15)))
+            box_all(L, SOLID, (xa, xb, ya, yb, zf, zc), "wall_brick", UV_BRICK, "masonry")
+            box_all(L, ("res0",), (xa - 0.03, xb + 0.03, ya - 0.03, yb + 0.03, zc - 0.25, zc), "concrete", UV_REVEAL)  # impost
+    zb_ = zf - 0.6
+    for (a, b, c, d) in ((-0.45, 0.45, -0.45, -0.39), (-0.45, 0.45, 0.39, 0.45), (-0.45, -0.39, -0.39, 0.39), (0.39, 0.45, -0.39, 0.39)):
+        L["res0"].box(a, b, c, d, zb_, zb_ + 0.05, mat="metal", uv=DT.UV_STEEL, skip=("-z",))      # well kerb
+    for i in range(7):                                                                             # grating bars
+        gx = -0.33 + i * 0.11
+        L["res0"].box(gx - 0.012, gx + 0.012, -0.39, 0.39, zb_ + 0.02, zb_ + 0.045, mat="rust", uv=UV_RUST)
+    for sx in (-1, 1):                                                                             # pipes along the Y arms
+        x = sx * (ci - 0.16)
+        for (y0_, y1_) in ((-hy, -ci), (ci, hy)):
+            C.bar(L["res0"].lod, (x, y0_, zf + 2.2), (x, y1_, zf + 2.2), 0.1, "rust", UV_RUST)               # above head height (sec D78 L3)
+            C.bar(L["res0"].lod, (x + sx * 0.04, y0_, zf + 2.42), (x + sx * 0.04, y1_, zf + 2.42), 0.05, "metal", DT.UV_STEEL)
+    for sy in (-1, 1):                                                                             # and along the X arms
+        y = sy * (ci - 0.16)
+        for (x0_, x1_) in ((-hy, -ci), (ci, hy)):
+            C.bar(L["res0"].lod, (x0_, y, zf + 2.2), (x1_, y, zf + 2.2), 0.1, "rust", UV_RUST_GREY)
+    cable_run(L, ci - 0.08, ci, hy, zc - 0.45, sag=0.1, n_brackets=2)
+    L["res0"].solid([(1.0, -4.6, zf), (1.7, -4.6, zf), (1.7, -3.8, zf + 0.25), (1.0, -3.8, zf + 0.25),
+                     (1.0, -4.6, zf + 0.03), (1.7, -4.6, zf + 0.03), (1.7, -3.8, zf + 0.28), (1.0, -3.8, zf + 0.28)],
+                    [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)], "rust", UV_RUST)   # dislodged grating
+    graffiti(L, name, ci - 0.001, ci + 0.6, ci + 2.4, zf + 0.4, zf + 1.6, -1, 0)
+    graffiti(L, name, -ci + 0.001, -hy + 0.8, -ci - 0.6, zf + 0.3, zf + 1.4, 1, 1)
+    for i in range(6):                                                                             # junk in the silt
+        jx = -SW_CH + 0.1 + (2 * SW_CH - 0.2) * h01(name, "jx", i)
+        jy = (2.0 + (hy - 2.5) * h01(name, "jy", i)) * (1 if i % 2 else -1)
+        if i % 3 == 2:
+            jx, jy = jy, jx
+        L["res0"].box(jx - 0.08, jx + 0.08, jy - 0.12, jy + 0.12, zb_, zb_ + 0.06, mat="trash", uv=UVWorld(S.MATERIALS["trash"]["sheet_m"]))
     L["res2"].box(-hy, hy, -hy, hy, zb, zt, mat="concrete", uv=UV_CONC)
     L["res3"].box(-hy, hy, -hy, hy, zb, zt, mat="concrete", uv=UV_CONC)
     L["road"].hquad(-hy, hy, -hy, hy, zt, mat="road_ext", uv=UV_TILE)

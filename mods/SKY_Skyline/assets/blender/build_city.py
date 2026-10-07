@@ -1685,25 +1685,49 @@ CAR_PAINT = ("white", "slate", "terracotta", "sage", "beige")
 
 
 def wreck(L, x, y, z, *key):
-    """Burnt-out / abandoned car hulk (static scenery, 1.9 x 4.2 m along Y): body + cabin, wheels."""
+    """Burnt-out / abandoned car hulk (static scenery, 1.9 x 4.2 m along Y, front -Y). Collision: body + cabin
+    boxes (unchanged). D78: render shape follows the Wreck_Sedan kit (D73): stepped bonnet / cabin / boot,
+    sloped screens, empty side windows, bumpers, rust through the panels, flat tyres; Res1 body + cabin."""
     col = CAR_PAINT[int(h01("carc", *key) * len(CAR_PAINT))]
     burnt = h01("carb", *key) < 0.35
     mat, uv = ("rust", UVBand(S.MATERIALS["rust"]["bands"]["burnt"], 1.0)) if burnt else ("paint", DT.paint_uv(col))
-    body = (x - 0.9, x + 0.9, y - 2.1, y + 2.1, z + 0.3, z + 1.0)
-    cab = (x - 0.8, x + 0.8, y - 0.9, y + 0.9, z + 1.0, z + 1.45)
-    for k in ("res0", "res1", "geo", "fire", "view"):
+    rust = UVBand(S.MATERIALS["rust"]["bands"]["rust"], 1.0)
+    prof = [(y - 1.0, z + 0.86), (y + 1.0, z + 0.86), (y + 0.65, z + 1.38), (y - 0.6, z + 1.38)]        # (y, z) cabin
+    prof_c = [(y - 1.0, z + 0.84), (y + 1.0, z + 0.84), (y + 0.65, z + 1.38), (y - 0.6, z + 1.38)]
+    for k in ("geo", "fire", "view"):                       # collision follows the render (security D78 M1)
         kw = kw_for(k, mat, uv, "metal")
-        L[k].box(*body, **kw)
-        L[k].box(*cab, **kw)
-    if not burnt:
-        for sgn in (-1, 1):
-            L["res0"].quad([(x - 0.75, y + sgn * 0.9, z + 1.02), (x + 0.75, y + sgn * 0.9, z + 1.02),
-                            (x + 0.75, y + sgn * 0.9, z + 1.43), (x - 0.75, y + sgn * 0.9, z + 1.43)],
-                           (0, sgn, 0), "glassfar", UV_GLASS)
-    for wx in (x - 0.9, x + 0.82):
+        L[k].box(x - 0.9, x + 0.9, y - 2.1, y + 2.1, z + 0.3, z + 0.84, **kw)
+        L[k].extrude_x(prof_c, x - 0.8, x + 0.8, **kw)
+    L["res2"].box(x - 0.9, x + 0.9, y - 2.1, y + 2.1, z + 0.3, z + 1.2, mat=mat, uv=uv, skip=("-z",))   # far LOD (perf D78 M5)
+    r1 = L["res1"]
+    r1.box(x - 0.9, x + 0.9, y - 2.1, y + 2.1, z + 0.3, z + 0.84, mat=mat, uv=uv)
+    r1.extrude_x(prof, x - 0.8, x + 0.8, mat=mat, uv=uv)
+    r0 = L["res0"]
+    r0.box(x - 0.9, x + 0.9, y - 2.1, y + 2.1, z + 0.3, z + 0.62, mat=mat, uv=uv)                      # sills to waist
+    r0.box(x - 0.88, x + 0.88, y - 2.08, y - 1.0, z + 0.62, z + 0.82, mat=mat, uv=uv, skip=("-z",))    # bonnet
+    r0.box(x - 0.88, x + 0.88, y + 1.15, y + 2.08, z + 0.62, z + 0.8, mat=mat, uv=uv, skip=("-z",))    # boot
+    r0.box(x - 0.9, x + 0.9, y - 1.0, y + 1.15, z + 0.62, z + 0.86, mat=mat, uv=uv, skip=("-z",))  # waist
+    r0.extrude_x(prof, x - 0.8, x + 0.8, mat=mat, uv=uv)
+    for (ya, yb, f) in ((y - 1.0, y - 0.6, (0, -0.8, 0.6)), (y + 1.0, y + 0.65, (0, 0.8, 0.6))):     # grimy screens, 6 mm proud
+        q = [(x - 0.72, ya, z + 0.87), (x + 0.72, ya, z + 0.87), (x + 0.72, yb, z + 1.37), (x - 0.72, yb, z + 1.37)]
+        q = [(p[0], p[1] + 0.006 * f[1], p[2] + 0.006 * f[2]) for p in q]
+        r0.quad(q, f, "glassfar", UV_GLASS)
+    for sx in (-1, 1):                                                                  # empty side windows (dark)
+        wx = x + sx * 0.806
+        for (y0, y1) in ((-0.85, 0.02), (0.08, 0.9)):
+            q = [(wx, y + y0 + 0.05, z + 0.9), (wx, y + y1 - 0.05, z + 0.9), (wx, y + min(y1, 0.6) - 0.05, z + 1.32),
+                 (wx, y + max(y0, -0.55) + 0.05, z + 1.32)]
+            r0.quad(q if sx > 0 else q[::-1], (sx, 0, 0), "glassfar", UV_GLASS)
+        for (y0, y1, z0, z1) in ((-1.9, -1.2, 0.34, 0.55), (0.4, 1.1, 0.33, 0.5)):                  # rust through the flanks
+            fx = x + sx * 0.906
+            q = [(fx, y + y0, z + z0), (fx, y + y1, z + z0), (fx, y + y1, z + z1), (fx, y + y0, z + z1)]
+            r0.quad(q if sx > 0 else q[::-1], (sx, 0, 0), "rust", rust)
+    for yb, s_ in ((y - 2.1, -1), (y + 2.1, 1)):                                        # bumpers
+        r0.box(x - 0.92, x + 0.92, min(yb, yb + s_ * 0.06), max(yb, yb + s_ * 0.06), z + 0.3, z + 0.42, mat="metal", uv=DT.UV_STEEL)
+    for wx in (x - 0.92, x + 0.84):                                                     # flat tyres, 2 cm proud (perf D78 M2)
         for wy in (y - 1.35, y + 1.35):
-            L["res0"].extrude_x([(wy - 0.32, z), (wy + 0.32, z), (wy + 0.32, z + 0.62), (wy - 0.32, z + 0.62)],
-                                wx, wx + 0.08, mat="rubble", uv=UV_RUBBLE)
+            r0.extrude_x([(wy - 0.3, z), (wy + 0.3, z), (wy + 0.24, z + 0.5), (wy - 0.24, z + 0.5)],
+                         wx, wx + 0.08, mat="rubble", uv=UV_RUBBLE)
 
 
 def cells_bars(L, P, l):

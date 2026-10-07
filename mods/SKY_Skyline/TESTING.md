@@ -715,6 +715,16 @@ collision and looks.
 | TX-02 | Walk a sidewalk and a concrete facade at 1-50 m | Paver bevels, chips and moss joints; no tiling seam on concrete, metal or stone; no shimmer from 1 px scratches at distance | | |
 | TX-03 | Grep the client RPT after loading citylife | No `Cannot load texture` / missing `sky_*.paa` (sky_stone_as fixed in D77) | | |
 
+## 43. Street kit pass 3 (D78)
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| SK-01 | Shoot over the bonnet and through the side windows of a hulk in a car park and on the bridge (P49) | Bullets stop where the car is drawn, pass over the bonnet where it looks clear | | |
+| SK-02 | Walk round the entrance booth and pay machine of each car park | No pocket you can get stuck in; machine blocks like a pillar | | |
+| SK-03 | Walk away from a car park to 300 m | Lamp posts and cars fade with the lot, no sudden pop | | |
+| SK-04 | Line up crowd barriers, shoot through the bars and at the rails | Bars pass bullets, rails stop them; hooks line up end to end | | |
+| SK-05 | Walk the sewer junction | Quoins at the corners, no snag, pipes above head height, well grating visible | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -744,6 +754,7 @@ collision and looks.
 | Street surface §40 | | | |
 | Interior props §41 | | | |
 | Texture depth §42 | | | |
+| Street kit 3 §43 | | | |
 | Placement §9 | | | |
 | Roof drop §10 | | | |
 | Clean logs §11 | | | |
