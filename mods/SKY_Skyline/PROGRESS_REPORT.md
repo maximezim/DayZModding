@@ -1,4 +1,62 @@
-# SKY_Skyline progress report: unattended batches 1-6
+# SKY_Skyline progress report
+
+## Status at a glance (after D74, 2026-10-07)
+
+**Overall: about 58 % of a releasable v1.0.** About 92 % of the content is authored and every offline gate
+passes. But nothing has been packed, signed or run in DayZ yet. In-game verification is 0 % and carries the
+most weight of what remains.
+
+| Area | Weight | Done | Why |
+|---|---|---|---|
+| Design and spec (23 ideas, city catalog, decisions D1-D74) | 10 % | 100 % | every idea has a design or a documented block |
+| Content authored (models, scripts, configs, economy, layouts) | 30 % | 92 % | 21 of 23 ideas built; horses and drivable vehicles blocked on Workbench skills; the underground needs a custom terrain |
+| Offline quality gates (tests, budgets, generators, script xref, reviews) | 10 % | 100 % | test_city 191, test_kit 278 (with hull and wiring checks), check_assets 288 / 0 over, layout 0 failed, perf + security reviews on every batch |
+| Asset quality to ASSET_QUALITY_GUIDE section 8 | 15 % | 55 % | street kit, props, venues and underground passed close-up passes; textures are procedural trim sheets (no baked normal / AO maps); building interiors repeat their room kits |
+| Pack, sign, PAA on Windows (full mod) | 10 % | 10 % | toolchain verified with the empty template only (SETUP_REPORT); the 18 SKY packages were never packed |
+| In-game verification (TESTING sign-off, P-parameters) | 20 % | 0 % | 0 of 41 sign-off rows, 0 of 45 `P` assumptions, `CITY_TESTED` empty |
+| Release prep (real site / terrain, FPS numbers, server-owner docs) | 5 % | 20 % | layouts and terrain generator ready; no surveyed site, no Terrain Builder import, no FPS run, no perf probe |
+
+Weighted: 10 + 27.6 + 10 + 8.3 + 1 + 0 + 1 = **57.9 %**.
+
+### Built (offline-verified, `built-unverified`)
+- **City**: 35 building types and 60 variants, 156 procedural models in 3 ruin states, plus 15 venue
+  variants (D69). Tower A (modular core, lobby, floors, roofs) and the floor/roof variants. A layout
+  generator with city fill by zone, ruins, vegetation and caps.
+- **Street kit**: roads and combined street tiles. Lamps, lights, barriers, bins, hydrants, bus stops,
+  ad columns, phone booths, billboards. Sedan hulks in 3 states, van, bus and garbage-truck wrecks.
+- **City life (D61-D74)**: funfair, landfill, stadium, venues, the bridge, viaducts, road tunnel, car jams.
+  Hordes, sirens, searchable bins and furniture (10 server tables), hydrants, alcohol, kennel / guard dog,
+  rats. Sewers and metro with flooding, ambience loops, night lights.
+
+### Not done / blocked
+1. **First in-game session**: packing, signing, PAA conversion, a dedicated + diag run, logs.
+   `TEST_SESSION.md` is the script. It needs the Windows machine; the cloud sessions cannot run DayZ.
+2. **45 engine assumptions** (PENDING_VERIFICATION P1-P45) and **41 sign-off rows** (TESTING): each has a
+   one-line fix ready.
+3. **Blocked on skills outside the procedural pipeline**:
+   - horses (idea 11);
+   - drivable bus / garbage truck (idea 15, `vehicles/VEHICLE_SPEC.md`);
+   - animated dogs / rats: today they are static models plus server rules.
+4. **Custom terrain (Level 2)**: the sewers / metro and hidden hatches need terrain holes. Terrain Builder
+   import of `terrain/out` is not done (P11). A real map site is not surveyed.
+5. **Perf numbers**: FPS protocol never run; the server perf probe (B11) is not written.
+
+### Refinement still worth doing
+- **D75 hull test 2**:
+  - a ray-grid slit test;
+  - a check that render LODs stay inside the collision (one-way concealment).
+- **Street kit pass 3**: steel barriers, benches, Sewer_Junction, ParkingLot_B.
+- **Texture depth**: baked AO / normal maps for building facades and the hero props (`_nohq` today are flat
+  procedural). Grime macro maps (B3).
+- **Interior variety**: furniture sets per room kind repeat across buildings. Merged furniture (D43) is
+  deferred until FPS is measured.
+- **Billboard / traffic-light night lights** (memory points exist; no script light yet).
+- Elevator hum / ding sounds (manifest: planned).
+
+---
+
+## Batch log
+
 
 Branch `claude/dayz-modding-setup-3q6dxg`. **Nothing has run in DayZ.** Every asset is
 `built-unverified`; nothing is `done`. Tower A was not changed except for a build-tool exit code
