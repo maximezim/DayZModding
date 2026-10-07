@@ -215,8 +215,20 @@ def gondola(L, px, pz, name, i):
     L["res1"].solid(roof, [(0, 1, 2, 3), (0, 1, 4), (1, 2, 4), (2, 3, 4), (3, 0, 4)], mat="fair", uv=red)
     L["res2"].box(cx - w, cx + w, -d, d, zf, zf + 2.0, mat="fair", uv=yellow)
     for k in ("geo", "fire"):
-        L[k].box(cx - w, cx + w, -d, d, zf, zf + 0.95, **({"mat": "pen_metal"} if k == "fire" else {}))
-    if zf < 2.0:                                                                 # the bottom cabin can be boarded
+        kw = {"mat": "pen_metal"} if k == "fire" else {}
+        if zf < 2.0:                                     # boardable cabin: floor + four low walls, not a solid block
+            L[k].box(cx - w, cx + w, -d, d, zf, zf + 0.08, **kw)                  # (sec D79 M3: no crawl pocket)
+            L[k].box(cx - w + 0.05, cx + w - 0.05, -0.2, 0.2, zf + 0.08, zf + 0.5, **kw)   # bench collides, wall to wall
+            for (a0, a1, b0, b1) in ((cx - w, cx + w, -d, -d + 0.05), (cx - w, cx + w, d - 0.05, d),
+                                     (cx - w, cx - w + 0.05, -d + 0.05, d - 0.05), (cx + w - 0.05, cx + w, -d + 0.05, d - 0.05)):
+                L[k].box(a0, a1, b0, b1, zf + 0.08, zf + 0.95, **kw)
+        else:
+            L[k].box(cx - w, cx + w, -d, d, zf, zf + 0.95, **kw)
+    for k in ("geo", "fire", "view"):                                            # roof collides (D79: a head fit inside it
+        L[k].solid(roof, [(0, 1, 2, 3), (0, 1, 4), (1, 2, 4), (2, 3, 4), (3, 0, 4)],  # when standing on a low cabin)
+                   **({"mat": "pen_metal"} if k == "fire" else {}))
+    if zf < 2.0:                                                                 # the bottom cabins can be boarded
+        L["view"].box(cx - w + 0.05, cx + w - 0.05, -0.2, 0.2, zf + 0.08, zf + 0.5)
         L["road"].hquad(cx - w + 0.05, cx + w - 0.05, -d + 0.05, d - 0.05, zf + 0.08, mat="road_ext", uv=UV_TILE)
 
 
@@ -331,7 +343,8 @@ def build_bumper_cars():
         for k in ("res0", "res1", "geo", "fire", "view"):
             L[k].box(cx - 0.75, cx + 0.75, cy - 1.0, cy + 1.0, 0.25, 0.75, **kw_for(k, "fair", fair_uv(col), "metal"))
         L["res0"].box(cx - 0.85, cx + 0.85, cy - 1.1, cy + 1.1, 0.3, 0.5, mat="rubble", uv=UV_RUBBLE)
-        L["res0"].box(cx - 0.5, cx + 0.5, cy - 0.1, cy + 0.6, 0.75, 1.05, mat="fair", uv=fair_uv(col))
+        for k in ("res0", "geo", "fire", "view"):                                 # seat back (collides: D79 concealment)
+            L[k].box(cx - 0.5, cx + 0.5, cy - 0.1, cy + 0.6, 0.75, 1.05, **kw_for(k, "fair", fair_uv(col), "metal"))
         L["res0"].prism(cx, cy + 0.8, 0.025, 0.75, 4.5, n=4, mat="metal", uv=DT.UV_STEEL)
     for k in ("res0", "res1", "geo", "fire", "view"):                            # cashier box
         L[k].box(fx1 - 1.8, fx1 - 0.4, fy0 - 0.9 + 0.95, fy0 + 0.95, 0.25, 2.2, **kw_for(k, "fair", fair_uv("yellow"), "wood"))
@@ -484,8 +497,18 @@ def build_gate():
 
 
 # ================================================================== landfill (ideas 13, 16)
-def trash_mound(L, x, y, rx, ry, h, key):
-    """Rubbish mound: convex elliptic frustum in the trash material (collides, walkable)."""
+def _slit(a, b, tol=0.06):
+    """True when boxes a, b (x0, x1, y0, y1, z0, z1) do not overlap but come within tol on one axis while
+    overlapping on the other two (the hull test's slit)."""
+    gaps = [max(b[2 * i] - a[2 * i + 1], a[2 * i] - b[2 * i + 1]) for i in range(3)]
+    return any(0.0 < g <= tol and all(gaps[j] < 0 for j in range(3) if j != i) for i, g in enumerate(gaps))
+
+
+def trash_mound(L, x, y, rx, ry, h, key, placed=None):
+    """Rubbish mound: convex elliptic frustum in the trash material (collides, walkable). placed: shared list of
+    collision boxes; colliding junk that would leave a slit against one of them is left out (D79)."""
+    placed = [] if placed is None else placed
+    placed.append((x - rx, x + rx, y - ry, y + ry, 0.0, h))
     n = 10
     rot = h01("tm", key) * math.pi
     base = [(x + rx * math.cos(rot + 2 * math.pi * k / n), y + ry * math.sin(rot + 2 * math.pi * k / n), 0.0) for k in range(n)]
@@ -501,15 +524,26 @@ def trash_mound(L, x, y, rx, ry, h, key):
     for i in range(10):                                                          # junk sticking out (Res0)
         a = 2 * math.pi * h01("tj", key, i)
         d = 0.3 + 0.6 * h01("tjd", key, i)
+        kind = int(h01("tjk", key, i) * 4)
+        if kind in (0, 2):                                                       # colliding junk stays well inside the
+            d = min(d, 0.6)                                                      # mound (no side slit at its edge, D79)
         jx, jy = x + rx * d * math.cos(a), y + ry * d * math.sin(a)
         jz = h * (1.0 - d) * 0.9
-        kind = int(h01("tjk", key, i) * 4)
+        if kind in (0, 2):
+            ry_ = 0.3 if kind == 0 else 0.3 * math.sin(math.pi / 3)            # hexagonal barrel: narrower in y
+            jb = (jx - 0.3, jx + 0.3, jy - ry_, jy + ry_, jz, jz + (0.8 if kind == 0 else 0.85))
+            if any(_slit(jb, p) for p in placed):
+                continue
+            placed.append(jb)
         if kind == 0:                                                            # white goods
-            L["res0"].box(jx - 0.3, jx + 0.3, jy - 0.3, jy + 0.3, jz, jz + 0.8, mat="paint", uv=DT.paint_uv("white"))
+            for k in ("res0", "geo", "fire", "view"):                             # collides: a head fits (D79)
+                L[k].box(jx - 0.3, jx + 0.3, jy - 0.3, jy + 0.3, jz, jz + 0.8, **kw_for(k, "paint", DT.paint_uv("white"), "metal"))
         elif kind == 1:                                                          # tyre
             L["res0"].prism(jx, jy, 0.35, jz, jz + 0.25, n=10, mat="rubble", uv=UV_RUBBLE)
         elif kind == 2:                                                          # barrel
             L["res0"].prism(jx, jy, 0.3, jz, jz + 0.85, n=10, mat="rust", uv=RUST)
+            for k in ("geo", "fire", "view"):                                     # collides: a head fits (D79)
+                L[k].prism(jx, jy, 0.3, jz, jz + 0.85, n=6, **kw_for(k, "rust", RUST, "metal"))
         else:                                                                    # pallet / plank
             L["res0"].box(jx - 0.6, jx + 0.6, jy - 0.5, jy + 0.5, jz, jz + 0.14, mat="wood", uv=C.UV_LAMINATE)
 
@@ -525,8 +559,9 @@ def build_landfill():
     mounds = [(-11.0, 8.0, 7.0, 5.5, 3.6), (2.0, 11.0, 6.0, 5.0, 3.0), (12.0, 6.0, 5.5, 6.5, 4.0), (-12.0, -6.0, 5.0, 4.0, 2.4),
               (9.5, -8.0, 5.5, 4.5, 2.8), (-2.0, 1.5, 4.0, 3.5, 2.0), (-4.0, -12.5, 3.5, 3.0, 1.6)]
     mem = L["mem"].lod
+    placed = []
     for i, (x, y, rx, ry, h) in enumerate(mounds):
-        trash_mound(L, x, y, rx, ry, h, (name, i))
+        trash_mound(L, x, y, rx, ry, h, (name, i), placed)
         mem.point("search_%d" % (i + 1), (x, y - ry - 0.6, 0.0))
     for i in range(3):                                                           # crushed car stack
         z = i * 0.75
@@ -691,7 +726,9 @@ def build_stand():
         while x + 0.45 < hw - 1.4:
             if h01(name, "seat", i, j) > 0.15:
                 col = ("blue", "red", "white")[int(h01(name, "sc", i, j) * 3)]
-                L["res0"].box(x, x + 0.42, y0 + 0.35, y0 + 0.75, zt, zt + 0.42, mat="fair", uv=fair_uv(col))
+                L["res0"].box(x, x + 0.42, y0 + 0.35, y0 + 0.75, zt + 0.37, zt + 0.43, mat="fair", uv=fair_uv(col))   # shell pan
+                L["res0"].box(x + 0.17, x + 0.25, y0 + 0.5, y0 + 0.6, zt, zt + 0.37, mat="metal", uv=DT.UV_STEEL, skip=("-z", "+z"))  # pedestal
+                # (D79: thin shell on a post - the old solid 0.42 m block was a render-only volume a head fit in)
                 L["res0"].box(x, x + 0.42, y0 + 0.7, y0 + 0.78, zt + 0.42, zt + 0.8, mat="fair", uv=fair_uv(col))
             x += 0.5
             j += 1

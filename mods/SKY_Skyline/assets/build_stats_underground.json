@@ -84,20 +84,20 @@
   "view": 48
  },
  "sky_sewer_access.p3d": {
-  "fire": 112,
-  "geo": 112,
+  "fire": 148,
+  "geo": 148,
   "mem": 0,
-  "res0": 656,
+  "res0": 704,
   "res1": 112,
   "res2": 12,
   "res3": 12,
   "road": 8,
   "shadow": 12,
-  "view": 96
+  "view": 132
  },
  "sky_sewer_collapsed.p3d": {
-  "fire": 140,
-  "geo": 140,
+  "fire": 164,
+  "geo": 164,
   "mem": 0,
   "res0": 868,
   "res1": 104,
@@ -105,11 +105,11 @@
   "res3": 12,
   "road": 12,
   "shadow": 12,
-  "view": 112
+  "view": 136
  },
  "sky_sewer_end.p3d": {
-  "fire": 100,
-  "geo": 100,
+  "fire": 124,
+  "geo": 124,
   "mem": 0,
   "res0": 756,
   "res1": 100,
@@ -117,11 +117,11 @@
   "res3": 12,
   "road": 8,
   "shadow": 12,
-  "view": 84
+  "view": 108
  },
  "sky_sewer_floodedend.p3d": {
-  "fire": 100,
-  "geo": 100,
+  "fire": 124,
+  "geo": 124,
   "mem": 0,
   "res0": 814,
   "res1": 102,
@@ -129,7 +129,7 @@
   "res3": 12,
   "road": 8,
   "shadow": 12,
-  "view": 84
+  "view": 108
  },
  "sky_sewer_junction.p3d": {
   "fire": 216,
@@ -156,8 +156,8 @@
   "view": 96
  },
  "sky_sewer_straight.p3d": {
-  "fire": 88,
-  "geo": 88,
+  "fire": 112,
+  "geo": 112,
   "mem": 0,
   "res0": 632,
   "res1": 88,
@@ -165,6 +165,6 @@
   "res3": 12,
   "road": 8,
   "shadow": 12,
-  "view": 72
+  "view": 96
  }
 }

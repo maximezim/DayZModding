@@ -95,8 +95,14 @@ def lamp(L, x, y, z, along_y=True):
     L["res0"].box(x - w + 0.02, x + w - 0.02, y - d + 0.03, y + d - 0.03, z - 0.09, z - 0.08, mat="lamp_cool")
 
 
-def pipe_run(L, x, y0, y1, z, r, mat="rust", uv=UV_RUST):
+def pipe_run(L, x, y0, y1, z, r, mat="rust", uv=UV_RUST, solid=False):
+    """Wall pipe with brackets (Res0). solid: also a square box in Geometry / Fire / View - pipes at head
+    height must stop heads and bullets (D79 concealment gate)."""
     C.bar(L["res0"].lod, (x, y0, z), (x, y1, z), r, mat, uv)
+    if solid:                                                    # flush to the wall behind it (no gap, sec D79 L7)
+        xa, xb = (-SW_IN, x + r) if x < 0 else (x - r, SW_IN)
+        for k in ("geo", "fire", "view"):
+            L[k].box(xa, xb, y0, y1, z - r, z + r, **kw_for(k, mat, uv, "metal"))
     for yy in (y0 + 1.5, (y0 + y1) / 2, y1 - 1.5):                                               # wall brackets
         L["res0"].box(x - r - 0.02, x + r + 0.02, yy - 0.04, yy + 0.04, z - r - 0.05, z + r, mat="metal", uv=DT.UV_STEEL)
 
@@ -173,9 +179,11 @@ def sewer_section(L, name, y0, y1, side_door=None, open_x=False):
         for k in ("res0", "res1", "geo", "fire"):
             L[k].lod.solid(verts, faces, **kw_for(k, "wall_brick", UV_BRICK, "masonry"))
     # pipes + cable tray on the walls, lamps under the crown, rungs
-    pipe_run(L, -SW_IN + 0.18, y0, y1, zf + 1.6, 0.12)
+    pipe_run(L, -SW_IN + 0.18, y0, y1, zf + 1.6, 0.12, solid=True)
     pipe_run(L, -SW_IN + 0.14, y0, y1, zf + 1.95, 0.06, "metal", DT.UV_STEEL)
-    pipe_run(L, SW_IN - 0.2, y0, y1, zf + 1.75, 0.15, "rust", UV_RUST_GREY)
+    spans = [(y0, y1)] if not side_door else [(y0, side_door[0] - 0.1), (side_door[1] + 0.1, y1)]   # the pipe stops at the
+    for (ya, yb) in spans:                                                                        # access door (sec D79 H1)
+        pipe_run(L, SW_IN - 0.2, ya, yb, zf + 1.75, 0.15, "rust", UV_RUST_GREY, solid=True)
     L["res0"].box(SW_IN - 0.35, SW_IN - 0.05, y0, y1, zc - 0.25, zc - 0.2, mat="metal", uv=DT.UV_STEEL)
     for yy in [y0 + 3.0 + 6.0 * i for i in range(int((y1 - y0) / 6.0))]:
         lamp(L, 0.0, yy, zc, True)
@@ -231,7 +239,7 @@ def build_sewer_straight(access=False, end=False, collapsed=False, flooded=False
     hy = LEN / 2
     zf, zc = UG["sewer_floor"], UG["sewer_floor"] + UG["sewer_height"]
     shell_sewer(L, -hy, hy, door=access)
-    sewer_section(L, name, -hy, hy)
+    sewer_section(L, name, -hy, hy, side_door=DOOR_Y if access else None)
     flood_plane(L, -SW_IN, SW_IN, -hy, hy, zf - 0.45)
     if end:                                                                                       # brick end wall + outfall grating
         box_all(L, SOLID, (-SW_IN, SW_IN, hy - 0.5, hy, zf - 0.6, zc), "wall_brick", UV_BRICK, "masonry")

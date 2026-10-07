@@ -97,6 +97,8 @@ def build_bus_stop():
     L["res0"].extrude_x([(y_front + 0.1 + 0.22 * math.cos(2 * math.pi * k / 12), 2.35 + 0.22 * math.sin(2 * math.pi * k / 12))
                          for k in range(12)], hx + 0.33, hx + 0.37, mat="paint", uv=DT.paint_uv("white"))
     L["res0"].prism(-hx + 0.4, y_back - 0.9, 0.18, 0.0, 0.6, n=8, mat="rust", uv=RUST_GREEN)                     # bin
+    for k in ("geo", "fire", "view"):                                             # D79: a head fits inside -> it collides
+        L[k].prism(-hx + 0.4, y_back - 0.9, 0.18, 0.0, 0.6, n=6, **kw_for(k, "rust", RUST_GREEN, "metal"))
     L["res2"].box(-hx, hx, y_front, y_back, 0.0, 2.5, mat="rust", uv=RUST_GREY, skip=("-y",))
     L["res3"].box(-hx, hx, y_front, y_back, 0.0, 2.5, mat="rust", uv=RUST_GREY)
     L["mem"].lod.point("center", (0.0, 0.0, 0.0))

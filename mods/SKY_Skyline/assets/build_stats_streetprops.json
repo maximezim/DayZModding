@@ -12,8 +12,8 @@
   "view": 56
  },
  "sky_busstop.p3d": {
-  "fire": 120,
-  "geo": 120,
+  "fire": 140,
+  "geo": 140,
   "mem": 0,
   "res0": 540,
   "res1": 96,
@@ -21,7 +21,7 @@
   "res3": 12,
   "road": 0,
   "shadow": 12,
-  "view": 84
+  "view": 104
  },
  "sky_phonebooth.p3d": {
   "fire": 108,

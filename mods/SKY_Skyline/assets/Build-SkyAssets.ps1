@@ -71,6 +71,7 @@ if ($Models) {
         if (Test-Path (Join-Path $mod "assets\blender\$gen")) { Run-Gen $gen @('--out', $addons) }
     }
     Run-Gen 'test_kit.py' @()
+    Run-Py @((Join-Path $mod 'assets\blender\test_conceal.py'))    # D79: one-way concealment gate
     Run-Gen 'test_city.py' @()
     Run-Py @((Join-Path $mod 'assets\city_progress.py'))
 }

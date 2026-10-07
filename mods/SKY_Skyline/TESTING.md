@@ -725,6 +725,20 @@ collision and looks.
 | SK-04 | Line up crowd barriers, shoot through the bars and at the rails | Bars pass bullets, rails stop them; hooks line up end to end | | |
 | SK-05 | Walk the sewer junction | Quoins at the corners, no snag, pipes above head height, well grating visible | | |
 
+## 44. Concealment fixes (D79)
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| CF-01 | Two players: one tries to put their head into a sewer pipe, the bus-stop bin, a bumper car seat, a landfill fridge / barrel, a stadium seat, a Ferris-wheel gondola roof (P50) | Collision stops them, or the volume is too small to hide a head; the other player always sees them | | |
+| CF-02 | Walk the sewer walkways, landfill mounds, stadium terraces and board the bottom gondola | No new snag spots, headroom under the sewer pipes, the bottom cabin still boardable | | |
+
+## 45. Facade textures (D80)
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| FT-01 | Look at brick, stucco and panel facades at 1-80 m, strafing at grazing angles (P51) | Mortar, bevels, cracks and sockets read; no flicker or sparkle; no seam at sheet repeats | | |
+| FT-02 | Grep the client RPT after loading citylife | No missing `sky_wall_*` textures | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -755,6 +769,8 @@ collision and looks.
 | Interior props §41 | | | |
 | Texture depth §42 | | | |
 | Street kit 3 §43 | | | |
+| Concealment fixes §44 | | | |
+| Facade textures §45 | | | |
 | Placement §9 | | | |
 | Roof drop §10 | | | |
 | Clean logs §11 | | | |

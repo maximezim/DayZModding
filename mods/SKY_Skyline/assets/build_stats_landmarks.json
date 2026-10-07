@@ -24,8 +24,8 @@
   "view": 84
  },
  "sky_fair_bumpercars.p3d": {
-  "fire": 324,
-  "geo": 324,
+  "fire": 396,
+  "geo": 396,
   "mem": 0,
   "res0": 1200,
   "res1": 336,
@@ -33,7 +33,7 @@
   "res3": 10,
   "road": 4,
   "shadow": 12,
-  "view": 216
+  "view": 288
  },
  "sky_fair_carousel.p3d": {
   "fire": 164,
@@ -48,8 +48,8 @@
   "view": 116
  },
  "sky_fair_ferriswheel.p3d": {
-  "fire": 496,
-  "geo": 496,
+  "fire": 772,
+  "geo": 772,
   "mem": 0,
   "res0": 8204,
   "res1": 1176,
@@ -57,7 +57,7 @@
   "res3": 130,
   "road": 12,
   "shadow": 76,
-  "view": 100
+  "view": 232
  },
  "sky_fair_gate.p3d": {
   "fire": 132,
@@ -96,16 +96,16 @@
   "view": 52
  },
  "sky_landfill.p3d": {
-  "fire": 1032,
-  "geo": 1092,
+  "fire": 1544,
+  "geo": 1604,
   "mem": 0,
-  "res0": 3354,
+  "res0": 3282,
   "res1": 1090,
   "res2": 300,
   "res3": 80,
   "road": 200,
   "shadow": 12,
-  "view": 336
+  "view": 848
  },
  "sky_parkinglot_a.p3d": {
   "fire": 372,
@@ -183,7 +183,7 @@
   "fire": 240,
   "geo": 240,
   "mem": 0,
-  "res0": 5560,
+  "res0": 7256,
   "res1": 682,
   "res2": 168,
   "res3": 22,

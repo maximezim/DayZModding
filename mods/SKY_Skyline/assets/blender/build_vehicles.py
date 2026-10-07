@@ -198,7 +198,8 @@ def body(L, kind, wreck, name, sel=False):
                 bx = -1.2 + 2.4 * h01(name, "bag", i)
                 by = hy + 0.3 + 0.9 * h01(name, "bagy", i)
                 rr = 0.25 + 0.15 * h01(name, "bagr", i)
-                L["res0"].lod.prism(bx, by, rr, 0.0, rr * 1.2, n=8, mat="trash", uv=UV_TRASH)
+                L["res0"].lod.prism(bx, by, rr, 0.0, min(0.22, rr * 0.7), n=8, mat="trash", uv=UV_TRASH)   # slumped bags:
+                # <= 22 cm high, too low to hide a head in (D79 concealment gate); render only, no slits or footprint creep
             L["mem"].lod.point("search", (0.0, hy + 0.9, 0.0))
         else:
             for i in range(4):                                                                     # seats seen through the gaps
