@@ -23,6 +23,7 @@ Rules that do not change (CLAUDE.md):
 | **D66** asset quality (built) | street urn, wheeled dumpster, detailed hydrants; underground signs, graffiti, cables | nothing new |
 | **D70** asset quality (built) | stadium stand mid LOD, fair booth and kennel close-up pass | nothing new |
 | **D71** civic search (built) | clinic cabinets, police lockers, post office sorting racks; search points tested reachable | nothing new |
+| **D75** hull test 2 (planned) | ray-grid slit test (sloped convex parts) and a check that Res0/Res1/Res2 stay inside the collision (one-way concealment), from the D74 security review | nothing new |
 | **D74** street kit 2 (built) | billboard, traffic light, van; burnt and overturned sedans in the jams; test_kit hull test (no slits between stacked or adjacent collision parts) | nothing new |
 | **D73** street kit close-up (built) | street lamp, jersey barrier, planter, sedan hulk detailed; kennel mid-detail dog | nothing new |
 | **D72** ruin pockets (built) | rubble capped at 45 deg and walkable in the test, furniture slivers dropped; test_city fails on any pocket you can drop into but not leave (P39, P43); search hidden without line of sight | nothing new |
