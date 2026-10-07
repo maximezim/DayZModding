@@ -22,6 +22,7 @@ class CfgVehicles
 		// 2-storey police station: lobby counter, offices, 3 barred cells (intact)
 		scope = 1;
 		model = "SKY_Skyline\sky_city_civic\sky_city_police_intact.p3d";
+		skySearch = "police";
 		class Doors
 		{
 			class door_front
@@ -69,6 +70,7 @@ class CfgVehicles
 		// 2-storey police station: lobby counter, offices, 3 barred cells (damaged)
 		scope = 1;
 		model = "SKY_Skyline\sky_city_civic\sky_city_police_damaged.p3d";
+		skySearch = "police";
 		class Doors
 		{
 			class door_front
@@ -116,12 +118,14 @@ class CfgVehicles
 		// 2-storey police station: lobby counter, offices, 3 barred cells (ruined)
 		scope = 1;
 		model = "SKY_Skyline\sky_city_civic\sky_city_police_ruined.p3d";
+		skySearch = "police";
 	};
 	class Land_SKY_City_Clinic_Intact: Land_SKY_CityCivic_Base
 	{
 		// 2-storey clinic: waiting room, exam rooms off a corridor (intact)
 		scope = 1;
 		model = "SKY_Skyline\sky_city_civic\sky_city_clinic_intact.p3d";
+		skySearch = "medical";
 		class Doors
 		{
 			class door_front
@@ -169,6 +173,7 @@ class CfgVehicles
 		// 2-storey clinic: waiting room, exam rooms off a corridor (damaged)
 		scope = 1;
 		model = "SKY_Skyline\sky_city_civic\sky_city_clinic_damaged.p3d";
+		skySearch = "medical";
 		class Doors
 		{
 			class door_front
@@ -216,6 +221,7 @@ class CfgVehicles
 		// 2-storey clinic: waiting room, exam rooms off a corridor (ruined)
 		scope = 1;
 		model = "SKY_Skyline\sky_city_civic\sky_city_clinic_ruined.p3d";
+		skySearch = "medical";
 	};
 	class Land_SKY_City_FireStation_Intact: Land_SKY_CityCivic_Base
 	{
@@ -722,6 +728,7 @@ class CfgVehicles
 		// 2-storey post office: counter hall, offices above (intact)
 		scope = 1;
 		model = "SKY_Skyline\sky_city_civic\sky_city_postoffice_intact.p3d";
+		skySearch = "post";
 		class Doors
 		{
 			class door_front
@@ -769,6 +776,7 @@ class CfgVehicles
 		// 2-storey post office: counter hall, offices above (damaged)
 		scope = 1;
 		model = "SKY_Skyline\sky_city_civic\sky_city_postoffice_damaged.p3d";
+		skySearch = "post";
 		class Doors
 		{
 			class door_front
@@ -816,6 +824,7 @@ class CfgVehicles
 		// 2-storey post office: counter hall, offices above (ruined)
 		scope = 1;
 		model = "SKY_Skyline\sky_city_civic\sky_city_postoffice_ruined.p3d";
+		skySearch = "post";
 	};
 	class Land_SKY_City_Kindergarten_Intact: Land_SKY_CityCivic_Base
 	{

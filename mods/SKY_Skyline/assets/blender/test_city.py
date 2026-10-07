@@ -237,6 +237,15 @@ def test_class(name, fresh_loot):
         seen, (gx0, gy0, cell) = reach[l]
         i, j = int((x - gx0) / cell), int((y - gy0) / cell)
         check((i, j) in seen, "%s: loot point (%g, %g, %g) is not reachable" % (name, x, y, z))
+    mem = lods.get("mem")                                                      # D71: search spots = where a player stands
+    for g in (sorted(k for k in mem.groups if k.startswith("search")) if mem else []):
+        x, y, z = mem.verts[min(mem.groups[g])]
+        l = min(range(len(P.levels)), key=lambda k: abs(P.levels[k][2] - z))
+        seen, (gx0, gy0, cell) = reach[l]
+        i, j = int((x - gx0) / cell), int((y - gy0) / cell)
+        rr = 2 if z - P.levels[l][2] < 0.3 else int(1.5 / cell) + 1           # raised spot (cinema stage): floor within 1.5 m
+        near = any((i + di, j + dj) in seen for di in range(-rr, rr + 1) for dj in range(-rr, rr + 1))
+        check(near, "%s: search point %s (%g, %g, %g) is not reachable" % (name, g, x, y, z))
     tiny = (P.ix1 - P.ix0) * (P.iy1 - P.iy0) < 30.0
     check(len(C.LOOT_OUT.get(e["cls"], [])) >= 1 or (state == 2 and tiny), "%s: no loot points" % name)
 

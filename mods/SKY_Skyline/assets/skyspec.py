@@ -1393,7 +1393,9 @@ LOOT.update({
 # stands; the server loot table lives in SKY_SearchTable (scripts), not in config.
 SEARCHABLE = ["Dumpster", "TrashBin", "Wreck_GarbageTruck", "Landfill"]
 # config value skySearch = <table> (read by SKY_SearchService; the tables themselves are server script)
-SEARCH_TABLES = ["trash", "landfill", "costume", "alcohol", "grocery", "sport", "kiosk"]
+SEARCH_TABLES = ["trash", "landfill", "costume", "alcohol", "grocery", "sport", "kiosk", "medical", "police", "post"]
+# D71: clinic medicine cabinets, police gear lockers, post office sorting racks (search points in build_city.furnish)
+_CIVIC_SEARCH = {"Clinic": "medical", "Police": "police", "PostOffice": "post"}
 SEARCH_TABLE = {"Dumpster": "trash", "TrashBin": "trash", "Wreck_GarbageTruck": "trash", "Landfill": "landfill",
                 "BusStop": "trash"}                      # D68: the shelter bin
 SEARCH_TABLE.update({_n: "kiosk" for _n in METRO_STATIONS})   # D68: metro ticket kiosk (papers, snacks, torch)
@@ -1408,6 +1410,8 @@ for _n, _e in KIT.items():
         SEARCH_TABLE[_n] = "grocery"                     # shelf ends (D65)
     elif _arch and _arch.get("catalog", _c.get("archetype")) == "Clubhouse":
         SEARCH_TABLE[_n] = "sport"                       # changing-room lockers (D65)
+    elif _arch and _arch.get("catalog", _c.get("archetype")) in _CIVIC_SEARCH:
+        SEARCH_TABLE[_n] = _CIVIC_SEARCH[_arch.get("catalog", _c.get("archetype"))]   # D71
 for _n, _t in SEARCH_TABLE.items():
     assert _t in SEARCH_TABLES, (_n, _t)
     KIT[_n]["config_extra"] = KIT[_n].get("config_extra", "") + '\t\tskySearch = "%s";\n' % _t

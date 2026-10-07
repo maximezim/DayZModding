@@ -657,6 +657,14 @@ collision and looks.
 | AQ-04 | Lie prone in a missing-seat gap on the stand; a second player watches from 60 m | The viewer sees the gap (no solid row drawn over the player) | | |
 | AQ-05 | Drop an item on the booth counter; place a kennel and look at it from 1 m | The item lies on the counter top; kennel storage opens as before | | |
 
+## 36. Civic search spots (D71)
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| CS-01 | Search a clinic medicine cabinet (upper floor exam rooms), a police gear locker (ground-floor office), a post office sorting rack (P41) | Medical / police / post items appear at the spot; never a weapon or ammunition; "Nothing useful." on a miss | | |
+| CS-02 | Repeat a search at once, then at another spot within 4 s | Spot cooldown and per-player rate limit as §26 | | |
+| CS-03 | Search the cinema costume trunks from the stage | Action available on the stage | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -679,6 +687,7 @@ collision and looks.
 | Ambience §33 | | | |
 | Venue variants §34 | | | |
 | Stand / booth / kennel §35 | | | |
+| Civic search §36 | | | |
 | Placement §9 | | | |
 | Roof drop §10 | | | |
 | Clean logs §11 | | | |

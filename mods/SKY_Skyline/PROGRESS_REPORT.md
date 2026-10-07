@@ -297,3 +297,10 @@ The fair booths became real shooting galleries (prize shelves with plush toys, t
 a valance and a dead bulb string), the guard kennel got a shingled roof, trims, straw and a bone, and the
 stadium stand gained a middle level of detail so its seats no longer vanish at once. Before/after renders:
 `reviews/d70_gates.md`.
+
+## 23. Civic search spots (D71)
+
+Clinics now have medicine cabinets, police stations steel gear lockers and post offices a sorting rack full of
+old letters, each searchable for its own kind of loot (medical supplies, police kit without weapons, paper and
+tools). A new check proves every search spot in every building can be reached; it caught locker spots that had
+been sealed inside ruined clubhouses. Gates and reviews: `reviews/d71_gates.md`.
