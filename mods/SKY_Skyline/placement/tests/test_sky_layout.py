@@ -212,11 +212,16 @@ def district_tests(expect):
     lit = variant(-1, -1)
     lit["streets"]["lights_every"] = 2
     rc, out, objs = run("lights-side", flat, towers=[], extra=lit)
-    tiles = [o for o in objs if o["name"] == "Land_SKY_Street_Straight" and abs(o["pos"][0] - (1000 - 24.0)) < 1e-3]
+    tiles = [o for o in objs if o["name"] in ("Land_SKY_Street_Straight", "Land_SKY_Street_Straight_B")   # D75 worn variant
+             and abs(o["pos"][0] - (1000 - 24.0)) < 1e-3]
     lights = [o for o in objs if o["name"] == "Land_SKY_StreetLight" and abs(o["pos"][0] - (1000 - 24.0 - 4.5)) < 1e-3]
     expect("lights sit on the -X sidewalk (arm over the road)", rc == 0 and lights and len(lights) == (len(tiles) + 1) // 2, "%d lights / %d tiles\n%s" % (len(lights), len(tiles), out))
     ys = {round(o["pos"][1], 3) for o in objs if o["name"].startswith("Land_SKY_Street_")}
     expect("one street plane for every tile", rc == 0 and len(ys) == 1, str(ys))
+    allt = [o for o in objs if o["name"] in ("Land_SKY_Street_Straight", "Land_SKY_Street_Straight_B")]
+    worn = sum(o["name"] == "Land_SKY_Street_Straight_B" for o in allt)
+    expect("D75: worn straight tiles mixed in (about 40 %)", allt and 0 < worn < len(allt),
+           "%d of %d" % (worn, len(allt)))
     _rc, _out, tod = run_layout(tpl)
     zt = os.path.join(tod, "zombie_territories_snippet.xml")
     expect("district writes one InfectedCity zone (r >= 50)", os.path.exists(zt) and open(zt).read().count('<zone name="InfectedCity"') == 1

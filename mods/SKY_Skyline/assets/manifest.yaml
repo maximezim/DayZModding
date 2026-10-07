@@ -229,6 +229,13 @@ generated_kit:
     budget: {res0: 400, res1: 200, res2: 40, geo_comps: 10, geo_tris: 140, sections_res0: 4}
     uses: [ROADWAY_ASPHALT, ROAD_GEO_THICKNESS]
     status: built-unverified
+  - name: Land_SKY_Street_Straight_B
+    type: "12 x 12 m street, worn: asphalt repairs, a sealed trench, sunken pavers (D75, mixed in by the layout)"
+    p3d: addons/sky_street/sky_street_straight_b.p3d
+    category: road_combined
+    budget: {res0: 400, res1: 200, res2: 40, geo_comps: 10, geo_tris: 140, sections_res0: 4}
+    uses: [ROADWAY_ASPHALT, ROAD_GEO_THICKNESS]
+    status: built-unverified
   - name: Land_SKY_StreetLight
     type: "8 m pole street light (emissive head)"
     p3d: addons/sky_street/sky_streetlight.p3d

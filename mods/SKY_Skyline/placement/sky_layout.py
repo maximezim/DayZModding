@@ -49,6 +49,7 @@ import json
 import math
 import os
 import sys
+import zlib
 
 import yaml
 
@@ -1041,7 +1042,10 @@ def main():
                                   % (i, j, street_y - min(ys), lim))
             if street_y < max(ys) - 1e-6:
                 ctx.errors.append("street tile (%d, %d): ground %.2f pokes through the tile at %.2f" % (i, j, max(ys), street_y))
-        ctx.add("tiles", S.KIT[kind]["cls"], (wx, street_y, wz), yaw)
+        model = kind
+        if kind == "Street_Straight" and zlib.crc32(("worn:%d:%d" % (i, j)).encode()) % 100 < S.STREET_WORN_PCT:
+            model = "Street_Straight_B"                                     # D75: worn tiles break the repetition
+        ctx.add("tiles", S.KIT[model]["cls"], (wx, street_y, wz), yaw)
         if kind == "Street_Straight":
             n_straight += 1
             line = ("ns", i) if tyaw == 0.0 else ("ew", j)

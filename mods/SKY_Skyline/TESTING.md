@@ -690,6 +690,14 @@ collision and looks.
 | WV-02 | Look at a billboard (each poster variant) and a traffic light from 5 m to 200 m | Poster shows with its peeled corner; walkway and signal head do not vanish at mid range | | |
 | WV-03 | Shoot between the garbage truck cab and body, and under its body between the wheels | Bullets stop (no slit) | | |
 
+## 40. Street surface pass (D75)
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| SS-01 | Walk a citylife street at night and day; look at kerbs, gutters and asphalt cracks from 2 m to 150 m; cross the kerb on foot (P46) | Kerb chamfer and gutter visible, no flicker; feet do not float on the kerb lip | | |
+| SS-02 | Drive a street: count worn tiles (patches, trench) over 10 tiles | About 4 in 10 worn, no obvious repeat; no wheel bump at the patches | | |
+| SS-03 | Stand under a viaduct and on its deck | Ribs, spalls, drain streaks visible; expansion joints do not flicker; bullets stop at the deck | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -716,6 +724,7 @@ collision and looks.
 | Ruin exits / search UX §37 | | | |
 | Street kit §38 | | | |
 | Street kit 2 / jams §39 | | | |
+| Street surface §40 | | | |
 | Placement §9 | | | |
 | Roof drop §10 | | | |
 | Clean logs §11 | | | |

@@ -267,6 +267,7 @@ def atlas_uv(cell):
 
 # Street grid: 12 m tiles = 8 m carriageway + 2 x 2 m sidewalk.
 STREET = {"tile": 12.0, "carriageway": 8.0, "sidewalk": 2.0, "curb_h": 0.15, "slab_t": 0.3, "skirt": 0.5}
+STREET_WORN_PCT = 40            # D75: share of straight tiles placed as the worn variant (hash of the cell)
 
 PREFIX_STREET = MOD + "\\sky_street"
 PREFIX_PROPS = MOD + "\\sky_props"
@@ -310,6 +311,8 @@ for _n, _c, _d in [
 ]:
     _u = ["ROADWAY_ASPHALT", "ROAD_GEO_THICKNESS"] if _n.startswith(("Road", "Inter", "Street")) else []
     kit(_n, "sky_street", _c, uses=_u, desc=_d)
+kit("Street_Straight_B", "sky_street", "road_combined", uses=["ROADWAY_ASPHALT", "ROAD_GEO_THICKNESS"],
+    desc="12 x 12 m street, worn: asphalt repairs, a sealed trench, sunken pavers (D75, mixed in by the layout)")
 KIT["Intersection_T"]["category"] = "road_combined"     # it already contains a sidewalk (perf L1)
 for _n, _c, _d, _u in [
     ("StreetLight", "small", "8 m pole street light (emissive head)", ["EMISSIVE_LAMP"]),

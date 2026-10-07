@@ -32,8 +32,10 @@ Rules that do not change (CLAUDE.md):
 | **D73** street kit close-up | street lamp, jersey barrier, planter, sedan hulk; kennel mid-detail dog | built-unverified |
 | **D74** street kit 2 | billboard, traffic light, van; burnt and overturned sedans in the jams; test_kit hull test | built-unverified |
 | **T1** first test session | pack, sign, PAA, dedicated + diag run, logs; TEST_SESSION.md, TESTING sign-off, flip P-parameters | **next, blocking**: needs the Windows machine |
-| **D75** hull test 2 | ray-grid slit test (sloped convex parts); render LODs inside the collision (one-way concealment) | planned |
-| **D76** street kit 3 | steel barrier, benches, Sewer_Junction, ParkingLot_B; billboard / traffic-light night lights | planned |
+| **D75** street surface | kerbs, gutters, cracked asphalt texture, worn straight tile (40 %), viaduct close-up | built-unverified |
+| **D76** interior props | close-up pass on the room kit (server rack, vending machine, reception desk, beds, cubicles, desks, kitchenette, sofa, lockers) | planned (next) |
+| **D78** street kit 3 | steel barrier, benches, Sewer_Junction, ParkingLot_B; billboard / traffic-light night lights | planned |
+| **D79** hull test 2 | ray-grid slit test (sloped convex parts); render LODs inside the collision (one-way concealment) | planned |
 | **D77** texture depth | baked AO / normal maps for facades and hero props, grime macro maps (B3) | planned (after T1 shows what reads in game) |
 | **T2** terrain | survey a site or build the custom terrain (Terrain Builder import of `terrain/out`, P11), open the metro hatches | planned (after T1) |
 | **T3** perf | FPS protocol, server perf probe (B11), merged furniture if needed (D43) | planned (after T1) |
@@ -106,10 +108,10 @@ P14 alarm noise reach, P15 horde caps, P16 drunk thresholds, P17 search cooldown
 P18 wet hydrant = vanilla well behaviour on a spawned object, P19 jam density (are vehicles really blocked?),
 P20 siren sound config (range, loudness). All are in the PENDING_VERIFICATION.md table with their fix.
 
-## Status (after D74)
+## Status (after D75)
 
-Every phase from D61 to D74 is built and passes the offline gates (`reviews/d61_gates.md` ...
-`reviews/d74_gates.md`). Nothing has run in DayZ: no TESTING sign-off row is filled and every `P`
-parameter (P1-P45) is still an assumption. About 58 % of a releasable v1.0 (PROGRESS_REPORT "Status at a
+Every phase from D61 to D75 is built and passes the offline gates (`reviews/d61_gates.md` ...
+`reviews/d75_gates.md`). Nothing has run in DayZ: no TESTING sign-off row is filled and every `P`
+parameter (P1-P46) is still an assumption. About 58 % of a releasable v1.0 (PROGRESS_REPORT "Status at a
 glance"). The next step that unblocks the most is **T1**, the first test session on the Windows machine.
-Further content (D75-D77) is worth less until T1 shows what reads and runs in game.
+Further content (D76-D79) is worth less until T1 shows what reads and runs in game.

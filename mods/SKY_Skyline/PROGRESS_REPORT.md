@@ -1,6 +1,6 @@
 # SKY_Skyline progress report
 
-## Status at a glance (after D74, 2026-10-07)
+## Status at a glance (after D75, 2026-10-07)
 
 **Overall: about 58 % of a releasable v1.0.** About 92 % of the content is authored and every offline gate
 passes. But nothing has been packed, signed or run in DayZ yet. In-game verification is 0 % and carries the
@@ -8,15 +8,15 @@ most weight of what remains.
 
 | Area | Weight | Done | Why |
 |---|---|---|---|
-| Design and spec (23 ideas, city catalog, decisions D1-D74) | 10 % | 100 % | every idea has a design or a documented block |
+| Design and spec (23 ideas, city catalog, decisions D1-D75) | 10 % | 100 % | every idea has a design or a documented block |
 | Content authored (models, scripts, configs, economy, layouts) | 30 % | 92 % | 21 of 23 ideas built; horses and drivable vehicles blocked on Workbench skills; the underground needs a custom terrain |
-| Offline quality gates (tests, budgets, generators, script xref, reviews) | 10 % | 100 % | test_city 191, test_kit 278 (with hull and wiring checks), check_assets 288 / 0 over, layout 0 failed, perf + security reviews on every batch |
-| Asset quality to ASSET_QUALITY_GUIDE section 8 | 15 % | 55 % | street kit, props, venues and underground passed close-up passes; textures are procedural trim sheets (no baked normal / AO maps); building interiors repeat their room kits |
+| Offline quality gates (tests, budgets, generators, script xref, reviews) | 10 % | 100 % | test_city 191, test_kit 279 (with hull and wiring checks), check_assets 289 / 0 over, layout 0 failed, perf + security reviews on every batch |
+| Asset quality to ASSET_QUALITY_GUIDE section 8 | 15 % | 57 % | street kit and street surfaces, props, venues and underground passed close-up passes; textures are procedural trim sheets (no baked normal / AO maps); building interiors repeat their room kits |
 | Pack, sign, PAA on Windows (full mod) | 10 % | 10 % | toolchain verified with the empty template only (SETUP_REPORT); the 18 SKY packages were never packed |
-| In-game verification (TESTING sign-off, P-parameters) | 20 % | 0 % | 0 of 41 sign-off rows, 0 of 45 `P` assumptions, `CITY_TESTED` empty |
+| In-game verification (TESTING sign-off, P-parameters) | 20 % | 0 % | 0 of 42 sign-off rows, 0 of 46 `P` assumptions, `CITY_TESTED` empty |
 | Release prep (real site / terrain, FPS numbers, server-owner docs) | 5 % | 20 % | layouts and terrain generator ready; no surveyed site, no Terrain Builder import, no FPS run, no perf probe |
 
-Weighted: 10 + 27.6 + 10 + 8.3 + 1 + 0 + 1 = **57.9 %**.
+Weighted: 10 + 27.6 + 10 + 8.6 + 1 + 0 + 1 = **58.2 %**.
 
 ### Built (offline-verified, `built-unverified`)
 - **City**: 35 building types and 60 variants, 156 procedural models in 3 ruin states, plus 15 venue
@@ -384,3 +384,8 @@ lights got visors, a braced arm and a push-button box; the burnt box van has rib
 hanging open. Car jams mix intact, burnt-out and overturned saloons. A new test checks every prop's collision
 for slits between its parts; it found and closed six, including a gap behind the garbage truck's cab.
 Reviews and renders: `reviews/d74_gates.md`.
+
+## 27. Street surfaces (D75)
+
+Every district street now has a chamfered concrete kerb, a gutter strip and a paver edge, and the asphalt texture shows sparse cracks, sealed crack lines, oil stains and bleached patches. About 4 in 10 straight tiles are a worn variant with patched asphalt and a filled trench. Viaducts got ribs underneath, spalled concrete with rebar, expansion joints and drain spouts with rust streaks. The perf review cut the new kerbs from 288 to 16 triangles per tile.
+Reviews and renders: `reviews/d75_gates.md`.

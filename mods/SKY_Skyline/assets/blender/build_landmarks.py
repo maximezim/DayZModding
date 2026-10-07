@@ -1033,10 +1033,39 @@ def build_viaduct_straight():
                         (-5.0, -hd + 3.5 + 4 * i, VIA_H - 0.1), (-5.0, -hd + 2 + 4 * i, VIA_H - 0.1)], (-1, 0, 0), "decal_grime",
                        UVRect(1, 2, (-hd + 2 + 4 * i, VIA_H - 0.9), (-hd + 3.5 + 4 * i, VIA_H - 0.1), (0.0, 0.504, 1.0, 0.746)))
     C.plant_tuft(U(L), -4.3, 2.0, VIA_H, 0.8, 0.5, "dry_grass", (name, "g"))
+    viaduct_detail(L, name, hd)
     L["res3"].box(-5.0, 5.0, -hd, hd, VIA_H - 0.9, VIA_H + 0.85, mat="concrete", uv=UV_CONC)
     L["res3"].box(-0.9, 0.9, -0.9, 0.9, 0.0, VIA_H - 0.9, mat="concrete", uv=UV_CONC, skip=("-z", "+z"))
     L["mem"].lod.point("center", (0.0, 0.0, VIA_H))
     return finish(L, 400000.0)
+
+
+def viaduct_detail(L, name, hd):
+    """D75 close-up pass (render only, collision unchanged): soffit ribs, spalled concrete with exposed rebar on the pier, steel
+    expansion joints at both ends, drain spouts through the deck edge with rust streaks under them."""
+    zd = VIA_H - 0.9                                                             # deck soffit
+    for x in (-3.2, 0.0, 3.2):                                                   # longitudinal ribs
+        for k in ("res0", "res1"):
+            L[k].box(x - 0.2, x + 0.2, -hd, hd, zd - 0.45, zd, mat="concrete", uv=UV_CONC, skip=("+z",))
+    for i, (z0, sy) in enumerate(((2.1, -1), (4.4, 1))):                          # spalls with rebar
+        y = sy * 0.901
+        L["res0"].box(-0.4, 0.3, min(y, y + sy * 0.01), max(y, y + sy * 0.01), z0, z0 + 0.5, mat="rust",
+                      uv=UVBand(S.MATERIALS["rust"]["bands"]["rust"], 1.0))
+        for j in range(3):
+            zz = z0 + 0.1 + j * 0.15
+            bar(L["res0"], (-0.38, y + sy * 0.01, zz), (0.28, y + sy * 0.01, zz), 0.01, "rust",
+                UVBand(S.MATERIALS["rust"]["bands"]["rust"], 1.0))
+    for y in (-hd + 0.02, hd - 0.02):                                            # expansion joints (15 mm lift: Res1)
+        for k in ("res0", "res1"):
+            L[k].box(-4.5, 4.5, y - 0.08, y + 0.08, VIA_H + 0.015, VIA_H + 0.021, mat="metal", uv=DT.UV_STEEL)
+    for sx in (-1, 1):                                                           # drain spouts + streaks
+        for y in (-3.0, 3.0):
+            x = sx * 5.0
+            bar(L["res0"], (x - sx * 0.1, y, VIA_H - 0.3), (x + sx * 0.35, y, VIA_H - 0.45), 0.05, "metal", DT.UV_STEEL)
+            q = [(x + sx * 0.005, y - 0.25, VIA_H - 3.0), (x + sx * 0.005, y + 0.25, VIA_H - 3.0),
+                 (x + sx * 0.005, y + 0.25, VIA_H - 0.95), (x + sx * 0.005, y - 0.25, VIA_H - 0.95)]
+            L["res0"].quad(q if sx > 0 else q[::-1], (sx, 0, 0), "decal_grime",
+                           UVRect(1, 2, (y - 0.25, VIA_H - 3.0), (y + 0.25, VIA_H - 0.95), (0.0, 0.504, 1.0, 0.746)))
 
 
 def build_viaduct_ramp():

@@ -157,23 +157,62 @@ def road_marks(L, w, h, crossing):
     spans = [(-h, -1.5), (1.5, h)] if crossing else [(-h, h)]
     for (a, b) in spans:
         line_quad(L, ("res0", "res1"), -0.075, 0.075, a, b, "dashed")
-        for x in (-w + 0.2, w - 0.35):
+        for x in (-w + 0.35, w - 0.5):                                         # clear of the 30 cm gutter
             line_quad(L, ("res0",), x, x + 0.15, a, b, "solid")
     if crossing:
         line_quad(L, ("res0", "res1"), -w, w, -1.5, 1.5, "crosswalk", along="x")
 
 
-def build_street(crossing=False):
-    """Combined 12 x 12 m tile: road + both sidewalks in one entity (perf batch-1 M1)."""
+def build_street(crossing=False, worn=False):
+    """Combined 12 x 12 m tile: road + both sidewalks in one entity (perf batch-1 M1).
+    D75: kerb units and gutter strips (every tile); `worn` (Street_Straight_B) adds asphalt repairs, a
+    sunken paver patch and a sealed trench, so streets alternate instead of repeating one tile."""
     L = props_lods(road=True)
     h = ST["tile"] / 2
     w = ST["carriageway"] / 2
     asphalt_boxes(L, [(-w, w, -h, h)])
     skirt(L, -h, h, -h, h)
     road_marks(L, w, h, crossing)
-    sidewalk_slab(L, -h, -w, -h, h, curb_side="+x")
-    sidewalk_slab(L, w, h, -h, h, curb_side="-x")
+    sidewalk_slab(L, -h, -w, -h, h, curb_side="+x", band=False)               # kerb units replace the band (D75)
+    sidewalk_slab(L, w, h, -h, h, curb_side="-x", band=False)
+    kerb_and_gutter(L, w, h)
+    if worn:
+        street_wear(L, w, h)
     return finish(L, 36000.0, shadow=False)
+
+
+def kerb_and_gutter(L, w, h):
+    """D75: chamfered concrete kerb along both curbs (one open profile per side: road face, chamfer, top, back
+    lip; no hidden bottom/end faces, joints come from the texture), a 30 cm concrete gutter strip at the foot of
+    each kerb, a paver edge band at the building line. Res0/Res1 only; collision and Roadway unchanged (the kerb
+    stands 2 cm proud of the sidewalk Roadway)."""
+    top = ST["curb_h"]
+    for sx in (-1, 1):
+        xf = sx * w - sx * 0.001                                                 # road face, 1 mm proud of the slab wall
+        xc, xb = sx * w + sx * 0.03, sx * w + sx * 0.16                          # chamfer top edge, back edge
+        zf, zt = top - 0.03, top + 0.02
+        faces = (([(xf, -h, 0.0), (xf, h, 0.0), (xf, h, zf), (xf, -h, zf)], (-sx, 0, 0)),
+                 ([(xf, -h, zf), (xf, h, zf), (xc, h, zt), (xc, -h, zt)], (-sx * 0.86, 0, 0.5)),
+                 ([(xc, -h, zt), (xc, h, zt), (xb, h, zt), (xb, -h, zt)], (0, 0, 1)),
+                 ([(xb, -h, top), (xb, h, top), (xb, h, zt), (xb, -h, zt)], (sx, 0, 0)))
+        for k in ("res0", "res1"):
+            for pts, n in faces:
+                L[k].quad(pts, n, mat="concrete", uv=UVWorld(2.0))
+            g0, g1 = sorted((sx * w, sx * w - sx * 0.3))                         # gutter strip on the asphalt
+            L[k].hquad(g0, g1, -h, h, 0.008 if k == "res0" else MARK_Z, mat="concrete", uv=UV_CONC_REVEAL)
+        e0, e1 = sorted((sx * h, sx * (h - 0.12)))                               # paver edge band
+        L["res0"].hquad(e0, e1, -h, h, top + 0.003, mat="concrete", uv=UV_CONC_REVEAL)
+
+
+def street_wear(L, w, h):
+    """D75 Street_Straight_B: two asphalt repairs (same asphalt, turned and offset so the seam shows) and a filled
+    utility trench across one lane. Res0 only (6-7 mm lifts z-fight at Res1 distance); Roadway stays flat."""
+    for (x0, x1, y0, y1, ang) in ((-3.2, -0.6, -4.5, -2.1, 0.5), (0.8, 2.9, 1.5, 4.8, 1.1)):
+        L["res0"].hquad(x0, x1, y0, y1, 0.006, mat="asphalt",
+                        uv=UVRect(0, 1, (x0, y0), (x1, y1), (ang, ang * 0.7, ang + (x1 - x0) / 4.0, ang * 0.7 + (y1 - y0) / 4.0)))
+    L["res0"].hquad(0.1, w - 0.6, -0.35, 0.35, 0.007, mat="asphalt",               # sealed trench across the east lane
+                    uv=UVRect(1, 0, (-0.35, 0.1), (0.35, w - 0.6), (0.3, 0.2, 0.48, 1.2)))
+
 
 
 def build_street_intersection():
@@ -214,7 +253,7 @@ def build_intersection(t_junction=False):
     return finish(L, 30000.0, shadow=False)
 
 
-def sidewalk_slab(L, x0, x1, y0, y1, curb_side="+x", curb2=None):
+def sidewalk_slab(L, x0, x1, y0, y1, curb_side="+x", curb2=None, band=True):
     top = ST["curb_h"]
     z0 = -ST["slab_t"]
     for k in ("res0", "res1"):
@@ -224,7 +263,7 @@ def sidewalk_slab(L, x0, x1, y0, y1, curb_side="+x", curb2=None):
     L["geo"].box(x0, x1, y0, y1, z0, top)
     L["fire"].box(x0, x1, y0, y1, z0, top, mat="pen_concrete")
     L["road"].hquad(x0, x1, y0, y1, top, mat="road_ext", uv=UV_PAVER)
-    for side in [curb_side] + ([curb2] if curb2 else []):     # curb stone band on the road side(s)
+    for side in ([curb_side] if band else []) + ([curb2] if curb2 else []):     # curb stone band on the road side(s)
         if side == "+x":
             r = (x1 - 0.15, x1, y0, y1)
         elif side == "-x":
@@ -233,7 +272,7 @@ def sidewalk_slab(L, x0, x1, y0, y1, curb_side="+x", curb2=None):
             r = (x0, x1, y1 - 0.15, y1)
         else:
             r = (x0, x1, y0, y0 + 0.15)
-        L["res0"].box(r[0], r[1], r[2], r[3], top - 0.001, top + 0.02, mat="concrete", uv=UV_CONC_REVEAL, skip=("-z",))
+        L["res0"].box(r[0], r[1], r[2], r[3], top - 0.001, top + 0.02, mat="concrete", uv=UVWorld(2.0), skip=("-z",))   # D75: world UVs (the trim band read black on top)
 
 
 def build_sidewalk():
@@ -720,6 +759,7 @@ def build_decal(mat, w, h, camo=False):
 BUILDERS = {
     "Road_Straight": build_road, "Road_Crossing": lambda: build_road(crossing=True),
     "Street_Straight": build_street, "Street_Crossing": lambda: build_street(crossing=True),
+    "Street_Straight_B": lambda: build_street(worn=True),
     "Street_Intersection": build_street_intersection,
     "Intersection_4Way": build_intersection, "Intersection_T": lambda: build_intersection(t_junction=True),
     "Sidewalk": build_sidewalk, "Sidewalk_Corner": build_sidewalk_corner, "Curb": build_curb, "Manhole": build_manhole,

@@ -83,6 +83,12 @@ class CfgVehicles
 		scope = 1;
 		model = "SKY_Skyline\sky_street\sky_street_intersection.p3d";
 	};
+	class Land_SKY_Street_Straight_B: Land_SKY_Street_Base
+	{
+		// 12 x 12 m street, worn: asphalt repairs, a sealed trench, sunken pavers (D75, mixed in by the layout)
+		scope = 1;
+		model = "SKY_Skyline\sky_street\sky_street_straight_b.p3d";
+	};
 	class Land_SKY_StreetLight: Land_SKY_Street_Base
 	{
 		// 8 m pole street light (emissive head)

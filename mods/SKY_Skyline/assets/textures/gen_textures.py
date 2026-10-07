@@ -263,14 +263,48 @@ def wallpaper(size, out):
     save(to_rgb(gray(np.full((CONST_SIZE, CONST_SIZE), 0.97, np.float32))), out, "sky_wallpaper_as")
 
 
+def crack_field(size, seed, cells=7, width=0.012, warp=0.01):
+    """Tileable crack network (D75): edges of a periodic Voronoi diagram (distance to the nearest minus the
+    second nearest seed), warped by tileable noise so the cracks wander. Returns 0..1 (1 = in a crack)."""
+    rng = np.random.default_rng(seed)
+    pts = rng.random((cells * cells, 2)).astype(np.float32)
+    y, x = np.mgrid[0:size, 0:size].astype(np.float32) / size
+    wx = (tfbm(size, seed + 1, octaves=3, base=4) - 0.5) * 2 * warp
+    wy = (tfbm(size, seed + 2, octaves=3, base=4) - 0.5) * 2 * warp
+    x, y = (x + wx) % 1.0, (y + wy) % 1.0
+    d1 = np.full((size, size), 9.0, np.float32)
+    d2 = np.full((size, size), 9.0, np.float32)
+    for px, py in pts:
+        dx = np.abs(x - px)
+        dy = np.abs(y - py)
+        d = np.sqrt(np.minimum(dx, 1 - dx) ** 2 + np.minimum(dy, 1 - dy) ** 2)    # torus distance: tiles
+        closer = d < d1
+        d2 = np.where(closer, d1, np.minimum(d2, d))
+        d1 = np.where(closer, d, d1)
+    return np.clip(1.0 - (d2 - d1) / width, 0.0, 1.0)
+
+
 def asphalt(size, out):
-    n = fbm(size, 83, octaves=6, base=8)
+    """Worn asphalt (D75, mapped at 4 m): aggregate grit, a tileable crack network, part of it tar-sealed
+    in darker 3-4 cm bands, oil blotches and sun-bleached patches. Height drives the normal map, cracks
+    and grit drive spec / gloss (sealant is glossier, cracks hold dust)."""
+    n = tfbm(size, 83, octaves=6, base=8)
     grit = (np.random.default_rng(89).random((size, size)) > 0.985).astype(np.float32)
-    col = gray(0.20 + 0.06 * (n - 0.5) + 0.12 * grit)
-    save(to_rgb(col), out, "sky_asphalt_co")
-    save(normal_from_height(0.4 * n + 0.6 * grit, 2.0), out, "sky_asphalt_nohq")
-    save(smdi(size, 0.06 + 0.1 * grit, 0.1), out, "sky_asphalt_smdi")
-    save(to_rgb(gray(np.full((CONST_SIZE, CONST_SIZE), 0.95, np.float32))), out, "sky_asphalt_as")
+    net = crack_field(size, 401, cells=5, width=0.004)
+    keep = np.clip((tfbm(size, 403, octaves=3, base=3) - 0.42) * 5, 0, 1)        # only part of the network cracked
+    cracks = net * keep
+    near = crack_field(size, 401, cells=5, width=0.014)                         # tar sealant: a band round some cracks
+    seal = near * np.clip((tfbm(size, 411, octaves=2, base=2) - 0.55) * 6, 0, 1)
+    oil = np.clip((tfbm(size, 419, octaves=4, base=6) - 0.62) * 6, 0, 1)
+    bleach = np.clip((tfbm(size, 421, octaves=3, base=3) - 0.5) * 3, 0, 1)
+    v = 0.20 + 0.06 * (n - 0.5) + 0.12 * grit + 0.05 * bleach
+    v = v * (1 - 0.55 * cracks) * (1 - 0.35 * seal) * (1 - 0.3 * oil)
+    save(to_rgb(gray(np.clip(v, 0, 1))), out, "sky_asphalt_co")
+    height = 0.4 * n + 0.6 * grit - 1.2 * cracks + 0.2 * seal
+    save(normal_from_height(height, 2.0), out, "sky_asphalt_nohq")
+    save(smdi(size, 0.06 + 0.1 * grit + 0.12 * seal + 0.1 * oil - 0.04 * cracks, 0.1 + 0.25 * seal + 0.3 * oil), out,
+         "sky_asphalt_smdi")
+    save(to_rgb(gray(np.clip(0.95 - 0.35 * cracks, 0, 1))), out, "sky_asphalt_as")
 
 
 def roofmark(size, out):
