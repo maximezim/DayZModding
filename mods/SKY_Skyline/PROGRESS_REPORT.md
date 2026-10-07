@@ -13,7 +13,7 @@ most weight of what remains.
 | Offline quality gates (tests, budgets, generators, script xref, reviews) | 10 % | 100 % | test_city 191, test_kit 279 (with hull and wiring checks), check_assets 289 / 0 over, layout 0 failed, texture references 76 / 0 missing, concealment gate over kit + city 0 open findings, slit gate PASS, perf + security reviews on every batch |
 | Asset quality to ASSET_QUALITY_GUIDE section 8 | 15 % | 70 % | street kit (three passes), street surfaces, car parks and hulks, the interior room kit, venues and underground passed close-up passes; wood, fabric, paver, concrete, brick, stucco, panel, limestone and trim maps have real depth (D77, D80, D82); no baked AO on hero props yet; building interiors repeat their room kits |
 | Pack, sign, PAA on Windows (full mod) | 10 % | 10 % | toolchain verified with the empty template only (SETUP_REPORT); the 18 SKY packages were never packed |
-| In-game verification (TESTING sign-off, P-parameters) | 20 % | 0 % | 0 of 48 sign-off rows, 0 of 52 `P` assumptions, `CITY_TESTED` empty |
+| In-game verification (TESTING sign-off, P-parameters) | 20 % | 0 % | 0 of 48 sign-off rows, 0 of 53 `P` assumptions, `CITY_TESTED` empty |
 | Release prep (real site / terrain, FPS numbers, server-owner docs) | 5 % | 20 % | layouts and terrain generator ready; no surveyed site, no Terrain Builder import, no FPS run, no perf probe |
 
 Weighted: 10 + 27.6 + 10 + 10.5 + 1 + 0 + 1 = **60.1 %**.

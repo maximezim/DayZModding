@@ -93,7 +93,7 @@ class RLod:
         r = self.ruin.region
         # region edges + the CUT_CELL cut-cell lines inside the region (sec D82 H2): every piece is cut per cut cell,
         # so a long collision box and the shorter render pieces over it always get the same height
-        fine = getattr(self.lod, "name", "") not in ("res2", "res3", "shadow")   # far LODs: region edges only (budget)
+        fine = getattr(self.lod, "name", "") not in ("res3", "shadow")   # res3 / shadow: region edges only (budget); res2 cut per cell (sec review M: sniper range)
         fine = fine and (z1 is None or z1 > r[4] + 0.35 - 1e-6)   # never reaches the lowest cut: no cell lines (geo budget)
         C = CUT_CELL
         gx = {C * k for k in range(int(math.floor(max(a0, r[0]) / C)), int(math.ceil(min(a1, r[1]) / C)) + 1)} if fine else set()
