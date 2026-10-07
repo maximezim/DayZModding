@@ -664,6 +664,7 @@ collision and looks.
 | CS-01 | Search a clinic medicine cabinet (upper floor exam rooms), a police gear locker (ground-floor office), a post office sorting rack (P41) | Medical / police / post items appear at the spot; never a weapon or ammunition; "Nothing useful." on a miss | | |
 | CS-02 | Repeat a search at once, then at another spot within 4 s | Spot cooldown and per-player rate limit as §26 | | |
 | CS-03 | Search the cinema costume trunks from the stage | Action available on the stage | | |
+| CS-04 | Stand outside a police office / clinic exam room wall, within 2 m of the locker or cabinet, and search (P42) | Nothing happens (no loot, no cooldown used); from inside the room it works | | |
 
 ### Sign-off
 

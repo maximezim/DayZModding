@@ -243,8 +243,14 @@ def test_class(name, fresh_loot):
         l = min(range(len(P.levels)), key=lambda k: abs(P.levels[k][2] - z))
         seen, (gx0, gy0, cell) = reach[l]
         i, j = int((x - gx0) / cell), int((y - gy0) / cell)
-        rr = 2 if z - P.levels[l][2] < 0.3 else int(1.5 / cell) + 1           # raised spot (cinema stage): floor within 1.5 m
-        near = any((i + di, j + dj) in seen for di in range(-rr, rr + 1) for dj in range(-rr, rr + 1))
+        raised = z - P.levels[l][2] >= 0.3
+        if raised:                                                           # only the cinema stage (security L): a floor
+            check(P.A.get("catalog", P.arch) == "Cinema", "%s: raised search point %s" % (name, g))   # cell within 1.5 m
+            rr = int(1.5 / cell) + 1
+            near = any((i + di, j + dj) in seen and (di * di + dj * dj) * cell * cell <= 1.5 ** 2
+                       for di in range(-rr, rr + 1) for dj in range(-rr, rr + 1))
+        else:
+            near = any((i + di, j + dj) in seen for di in (-2, -1, 0, 1, 2) for dj in (-2, -1, 0, 1, 2))
         check(near, "%s: search point %s (%g, %g, %g) is not reachable" % (name, g, x, y, z))
     tiny = (P.ix1 - P.ix0) * (P.iy1 - P.iy0) < 30.0
     check(len(C.LOOT_OUT.get(e["cls"], [])) >= 1 or (state == 2 and tiny), "%s: no loot points" % name)

@@ -1357,10 +1357,12 @@ def furnish(L, P, l, r, kind, z, top):
             shelf_unit(L, x0 + 1.0, cx - 0.4, row_y - 0.25, row_y + 0.25, z, h=1.6)
         kitchen_run(L, x1 - 2.4, x1 - 0.4, y0 + 1.2, y0 + 1.8, z)                     # counter
         L["res0"].box(x1 - 1.6, x1 - 1.2, y0 + 1.35, y0 + 1.65, z + 0.92, z + 1.15, mat="metal", uv=DT.UV_PAINT)  # till
-        racks = [(a, b, y1 - 0.45, y1 - 0.05) for (a, b) in ((cx + 0.2, min(cx + 2.0, x1 - 0.4)), (cx - 2.0, cx - 0.2),
-                                                              (x0 + 0.4, x0 + 2.2))]
-        rack = next((rk for rk in racks if rk[1] - rk[0] > 1.2 and clear(zones, rk)), None)   # first wall spot off the doors
-        if P.A.get("catalog", P.arch) == "PostOffice" and rack:
+        rack = None
+        if P.A.get("catalog", P.arch) == "PostOffice":
+            racks = [(a, b, y1 - 0.45, y1 - 0.05) for (a, b) in ((cx + 0.2, min(cx + 2.0, x1 - 0.4)), (cx - 2.0, cx - 0.2),
+                                                                  (x0 + 0.4, x0 + 2.2))]
+            rack = next((rk for rk in racks if rk[1] - rk[0] > 1.2 and clear(zones, rk)), None)   # first wall spot off the doors
+        if rack:
             # D71 mail sorting rack: a pigeonhole frame with letters and parcels, searched (table post)
             piece(L, rack + (z, z + 1.9), "wood", UV_WALNUT)
             cols = int((rack[1] - rack[0]) / 0.3)
@@ -1370,8 +1372,9 @@ def furnish(L, P, l, r, kind, z, top):
                 for c_ in range(cols):
                     if h01(P.name, "mail", r_, c_) < 0.55:
                         mx = rack[0] + 0.05 + c_ * (rack[1] - rack[0] - 0.1) / cols
-                        L["res0"].box(mx, mx + 0.2, rack[2] - 0.03, rack[2] - 0.01, zz + 0.02, zz + 0.2, mat="paint",
-                                      uv=DT.paint_uv("beige" if (r_ + c_) % 3 else "white"))
+                        L["res0"].quad([(mx, rack[2] - 0.02, zz + 0.02), (mx + 0.2, rack[2] - 0.02, zz + 0.02), (mx + 0.2, rack[2] - 0.02, zz + 0.2),
+                                        (mx, rack[2] - 0.02, zz + 0.2)], (0, -1, 0), "paint",
+                                       DT.paint_uv("beige" if (r_ + c_) % 3 else "white"))   # letters: front quads (perf L)
             if not P.near_collapse((rack[0] + rack[1]) / 2, rack[2] - 0.7, l):
                 search_point(L, (rack[0] + rack[1]) / 2, rack[2] - 0.7, z)
         if lit:
@@ -1407,7 +1410,8 @@ def furnish(L, P, l, r, kind, z, top):
     elif kind in ("office", "site_office"):
         if clear(zones, (cx - 0.9, cx + 0.9, cy - 1.2, cy + 0.6)):
             desk(L, cx, cy - 0.3, z, rot=(w < d))
-        if l == 0 and P.A.get("catalog", P.arch) == "Police" and w > 2.4:          # D71 gear lockers (table police)
+        if (l == 0 and P.A.get("catalog", P.arch) == "Police" and w > 2.4
+                and not getattr(P, "sky_lockers", False)):                      # D71 gear lockers (table police), one bank
             for (a0, a1) in ((x0 + 0.1, x0 + 1.45), (x1 - 1.45, x1 - 0.1)):
                 if clear(zones, (a0, a1, y1 - 0.5, y1 - 0.05)):
                     piece(L, (a0, a1, y1 - 0.5, y1 - 0.05, z, z + 1.85), "paint", DT.paint_uv("slate"), pen="metal")
@@ -1416,12 +1420,14 @@ def furnish(L, P, l, r, kind, z, top):
                         dw = (a1 - a0 - 0.04) / 3
                         L["res0"].box(dx + 0.01, dx + dw - 0.01, y1 - 0.51, y1 - 0.5, z + 0.05, z + 1.8, mat="paint",
                                       uv=DT.paint_uv("slate"))
-                        for v in range(3):
-                            L["res0"].box(dx + 0.08, dx + dw - 0.08, y1 - 0.515, y1 - 0.51, z + 1.5 + v * 0.06, z + 1.52 + v * 0.06,
-                                          mat="metal", uv=DT.UV_STEEL)
+                        for v in range(3):                                       # vents: front quads only (perf L)
+                            vz = z + 1.5 + v * 0.06
+                            L["res0"].quad([(dx + 0.08, y1 - 0.512, vz), (dx + dw - 0.08, y1 - 0.512, vz), (dx + dw - 0.08, y1 - 0.512, vz + 0.02),
+                                            (dx + 0.08, y1 - 0.512, vz + 0.02)], (0, -1, 0), "metal", DT.UV_STEEL)
                         L["res0"].box(dx + dw - 0.08, dx + dw - 0.05, y1 - 0.53, y1 - 0.51, z + 0.95, z + 1.1, mat="metal", uv=DT.UV_STEEL)
                     if not P.near_collapse((a0 + a1) / 2, y1 - 1.1, l):
                         search_point(L, (a0 + a1) / 2, y1 - 1.1, z)
+                    P.sky_lockers = True                                         # one bank per station (perf L)
                     break
         for sx in ((x0 + 0.1, x0 + 1.0), (x1 - 1.0, x1 - 0.1)):
             if w > 2.4 and clear(zones, (sx[0], sx[1], y1 - 0.45, y1 - 0.05)):
@@ -1459,8 +1465,11 @@ def furnish(L, P, l, r, kind, z, top):
     elif kind == "exam":
         if clear(zones, (x0 + 0.1, x0 + 0.85, cy - 1.0, cy + 1.0)):
             bed(L, x0 + 0.1, x0 + 0.85, cy - 1.0, cy + 1.0, z, fabric="grey")
+        cabs = P.__dict__.setdefault("sky_cabinets", set())                       # D71: one cabinet per floor (security L)
         if clear(zones, (x1 - 1.0, x1 - 0.1, y0 + 0.1, y0 + 0.55)):
             shelf_unit(L, x1 - 1.0, x1 - 0.1, y0 + 0.1, y0 + 0.55, z, h=1.8)
+        if l not in cabs and clear(zones, (x1 - 1.0, x1 - 0.1, y0 + 0.1, y0 + 0.55)):
+            cabs.add(l)
             # D71 medicine cabinet: white doors with a red cross on the shelving, searched (table medical)
             L["res0"].box(x1 - 0.98, x1 - 0.12, y0 + 0.55, y0 + 0.57, z + 1.0, z + 1.75, mat="paint", uv=DT.paint_uv("white"))
             L["res0"].box(x1 - 0.6, x1 - 0.5, y0 + 0.57, y0 + 0.58, z + 1.2, z + 1.55, mat="paint", uv=DT.paint_uv("terracotta"))

@@ -88,10 +88,12 @@ class SKY_SearchService
 			"Flashlight", "Chemlight_White", "Roadflare", "PersonalRadio"};
 		// D71: no firearms or ammunition from searches (the CE keeps control of weapons); classes checked against
 		// dayzOffline.chernarusplus db/types.xml like the tables above.
-		array<string> medical = {"BandageDressing", "BandageDressing", "Rag", "DisinfectantSpray", "DisinfectantAlcohol",
-			"PainkillerTablets", "CharcoalTablets", "TetracyclineAntibiotics", "VitaminBottle", "IodineTincture", "Thermometer",
-			"SurgicalGloves_Blue", "SurgicalMask", "MedicalScrubsShirt_Blue", "SalineBag", "BloodBagEmpty", "StartKitIV",
-			"Epinephrine", "Morphine"};
+		// common supplies listed several times, the rare ones (IV kit, saline, epinephrine, morphine) once (security L)
+		array<string> medical = {"BandageDressing", "BandageDressing", "BandageDressing", "Rag", "Rag", "DisinfectantSpray",
+			"DisinfectantAlcohol", "PainkillerTablets", "PainkillerTablets", "CharcoalTablets", "CharcoalTablets",
+			"VitaminBottle", "VitaminBottle", "IodineTincture", "Thermometer", "SurgicalGloves_Blue", "SurgicalGloves_Blue",
+			"SurgicalMask", "SurgicalMask", "MedicalScrubsShirt_Blue", "TetracyclineAntibiotics", "BloodBagEmpty", "SalineBag",
+			"StartKitIV", "Epinephrine", "Morphine"};
 		array<string> police = {"PoliceCap", "PoliceJacket", "PolicePants", "PoliceVest", "Handcuffs", "HandcuffKeys",
 			"Flashlight", "Battery9V", "Roadflare", "PersonalRadio", "Megaphone", "Chemlight_Red", "BandageDressing"};
 		array<string> post = {"Paper", "Paper", "Pen_Black", "Pen_Blue", "Pen_Red", "ChernarusMap", "Compass", "BurlapSack",
@@ -168,6 +170,21 @@ class SKY_SearchService
 		return idx >= 0;
 	}
 
+	//! D71: a search spot is where the player stands; nothing solid may lie between the player's eyes and head
+	//! height over that spot (a wall, a cell's bars). DayZPhysics.RaycastRV (3_game/global/dayzphysics.c:199),
+	//! Geometry LOD (ObjIntersectGeom), the player ignored. Without it the 2 m reach worked through 0.2 m walls.
+	protected static bool InSight(PlayerBase player, vector spot)
+	{
+		vector from = player.GetPosition() + Vector(0, SKY_Life.SEARCH_EYE, 0);
+		vector to = spot + Vector(0, SKY_Life.SEARCH_EYE, 0);
+		if (vector.Distance(from, to) < 0.1)
+			return true;
+		vector hitPos;
+		vector hitDir;
+		int hitComp;
+		return !DayZPhysics.RaycastRV(from, to, hitPos, hitDir, hitComp, null, null, player, false, false, ObjIntersectGeom);
+	}
+
 	//! Server: the whole decision. Called from ActionSKY_Search.OnFinishProgressServer.
 	void Search(PlayerBase player, Object obj)
 	{
@@ -183,6 +200,8 @@ class SKY_SearchService
 		int idx;
 		if (!FindSpot(obj, player.GetPosition(), spot, idx))
 			return;
+		if (idx >= 0 && !InSight(player, spot))
+			return;													// D71 security M: no searching through a wall
 		int now = g_Game.GetTime();
 		if (!m_Rate.Allow(identity.GetId(), now))
 			return;
