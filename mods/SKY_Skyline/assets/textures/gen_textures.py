@@ -122,8 +122,8 @@ def band_rows(size, v0, v1):
 
 # ------------------------------------------------------------------ materials
 def concrete(size, out):
-    n = fbm(size, 11)
-    fine = fbm(size, 17, octaves=3, base=64)
+    n = tfbm(size, 11, octaves=5, base=4)                     # D77: tileable (fbm left a seam every sheet)
+    fine = tfbm(size, 17, octaves=3, base=64)
     h = np.zeros((size, size), np.float32)
     col = 0.56 + 0.10 * (n - 0.5) + 0.05 * (fine - 0.5)
     ao = np.ones((size, size), np.float32)
@@ -150,7 +150,7 @@ def concrete(size, out):
         h[y:y + seam, :] -= 0.7
         ao[y:y + seam, :] *= 0.75
         col[y:y + bh, :] += 0.03 * ((b * 7919) % 5 - 2) / 2
-    grain = value_noise(size, 256, 23)
+    grain = tnoise(size, 256, 23)
     col[r0:r1, :] += 0.04 * (np.repeat(grain[r0:r1, :1], size, 1) - 0.5)
     # Band 3 (reveal, V 0.75-1): smooth with one recessed groove.
     r0, r1 = band_rows(size, 0.75, 1.0)
@@ -158,6 +158,12 @@ def concrete(size, out):
     h[g0:g0 + seam * 3, :] -= 1.0
     ao[g0:g0 + seam * 3, :] *= 0.65
     h += 0.15 * fine
+    # D77: blowholes (bug holes) and masked hairline shrinkage cracks, in colour, height and AO
+    pores = np.clip((tnoise(size, 384, 25) - 0.9) * 10, 0, 1)
+    hair = crack_field(size, 27, cells=4, width=0.0025, warp=0.02) * np.clip((tfbm(size, 29, octaves=3, base=3) - 0.5) * 4, 0, 1)
+    col = col * (1 - 0.3 * pores - 0.22 * hair)
+    h -= 0.7 * pores + 0.5 * hair
+    ao *= 1 - 0.3 * pores
     save(to_rgb(weather(gray(col), 19, dirt=0.25, desat=0.0, moss=0.07, streaks=0.15, spots=0.15)), out,
          "sky_concrete_co")                                                                   # D59 weathering
     save(normal_from_height(h, 2.5), out, "sky_concrete_nohq")
@@ -166,8 +172,8 @@ def concrete(size, out):
 
 
 def metal(size, out):
-    streak = np.repeat(value_noise(size, 512, 31)[:, :1], size, 1)
-    n = fbm(size, 37, octaves=3, base=16)
+    streak = np.repeat(tnoise(size, 512, 31)[:, :1], size, 1)          # D77: tileable
+    n = tfbm(size, 37, octaves=3, base=16)
     col = np.zeros((size, size, 3), np.float32)
     spec = np.zeros((size, size), np.float32)
     gloss = np.zeros((size, size), np.float32)
@@ -263,9 +269,16 @@ def wallpaper(size, out):
     save(to_rgb(gray(np.full((CONST_SIZE, CONST_SIZE), 0.97, np.float32))), out, "sky_wallpaper_as")
 
 
-def crack_field(size, seed, cells=7, width=0.012, warp=0.01):
+def crack_field(size, seed, cells=7, width=0.012, warp=0.01, dist=None):
     """Tileable crack network (D75): edges of a periodic Voronoi diagram (distance to the nearest minus the
     second nearest seed), warped by tileable noise so the cracks wander. Returns 0..1 (1 = in a crack)."""
+    if dist is not None:                                  # reuse crack_dist() (perf D77 L6)
+        return np.clip(1.0 - dist / width, 0.0, 1.0)
+    return np.clip(1.0 - crack_dist(size, seed, cells, warp) / width, 0.0, 1.0)
+
+
+def crack_dist(size, seed, cells=7, warp=0.01):
+    """Second-nearest minus nearest seed distance of the warped periodic Voronoi (0 on a crack)."""
     rng = np.random.default_rng(seed)
     pts = rng.random((cells * cells, 2)).astype(np.float32)
     y, x = np.mgrid[0:size, 0:size].astype(np.float32) / size
@@ -281,7 +294,7 @@ def crack_field(size, seed, cells=7, width=0.012, warp=0.01):
         closer = d < d1
         d2 = np.where(closer, d1, np.minimum(d2, d))
         d1 = np.where(closer, d, d1)
-    return np.clip(1.0 - (d2 - d1) / width, 0.0, 1.0)
+    return d2 - d1
 
 
 def asphalt(size, out):
@@ -290,10 +303,11 @@ def asphalt(size, out):
     and grit drive spec / gloss (sealant is glossier, cracks hold dust)."""
     n = tfbm(size, 83, octaves=6, base=8)
     grit = (np.random.default_rng(89).random((size, size)) > 0.985).astype(np.float32)
-    net = crack_field(size, 401, cells=5, width=0.004)
+    dist = crack_dist(size, 401, cells=5)
+    net = crack_field(size, 401, cells=5, width=0.004, dist=dist)
     keep = np.clip((tfbm(size, 403, octaves=3, base=3) - 0.42) * 5, 0, 1)        # only part of the network cracked
     cracks = net * keep
-    near = crack_field(size, 401, cells=5, width=0.014)                         # tar sealant: a band round some cracks
+    near = crack_field(size, 401, cells=5, width=0.014, dist=dist)                        # tar sealant: a band round some cracks
     seal = near * np.clip((tfbm(size, 411, octaves=2, base=2) - 0.55) * 6, 0, 1)
     oil = np.clip((tfbm(size, 419, octaves=4, base=6) - 0.62) * 6, 0, 1)
     bleach = np.clip((tfbm(size, 421, octaves=3, base=3) - 0.5) * 3, 0, 1)
@@ -351,13 +365,6 @@ def keycards(size, out):
 
 
 # ------------------------------------------------------------------ street kit (batch 1)
-def paver(size, out):
-    """Sidewalk pavers: 30 x 30 cm stone blocks (mapped at 3 m -> 10 x 10 per tile)."""
-    tiled(size, out, "sky_paver", 10, (0.62, 0.60, 0.57), (0.36, 0.35, 0.33), max(3, size // 512), 101, 0.15, 0.25, tile_var=0.08)
-    p = os.path.join(out, "sky_paver_as.png")                 # AO at 1024 is plenty (perf M5)
-    Image.open(p).resize((min(size, 1024),) * 2, Image.BILINEAR).save(p)
-
-
 def roadmark(size, out):
     """Road paint sheet (512, alpha-TESTED): V 0-0.25 solid line, 0.25-0.5 dashed
     line (1 dash per U), 0.5-1.0 crosswalk (1 stripe per U). Lines tile along U;
@@ -752,37 +759,153 @@ def concpanel(size, out):
 
 
 # ------------------------------------------------------------------ batch 3: interior props
+# ------------------------------------------------------------------ texture depth (D77)
+def tstreak(size, rows, cols, seed):
+    """Tileable noise stretched along U (few columns, many rows): wood pores, fibre runs."""
+    rng = np.random.default_rng(seed)
+    small = rng.random((rows, cols)).astype(np.float32)
+    big = np.tile(small, (3, 3))
+    img = Image.fromarray((big * 255).astype(np.uint8), "L").resize((3 * size, 3 * size), Image.BICUBIC)
+    return np.asarray(img, dtype=np.float32)[size:2 * size, size:2 * size] / 255.0
+
+
+def scratches(size, seed, n, length=(0.03, 0.15), width=1):
+    """Tileable fine scratch mask (0..1): short straight strokes drawn 3 x 3 and cropped."""
+    rng = np.random.default_rng(seed)
+    img = Image.new("L", (3 * size, 3 * size), 0)
+    d = ImageDraw.Draw(img)
+    for _ in range(n):
+        x, y = rng.random(2) * size
+        a = rng.random() * np.pi
+        ln = (length[0] + rng.random() * (length[1] - length[0])) * size
+        v = int(120 + rng.random() * 135)
+        for ox in (0, size, 2 * size):
+            for oy in (0, size, 2 * size):
+                d.line([(x + ox, y + oy), (x + ox + np.cos(a) * ln, y + oy + np.sin(a) * ln)], fill=v, width=width)
+    return np.asarray(img, dtype=np.float32)[size:2 * size, size:2 * size] / 255.0
+
+
 def wood(size, out):
     """Furniture wood trim (1024): V 0-0.4 oak, 0.4-0.7 walnut, 0.7-0.95 grey laminate,
-    0.95-1 monitor screen (keeps desk monitors in the wood section, perf batch-3 L1)."""
+    0.95-1 monitor screen (keeps desk monitors in the wood section, perf batch-3 L1).
+    D77: flat-sawn grain on boards (seams, per-board tone), open pores, lacquer scratches; real nohq + smdi
+    (gloss: oiled oak satin, lacquered walnut, laminate, glass screen). Tiles along U."""
     size = min(size, 1024)
-    y = np.linspace(0, 1, size, dtype=np.float32)[:, None]
-    x = np.linspace(0, 1, size, dtype=np.float32)[None, :]
-    n = fbm(size, 211, octaves=4, base=4)
-    grain = 0.5 + 0.5 * np.sin((x * 60 + 6 * n) * np.pi)          # long grain along U
+    v = np.linspace(0, 1, size, endpoint=False, dtype=np.float32)[:, None] * np.ones((1, size), np.float32)
+    u = np.linspace(0, 1, size, endpoint=False, dtype=np.float32)[None, :] * np.ones((size, 1), np.float32)
+    n = tfbm(size, 211, octaves=4, base=4)
+    pores = np.clip((tstreak(size, 192, 24, 217) - 0.62) * 5, 0, 1)            # ~5 px rows: stable to mip 1 (perf D77 M1)
+    scr = scratches(size, 219, 220, (0.02, 0.09), width=2)
     col = np.zeros((size, size, 3), np.float32)
-    for (v0, v1), base, amp in [((0.0, 0.4), (0.62, 0.45, 0.28), 0.10),
-                                ((0.4, 0.7), (0.36, 0.23, 0.15), 0.08),
-                                ((0.7, 0.95), (0.58, 0.58, 0.56), 0.02),
-                                ((0.95, 1.0), (0.10, 0.16, 0.24), 0.0)]:
+    h = np.zeros((size, size), np.float32)
+    spec = np.zeros((size, size), np.float32)
+    gloss = np.zeros((size, size), np.float32)
+    rng = np.random.default_rng(213)
+    for (v0, v1), base, dark, boards, freq, sp, gl, lt, lm in [
+            ((0.0, 0.4), (0.60, 0.44, 0.27), (0.45, 0.31, 0.17), 3, 5.0, 0.12, 0.32, 0.55, 0.6),     # oak: satin oil
+            ((0.4, 0.7), (0.38, 0.24, 0.15), (0.22, 0.13, 0.08), 2, 9.0, 0.30, 0.55, 0.72, 0.45)]:    # walnut: lacquer
         r0, r1 = band_rows(size, v0, v1)
-        col[r0:r1] = np.array(base, np.float32) + amp * gray(grain[r0:r1] - 0.5) + 0.03 * gray(n[r0:r1] - 0.5)
-    save(to_rgb(col), out, "sky_wood_co")              # nohq/smdi/as procedural (perf batch-3 L4)
+        vb, ub = v[r0:r1], u[r0:r1]
+        vl = (vb - v0) / (v1 - v0)                                            # 0..1 across the band
+        b = np.minimum((vl * boards).astype(int), boards - 1)               # boards run along U (with the grain)
+        ph = rng.random(boards).astype(np.float32)[b]
+        tone = (rng.random(boards).astype(np.float32)[b] - 0.5) * 0.10
+        warp = tfbm(size, 214 + boards, octaves=3, base=2)[r0:r1]
+        # flat-sawn figure: growth rings along U, gently arched (U-periodic) and wandering with tileable noise
+        arch = 0.18 * np.sin(2 * np.pi * (ub + ph)) + 0.08 * np.sin(2 * np.pi * (2 * ub + 3 * ph))
+        ring = np.sin(2 * np.pi * (freq * (vl * boards - b + arch) + 2.2 * warp + 0.6 * n[r0:r1] + ph * 7))
+        late = np.clip((ring - lt) * 4.0, 0, 1)                              # thin dark latewood lines
+        mix = np.clip(late * lm + 0.3 * pores[r0:r1] + 0.15 * (warp - 0.5), 0, 1)[..., None]
+        c = np.array(base, np.float32) * (1 - mix) + np.array(dark, np.float32) * mix
+        c = c * (1.0 + tone[..., None]) + 0.03 * gray(n[r0:r1] - 0.5)
+        fb = (vl * boards) % 1.0
+        seam = (fb < 1.2 * boards / (r1 - r0)) & (b > 0)
+        col[r0:r1] = c
+        h[r0:r1] = 0.25 * late - 0.6 * pores[r0:r1] - 1.0 * seam
+        spec[r0:r1] = sp - 0.05 * pores[r0:r1]
+        gloss[r0:r1] = gl - 0.15 * pores[r0:r1] - 0.2 * scr[r0:r1]
+        col[r0:r1] += (0.03 if v0 == 0.0 else 0.06) * gray(scr[r0:r1])     # oiled oak hides scratches
+    r0, r1 = band_rows(size, 0.7, 0.95)                                          # grey laminate, fine speckle
+    fine = tnoise(size, 512, 225)
+    col[r0:r1] = gray(0.57 + 0.025 * (fine[r0:r1] - 0.5) + 0.02 * (n[r0:r1] - 0.5)) + 0.05 * gray(scr[r0:r1])
+    h[r0:r1] = 0.08 * fine[r0:r1]
+    spec[r0:r1], gloss[r0:r1] = 0.2, 0.42 - 0.2 * scr[r0:r1]
+    r0, r1 = band_rows(size, 0.95, 1.0)                                          # dead monitor glass
+    g = np.linspace(0, 1, r1 - r0, dtype=np.float32)[:, None, None]
+    col[r0:r1] = np.array([0.07, 0.11, 0.17], np.float32) + 0.05 * g + 0.02 * gray(n[r0:r1] - 0.5)
+    spec[r0:r1], gloss[r0:r1] = 0.6, 0.85
+    save(to_rgb(col), out, "sky_wood_co")
+    save(normal_from_height(h, 1.5), out, "sky_wood_nohq")
+    sm = smdi(size, np.clip(spec, 0, 1), np.clip(gloss, 0, 1))
+    sm.resize((min(size, 512),) * 2, Image.BILINEAR).save(os.path.join(out, "sky_wood_smdi.png"))   # 512 (perf D77 L3)
 
 
 def fabric(size, out):
-    """Upholstery trim (512): V 0-0.33 grey, 0.33-0.66 blue, 0.66-1 beige weave."""
+    """Upholstery trim (512): V 0-0.33 grey, 0.33-0.66 blue, 0.66-1 beige.
+    D77: 2/2 twill (8 px period survives mip 1, perf L4), slub yarn streaks, pilling, faint stains."""
     size = min(size, 512)
     yy, xx = np.mgrid[0:size, 0:size]
-    weave = (((xx // 4) + (yy // 4)) % 2).astype(np.float32)        # 8 px period survives mip 1 (perf L4)
-    n = fbm(size, 223, octaves=3, base=8)
+    twill = ((((xx // 2) + (yy // 2)) % 4) < 2).astype(np.float32)
+    slub = tstreak(size, 128, 8, 227)
+    n = tfbm(size, 223, octaves=3, base=8)
+    pill = np.clip((tnoise(size, 192, 229) - 0.7) * 4, 0, 1)
+    stain = np.clip((tfbm(size, 231, octaves=4, base=3) - 0.6) * 3, 0, 1)
     col = np.zeros((size, size, 3), np.float32)
     for (v0, v1), base in [((0.0, 0.33), (0.42, 0.42, 0.44)), ((0.33, 0.66), (0.20, 0.28, 0.45)),
                            ((0.66, 1.0), (0.66, 0.60, 0.50))]:
         r0, r1 = band_rows(size, v0, v1)
-        col[r0:r1] = np.array(base, np.float32) * (0.92 + 0.08 * gray(weave[r0:r1])) + 0.04 * gray(n[r0:r1] - 0.5)
+        k = 0.9 + 0.08 * twill[r0:r1] + 0.05 * (slub[r0:r1] - 0.5) + 0.04 * pill[r0:r1] - 0.12 * stain[r0:r1]
+        col[r0:r1] = np.array(base, np.float32) * gray(k) + 0.03 * gray(n[r0:r1] - 0.5)
     save(to_rgb(col), out, "sky_fabric_co")
-    save(normal_from_height(0.3 * weave + 0.2 * n, 1.0), out, "sky_fabric_nohq")
+    save(normal_from_height(0.3 * twill + 0.15 * slub + 0.2 * pill + 0.1 * n, 1.0), out, "sky_fabric_nohq")
+
+
+def paver(size, out):
+    """Sidewalk pavers: 30 x 30 cm slabs (mapped at 3 m -> 10 x 10 per sheet). D77: three stone tones,
+    bevelled arrises, sand joints with moss, chipped corners, gum / oil spots, a few cracked and sunken
+    slabs; nohq / as / smdi from the same fields. Tileable (integer grid, tileable noise)."""
+    tiles = 10
+    step = size / tiles
+    yy, xx = np.mgrid[0:size, 0:size].astype(np.float32)
+    gx, gy = xx / step, yy / step
+    ix, iy = np.floor(gx).astype(int) % tiles, np.floor(gy).astype(int) % tiles
+    fx, fy = gx - np.floor(gx), gy - np.floor(gy)
+    edge = np.minimum(np.minimum(fx, 1 - fx), np.minimum(fy, 1 - fy))       # 0 at the joint, 0.5 centre
+    rng = np.random.default_rng(101)
+    R = rng.random((tiles, tiles, 6)).astype(np.float32)
+    r = R[iy, ix]
+    tones = np.array([(0.62, 0.60, 0.57), (0.58, 0.56, 0.54), (0.66, 0.63, 0.58)], np.float32)
+    base = tones[np.minimum((r[..., 0] * 3).astype(int), 2)]
+    n = tfbm(size, 103, octaves=4, base=8)
+    grit = tnoise(size, 256, 105)                                                # 8 px: no normal sparkle (perf D77 M2)
+    jw, bw = 0.025, 0.05                                                        # joint half width, bevel (tile units)
+    joint = edge < jw
+    bevel = np.clip((edge - jw) / bw, 0, 1)
+    # chipped corners: a bite out of one corner on ~1 in 5 slabs
+    cx = np.where(r[..., 1] < 0.5, fx, 1 - fx)
+    cy = np.where(r[..., 2] < 0.5, fy, 1 - fy)
+    chip = (r[..., 3] < 0.2) & (cx + cy < 0.12 + 0.05 * n)
+    sunk = r[..., 4] < 0.06
+    cracked = (r[..., 5] < 0.07) & (np.abs((fx - fy) * 0.7 + 0.1 * (n - 0.5)) < 0.012)
+    col = base * gray(0.94 + 0.08 * (n - 0.5) + 0.06 * (grit - 0.5))
+    col *= gray(0.85 + 0.15 * bevel)
+    col = np.where(sunk[..., None], col * 0.9, col)
+    moss = np.clip((tfbm(size, 107, octaves=3, base=5) - 0.5) * 3, 0, 1)
+    jcol = np.array([0.44, 0.42, 0.38], np.float32) * (1 - 0.5 * moss[..., None]) + np.array([0.26, 0.31, 0.17], np.float32) * 0.5 * moss[..., None]
+    col = np.where((joint | chip)[..., None], jcol * gray(0.8 + 0.2 * grit), col)
+    col = np.where(cracked[..., None], col * 0.6, col)
+    spots = np.clip((tnoise(size, 160, 109) - 0.93) * 14, 0, 1)                 # gum / drips (sparse)
+    oil = np.clip((tfbm(size, 111, octaves=4, base=6) - 0.68) * 4, 0, 1)
+    col *= gray(1 - 0.25 * spots - 0.18 * oil)
+    h = 0.2 * bevel + 0.08 * grit - 1.0 * joint - 0.8 * chip - 0.5 * cracked - 0.3 * sunk
+    ao = 1.0 - 0.35 * joint - 0.15 * (1 - bevel) - 0.25 * chip - 0.1 * sunk
+    save(to_rgb(col), out, "sky_paver_co")
+    normal_from_height(h, 2.0).resize((min(size, 1024),) * 2, Image.BILINEAR).save(
+        os.path.join(out, "sky_paver_nohq.png"))                                  # 1024 (perf D77 M2)
+    o = np.asarray(Image.fromarray((oil * 255).astype(np.uint8)).resize((min(size, 256),) * 2, Image.BILINEAR), np.float32) / 255.0
+    save(smdi(min(size, 256), 0.12 + 0.1 * o, 0.22 + 0.25 * o), out, "sky_paver_smdi")              # low-frequency oil: 256
+    a = to_rgb(gray(np.clip(ao, 0, 1)))
+    a.resize((min(size, 1024),) * 2, Image.BILINEAR).save(os.path.join(out, "sky_paver_as.png"))   # AO at 1024 (perf M5)
 
 
 # ------------------------------------------------------------------ realism pass (D53)
@@ -893,7 +1016,7 @@ def stone(size, out):
     """Exterior cladding (sheet 3 m): V 0-0.5 polished dark granite, 0.5-1 honed limestone;
     0.75 m panels with 8 mm joints; real nohq + smdi."""
     rng = np.random.default_rng(353)
-    n = fbm(size, 359, octaves=5, base=12)
+    n = tfbm(size, 359, octaves=5, base=12)                       # D77: tileable
     col = np.zeros((size, size, 3), np.float32)
     gl = np.zeros((size, size), np.float32)
     r0, r1 = band_rows(size, 0.0, 0.5)
@@ -908,8 +1031,8 @@ def stone(size, out):
     h = 0.05 * n
     j = max(3, size // 375)
     step = size // 4
-    for k in range(5):
-        p = min(size - j, k * step)
+    for k in range(4):                                  # D77: one joint at the wrap, not two (double width)
+        p = k * step
         col[:, p:p + j] *= 0.55
         h[:, p:p + j] -= 1
         gl[:, p:p + j] = 0.05
@@ -922,6 +1045,10 @@ def stone(size, out):
     save(to_rgb(col), out, "sky_stone_co")
     save(normal_from_height(h, 2.0), out, "sky_stone_nohq")
     save(smdi(size, 0.5 * np.ones((size, size), np.float32), gl), out, "sky_stone_smdi")
+    # D77 fix: sky_stone.rvmat always referenced sky_stone_as.paa but it was never written (missing texture
+    # in game). AO from the joints, 512 (perf D77 L5).
+    ao = to_rgb(gray(np.clip(0.8 + 0.2 * np.clip(h + 1.0, 0, 1), 0, 1)))
+    ao.resize((min(size, 512),) * 2, Image.BILINEAR).save(os.path.join(out, "sky_stone_as.png"))
 
 
 def textile(size, out):

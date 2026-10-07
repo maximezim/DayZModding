@@ -48,7 +48,7 @@ PROCEDURAL_MAPS = {
     "sky_decal_dirt": ("nohq", "as", "smdi"), "sky_decal_cracks": ("nohq", "as", "smdi"),
     "sky_decal_graffiti": ("nohq", "as", "smdi"), "sky_windows": ("nohq", "as", "smdi"),
     "sky_brick": ("as", "smdi"), "sky_concpanel": ("as", "smdi"),          # perf batch-2 M1
-    "sky_wood": ("nohq", "as", "smdi"), "sky_fabric": ("as", "smdi"),          # wood nohq: perf batch-3 L4
+    "sky_wood": ("as",), "sky_fabric": ("as", "smdi"),          # D77: wood grain nohq + smdi files (1024)
     "sky_ceiling": ("as", "smdi"),                                             # D53
     "sky_paint": ("as", "smdi"), "sky_textile": ("as", "smdi"), "sky_parquet": ("as",),   # D55
     "sky_render": ("as", "smdi"), "sky_rubble": ("as",), "sky_signs": ("nohq", "as", "smdi"),   # D56
@@ -66,7 +66,7 @@ PROCEDURAL_MAPS = {
 # Constant specular/gloss for procedural _smdi stages (default PROC["smdi"] otherwise).
 PROC_SMDI = {"sky_wall_brick": (0.08, 0.15), "sky_wall_panel": (0.1, 0.2), "sky_wall_limestone": (0.12, 0.2),
              "sky_wall_render_cream": (0.05, 0.1), "sky_wall_render_ochre": (0.05, 0.1), "sky_wall_render_grey": (0.05, 0.1),
-             "sky_wall_render_white": (0.05, 0.1), "sky_decal_grime": (0.02, 0.05), "sky_vegetation": (0.08, 0.15), "sky_render": (0.05, 0.1), "sky_signs": (0.3, 0.4), "sky_signs2": (0.3, 0.4), "sky_fair": (0.25, 0.3), "sky_trash": (0.1, 0.2), "sky_turf": (0.02, 0.05), "sky_fur": (0.03, 0.08), "sky_signs3": (0.3, 0.4), "sky_signs4": (0.3, 0.4), "sky_paint": (0.06, 0.12), "sky_textile": (0.02, 0.05), "sky_ceiling": (0.05, 0.1), "sky_brick": (0.08, 0.15), "sky_concpanel": (0.1, 0.2), "sky_wood": (0.25, 0.35), "sky_fabric": (0.03, 0.1)}
+             "sky_wall_render_white": (0.05, 0.1), "sky_decal_grime": (0.02, 0.05), "sky_vegetation": (0.08, 0.15), "sky_render": (0.05, 0.1), "sky_signs": (0.3, 0.4), "sky_signs2": (0.3, 0.4), "sky_fair": (0.25, 0.3), "sky_trash": (0.1, 0.2), "sky_turf": (0.02, 0.05), "sky_fur": (0.03, 0.08), "sky_signs3": (0.3, 0.4), "sky_signs4": (0.3, 0.4), "sky_paint": (0.06, 0.12), "sky_textile": (0.02, 0.05), "sky_ceiling": (0.05, 0.1), "sky_brick": (0.08, 0.15), "sky_concpanel": (0.1, 0.2), "sky_fabric": (0.03, 0.1)}
 
 
 def rvmat_super(base, spec_power=40, emissive=(0, 0, 0)):

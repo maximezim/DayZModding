@@ -19,8 +19,8 @@
  "sky_bed.p3d": {
   "fire": 36,
   "geo": 36,
-  "res0": 48,
-  "res1": 36,
+  "res0": 154,
+  "res1": 48,
   "res2": 24
  },
  "sky_billboard.p3d": {
@@ -44,8 +44,8 @@
  "sky_cubicle.p3d": {
   "fire": 60,
   "geo": 60,
-  "res0": 62,
-  "res1": 60,
+  "res0": 242,
+  "res1": 72,
   "res2": 36,
   "shadow": 60,
   "view": 36
@@ -76,8 +76,8 @@
  "sky_desk.p3d": {
   "fire": 36,
   "geo": 36,
-  "res0": 62,
-  "res1": 36,
+  "res0": 158,
+  "res1": 50,
   "res2": 12
  },
  "sky_dumpster.p3d": {
@@ -92,8 +92,8 @@
   "fire": 72,
   "geo": 72,
   "mem": 0,
-  "res0": 90,
-  "res1": 82,
+  "res0": 246,
+  "res1": 72,
   "res2": 12
  },
  "sky_floor_apartments.p3d": {
@@ -187,8 +187,8 @@
  "sky_kitchenette.p3d": {
   "fire": 48,
   "geo": 48,
-  "res0": 62,
-  "res1": 50,
+  "res0": 460,
+  "res1": 112,
   "res2": 24,
   "shadow": 12,
   "view": 24
@@ -197,7 +197,7 @@
   "fire": 132,
   "geo": 132,
   "mem": 0,
-  "res0": 132,
+  "res0": 344,
   "res1": 120,
   "res2": 12,
   "shadow": 48,
@@ -220,8 +220,8 @@
  "sky_receptiondesk.p3d": {
   "fire": 36,
   "geo": 36,
-  "res0": 38,
-  "res1": 36,
+  "res0": 230,
+  "res1": 60,
   "res2": 24,
   "shadow": 36,
   "view": 12
@@ -281,8 +281,8 @@
  "sky_serverrack.p3d": {
   "fire": 12,
   "geo": 12,
-  "res0": 14,
-  "res1": 14,
+  "res0": 238,
+  "res1": 40,
   "res2": 12,
   "shadow": 12,
   "view": 12
@@ -318,7 +318,7 @@
  "sky_sofa.p3d": {
   "fire": 48,
   "geo": 48,
-  "res0": 72,
+  "res0": 190,
   "res1": 48,
   "res2": 24
  },
@@ -375,8 +375,8 @@
   "fire": 24,
   "geo": 24,
   "mem": 0,
-  "res0": 26,
-  "res1": 26,
+  "res0": 232,
+  "res1": 60,
   "res2": 14,
   "shadow": 24,
   "view": 24

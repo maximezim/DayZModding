@@ -1,22 +1,22 @@
 # SKY_Skyline progress report
 
-## Status at a glance (after D75, 2026-10-07)
+## Status at a glance (after D77, 2026-10-07)
 
-**Overall: about 58 % of a releasable v1.0.** About 92 % of the content is authored and every offline gate
+**Overall: about 59 % of a releasable v1.0.** About 92 % of the content is authored and every offline gate
 passes. But nothing has been packed, signed or run in DayZ yet. In-game verification is 0 % and carries the
 most weight of what remains.
 
 | Area | Weight | Done | Why |
 |---|---|---|---|
-| Design and spec (23 ideas, city catalog, decisions D1-D75) | 10 % | 100 % | every idea has a design or a documented block |
+| Design and spec (23 ideas, city catalog, decisions D1-D77) | 10 % | 100 % | every idea has a design or a documented block |
 | Content authored (models, scripts, configs, economy, layouts) | 30 % | 92 % | 21 of 23 ideas built; horses and drivable vehicles blocked on Workbench skills; the underground needs a custom terrain |
-| Offline quality gates (tests, budgets, generators, script xref, reviews) | 10 % | 100 % | test_city 191, test_kit 279 (with hull and wiring checks), check_assets 289 / 0 over, layout 0 failed, perf + security reviews on every batch |
-| Asset quality to ASSET_QUALITY_GUIDE section 8 | 15 % | 57 % | street kit and street surfaces, props, venues and underground passed close-up passes; textures are procedural trim sheets (no baked normal / AO maps); building interiors repeat their room kits |
+| Offline quality gates (tests, budgets, generators, script xref, reviews) | 10 % | 100 % | test_city 191, test_kit 279 (with hull and wiring checks), check_assets 289 / 0 over, layout 0 failed, texture references 72 / 0 missing, perf + security reviews on every batch |
+| Asset quality to ASSET_QUALITY_GUIDE section 8 | 15 % | 63 % | street kit, street surfaces, the interior room kit, venues and underground passed close-up passes; wood, fabric, paver and concrete maps have real depth (D77); facades still use flat procedural maps (no baked AO); building interiors repeat their room kits |
 | Pack, sign, PAA on Windows (full mod) | 10 % | 10 % | toolchain verified with the empty template only (SETUP_REPORT); the 18 SKY packages were never packed |
-| In-game verification (TESTING sign-off, P-parameters) | 20 % | 0 % | 0 of 42 sign-off rows, 0 of 46 `P` assumptions, `CITY_TESTED` empty |
+| In-game verification (TESTING sign-off, P-parameters) | 20 % | 0 % | 0 of 44 sign-off rows, 0 of 48 `P` assumptions, `CITY_TESTED` empty |
 | Release prep (real site / terrain, FPS numbers, server-owner docs) | 5 % | 20 % | layouts and terrain generator ready; no surveyed site, no Terrain Builder import, no FPS run, no perf probe |
 
-Weighted: 10 + 27.6 + 10 + 8.6 + 1 + 0 + 1 = **58.2 %**.
+Weighted: 10 + 27.6 + 10 + 9.5 + 1 + 0 + 1 = **59.1 %**.
 
 ### Built (offline-verified, `built-unverified`)
 - **City**: 35 building types and 60 variants, 156 procedural models in 3 ruin states, plus 15 venue
@@ -389,3 +389,13 @@ Reviews and renders: `reviews/d74_gates.md`.
 
 Every district street now has a chamfered concrete kerb, a gutter strip and a paver edge, and the asphalt texture shows sparse cracks, sealed crack lines, oil stains and bleached patches. About 4 in 10 straight tiles are a worn variant with patched asphalt and a filled trench. Viaducts got ribs underneath, spalled concrete with rebar, expansion joints and drain spouts with rust streaks. The perf review cut the new kerbs from 288 to 16 triangles per tile.
 Reviews and renders: `reviews/d75_gates.md`.
+
+## 28. Interior props close-up (D76)
+
+The office and flat furniture that fills every tower floor was made of plain boxes. The reception desk now has a fluted walnut front and a marble top, desks and cubicles carry monitors, keyboards and papers, the server rack and vending machine got framed fronts and vents, lockers have louvres and handles that swing with their doors, the kitchenette has a real sink, tap and tiled splashback, and the sofa, bed and extinguisher are properly shaped. Collision, doors and loot points are unchanged; the reviews removed hidden faces and z-fighting that showed as black patches.
+Reviews and renders: `reviews/d76_gates.md`.
+
+## 29. Texture depth (D77)
+
+Wood shows boards, grain and pores; fabrics have a twill weave; sidewalk slabs have bevelled edges, chips, mossy joints and the odd cracked or sunken slab; concrete gets blowholes and hairline cracks and, like metal and stone, no longer shows a seam every texture repeat. A new check found that the stone cladding referenced an ambient-occlusion map that was never generated (a missing texture in game); it is generated now and the check runs on every asset build.
+Reviews and renders: `reviews/d77_gates.md`.

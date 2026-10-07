@@ -80,6 +80,7 @@ Run-Py @((Join-Path $mod 'assets\gen_configs.py'))
 Run-Py @((Join-Path $mod 'assets\gen_manifest.py'))
 Run-Py @((Join-Path $mod 'economy\gen_economy.py'))
 Run-Py @((Join-Path $mod 'assets\check_assets.py'))
+Run-Py @((Join-Path $mod 'assets\textures\test_texture_refs.py'), '--dir', $png)   # D77: every referenced PAA is generated
 Run-Py @((Join-Path $mod 'placement\tests\test_sky_layout.py'))
 if (Test-Path 'P:\scripts') {
     Run-Py @((Join-Path $repo 'tools\assets\enscript_xref.py'), '--vanilla', 'P:\scripts', '--mod', (Join-Path $mod 'addons\sky_scripts\scripts'))

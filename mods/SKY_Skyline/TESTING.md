@@ -698,6 +698,23 @@ collision and looks.
 | SS-02 | Drive a street: count worn tiles (patches, trench) over 10 tiles | About 4 in 10 worn, no obvious repeat; no wheel bump at the patches | | |
 | SS-03 | Stand under a viaduct and on its deck | Ribs, spalls, drain streaks visible; expansion joints do not flicker; bullets stop at the deck | | |
 
+## 41. Interior props close-up (D76)
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| IP-01 | Walk an office floor: reception desk, desks, cubicles, server rack, vending machine, lockers, kitchenette at 0.5-25 m (P47) | Detail visible up close, no flicker at 10-30 m when Res1 swaps in, no black faces | | |
+| IP-02 | Open each locker door, the vending flap and the extinguisher cabinet door | Louvres, handles and frame swing with the leaf; nothing left floating | | |
+| IP-03 | Search loot on the desk, reception and kitchenette | Items spawn clear of the mouse, phone, kettle and sink; nothing hidden in the detail | | |
+| IP-04 | Crouch under a desk / beside a bed and shoot through the gaps under furniture | Bullets stop where the collision is (same both ways); nobody can hide inside render-only parts | | |
+
+## 42. Texture depth (D77)
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| TX-01 | Look at wood furniture, sofas and beds under a lamp at 1 m (P48) | Grain, pores and twill visible; bumps lit from the right side; walnut lacquered, not wet | | |
+| TX-02 | Walk a sidewalk and a concrete facade at 1-50 m | Paver bevels, chips and moss joints; no tiling seam on concrete, metal or stone; no shimmer from 1 px scratches at distance | | |
+| TX-03 | Grep the client RPT after loading citylife | No `Cannot load texture` / missing `sky_*.paa` (sky_stone_as fixed in D77) | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -725,6 +742,8 @@ collision and looks.
 | Street kit §38 | | | |
 | Street kit 2 / jams §39 | | | |
 | Street surface §40 | | | |
+| Interior props §41 | | | |
+| Texture depth §42 | | | |
 | Placement §9 | | | |
 | Roof drop §10 | | | |
 | Clean logs §11 | | | |
