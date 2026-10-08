@@ -3441,7 +3441,7 @@ def mall_unit(L, P, l, r, kind, z, top, zones, lit):
             ry += 1.6
         tb = (cx - 0.5, cx + 0.5, cy - 0.35, cy + 0.35)
         if var == 1:
-            # shoe shop: shelving along the back wall (render-only steel, thin), a fitting bench in the middle
+            # shoe shop: shelving along the back wall (collides like all shelf_units; boxes = shoe boxes), a fitting bench
             sb = (x0 + 0.4, x1 - 0.4, y1 - 0.4, y1 - 0.05)
             if sb[1] - sb[0] > 1.0 and clear(zones, sb):
                 shelf_unit(L, *sb, z, h=1.8)
@@ -3457,7 +3457,8 @@ def mall_unit(L, P, l, r, kind, z, top, zones, lit):
                 for i in range(6):
                     hx = tb[0] + 0.08 + (i % 3) * 0.3
                     hy = cy - 0.2 + (i // 3) * 0.3
-                    L["res0"].box(hx, hx + 0.08, hy, hy + 0.15, z + 0.9, z + 0.91, mat="paint", uv=DT.paint_uv("slate"))
+                    L["res0"].box(hx, hx + 0.08, hy, hy + 0.15, z + 0.9, z + 0.91, mat="paint", uv=DT.paint_uv("slate"),
+                                  skip=("-z",))                                   # underside hidden (perf L)
         elif clear(zones, tb):
             table(L, *tb, z, h=0.8)
             for i in range(4):
