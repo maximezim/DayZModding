@@ -1895,7 +1895,8 @@ def hq_facade(size, out):
 GENERATORS = {
     "concrete": concrete, "metal": metal, "glass": glass, "glassfar": glassfar,
     "tile": lambda s, o: tiled(s, o, "sky_tile", 5, (0.72, 0.71, 0.68), (0.45, 0.45, 0.43), max(3, s // 400), 41, 0.3, 0.5),
-    "carpet": carpet, "wallpaper": wallpaper, "asphalt": asphalt,
+    "carpet": lambda s, o: carpet(min(s, 1024), o),                           # full audit perf L: floor fibre, 1024 is plenty
+    "wallpaper": wallpaper, "asphalt": asphalt,                               # wallpaper stays 2048: 4 m sheet -> 512 px/m up close
     "roofmark": roofmark, "keycards": keycards,
     "paver": paver, "roadmark": roadmark, "rust": rust, "foliage": foliage, "atlas": atlas, "billboards": billboards,
     "decals": decals, "windows": windows, "brick": brick, "concpanel": concpanel,

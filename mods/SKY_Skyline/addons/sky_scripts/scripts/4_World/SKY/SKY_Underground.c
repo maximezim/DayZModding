@@ -79,6 +79,8 @@ class SKY_Underground
 	protected static ref array<Land_SKY_Sewer_Base> s_Pieces = new array<Land_SKY_Sewer_Base>();
 	protected static bool s_CapWarned;
 	protected static ref SKY_Underground s_Instance;
+	protected static ref SKY_Underground s_Client;		//!< full audit perf M5: client-side water animation
+	protected bool m_Snapped;							//!< client: first tick jumps to the weather level
 
 	protected ref array<Man> m_Players = new array<Man>();
 	protected float m_Level;			//!< 0..1
@@ -122,20 +124,44 @@ class SKY_Underground
 		s_Instance = null;
 	}
 
-	void Tick()
+	//! Full audit perf M5 / P29: map objects of a custom terrain are not networked, so the server's
+	//! SetAnimationPhase may never reach clients. Each client derives the same level from the synced rain and
+	//! animates the water locally (visual only; soaking and drowning stay server-side).
+	static void StartClient()
 	{
-		if (s_Pieces.Count() == 0)
+		if (g_Game.IsDedicatedServer() || s_Client || (g_Game.IsServer() && !g_Game.IsMultiplayer()))
+			return;										// offline: the server instance already animates
+		s_Client = new SKY_Underground();
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(s_Client.TickClient, SKY_Under.TICK_MS, true);
+	}
+
+	static void StopClient()
+	{
+		if (!s_Client)
 			return;
-		float dt = SKY_Under.TICK_MS * 0.001;
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).Remove(s_Client.TickClient);
+		s_Client = null;
+	}
+
+	protected float WeatherTarget()
+	{
 		float rain = 0;
 		Weather w = g_Game.GetWeather();
 		if (w && w.GetRain())
 			rain = w.GetRain().GetActual();
-		float target = Math.Clamp((rain - SKY_Under.RAIN_START) / SKY_Under.RAIN_SPAN, 0, 1);
+		return Math.Clamp((rain - SKY_Under.RAIN_START) / SKY_Under.RAIN_SPAN, 0, 1);
+	}
+
+	protected void Integrate(float target, float dt)
+	{
 		if (target > m_Level)
 			m_Level = Math.Min(target, m_Level + SKY_Under.RISE_PER_S * dt);
 		else
 			m_Level = Math.Max(target, m_Level - SKY_Under.DRAIN_PER_S * dt);
+	}
+
+	protected void ApplyPhase()
+	{
 		if (Math.AbsFloat(m_Level - m_Applied) >= SKY_Under.PHASE_STEP || (m_Level == 0 && m_Applied > 0))
 		{
 			m_Applied = m_Level;
@@ -145,6 +171,29 @@ class SKY_Underground
 					p.SetAnimationPhase("flood", m_Level);
 			}
 		}
+	}
+
+	void TickClient()
+	{
+		if (s_Pieces.Count() == 0)
+			return;
+		float target = WeatherTarget();
+		if (!m_Snapped)
+		{
+			m_Level = target;							// a client that joins mid-flood sees it at once
+			m_Snapped = true;
+		}
+		else
+			Integrate(target, SKY_Under.TICK_MS * 0.001);
+		ApplyPhase();
+	}
+
+	void Tick()
+	{
+		if (s_Pieces.Count() == 0)
+			return;
+		Integrate(WeatherTarget(), SKY_Under.TICK_MS * 0.001);
+		ApplyPhase();
 		if (m_Level <= 0)
 			return;
 		float water = SKY_Under.WALKWAY + SKY_Under.WATER_BASE + m_Level * SKY_Under.WATER_RISE;	// model z of the surface
@@ -153,6 +202,8 @@ class SKY_Underground
 		g_Game.GetPlayers(m_Players);
 		if (m_FirstSeen.Count() > 4 * m_Players.Count() + 64)		// bounded: forget players who left
 			m_FirstSeen.Clear();
+		if (m_Under.Count() > m_Players.Count() + 16)				// full audit info: same bound (re-added next tick)
+			m_Under.Clear();
 		foreach (Man m : m_Players)
 		{
 			PlayerBase pb = PlayerBase.Cast(m);

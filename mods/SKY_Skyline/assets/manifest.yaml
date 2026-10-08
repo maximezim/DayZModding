@@ -119,8 +119,8 @@ textures:
   - {name: sky_glassfar, maps: [co, nohq, smdi, as], size: 256, use: opaque glass for Res2/Res3, status: built-unverified}
   - {name: sky_metal, maps: [co, nohq, smdi, as], size: 2048, use: trim sheet (alu / steel / painted), status: built-unverified}
   - {name: sky_tile, maps: [co, nohq, smdi, as], size: 2048, status: built-unverified}
-  - {name: sky_carpet, maps: [co, nohq, smdi, as], size: 2048, status: built-unverified, note: perf suggests 1024}
-  - {name: sky_wallpaper, maps: [co, nohq, smdi, as], size: 2048, status: built-unverified, note: mapped at 4 m (512 px/m)}
+  - {name: sky_carpet, maps: [co, nohq, smdi, as], size: 1024, status: built-unverified, note: full audit - 1024 (floor fibre)}
+  - {name: sky_wallpaper, maps: [co, nohq, smdi, as], size: 2048, status: built-unverified, note: mapped at 4 m (512 px/m) - stays 2048 for close interior walls (full audit)}
   - {name: sky_asphalt, maps: [co, nohq, smdi, as], size: 2048, status: built-unverified, use: street kit}
   - {name: sky_roofmark, maps: [ca, nohq, smdi, as], size: 1024, use: generic helipad decal, status: built-unverified}
   - {name: sky_paver, maps: [co, nohq(1024), smdi(256), as(1024)], size: 2048, use: sidewalks / garden roof, status: built-unverified}

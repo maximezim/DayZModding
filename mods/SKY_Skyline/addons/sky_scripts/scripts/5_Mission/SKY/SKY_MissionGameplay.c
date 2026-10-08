@@ -7,12 +7,14 @@ modded class MissionGameplay
 		super.OnMissionStart();
 		SKY_Ambience.StartClient();
 		SKY_LightDirector.StartClient();						// full audit perf H1
+		SKY_Underground.StartClient();							// full audit perf M5 (P29 fallback)
 	}
 
 	override void OnMissionFinish()
 	{
 		SKY_Ambience.StopClient();
 		SKY_LightDirector.StopClient();
+		SKY_Underground.StopClient();
 		super.OnMissionFinish();
 	}
 }
