@@ -1752,8 +1752,7 @@ def furnish(L, P, l, r, kind, z, top):
             tb = (cx - 1.2, cx + 1.2, cy - 0.5, cy + 0.5)
             if clear(zones, tb):
                 table(L, *tb, z)
-                for (chx, chy, f) in ((cx - 0.6, cy - 0.75, "+y"), (cx + 0.6, cy - 0.75, "+y"), (cx - 0.6, cy + 0.75, "-y"),
-                                      (cx + 0.6, cy + 0.75, "-y")):
+                for (chx, chy, f) in ((cx - 0.6, cy - 0.75, "+y"), (cx + 0.6, cy + 0.75, "-y")):   # 2 chairs (perf L)
                     chair(L, chx, chy, z, f, mat="wood", uv=UV_OAK)
         else:
             for row in range(3):                                                    # bench desk rows

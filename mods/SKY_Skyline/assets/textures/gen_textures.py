@@ -1679,10 +1679,10 @@ def ao_props(size, out):
     for name, spec in S.AO_PROPS.items():
         lods = {l.name: l for l in build_props.BUILDERS[name]()}
         r0 = lods["res0"]
-        n = min(size, spec["size"])
-        ao = aobake.bake(r0, aobake.unwrap(r0, spec["size"]), spec["size"])
+        n = spec["size"]                                   # baked at the shipped size (the unwrap depends on it)
+        ao = aobake.bake(r0, aobake.unwrap(r0, n), n)
         img = Image.fromarray(np.clip((0.4 + 0.6 * ao) * 255, 0, 255).astype(np.uint8), "L").convert("RGB")
-        (img.resize((n, n), Image.BILINEAR) if n < spec["size"] else img).save(os.path.join(out, "sky_%s_as.png" % spec["tag"]))
+        img.save(os.path.join(out, "sky_%s_as.png" % spec["tag"]))
 
 
 def wall_render(size, out):

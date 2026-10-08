@@ -1222,7 +1222,7 @@ for _m in MACRO_WALLS:
         MATERIALS["%s_m%d" % (_m, _k)] = dict(MATERIALS[_m], rvmat=rvmat("sky_%s_m%d" % (_m, _k)))
 # D85 pilot: baked AO on a unique second UV set (aobake.py). tag names the map (sky_<tag>_as) and the rvmat
 # variants (sky_<mat>_<tag>) of the listed Res0 materials; the bake ignores see-through faces.
-AO_PROPS = {"VendingMachine": {"tag": "vend", "size": 512, "mats": ("metal", "rust")}}
+AO_PROPS = {"VendingMachine": {"tag": "vend", "size": 256, "mats": ("metal", "rust")}}   # 256: ~70 px/m is plenty for 0.45 m AO (perf L)
 for _n, _a in AO_PROPS.items():
     for _m in _a["mats"]:
         MATERIALS["%s_%s" % (_m, _a["tag"])] = dict(MATERIALS[_m], rvmat=rvmat("sky_%s_%s" % (_m, _a["tag"])))

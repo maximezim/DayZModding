@@ -100,12 +100,14 @@ def _frame(n):
 
 def _hits(o, d, T):
     """Any-hit Moller-Trumbore: o, d (R,3); T (N,3,3) -> bool (R,) hit within DIST."""
-    if not len(T):
+    if not len(T) or not len(o):
         return np.zeros(len(o), bool)
+    T, o, d = T.astype(np.float32), o.astype(np.float32), d.astype(np.float32)
     v0, e1, e2 = T[:, 0], T[:, 1] - T[:, 0], T[:, 2] - T[:, 0]
     hit = np.zeros(len(o), bool)
-    for s in range(0, len(o), 4096):
-        oo, dd = o[s:s + 4096, None, :], d[s:s + 4096, None, :]
+    step = max(256, int(2e5 // len(T)))                     # bounded temporaries (perf L)
+    for s in range(0, len(o), step):
+        oo, dd = o[s:s + step, None, :], d[s:s + step, None, :]
         p = np.cross(dd, e2[None])
         det = (e1[None] * p).sum(-1)
         ok = np.abs(det) > 1e-12
@@ -116,7 +118,7 @@ def _hits(o, d, T):
         v = (dd * q).sum(-1) * inv
         t = (e2[None] * q).sum(-1) * inv
         h = ok & (u >= 0) & (v >= 0) & (u + v <= 1) & (t > 1e-4) & (t < DIST)
-        hit[s:s + 4096] = h.any(1)
+        hit[s:s + step] = h.any(1)
     return hit
 
 
@@ -167,11 +169,15 @@ def bake(lod, uv1, size=512, skip=("glass", "glassfar")):
         dd = np.tile(D, (len(o), 1))
         lo, hi = o.min(0) - DIST, o.max(0) + DIST
         near = np.all((thi >= lo) & (tlo <= hi), 1)
-        occ = _hits(oo, dd, T[near])
-        if FLOOR:                                            # floor plane z = 0 (contact shadow under the prop)
+        # only triangles with a vertex in front of the face plane can occlude it (perf L)
+        near &= ((T - P[0]) @ n).max(1) > 1e-4
+        occ = np.zeros(len(oo), bool)
+        if FLOOR:                                            # floor plane z = 0 first (contact shadow under the prop)
             with np.errstate(divide="ignore", invalid="ignore"):
                 tz = -oo[:, 2] / dd[:, 2]
-            occ |= (dd[:, 2] < -1e-6) & (tz > 1e-4) & (tz < DIST)
+            occ = (dd[:, 2] < -1e-6) & (tz > 1e-4) & (tz < DIST)
+        rest = ~occ
+        occ[rest] = _hits(oo[rest], dd[rest], T[near])
         ao = 1.0 - occ.reshape(len(o), RAYS).mean(1)
         px = pts[inside].astype(int)
         ok = (px[:, 0] >= 0) & (px[:, 0] < size) & (px[:, 1] >= 0) & (px[:, 1] < size)
