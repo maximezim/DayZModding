@@ -27,20 +27,30 @@ function Test-DzWindows {
 
 function Get-DzRepoRoot { return $script:RepoRoot }
 
-# Real path: full path with every existing junction / symlink segment replaced by its target (security audit L5:
-# a relative path, '..' or the P:\<Mod> junction must not hide a key inside the repository).
+# Real path: full path with every existing junction / symlink segment replaced by its target, link chains
+# followed, 8.3 short names expanded (security audit L5, re-review L: a relative path, '..', DAYZMO~1, the
+# P:\<Mod> junction or a junction to a junction must not hide a key inside the repository).
 function Resolve-DzRealPath {
     param([Parameter(Mandatory)][string]$Path)
     $full = [System.IO.Path]::GetFullPath($Path)
     $parts = $full.TrimEnd('\').Split('\')
     $cur = $parts[0] + '\'
     for ($i = 1; $i -lt $parts.Count; $i++) {
-        $cur = [System.IO.Path]::Combine($cur, $parts[$i])
-        $item = Get-Item -LiteralPath $cur -Force -ErrorAction SilentlyContinue
-        if ($item -and $item.LinkType -and $item.Target) {
+        $seg = $parts[$i]
+        if ($seg.Contains('~')) {
+            # FindFirstFile matches short names: the listing returns the long one
+            $long = Get-ChildItem -LiteralPath $cur -Filter $seg -Force -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($long) { $seg = $long.Name }
+        }
+        $cur = [System.IO.Path]::Combine($cur, $seg)
+        for ($hop = 0; $hop -lt 32; $hop++) {
+            $item = Get-Item -LiteralPath $cur -Force -ErrorAction SilentlyContinue
+            if (-not ($item -and $item.LinkType -and $item.Target)) { break }
             $target = @($item.Target)[0]
             if (-not [System.IO.Path]::IsPathRooted($target)) { $target = [System.IO.Path]::Combine((Split-Path $cur -Parent), $target) }
-            $cur = [System.IO.Path]::GetFullPath($target)
+            $next = [System.IO.Path]::GetFullPath($target)
+            if ($next -eq $cur) { break }
+            $cur = $next
         }
     }
     return $cur

@@ -228,6 +228,8 @@ class SKY_CityLife
 	//! One infected of a staggered group (perf H2: no 6-AI hitch in one frame).
 	protected void SpawnOne(Land_SKY_SirenTower anchor, vector zp)
 	{
+		if (s_Instance != this)						// stopped: a queued call left over (re-review perf L)
+			return;
 		if (m_Pending > 0)
 			m_Pending--;
 		Object obj = g_Game.CreateObjectEx(m_Infected.GetRandomElement(), zp, ECE_PLACE_ON_SURFACE | ECE_INITAI | ECE_EQUIP_ATTACHMENTS);

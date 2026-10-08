@@ -85,6 +85,8 @@ class SKY_LightDirector
 
 	static void Unregister(SKY_LitBuilding b)
 	{
+		if (!s_All)								// statics torn down first at script unload (re-review L)
+			return;
 		int i = s_All.Find(b);
 		if (i >= 0)
 			s_All.Remove(i);
@@ -109,6 +111,7 @@ class SKY_LightDirector
 			if (b)
 				b.SkySetLit(false);
 		}
+		s_All.Clear();							// re-review perf L: no O(n) Find per destructor at mission end
 	}
 
 	static void Tick()
@@ -137,18 +140,28 @@ class SKY_LightDirector
 			}
 			else if (d < on2)
 			{
-				int at = s_CandD.Count();					// tiny sorted insert, nearest first
+				int at = s_CandD.Count();					// sorted insert, nearest first, bounded (re-review perf M)
 				while (at > 0 && s_CandD[at - 1] > d)
 					at--;
+				if (at >= SKY_Const.LIGHTS_MAX_BUILDINGS)
+					continue;
 				s_Cand.InsertAt(b, at);
 				s_CandD.InsertAt(d, at);
+				if (s_Cand.Count() > SKY_Const.LIGHTS_MAX_BUILDINGS)
+				{
+					s_Cand.Remove(s_Cand.Count() - 1);
+					s_CandD.Remove(s_CandD.Count() - 1);
+				}
 			}
 		}
-		for (int k = 0; k < s_Cand.Count() && lit < SKY_Const.LIGHTS_MAX_BUILDINGS; k++)
+		int made = 0;									// spread a first tick / teleport over several ticks
+		for (int k = 0; k < s_Cand.Count() && lit < SKY_Const.LIGHTS_MAX_BUILDINGS && made < SKY_Const.LIGHTS_CREATE_PER_TICK; k++)
 		{
 			s_Cand[k].SkySetLit(true);
 			lit++;
+			made++;
 		}
+		s_Cand.Clear();									// no stale references between ticks
 	}
 }
 
@@ -157,6 +170,7 @@ class SKY_LitBuilding extends House
 	protected ref array<ScriptedLightBase> m_SkyLights;
 	protected bool m_SkyLightsDone;
 	protected bool m_SkyRegistered;
+	protected static ref array<string> s_SkyPts = new array<string>();
 
 	protected void SkyRegister()
 	{
@@ -229,8 +243,10 @@ class SKY_LitBuilding extends House
 		if (m_SkyLightsDone || !SKY_Const.LIGHTS_ENABLED || g_Game.IsDedicatedServer())
 			return;
 		m_SkyLightsDone = true;
-		m_SkyLights = new array<ScriptedLightBase>();
-		array<string> pts = new array<string>();
+		if (!m_SkyLights)
+			m_SkyLights = new array<ScriptedLightBase>();
+		array<string> pts = s_SkyPts;					// reused (re-review perf L); filled per class order
+		pts.Clear();
 		SkyLightPoints(pts);
 		int n = SkyLightCount();
 		if (n > pts.Count())

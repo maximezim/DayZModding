@@ -788,6 +788,18 @@ collision and looks.
 | SL-03 | In ruined buildings, walk along rubble next to furniture and walls | No gap you get stuck in; rubble fillers collide and look like debris | | |
 | SL-04 | Look at bus stops, ad columns and phone booths in daylight (P55) | Soft contact shadow at the base and in corners; no black patches | | |
 
+## 52. Full quality review fixes (D88)
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| RV-01 | At night, walk and drive through the dense centre, then out to the edge (P56) | The nearest lit buildings (up to 24) within ~150 m have lights; lights go out past ~180 m; no flicker when standing on the edge; client FPS no worse than with D80 lights | | |
+| RV-02 | Stand in a sewer during rain with two clients, one joined late (P57) | Water level and its rise / fall look the same on both clients and match the server's damage; no snap after the first second | | |
+| RV-03 | Approach the hospital, courtyard blocks and tall towers from 400 m to 30 m (P58) | No popping, holes or missing roofs at the Res 1.5 switch; glass stays opaque far away | | |
+| RV-04 | Try to place a kennel at a doorway, then 3 m away; with a dog guarding it, try to take items out of a bag inside it (P59) | Doorway: "Too close to a door", the server refuses too; 3 m: allowed; nested items stay locked while guarded | | |
+| RV-05 | Search many furniture spots in one hour; drop-search next to a wall (P60) | After 3 rare items in an hour only common items; found items never land inside a wall or behind glass | | |
+| RV-06 | Ride the elevator of the tallest tower to every stop | The car reaches every stop; the level syncs to a client that joins mid-ride | | |
+| RV-07 | Trigger the alarm alone, then with 4+ players nearby (P61) | Alone: a small horde arriving over a few seconds, no hitch; more players: larger, still capped | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -844,4 +856,31 @@ collision and looks.
 | Wave 3 / tall towers §23 | | | |
 | Ambiance / vegetation §24 | | | |
 | Content pass §25 | | | |
+| City life: venues, roads, search, alcohol, hordes, alarm §26 | | | |
+| Creatures: guard kennel, rat nests §27 | | | |
+| Underground and terrain §28 | | | |
+| Vehicles §29 | | | |
+| Refinement: search tables, ambience §30 | | | |
+| Asset quality: street props, underground signage §31 | | | |
+| Variety: street props, underground variants §32 | | | |
+| Ambience and search: metro, stadium, mall §33 | | | |
+| Venue variants §34 | | | |
+| Asset quality: stand, fair booth, kennel §35 | | | |
+| Civic search spots §36 | | | |
+| Ruin exits and search UX §37 | | | |
+| Street kit close-up pass §38 | | | |
+| Street kit pass 2 and jam variants §39 | | | |
+| Street surface pass §40 | | | |
+| Interior props close-up §41 | | | |
+| Texture depth §42 | | | |
+| Street kit pass 3 §43 | | | |
+| Concealment fixes §44 | | | |
+| Facade textures §45 | | | |
+| City concealment and ruin fixes §46 | | | |
+| Slits and ruin cuts §47 | | | |
+| Grime macro and furnished rooms §48 | | | |
+| Public rooms, grime offsets, baked AO §49 | | | |
+| Venue rooms and baked AO props §50 | | | |
+| Shop windows, lived-in facades, wedge slots §51 | | | |
+| Full quality review fixes §52 | | | |
 | FPS protocol (`FPS_PROTOCOL.md` §4 thresholds) | | | |

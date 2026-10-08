@@ -16,8 +16,7 @@ class Land_SKY_Sewer_Base extends House
 {
 	void Land_SKY_Sewer_Base()
 	{
-		if (g_Game.IsServer())
-			SKY_Underground.Register(this);
+		SKY_Underground.Register(this);		// both sides: the client fallback animates its own copy (re-review H)
 		SKY_Ambience.Register(this, "SKY_Drips_SoundSet", 25.0, Vector(0, SKY_Under.WALKWAY + SKY_Under.EAR, 0), SKY_Ambience.UNDER_DY);	// client only (D65; floor D68)
 	}
 

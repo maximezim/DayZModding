@@ -45,6 +45,7 @@ class SKY_Const
 	static const int LIGHTS_MAX_BUILDINGS = 24;		//!< lit buildings at once (x LIGHTS_PER_MODULE / hyper 4 lights)
 	static const int LIGHTS_MAX_REGISTERED = 4096;	//!< registry bound (a whole terrain city)
 	static const int LIGHTS_TICK_MS = 1000;
+	static const int LIGHTS_CREATE_PER_TICK = 6;	//!< buildings lit per tick at most (no hitch on spawn / teleport)
 	//! Lights in the double-height lobby.
 	static const int LIGHTS_LOBBY = 4;
 }
@@ -148,6 +149,7 @@ class SKY_Beasts
 	static const int MAX_KENNELS = 1024;			//!< all kennels (placed or carried); see M1 in reviews/d62_gates.md
 	static const int KENNEL_STORE_VERSION = 1;
 	static const float KENNEL_DOOR_CLEAR = 2.5;		//!< no kennel placed this close to a building door (full audit M2)
+	static const float KENNEL_BASE_CLEAR = 4.0;		//!< ...nor this close to a player-built wall / gate origin (a fence is ~4 m wide)
 	static const float KENNEL_DOOR_SCAN = 40.0;		//!< object query radius (large buildings: origin far from doors)
 
 	// ---- rats - P22

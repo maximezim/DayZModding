@@ -22,9 +22,11 @@ class SKY_Kennel extends DeployableContainer_Base
 	protected int m_SkyLastSeen;		//!< server: SKY_Time.NowUtc() when the owner was last online (persisted)
 	protected int m_SkyNextBark;		//!< server: earliest next bark (ms)
 	protected bool m_SkyGuarding;		//!< synced
+	static int s_SkyCount;				//!< kennels in this process (re-review perf L: ItemBase checks skip when 0)
 
 	void SKY_Kennel()
 	{
+		s_SkyCount++;
 		m_HalfExtents = Vector(0.55, 0.5, 0.95);
 		RegisterNetSyncVariableBool("m_SkyGuarding");
 		if (g_Game.IsServer())
@@ -33,6 +35,7 @@ class SKY_Kennel extends DeployableContainer_Base
 
 	void ~SKY_Kennel()
 	{
+		s_SkyCount--;
 		SKY_CreatureLife.UnregisterKennel(this);
 	}
 
@@ -58,29 +61,44 @@ class SKY_Kennel extends DeployableContainer_Base
 	override string CanBePlacedFailMessage(Man player, vector position)
 	{
 		if (SkyNearDoor(position))
-			return "Too close to a door";
+			return "Too close to a door or gate";
 		return super.CanBePlacedFailMessage(player, position);
 	}
 
 	protected vector m_SkyDoorPos = "0 -10000 0";	//!< last door check (the hologram asks every frame)
 	protected bool m_SkyDoorNear;
+	protected int m_SkyDoorAt;						//!< g_Game.GetTime() of the last scan
+	protected ref array<Object> m_SkyDoorObjs;
 
+	//! Server: exact (cached only for the same spot). Client hologram (re-review perf M): at most one scan per
+	//! 250 ms while the hologram moves less than 0.5 m - the hint may lag a frame, the server re-checks.
 	protected bool SkyNearDoor(vector position)
 	{
-		if (vector.DistanceSq(position, m_SkyDoorPos) < 0.01)
+		float d2 = vector.DistanceSq(position, m_SkyDoorPos);
+		int now = g_Game.GetTime();
+		if (d2 < 0.01 || (!g_Game.IsServer() && d2 < 0.25 && now - m_SkyDoorAt < 250))
 			return m_SkyDoorNear;
 		m_SkyDoorPos = position;
+		m_SkyDoorAt = now;
 		m_SkyDoorNear = SkyScanDoors(position);
 		return m_SkyDoorNear;
 	}
 
 	protected bool SkyScanDoors(vector position)
 	{
-		array<Object> objs = new array<Object>();
+		if (!m_SkyDoorObjs)
+			m_SkyDoorObjs = new array<Object>();
+		array<Object> objs = m_SkyDoorObjs;
+		objs.Clear();
 		g_Game.GetObjectsAtPosition(position, SKY_Beasts.KENNEL_DOOR_SCAN, objs, null);
 		float r2 = SKY_Beasts.KENNEL_DOOR_CLEAR * SKY_Beasts.KENNEL_DOOR_CLEAR;
+		float base2 = SKY_Beasts.KENNEL_BASE_CLEAR * SKY_Beasts.KENNEL_BASE_CLEAR;
 		foreach (Object o : objs)
 		{
+			// re-review sec M: player-built walls / gates (Fence, watchtower: basebuildingbase.c:2) are not
+			// Buildings - a guarded kennel must not seal someone's base gate either
+			if (BaseBuildingBase.Cast(o) && vector.DistanceSq(o.GetPosition(), position) < base2)
+				return true;
 			Building b = Building.Cast(o);
 			if (!b)
 				continue;
@@ -253,6 +271,8 @@ modded class ItemBase
 {
 	bool SkyInGuardedKennel()
 	{
+		if (SKY_Kennel.s_SkyCount <= 0)		// no kennel loaded: inventory checks cost one compare
+			return false;
 		SKY_Kennel k = SKY_Kennel.Cast(GetHierarchyRoot());
 		return k && k != this && k.SkyIsGuarding();
 	}
