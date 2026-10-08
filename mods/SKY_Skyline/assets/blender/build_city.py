@@ -2314,8 +2314,8 @@ def bell_tower(L, P):
         for a0, a1 in ((-1.4, -0.2), (0.2, 1.4)):                               # twin belfry openings
             pts = ([(a0, c, zb0), (a1, c, zb0), (a1, c, zb1), (a0, c, zb1)] if axis == "x" else
                    [(c, ty0 + 2.2 + a0, zb0), (c, ty0 + 2.2 + a1, zb0), (c, ty0 + 2.2 + a1, zb1), (c, ty0 + 2.2 + a0, zb1)])
-            L["res0"].quad(pts, nrm, "glassfar", UV_GLASS)
-            L["res1"].quad(pts, nrm, "glassfar", UV_GLASS)
+            L["res0"].quad(pts, nrm, "glassfar", UV_GLASS, double=True)          # D91: opaque both ways
+            L["res1"].quad(pts, nrm, "glassfar", UV_GLASS, double=True)
     clock(L, 0.0, ty0 - 0.06, zt - 6.0, 0.8)
     green = UVBand(S.MATERIALS["rust"]["bands"]["green"], 1.0)
     s = tx - 0.1
@@ -2346,7 +2346,7 @@ def sawtooth(L, P, par):
             for k in ("res0", "res1"):                                          # north glazing
                 L[k].quad([(xa + 0.15, yb + 0.01, top + 0.25), (xb - 0.15, yb + 0.01, top + 0.25),
                            (xb - 0.15, yb + 0.01, top + 2.2), (xa + 0.15, yb + 0.01, top + 2.2)], (0, 1, 0),
-                          "glass" if P.state == 0 else "glassfar", UV_GLASS)
+                          "glass" if P.state == 0 else "glassfar", UV_GLASS, double=True)   # D91: opaque both ways
         L["res3"].extrude_x(prof, P.ix0, P.ix1, mat="rust", uv=zuv)
 
 

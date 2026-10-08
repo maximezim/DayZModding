@@ -26,8 +26,8 @@ from skygeo import build_object, optional_arma_toolbox  # noqa: E402
 
 def place(name, x, y, cache, cut_front=None):
     lods = C.BUILDERS[name]()
-    res0 = [l for l in lods if l.name == LOD_NAME] or [l for l in lods if l.name == "res0"]
-    res0 = res0[0]
+    chain = {"res1y": ("res1y", "res1x", "res1"), "res1x": ("res1x", "res1")}.get(LOD_NAME, (LOD_NAME,)) + ("res0",)
+    res0 = next(l for n_ in chain for l in lods if l.name == n_)          # missing far LOD: the next nearer one
     seen, keep = set(), []
     for f in res0.faces:
         k = frozenset(tuple(round(c, 4) for c in res0.verts[i]) for i in f[0])

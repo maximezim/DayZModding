@@ -203,6 +203,9 @@ def test_class(name, fresh_loot):
     fresh_loot.update(C.LOOT_OUT)
     for k in NEED:
         check(k in lods and lods[k].verts, "%s: missing LOD %s" % (name, k))
+    from test_kit import wedge_voxel                                            # D91: next to sloped parts (stairs, cars)
+    for (g, r, b, fz) in wedge_voxel(lods["geo"], floors=[z for (_u, _f, z) in P.levels] + [P.top]):
+        check(False, "%s geo: wedge slot over %.2f m next to non-box %s %s (floor %.1f)" % (name, r, g, b, fz))
     facade_cover(lods, P, name)
     opening_cover(lods, P, name)
     far_see_through(lods, P, name)
@@ -215,6 +218,8 @@ def test_class(name, fresh_loot):
                     and min(lod.verts[i][2] for i in idx) < P.top              # belfry / cupola: above the roof, unreachable
                     and not backed(lod, [lod.verts[i] for i in idx]))          # painted on a solid wall (projection window)
         check(n_bad == 0, "%s %s: %d opaque glassfar / glassvoid faces in outer openings" % (name, k, n_bad))
+        one = one_sided_panes(lod)                                            # D91: at any height (roof glazing too)
+        check(not one, "%s %s: one-sided opaque glassfar panes at %s" % (name, k, one[:4]))
     geo = lods["geo"]
     check(geo.mass > 0 and geo.props.get("autocenter") == "0", "%s: Geometry mass / autocenter" % name)
     for k in ("geo", "view", "fire"):
@@ -306,6 +311,39 @@ def in_opening(pts, P):
         if max(v) - min(v) < 0.01 and abs(v[0] - c) < 0.4:
             return True
     return False
+
+
+def one_sided_panes(lod, zmax=None, min_area=0.05):
+    """D91: vertical opaque glassfar faces of at least `min_area` (a head) with nothing behind them - no wall within
+    5 cm (painted on), no coplanar twin (double-sided pane) and no opposite glassfar face within 0.5 m (a closed dark
+    block, e.g. cupola windows): one-way glass. Returns their centres."""
+    out = []
+    for idx, m, _u in lod.faces:
+        if m != "glassfar":
+            continue
+        pts = [lod.verts[i] for i in idx]
+        flat = [j for j in range(2) if max(p[j] for p in pts) - min(p[j] for p in pts) < 0.01]
+        if not flat or C._area(pts) < min_area or (zmax is not None and min(p[2] for p in pts) >= zmax):
+            continue
+        if backed(lod, pts):
+            continue
+        a = flat[0]
+        c = sum(p[a] for p in pts) / len(pts)
+        cen = [sum(p[j] for p in pts) / len(pts) for j in range(3)]
+        o = [j for j in range(3) if j != a]
+        twin = False
+        for idx2, _m2, _u2 in lod.faces:
+            if set(idx2) == set(idx):
+                continue
+            q = [lod.verts[i] for i in idx2]
+            v = [p[a] for p in q]
+            if max(v) - min(v) < 0.01 and (abs(v[0] - c) < 0.005 or (_m2 == "glassfar" and abs(v[0] - c) < 0.5)) and all(
+                    min(p[j] for p in q) <= cen[j] <= max(p[j] for p in q) for j in o):
+                twin = True
+                break
+        if not twin:
+            out.append(tuple(round(v, 2) for v in cen))
+    return out
 
 
 def backed(lod, pts):
