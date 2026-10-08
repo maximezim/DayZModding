@@ -3151,7 +3151,7 @@ def furnish_venue(L, P, l, r, kind, z, top, zones):
             if yy < y1 - 2.6:
                 DT.wall_art(Lz, x0, yy, 1.7, 1.0, 1.5, "+x", cell)
                 DT.wall_art(Lz, x1, yy, 1.7, 1.0, 1.5, "-x", ("art_d", "art_c", "art_b", "art_a")[i])
-        if var == 1 and clear(zones, (cx - 1.6, cx + 1.6, cy - 0.45, cy + 0.45)):
+        if var == 1 and clear(zones, (cx - 1.6, cx + 1.6, cy - 0.65, cy + 0.45)):    # incl. the control decks (sec L)
             # D86: two arcade cabinets back to back (collide + View like a wardrobe), screens as thin render
             for (ax0, ax1) in ((cx - 1.5, cx - 0.8), (cx + 0.8, cx + 1.5)):
                 piece(L, (ax0, ax1, cy - 0.4, cy + 0.4, z, z + 1.8), "paint", DT.paint_uv("slate"), pen="wood", view=True)
@@ -3449,8 +3449,8 @@ def mall_unit(L, P, l, r, kind, z, top, zones, lit):
                 DT.bench(lifted(L, z), cx - 0.7, cx + 0.7, cy - 0.22, cy + 0.22)
         elif var == 2:
             # phone shop: a service counter on the side wall, a display table with handsets
-            sc = (x1 - 0.7, x1 - 0.1, y0 + 0.6, min(y1 - 0.6, y0 + 2.6))
-            if sc[3] - sc[2] > 1.0 and clear(zones, sc):
+            sc = (x1 - 0.6, x1, y0 + 0.6, min(y1 - 0.6, y0 + 2.6))              # flush to the wall: no wedge gap
+            if sc[3] - sc[2] > 1.0 and clear(zones, (sc[0] - 0.6, sc[1], sc[2] - 0.6, sc[3] + 0.6)):   # margin off the shutter (sec L)
                 kitchen_run(L, *sc, z)
             if clear(zones, tb):
                 table(L, *tb, z, h=0.9)

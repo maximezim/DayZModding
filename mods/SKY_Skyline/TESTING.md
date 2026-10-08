@@ -772,6 +772,13 @@ collision and looks.
 | PR-02 | Look at a block of same-material buildings from 50-150 m (P54) | The soot pattern differs between neighbouring buildings | | |
 | PR-03 | Look closely at a vending machine indoors and outdoors (P55) | Soft contact shadow at the base and in the recesses; no black or noisy patches; RPT clean | | |
 
+## 50. Venue rooms and baked AO props (D86)
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| VR-01 | Visit both bars, both cinema foyers and 10 mall shops | Pool table / darts / stage, ropes / arcade / standee, clothes / shoe / phone shops vary; behind-bar and costume-rail searches work; nothing blocks a door or shutter | | |
+| VR-02 | Look closely at a reception desk, kitchenette, server rack and locker bank (P55) | Soft contact shadows in recesses and at the base; no black or noisy patches; RPT clean | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -808,6 +815,7 @@ collision and looks.
 | Slits and ruin cuts §47 | | | |
 | Grime macro / rooms §48 | | | |
 | Public rooms / baked AO §49 | | | |
+| Venue rooms / AO props §50 | | | |
 | Placement §9 | | | |
 | Roof drop §10 | | | |
 | Clean logs §11 | | | |

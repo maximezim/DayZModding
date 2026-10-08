@@ -271,6 +271,12 @@ def test_class(name, fresh_loot):
         else:
             near = any((i + di, j + dj) in seen for di in (-2, -1, 0, 1, 2) for dj in (-2, -1, 0, 1, 2))
         check(near, "%s: search point %s (%g, %g, %g) is not reachable" % (name, g, x, y, z))
+        # D86 (sec review): the spot itself must not stand inside furniture - the reach test above accepts a free
+        # cell up to 2 cells away, so a spot buried in a counter or cabinet passed
+        inside = [b for _g, b in comp_boxes(lods["geo"]) if b[0] + 0.05 < x < b[1] - 0.05 and b[2] + 0.05 < y < b[3] - 0.05
+                  and b[4] < z + 1.0 and b[5] > z + 0.1]
+        check(not inside, "%s: search point %s (%g, %g, %g) is inside a collision box %s" % (
+            name, g, x, y, z, tuple(round(v, 2) for v in inside[0]) if inside else ()))
     tiny = (P.ix1 - P.ix0) * (P.iy1 - P.iy0) < 30.0
     check(len(C.LOOT_OUT.get(e["cls"], [])) >= 1 or (state == 2 and tiny), "%s: no loot points" % name)
 
