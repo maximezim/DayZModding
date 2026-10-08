@@ -42,7 +42,8 @@ Rules that do not change (CLAUDE.md):
 | **D82** gates + texture depth 3 | concealment gate on all 191 city buildings and modules (ruin cut fix, furniture collision), slit gate (D74 ray-grid item), limestone / concpanel / brick trim maps | built-unverified |
 | **D83** city slits + ruin cuts | the 14 ADVISORY city slit findings triaged (projection artefacts; depth-checked slit gate, city findings blocking), ruin cut gate (P53), brick-trim soldier and sill relief | built-unverified |
 | **D84** grime macro + interiors | grime macro on the wall materials (B3 -> P54), seeded room layout variants (living / bedroom / kitchen / office) with new furniture; per-prop baked AO deferred to the Blender bake path | built-unverified |
-| **D85** next cloud batch | venue / public-building interior variants (clinic, school, police), per-building facade macro offsets, a Blender AO bake for a unique-UV hero prop as a pilot | planned |
+| **D85** public rooms + AO pilot | exam / classroom / ward variants, per-building grime offsets, AO baked on a second UV set (VendingMachine pilot, P55) | built-unverified |
+| **D86** next cloud batch | baked AO for the other hero props once P55 holds (reception desk, kitchenette, server rack, lockers), venue room variants (bar, cinema foyer, mall shops) | planned |
 | **T2** terrain | survey a site or build the custom terrain (Terrain Builder import of `terrain/out`, P11), open the metro hatches | planned (after T1) |
 | **T3** perf | FPS protocol, server perf probe (B11), merged furniture if needed (D43) | planned (after T1) |
 
@@ -114,10 +115,10 @@ P14 alarm noise reach, P15 horde caps, P16 drunk thresholds, P17 search cooldown
 P18 wet hydrant = vanilla well behaviour on a spawned object, P19 jam density (are vehicles really blocked?),
 P20 siren sound config (range, loudness). All are in the PENDING_VERIFICATION.md table with their fix.
 
-## Status (after D84)
+## Status (after D85)
 
-Every phase from D61 to D84 is built and passes the offline gates (`reviews/d61_gates.md` ...
-`reviews/d84_gates.md`). Nothing has run in DayZ: no TESTING sign-off row is filled and every `P`
-parameter (P1-P54) is still an assumption. About 60 % of a releasable v1.0 (PROGRESS_REPORT "Status at a
+Every phase from D61 to D85 is built and passes the offline gates (`reviews/d61_gates.md` ...
+`reviews/d85_gates.md`). Nothing has run in DayZ: no TESTING sign-off row is filled and every `P`
+parameter (P1-P55) is still an assumption. About 60 % of a releasable v1.0 (PROGRESS_REPORT "Status at a
 glance"). The next step that unblocks the most is **T1**, the first test session on the Windows machine.
-Further content (D85+) is worth less until T1 shows what reads and runs in game.
+Further content (D86+) is worth less until T1 shows what reads and runs in game.

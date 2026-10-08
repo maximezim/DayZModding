@@ -73,6 +73,8 @@ def unwrap(lod, size=512, skip=("glass", "glassfar")):
         if ok:
             break
         scale *= 0.93
+    else:
+        raise RuntimeError("aobake.unwrap: %d charts do not fit a %d px sheet" % (len(real), size))
     uv1 = [None] * len(lod.faces)
     for c in real:
         fi, q, ext = c

@@ -1,6 +1,6 @@
 # SKY_Skyline progress report
 
-## Status at a glance (after D84, 2026-10-07)
+## Status at a glance (after D85, 2026-10-08)
 
 **Overall: about 61 % of a releasable v1.0.** About 92 % of the content is authored and every offline gate
 passes. But nothing has been packed, signed or run in DayZ yet. In-game verification is 0 % and carries the
@@ -8,15 +8,15 @@ most weight of what remains.
 
 | Area | Weight | Done | Why |
 |---|---|---|---|
-| Design and spec (23 ideas, city catalog, decisions D1-D84) | 10 % | 100 % | every idea has a design or a documented block |
+| Design and spec (23 ideas, city catalog, decisions D1-D85) | 10 % | 100 % | every idea has a design or a documented block |
 | Content authored (models, scripts, configs, economy, layouts) | 30 % | 92 % | 21 of 23 ideas built; horses and drivable vehicles blocked on Workbench skills; the underground needs a custom terrain |
 | Offline quality gates (tests, budgets, generators, script xref, reviews) | 10 % | 100 % | test_city 191, test_kit 279 (with hull and wiring checks), check_assets 289 / 0 over, layout 0 failed, texture references 76 / 0 missing, concealment gate over kit + city 0 open findings, slit gate PASS (depth-checked, city blocking), ruin cut gate PASS, perf + security reviews on every batch |
-| Asset quality to ASSET_QUALITY_GUIDE section 8 | 15 % | 73 % | street kit (three passes), street surfaces, car parks and hulks, the interior room kit, venues and underground passed close-up passes; wood, fabric, paver, concrete, brick, stucco, panel, limestone and trim maps have real depth (D77, D80, D82, D83 soldier course and sill); grime macro on the wall materials (D84); rooms vary per flat (D84); no baked AO on hero props yet (needs unique UVs) |
+| Asset quality to ASSET_QUALITY_GUIDE section 8 | 15 % | 75 % | street kit (three passes), street surfaces, car parks and hulks, the interior room kit, venues and underground passed close-up passes; wood, fabric, paver, concrete, brick, stucco, panel, limestone and trim maps have real depth (D77, D80, D82, D83 soldier course and sill); grime macro on the wall materials (D84); rooms vary per flat and in clinics / schools / hospitals (D84, D85); grime differs per building; baked AO piloted on one prop (D85, second UV set) |
 | Pack, sign, PAA on Windows (full mod) | 10 % | 10 % | toolchain verified with the empty template only (SETUP_REPORT); the 18 SKY packages were never packed |
-| In-game verification (TESTING sign-off, P-parameters) | 20 % | 0 % | 0 of 50 sign-off rows, 0 of 54 `P` assumptions, `CITY_TESTED` empty |
+| In-game verification (TESTING sign-off, P-parameters) | 20 % | 0 % | 0 of 51 sign-off rows, 0 of 55 `P` assumptions, `CITY_TESTED` empty |
 | Release prep (real site / terrain, FPS numbers, server-owner docs) | 5 % | 20 % | layouts and terrain generator ready; no surveyed site, no Terrain Builder import, no FPS run, no perf probe |
 
-Weighted: 10 + 27.6 + 10 + 10.95 + 1 + 0 + 1 = **60.6 %**.
+Weighted: 10 + 27.6 + 10 + 11.25 + 1 + 0 + 1 = **60.9 %**.
 
 ### Built (offline-verified, `built-unverified`)
 - **City**: 35 building types and 60 variants, 156 procedural models in 3 ruin states, plus 15 venue
@@ -436,3 +436,11 @@ patches) stretched over 24-32 m, so the small texture repeat no longer shows fro
 longer all furnished the same way: living rooms can have a sofa, TV and bookcase or a dining table, bedrooms twin
 beds or a bookcase and chest, kitchens a galley with a fridge, offices shared desks with a filing cabinet. Baked
 shadows on individual props wait for a texture-bake setup. Reviews: `reviews/d84_gates.md`.
+
+## 36. Public rooms, varied grime, first baked shadows (D85)
+
+Exam rooms, classrooms and hospital wards now come in several layouts (treatment or procedure rooms, science or
+reading rooms, wards with drip stands and curtains), and the clinic medicine cabinet always stays reachable. The
+grime layer is shifted per building, so a street of brick blocks no longer repeats the same soot. The vending machine
+is the first prop with its own baked shadow map (soft contact shadows in its recesses and at its base), made by a new
+pure-Python baker; if it works in game (P55) the other hero props follow. Reviews: `reviews/d85_gates.md`.

@@ -764,6 +764,14 @@ collision and looks.
 | GM-02 | Walk through 5 apartment blocks and 2 office buildings | Living rooms, bedrooms, kitchens and offices vary between flats; sofas, beds, tables and cabinets collide; no piece blocks a door or traps you behind a fridge or bookcase | | |
 | GM-03 | Try to hide your head in a sofa back, TV, bookcase, fridge or filing cabinet | Collision stops you or the part is too thin to hide in | | |
 
+## 49. Public rooms, grime offsets, baked AO (D85)
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| PR-01 | Walk through clinics, the hospital and schools: exam rooms, wards, classrooms | Treatment / procedure rooms, science / reading rooms and ward details vary; the medicine cabinet search spot is always reachable; nothing blocks a door | | |
+| PR-02 | Look at a block of same-material buildings from 50-150 m (P54) | The soot pattern differs between neighbouring buildings | | |
+| PR-03 | Look closely at a vending machine indoors and outdoors (P55) | Soft contact shadow at the base and in the recesses; no black or noisy patches; RPT clean | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -799,6 +807,7 @@ collision and looks.
 | City concealment / ruins §46 | | | |
 | Slits and ruin cuts §47 | | | |
 | Grime macro / rooms §48 | | | |
+| Public rooms / baked AO §49 | | | |
 | Placement §9 | | | |
 | Roof drop §10 | | | |
 | Clean logs §11 | | | |

@@ -1624,6 +1624,8 @@ def furnish(L, P, l, r, kind, z, top):
             for gx in (x0 + 2.0, cx, x1 - 2.0):
                 L["res0"].hquad(gx - 0.3, gx + 0.3, cy - 0.6, cy + 0.6, top - 0.025, mat="lamp_cool", up=False)
     elif kind == "exam":
+        # D85: the medicine shelving and its search spot stay reachable whatever variant is drawn (sec review M)
+        zones = zones + [(x1 - 1.1, x1, y0, y0 + 1.5)]
         if var == 1 and w > 2.6 and d > 2.6:
             # D85 treatment room: couch on the far wall, doctor's desk + chair, a thin folding screen
             if clear(zones, (cx - 1.0, cx + 1.0, y1 - 0.8, y1)):
@@ -1634,16 +1636,17 @@ def furnish(L, P, l, r, kind, z, top):
             sx = min(x1 - 0.3, cx + 1.2)
             for j in range(3):
                 yy = y1 - 0.9 - j * 0.55
-                L["res0"].box(sx - 0.015, sx + 0.015, yy - 0.5, yy, z, z + 1.7, mat="fabric", uv=UV_FAB["blue"])
-        elif var == 2 and w > 2.6 and d > 2.9:                       # clear of the medicine shelving
+                if clear(zones, (sx - 0.015, sx + 0.015, yy - 0.5, yy)):            # not across a door or the shelving
+                    L["res0"].box(sx - 0.015, sx + 0.015, yy - 0.5, yy, z, z + 1.7, mat="fabric", uv=UV_FAB["blue"])
+        elif var == 2 and w > 3.2 and d > 2.9:                       # clear of the medicine shelving (sec review M)
             # D85 procedure room: reclining treatment chair (collides) and an instrument trolley (collides)
             if clear(zones, (cx - 0.4, cx + 0.4, cy - 0.9, cy + 0.9)):
                 piece(L, (cx - 0.35, cx + 0.35, cy - 0.9, cy + 0.9, z, z + 0.55), "fabric", UV_FAB["blue"], pen="wood")
                 L["res0"].box(cx - 0.35, cx + 0.35, cy + 0.72, cy + 0.9, z + 0.55, z + 1.05, mat="fabric", uv=UV_FAB["blue"])
                 L["res0"].box(cx - 0.03, cx + 0.03, cy - 0.03, cy + 0.03, z + 0.55, z + 1.9, mat="metal", uv=DT.UV_STEEL)  # lamp arm
                 L["res0"].prism(cx, cy - 0.2, 0.16, z + 1.9, z + 1.98, n=10, mat="metal", uv=DT.UV_PAINT)
-            if clear(zones, (cx + 0.7, cx + 1.2, cy - 0.3, cy + 0.3)):
-                piece(L, (cx + 0.7, cx + 1.2, cy - 0.3, cy + 0.3, z, z + 0.9), "metal", DT.UV_STEEL, pen="metal")
+            if clear(zones, (cx - 1.2, cx - 0.7, cy - 0.3, cy + 0.3)):              # trolley on the side away from the shelving
+                piece(L, (cx - 1.2, cx - 0.7, cy - 0.3, cy + 0.3, z, z + 0.9), "metal", DT.UV_STEEL, pen="metal")
         elif clear(zones, (x0 + 0.1, x0 + 0.85, cy - 1.0, cy + 1.0)):
             bed(L, x0 + 0.1, x0 + 0.85, cy - 1.0, cy + 1.0, z, fabric="grey")
         cabs = P.__dict__.setdefault("sky_cabinets", set())                       # D71: one cabinet per floor (security L)
@@ -1732,7 +1735,7 @@ def furnish(L, P, l, r, kind, z, top):
                         if h01(P.name, l, "curtain", i) < 0.5:                       # curtain half drawn on the rail
                             cy0 = by0 if sgn > 0 else by1 - 1.0
                             L["res0"].box(bx - 0.11, bx - 0.09, cy0, cy0 + 1.0, z + 0.3, top - 0.36, mat="fabric", uv=UV_FAB["beige"])
-        elif var == 1 and d > 4.0:
+        elif var == 1 and d > 4.0 and w > 4.0:                                      # no corner pockets (sec review M)
             # D85 science room: two long benches along the side walls and a teacher's bench at the front (3 parts)
             for (a, b) in ((x0 + 0.05, x0 + 0.75), (x1 - 0.75, x1 - 0.05)):
                 box = (a, b, min(far + sgn * 0.8, far + sgn * (d - 1.6)), max(far + sgn * 0.8, far + sgn * (d - 1.6)))

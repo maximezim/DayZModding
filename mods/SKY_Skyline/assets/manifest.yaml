@@ -144,7 +144,7 @@ textures:
   - {name: sky_wall_limestone, maps: [co, nohq, as(512)], size: 2048, use: tileable limestone ashlar wall (3 m sheet), status: built-unverified}
   - {name: sky_wall_render_cream|ochre|grey|white, maps: [co, shared sky_wall_render_nohq(1024)], size: 2048, use: tileable stucco walls in the 4 city colours (4 m sheet), status: built-unverified}
   - {name: sky_grime, maps: [mc(1024)], size: 1024, use: shared grime macro (soot, rain runs, damp, lime wash) on Stage3 of the world-scale wall rvmats, tiled 1/8 (D84, B3 / P54), status: built-unverified}
-  - {name: sky_vend, maps: [as(512)], size: 512, use: baked AO of the VendingMachine on its unique UV set 1 (aobake.py, Stage4 uvSource tex1; D85 pilot / P55), status: built-unverified}
+  - {name: sky_vend, maps: [as(256)], size: 256, use: baked AO of the VendingMachine on its unique UV set 1 (aobake.py, Stage4 uvSource tex1; D85 pilot / P55), status: built-unverified}
   - {name: sky_hq_facade, maps: [co, nohq(2048), smdi(1024)], size: 4096, use: "HQ facade atlas (D60) - brushed bronze / ribbed bronze spandrel / flamed granite / bronze louvre bands, 6 m sheet; the only 4K texture", status: built-unverified}
 
   - {name: sky_signs4, maps: [co], size: 1024, use: "venue variant signs (D69): universam, kino Oktyabr, TC Galaktika, pivnaya, FC Torpedo (+3 spare bands)", status: built-unverified}

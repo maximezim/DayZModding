@@ -1901,8 +1901,8 @@ GENERATORS = {
     "marble": marble, "parquet": parquet, "paint": paint, "stone": stone, "textile": textile,
     "render": render, "rubble": rubble, "signs": signs, "grime": grime, "vegetation": vegetation,
     "wall_brick": wall_brick, "wall_panel": wall_panel, "wall_limestone": wall_limestone, "wall_render": wall_render,
-    "grime_macro": lambda s, o: grime_macro(min(s, 1024), o),
-    "ao_props": ao_props,                                                      # D85 pilot: baked AO on UV set 1                 # D84 (B3): shared _mc for wall materials
+    "grime_macro": lambda s, o: grime_macro(min(s, 1024), o),                 # D84 (B3): shared _mc for wall materials
+    "ao_props": ao_props,                                                      # D85 pilot: baked AO on UV set 1
     "hq_facade": hq_facade, "signs2": signs2, "fair": fair, "trash": trash, "turf": turf,
     "fur": lambda s, o: fur(min(s, 1024), o),                                  # D65 creatures
     "signs3": signs3,                                                          # D66 underground signs
