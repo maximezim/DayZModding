@@ -1666,6 +1666,25 @@ def grime_macro(size, out):
     save(Image.fromarray((np.clip(img, 0, 1) * 255).astype(np.uint8), "RGBA"), out, "sky_grime_mc")
 
 
+def ao_props(size, out):
+    """D85 pilot: bake AO for the props in skyspec.AO_PROPS onto their unique UV set 1 (assets/blender/aobake.py,
+    the same unwrap build_props writes). Softened to 0.4..1 like the other _as maps (recesses never go black)."""
+    import sys
+    here = os.path.dirname(os.path.abspath(__file__))
+    sys.path.insert(0, os.path.join(here, ".."))
+    sys.path.insert(0, os.path.join(here, "..", "blender"))
+    import aobake
+    import build_props
+    import skyspec as S
+    for name, spec in S.AO_PROPS.items():
+        lods = {l.name: l for l in build_props.BUILDERS[name]()}
+        r0 = lods["res0"]
+        n = min(size, spec["size"])
+        ao = aobake.bake(r0, aobake.unwrap(r0, spec["size"]), spec["size"])
+        img = Image.fromarray(np.clip((0.4 + 0.6 * ao) * 255, 0, 255).astype(np.uint8), "L").convert("RGB")
+        (img.resize((n, n), Image.BILINEAR) if n < spec["size"] else img).save(os.path.join(out, "sky_%s_as.png" % spec["tag"]))
+
+
 def wall_render(size, out):
     """Stucco in the 4 Chernarus colours, 4 m sheet, tileable: float texture, hairline cracks,
     plaster loss showing brick, grime, streaks and moss (one sheet per colour)."""
@@ -1882,7 +1901,8 @@ GENERATORS = {
     "marble": marble, "parquet": parquet, "paint": paint, "stone": stone, "textile": textile,
     "render": render, "rubble": rubble, "signs": signs, "grime": grime, "vegetation": vegetation,
     "wall_brick": wall_brick, "wall_panel": wall_panel, "wall_limestone": wall_limestone, "wall_render": wall_render,
-    "grime_macro": lambda s, o: grime_macro(min(s, 1024), o),                 # D84 (B3): shared _mc for wall materials
+    "grime_macro": lambda s, o: grime_macro(min(s, 1024), o),
+    "ao_props": ao_props,                                                      # D85 pilot: baked AO on UV set 1                 # D84 (B3): shared _mc for wall materials
     "hq_facade": hq_facade, "signs2": signs2, "fair": fair, "trash": trash, "turf": turf,
     "fur": lambda s, o: fur(min(s, 1024), o),                                  # D65 creatures
     "signs3": signs3,                                                          # D66 underground signs

@@ -15,7 +15,8 @@ Layout per LOD (Arma Toolbox conventions, kept identical):
   normals    -n per face corner                 (flat faces)
   faces      n, n x (vertex, vertex-as-normal, u, 1-v), triangle padding, flags 0, texture, rvmat
   'TAGG'     named selections (vertex bytes, face bytes), #SharpEdges# (every edge: flat shading),
-             #Mass# (Geometry), #Property# (64 + 64 chars), #UVSet# 0, #EndOfFile#
+             #Mass# (Geometry), #Property# (64 + 64 chars), #UVSet# 0 (+ #UVSet# 1 when lod.uv1 is set, D85),
+             #EndOfFile#
   resolution (float)
 """
 import math
@@ -66,11 +67,12 @@ def _tagg(name, payload):
     return b"\x01" + _cstr(name) + struct.pack("<I", len(payload)) + payload
 
 
-def _faces(lod):
-    """Faces as Blender's bmesh would keep them: drop degenerate faces (a repeated vertex)."""
-    out = []
+def _faces(lod, with_index=False):
+    """Faces as Blender's bmesh would keep them: drop degenerate faces (a repeated vertex).
+    with_index: also return each kept face's index in lod.faces (UV set 1 is stored per original face)."""
+    out, orig = [], []
     seen = set()
-    for idx, mat, uv in lod.faces:
+    for fi, (idx, mat, uv) in enumerate(lod.faces):
         if len(set(idx)) != len(idx):
             continue
         key = frozenset(idx)
@@ -78,17 +80,19 @@ def _faces(lod):
             continue
         seen.add(key)
         out.append((idx, mat, uv))
-    return out
+        orig.append(fi)
+    return (out, orig) if with_index else out
 
 
 def lod_bytes(lod, materials):
-    faces = _faces(lod)
+    faces, orig = _faces(lod, True)
     mat_keys = []
     for _idx, mat, _uv in faces:
         if mat and mat not in mat_keys:
             mat_keys.append(mat)
     # faces grouped by material slot, stable (Arma Toolbox optimize_export_lod: fewer sections)
-    faces.sort(key=lambda f: mat_keys.index(f[1]) if f[1] else 0)
+    order = sorted(range(len(faces)), key=lambda i: mat_keys.index(faces[i][1]) if faces[i][1] else 0)
+    faces, orig = [faces[i] for i in order], [orig[i] for i in order]
     nverts = len(lod.verts)
     ncorners = sum(len(f[0]) for f in faces)
     b = bytearray()
@@ -143,6 +147,13 @@ def lod_bytes(lod, materials):
         for (u, v) in (uv if uv else [(0.0, 0.0)] * len(idx)):
             uvp += struct.pack("<ff", u, 1.0 - _f32(v))
     b += _tagg("#UVSet#", bytes(uvp))
+    uv1 = getattr(lod, "uv1", None)
+    if uv1:                                   # D85: second UV set (baked AO, Stage4 uvSource "tex1")
+        uvq = bytearray(struct.pack("<I", 1))
+        for (idx, _m, _uv), fi in zip(faces, orig):
+            for (u, v) in (uv1[fi] if uv1[fi] else [(0.0, 0.0)] * len(idx)):
+                uvq += struct.pack("<ff", u, 1.0 - _f32(v))
+        b += _tagg("#UVSet#", bytes(uvq))
     b += b"\x01" + _cstr("#EndOfFile#") + struct.pack("<I", 0)
     b += struct.pack("<f", abs(key))
     return bytes(b)

@@ -1213,6 +1213,19 @@ MATERIALS.update({
 for _c in ("cream", "ochre", "grey", "white"):
     MATERIALS["wall_render_" + _c] = {"rvmat": rvmat("sky_wall_render_" + _c), "co": tex("sky_wall_render_%s_co" % _c),
                                       "sheet_m": 4.0}
+# D85: two macro-offset variants per wall material (same textures, the Stage3 grime macro shifted), so neighbouring
+# buildings do not show the same soot pattern; build_city picks one per building (P54)
+MACRO_WALLS = ["wall_brick", "wall_panel", "wall_limestone"] + ["wall_render_" + _c for _c in ("cream", "ochre", "grey", "white")]
+MACRO_OFFSETS = {1: (0.37, 0.61), 2: (0.71, 0.23)}
+for _m in MACRO_WALLS:
+    for _k in MACRO_OFFSETS:
+        MATERIALS["%s_m%d" % (_m, _k)] = dict(MATERIALS[_m], rvmat=rvmat("sky_%s_m%d" % (_m, _k)))
+# D85 pilot: baked AO on a unique second UV set (aobake.py). tag names the map (sky_<tag>_as) and the rvmat
+# variants (sky_<mat>_<tag>) of the listed Res0 materials; the bake ignores see-through faces.
+AO_PROPS = {"VendingMachine": {"tag": "vend", "size": 512, "mats": ("metal", "rust")}}
+for _n, _a in AO_PROPS.items():
+    for _m in _a["mats"]:
+        MATERIALS["%s_%s" % (_m, _a["tag"])] = dict(MATERIALS[_m], rvmat=rvmat("sky_%s_%s" % (_m, _a["tag"])))
 CITY_SKINS["brick"]["wall"] = "wall_brick"
 CITY_SKINS["panel"]["wall"] = "wall_panel"
 CITY_SKINS["stone"]["wall"] = "wall_limestone"

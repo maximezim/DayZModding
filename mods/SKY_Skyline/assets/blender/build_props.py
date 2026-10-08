@@ -455,6 +455,24 @@ BUILDERS = {
 }
 
 
+# D85 pilot: props with a baked AO map on UV set 1 (aobake.py). Their Res0 opaque materials switch to rvmat variants
+# that read <tag>_as on Stage4 with uvSource "tex1" (skyspec.AO_PROPS, gen_configs, gen_textures ao_props; P55).
+def _with_ao(name, fn):
+    def build():
+        lods = fn()
+        spec = S.AO_PROPS[name]
+        import aobake
+        r0 = [l for l in lods if l.name == "res0"][0]
+        r0.uv1 = aobake.unwrap(r0, spec["size"])
+        r0.faces = [(i, ("%s_%s" % (m, spec["tag"])) if m in spec["mats"] else m, uv) for (i, m, uv) in r0.faces]
+        return lods
+    return build
+
+
+for _n in S.AO_PROPS:
+    BUILDERS[_n] = _with_ao(_n, BUILDERS[_n])
+
+
 def modules():
     return {n: (BUILDERS[n], e["pbo"], e["p3d"]) for n, e in S.KIT.items() if n in BUILDERS}
 

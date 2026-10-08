@@ -432,11 +432,11 @@
   "view": 1200
  },
  "sky_city_clinic_damaged.p3d": {
-  "fire": 2568,
-  "geo": 1212,
+  "fire": 2664,
+  "geo": 1308,
   "mem": 0,
-  "res0": 11226,
-  "res1": 3986,
+  "res0": 11698,
+  "res1": 4068,
   "res2": 524,
   "res3": 10,
   "road": 16,
@@ -444,11 +444,11 @@
   "view": 1640
  },
  "sky_city_clinic_intact.p3d": {
-  "fire": 2508,
-  "geo": 1212,
+  "fire": 2592,
+  "geo": 1296,
   "mem": 0,
-  "res0": 9900,
-  "res1": 3448,
+  "res0": 10588,
+  "res1": 3526,
   "res2": 160,
   "res3": 10,
   "road": 16,
@@ -456,11 +456,11 @@
   "view": 1640
  },
  "sky_city_clinic_ruined.p3d": {
-  "fire": 2260,
-  "geo": 1468,
+  "fire": 2368,
+  "geo": 1576,
   "mem": 0,
-  "res0": 7234,
-  "res1": 3602,
+  "res0": 7858,
+  "res1": 3698,
   "res2": 328,
   "res3": 38,
   "road": 64,
@@ -900,11 +900,11 @@
   "view": 932
  },
  "sky_city_hospital_damaged.p3d": {
-  "fire": 11944,
-  "geo": 6184,
+  "fire": 12052,
+  "geo": 6292,
   "mem": 0,
-  "res0": 56158,
-  "res1": 19134,
+  "res0": 60682,
+  "res1": 19230,
   "res2": 1812,
   "res3": 10,
   "road": 58,
@@ -912,11 +912,11 @@
   "view": 6728
  },
  "sky_city_hospital_intact.p3d": {
-  "fire": 11752,
-  "geo": 6184,
+  "fire": 11848,
+  "geo": 6280,
   "mem": 0,
-  "res0": 51148,
-  "res1": 16436,
+  "res0": 55896,
+  "res1": 16532,
   "res2": 328,
   "res3": 10,
   "road": 58,
@@ -924,11 +924,11 @@
   "view": 6728
  },
  "sky_city_hospital_ruined.p3d": {
-  "fire": 11192,
-  "geo": 6476,
+  "fire": 11288,
+  "geo": 6572,
   "mem": 0,
-  "res0": 41438,
-  "res1": 17832,
+  "res0": 45574,
+  "res1": 17928,
   "res2": 544,
   "res3": 38,
   "road": 106,
@@ -1548,40 +1548,40 @@
   "view": 464
  },
  "sky_city_school_damaged.p3d": {
-  "fire": 4984,
-  "geo": 2500,
+  "fire": 4948,
+  "geo": 2464,
   "mem": 0,
-  "res0": 19602,
-  "res1": 7744,
+  "res0": 21166,
+  "res1": 7634,
   "res2": 692,
   "res3": 10,
   "road": 30,
   "shadow": 216,
-  "view": 2792
+  "view": 3008
  },
  "sky_city_school_intact.p3d": {
-  "fire": 4852,
-  "geo": 2500,
+  "fire": 4840,
+  "geo": 2488,
   "mem": 0,
-  "res0": 17522,
-  "res1": 6766,
+  "res0": 19672,
+  "res1": 6688,
   "res2": 216,
   "res3": 10,
   "road": 30,
   "shadow": 216,
-  "view": 2792
+  "view": 3056
  },
  "sky_city_school_ruined.p3d": {
-  "fire": 4820,
-  "geo": 2876,
+  "fire": 4832,
+  "geo": 2816,
   "mem": 0,
-  "res0": 15188,
-  "res1": 7434,
+  "res0": 16720,
+  "res1": 7396,
   "res2": 384,
   "res3": 38,
   "road": 78,
   "shadow": 276,
-  "view": 3024
+  "view": 3240
  },
  "sky_city_shed_damaged.p3d": {
   "fire": 360,

@@ -31,11 +31,12 @@ UVT = ("\tclass uvTransform\n\t{\n\t\taside[] = {1, 0, 0};\n\t\tup[] = {0, 1, 0}
        "\t\tdir[] = {0, 0, 1};\n\t\tpos[] = {0, 0, 0};\n\t};\n")
 
 
-def stage(n, texture, uv_source="tex", extra="", scale=1.0):
+def stage(n, texture, uv_source="tex", extra="", scale=1.0, pos=(0.0, 0.0)):
     body = '\ttexture = "%s";\n\tuvSource = "%s";\n' % (texture, uv_source)
-    if uv_source == "tex":
-        body += UVT if scale == 1.0 else UVT.replace("aside[] = {1, 0, 0}", "aside[] = {%g, 0, 0}" % scale).replace(
+    if uv_source in ("tex", "tex1"):
+        t = UVT if scale == 1.0 else UVT.replace("aside[] = {1, 0, 0}", "aside[] = {%g, 0, 0}" % scale).replace(
             "up[] = {0, 1, 0}", "up[] = {0, %g, 0}" % scale)
+        body += t if pos == (0.0, 0.0) else t.replace("pos[] = {0, 0, 0}", "pos[] = {%g, %g, 0}" % pos)
     return "class Stage%d\n{\n%s%s};\n" % (n, body, extra)
 
 
@@ -78,7 +79,7 @@ PROC_SMDI = {"sky_wall_brick": (0.08, 0.15), "sky_wall_panel": (0.1, 0.2), "sky_
              "sky_wall_render_white": (0.05, 0.1), "sky_decal_grime": (0.02, 0.05), "sky_vegetation": (0.08, 0.15), "sky_render": (0.05, 0.1), "sky_signs": (0.3, 0.4), "sky_signs2": (0.3, 0.4), "sky_fair": (0.25, 0.3), "sky_trash": (0.1, 0.2), "sky_turf": (0.02, 0.05), "sky_fur": (0.03, 0.08), "sky_signs3": (0.3, 0.4), "sky_signs4": (0.3, 0.4), "sky_paint": (0.06, 0.12), "sky_textile": (0.02, 0.05), "sky_ceiling": (0.05, 0.1), "sky_brick": (0.08, 0.15), "sky_concpanel": (0.1, 0.2), "sky_fabric": (0.03, 0.1)}
 
 
-def rvmat_super(base, spec_power=40, emissive=(0, 0, 0)):
+def rvmat_super(base, spec_power=40, emissive=(0, 0, 0), macro_pos=(0.0, 0.0), ao_map=None):
     """Standard 'Super' shader layout (Stage1 nohq, 2 detail, 3 macro, 4 as,
     5 smdi, 6 fresnel, 7 env). Detail/macro are neutral procedurals."""
     d = S.PREFIX_TEX + "\\data\\" + base
@@ -100,10 +101,10 @@ def rvmat_super(base, spec_power=40, emissive=(0, 0, 0)):
     out += stage(1, pick("nohq"))
     out += stage(2, "#(argb,8,8,3)color(0.5,0.5,0.5,1,DT)")
     if base in MACRO:
-        out += stage(3, S.PREFIX_TEX + "\\data\\sky_grime_mc.paa", scale=MACRO_SCALE)
+        out += stage(3, S.PREFIX_TEX + "\\data\\sky_grime_mc.paa", scale=MACRO_SCALE, pos=macro_pos)
     else:
         out += stage(3, "#(argb,8,8,3)color(0,0,0,0,MC)")
-    out += stage(4, pick("as"))
+    out += stage(4, pick("as")) if not ao_map else stage(4, ao_map, "tex1")   # D85: baked AO on UV set 1
     out += stage(5, pick("smdi"))
     out += stage(6, "#(ai,64,64,1)fresnel(1.5,0.8)", "none")
     # Env map path follows the vanilla convention; confirmed by Check-SkyAssets.ps1 on P:.
@@ -697,6 +698,13 @@ class CfgModels
         if name in ALPHA_TEST:
             text = text.replace('PixelShaderID', 'renderFlags[] = {"AlphaTest32"};\nPixelShaderID', 1)
         files["sky_textures/data/%s.rvmat" % name] = text
+        for pn, a in S.AO_PROPS.items():                                        # D85: per-prop baked AO variants
+            if name in ("sky_" + m for m in a["mats"]):
+                files["sky_textures/data/%s_%s.rvmat" % (name, a["tag"])] = rvmat_super(
+                    base, power, ao_map=S.PREFIX_TEX + "\\data\\sky_%s_as.paa" % a["tag"])
+        if base in MACRO:                                                       # D85: per-building macro offsets
+            for k, off in S.MACRO_OFFSETS.items():
+                files["sky_textures/data/%s_m%d.rvmat" % (name, k)] = rvmat_super(base, power, macro_pos=off)
     files["sky_textures/data/sky_lamp.rvmat"] = rvmat_flat(S.EMISSIVE_LAMP)
     files["sky_textures/data/sky_lamp_cool.rvmat"] = rvmat_flat(S.EMISSIVE_LAMP_COOL)
     files["sky_textures/data/sky_windows_lit.rvmat"] = rvmat_super("sky_windows", 60, tuple(S.EMISSIVE_WINDOW))

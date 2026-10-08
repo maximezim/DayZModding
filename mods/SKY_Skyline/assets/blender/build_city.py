@@ -1624,7 +1624,27 @@ def furnish(L, P, l, r, kind, z, top):
             for gx in (x0 + 2.0, cx, x1 - 2.0):
                 L["res0"].hquad(gx - 0.3, gx + 0.3, cy - 0.6, cy + 0.6, top - 0.025, mat="lamp_cool", up=False)
     elif kind == "exam":
-        if clear(zones, (x0 + 0.1, x0 + 0.85, cy - 1.0, cy + 1.0)):
+        if var == 1 and w > 2.6 and d > 2.6:
+            # D85 treatment room: couch on the far wall, doctor's desk + chair, a thin folding screen
+            if clear(zones, (cx - 1.0, cx + 1.0, y1 - 0.8, y1)):
+                bed(L, cx - 1.0, cx + 1.0, y1 - 0.75, y1 - 0.05, z, fabric="grey")
+            if clear(zones, (x0 + 0.05, x0 + 0.75, cy - 0.6, cy + 0.6)):
+                table(L, x0 + 0.05, x0 + 0.75, cy - 0.6, cy + 0.6, z)
+                chair(L, x0 + 1.0, cy, z, "-x")
+            sx = min(x1 - 0.3, cx + 1.2)
+            for j in range(3):
+                yy = y1 - 0.9 - j * 0.55
+                L["res0"].box(sx - 0.015, sx + 0.015, yy - 0.5, yy, z, z + 1.7, mat="fabric", uv=UV_FAB["blue"])
+        elif var == 2 and w > 2.6 and d > 2.9:                       # clear of the medicine shelving
+            # D85 procedure room: reclining treatment chair (collides) and an instrument trolley (collides)
+            if clear(zones, (cx - 0.4, cx + 0.4, cy - 0.9, cy + 0.9)):
+                piece(L, (cx - 0.35, cx + 0.35, cy - 0.9, cy + 0.9, z, z + 0.55), "fabric", UV_FAB["blue"], pen="wood")
+                L["res0"].box(cx - 0.35, cx + 0.35, cy + 0.72, cy + 0.9, z + 0.55, z + 1.05, mat="fabric", uv=UV_FAB["blue"])
+                L["res0"].box(cx - 0.03, cx + 0.03, cy - 0.03, cy + 0.03, z + 0.55, z + 1.9, mat="metal", uv=DT.UV_STEEL)  # lamp arm
+                L["res0"].prism(cx, cy - 0.2, 0.16, z + 1.9, z + 1.98, n=10, mat="metal", uv=DT.UV_PAINT)
+            if clear(zones, (cx + 0.7, cx + 1.2, cy - 0.3, cy + 0.3)):
+                piece(L, (cx + 0.7, cx + 1.2, cy - 0.3, cy + 0.3, z, z + 0.9), "metal", DT.UV_STEEL, pen="metal")
+        elif clear(zones, (x0 + 0.1, x0 + 0.85, cy - 1.0, cy + 1.0)):
             bed(L, x0 + 0.1, x0 + 0.85, cy - 1.0, cy + 1.0, z, fabric="grey")
         cabs = P.__dict__.setdefault("sky_cabinets", set())                       # D71: one cabinet per floor (security L)
         if clear(zones, (x1 - 1.0, x1 - 0.1, y0 + 0.1, y0 + 0.55)):
@@ -1702,8 +1722,39 @@ def furnish(L, P, l, r, kind, z, top):
                 bx = x0 + 0.3 + i * (w - 0.6) / n + ((w - 0.6) / n - 0.9) / 2
                 by0, by1 = (far + 0.05, far + 2.05) if sgn > 0 else (far - 2.05, far - 0.05)
                 if clear(zones, (bx, bx + 0.9, by0, by1)):
-                    bed(L, bx, bx + 0.9, by0, by1, z, fabric="grey")
+                    bed(L, bx, bx + 0.9, by0, by1, z, fabric="grey" if var != 2 else "blue")
                     L["res0"].box(bx - 0.1, bx + 1.0, by0, by1, top - 0.35, top - 0.33, mat="metal", uv=DT.UV_STEEL)  # curtain rail
+                    if var >= 1:                                                     # D85 ward detail, render-only, thin
+                        ix = bx + 1.0
+                        iy = by1 - 0.2 if sgn > 0 else by0 + 0.2
+                        L["res0"].box(ix - 0.015, ix + 0.015, iy - 0.015, iy + 0.015, z, z + 1.8, mat="metal", uv=DT.UV_STEEL)  # IV stand
+                        L["res0"].box(ix - 0.06, ix + 0.06, iy - 0.02, iy + 0.02, z + 1.55, z + 1.75, mat="paint", uv=DT.paint_uv("white"))
+                        if h01(P.name, l, "curtain", i) < 0.5:                       # curtain half drawn on the rail
+                            cy0 = by0 if sgn > 0 else by1 - 1.0
+                            L["res0"].box(bx - 0.11, bx - 0.09, cy0, cy0 + 1.0, z + 0.3, top - 0.36, mat="fabric", uv=UV_FAB["beige"])
+        elif var == 1 and d > 4.0:
+            # D85 science room: two long benches along the side walls and a teacher's bench at the front (3 parts)
+            for (a, b) in ((x0 + 0.05, x0 + 0.75), (x1 - 0.75, x1 - 0.05)):
+                box = (a, b, min(far + sgn * 0.8, far + sgn * (d - 1.6)), max(far + sgn * 0.8, far + sgn * (d - 1.6)))
+                if clear(zones, box):
+                    kitchen_run(L, *box, z)
+            tb = (cx - 1.0, cx + 1.0, min(far + sgn * 0.2, far + sgn * 0.8), max(far + sgn * 0.2, far + sgn * 0.8))
+            if clear(zones, tb):
+                table(L, *tb, z, h=0.9)
+        elif var == 2 and w > 4.0:
+            # D85 reading room: bookcases on the far wall, one large table (<= 3 parts like the bench rows)
+            nb = min(2, int((w - 1.0) / 1.0))
+            for i in range(nb):
+                a = x0 + 0.5 + i * 1.0
+                by = (far + 0.02, far + 0.37) if sgn > 0 else (far - 0.37, far - 0.02)
+                if clear(zones, (a, a + 0.9, by[0], by[1])):
+                    bookshelf(L, a, a + 0.9, by[0], by[1], z, "+y" if sgn < 0 else "-y", key=(P.name, l, "lib", i))
+            tb = (cx - 1.2, cx + 1.2, cy - 0.5, cy + 0.5)
+            if clear(zones, tb):
+                table(L, *tb, z)
+                for (chx, chy, f) in ((cx - 0.6, cy - 0.75, "+y"), (cx + 0.6, cy - 0.75, "+y"), (cx - 0.6, cy + 0.75, "-y"),
+                                      (cx + 0.6, cy + 0.75, "-y")):
+                    chair(L, chx, chy, z, f, mat="wood", uv=UV_OAK)
         else:
             for row in range(3):                                                    # bench desk rows
                 ry = far + sgn * (1.0 + row * 1.4)
@@ -3747,7 +3798,21 @@ def build(arch, state):
     geo.props.update({"class": "house", "map": "building", "autocenter": "0"})
     geo.mass = 15000.0 + 6000.0 * len(P.levels)
     LOOT_OUT["Land_SKY_" + P.name] = loot_points(L, P)
+    macro_variant(L, P)
     return [v.lod for v in L.values()]
+
+
+def macro_variant(L, P):
+    """D85: move this building's wall faces onto one grime-macro offset variant (0 = base rvmat), picked per
+    archetype + variant so the three ruin states of one building keep the same soot pattern. Still one material
+    per wall type per model: no extra sections."""
+    k = int(h01(P.A.get("catalog", P.arch), P.arch, "macro") * (len(S.MACRO_OFFSETS) + 1))
+    if not k:
+        return
+    walls = set(S.MACRO_WALLS)
+    for v in L.values():
+        lod = v.lod
+        lod.faces = [(i, ("%s_m%d" % (m, k)) if m in walls else m, uv) for (i, m, uv) in lod.faces]
 
 
 def _builder(arch, state):
