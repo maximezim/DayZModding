@@ -2,7 +2,7 @@
 
 | Gate | Command | Result |
 |---|---|---|
-| One-way concealment, kit + city | `python assets/blender/test_conceal.py --city --jobs 3` | CONCEAL_RESULT |
+| One-way concealment, kit + city | `python assets/blender/test_conceal.py --city --jobs 3` | PASS (273 models, 85 min) |
 | Slits, kit + city | `python assets/blender/test_slits.py --city` | PASS (273; same two scoped acceptances; 34 views > 9 Mpx skipped) |
 | City geometry (wedge slots now on roofs too, run cutting, pinned self-test) | `python assets/blender/test_city.py` | PASS (191); self-test 7 cases (0.4 m found; flush / 0.8 m / filled not; thin post no longer hides a slot; short leftovers not; roof-level slot found); the new run cutting gave one ruin (RowhouseRender_Ruined) an extra rubble filler |
 | Kit geometry (+ wedge slots on every collidable kit asset) | `python assets/blender/test_kit.py` | first run: 1 FAILED (Landfill: 0.34 m x 7.4 m slot between mounds 1 and 2) -> mound moved 1 m, loot points follow; PASS (279) |
