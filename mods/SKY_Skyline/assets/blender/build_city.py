@@ -2290,7 +2290,8 @@ def landmark(L, P):
     for a in range(8):                                                          # cupola windows (dark)
         ang = 2 * math.pi * (a + 0.5) / 8
         px, py = cx + 1.82 * math.cos(ang), cy + 1.82 * math.sin(ang)
-        L["res0"].box(px - 0.2, px + 0.2, py - 0.2, py + 0.2, top + 1.0, top + 2.3, mat="glassfar", uv=UV_GLASS)
+        L["res0"].box(px - 0.2, px + 0.2, py - 0.2, py + 0.2, top + 1.0, top + 2.3, mat="glassfar", uv=UV_GLASS,
+                      skip=("-z", "+z"))                                  # caps sit inside the drum (D91: unseen)
 
 
 def bell_tower(L, P):
@@ -2346,7 +2347,8 @@ def sawtooth(L, P, par):
             for k in ("res0", "res1"):                                          # north glazing
                 L[k].quad([(xa + 0.15, yb + 0.01, top + 0.25), (xb - 0.15, yb + 0.01, top + 0.25),
                            (xb - 0.15, yb + 0.01, top + 2.2), (xa + 0.15, yb + 0.01, top + 2.2)], (0, 1, 0),
-                          "glass" if P.state == 0 else "glassfar", UV_GLASS, double=True)   # D91: opaque both ways
+                          "glass" if P.state == 0 else "glassfar", UV_GLASS,
+                          double=P.state > 0)                           # D91: the opaque glassfar both ways (alpha glass: one side)
         L["res3"].extrude_x(prof, P.ix0, P.ix1, mat="rust", uv=zuv)
 
 

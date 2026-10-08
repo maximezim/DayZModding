@@ -11,6 +11,7 @@ build_floors):
     curb height, footprints exactly the documented tile sizes
 Exit code 1 on failure.
 """
+import math
 import os
 import sys
 from collections import Counter
@@ -119,65 +120,98 @@ def _halfspaces(lod, g):
     return out
 
 
-def wedge_voxel(lod, cell=0.05, lo=0.15, hi=0.6, run=1.0, heights=(0.4, 0.9), margin=0.7, floors=(0.0,)):
+def _gap_mask(occ, cell, lo, hi):
+    """Free cells lying in a lo..hi wide gap between solid cells along axis 0 (vectorised)."""
+    import numpy as np
+    n = occ.shape[0]
+    idx = np.arange(n)[:, None] * np.ones((1, occ.shape[1]), int)
+    prv = np.maximum.accumulate(np.where(occ, idx, -1), axis=0)
+    nxt = np.minimum.accumulate(np.where(occ, idx, n)[::-1], axis=0)[::-1]
+    w = (nxt - prv - 1) * cell
+    return ~occ & (prv >= 0) & (nxt < n) & (w > lo) & (w < hi)
+
+
+def _longest_run(mask):
+    """Longest run of True along axis 0 or 1 (cells)."""
+    import numpy as np
+    best = 0
+    for m in (mask, mask.T):
+        cur = np.zeros(m.shape[1], int)
+        for row in m:
+            cur = np.where(row, cur + 1, 0)
+            best = max(best, int(cur.max(initial=0)))
+    return best
+
+
+def wedge_voxel(lod, cell=0.05, lo=0.15, hi=0.6, run=1.0, heights=(0.2, 0.4, 0.9, 1.6), margin=0.7, floors=(0.0,),
+                angles=(0.0, 22.5, 45.0, 67.5)):
     """D91: wedge slots next to the non-box (sloped / round) components the box test skips. Convex components are
     rasterised exactly on a `cell` grid round each one; a cell is a slot cell when, along x or y, it lies in a free gap
-    lo..hi wide between solid cells, at every body height; a slot is a run of such cells >= `run` along the gap."""
+    lo..hi wide between solid cells at two body heights at least 0.5 m apart (of prone 0.2, crouch 0.4, chest 0.9,
+    head 1.6: sides tall enough to hold a body - cinema legroom, 0.25-0.45 m deep, is stepped over); a slot is a run
+    of such cells >= `run` along the gap. The grid is laid at 0 / 22.5 / 45 / 67.5 degrees so diagonal gaps are
+    measured across, not along x / y (sec review H). Vectorised; regions without a neighbour skip (perf review)."""
     import numpy as np
-    comps = {g: _halfspaces(lod, g) for g in lod.groups if g.startswith("Component")}
     boxes = dict(comp_boxes(lod))
-    nonbox = [g for g in comps if boxes[g] not in comp_boxes_raw_set(lod)]
+    raw = set(comp_boxes_raw(lod))
+    nonbox = [g for g in boxes if boxes[g] not in raw]
+    if not nonbox:
+        return []
+    faces_of = {}
+    for idx, m, u in lod.faces:                                          # faces grouped by component, one pass
+        for g in boxes:
+            if idx[0] in lod.groups[g]:
+                faces_of.setdefault(g, []).append((idx, m, u))
+                break
+    hs = {}
+
+    def halfspaces(g):
+        if g not in hs:
+            tmp = type("L", (), {})()
+            tmp.verts, tmp.faces, tmp.groups = lod.verts, faces_of.get(g, []), lod.groups
+            hs[g] = _halfspaces(tmp, g)
+        return hs[g]
+
     found = []
     for g, fz in [(g, fz) for g in nonbox for fz in floors]:
         b = boxes[g]
-        hz = [fz + h for h in heights]                                   # body heights above this floor
+        hz = [fz + h for h in heights]
         if b[4] > max(hz) or b[5] < min(hz):
             continue
         x0, x1, y0, y1 = b[0] - margin, b[1] + margin, b[2] - margin, b[3] + margin
-        xs = np.arange(x0, x1, cell) + cell / 2
-        ys = np.arange(y0, y1, cell) + cell / 2
-        near = [h for h, bb in boxes.items() if bb[0] < x1 and bb[1] > x0 and bb[2] < y1 and bb[3] > y0]
-        slot = None
-        for z in hz:
-            X, Y = np.meshgrid(xs, ys, indexing="ij")
-            pts = np.stack([X.ravel(), Y.ravel(), np.full(X.size, z)], 1)
-            occ = np.zeros(len(pts), bool)
-            for h in near:
-                if not comps[h] or not (boxes[h][4] <= z <= boxes[h][5]):
-                    continue
-                ins = np.ones(len(pts), bool)
-                for n, d in comps[h]:
-                    ins &= pts @ n - d <= 1e-4
-                occ |= ins
-            occ = occ.reshape(X.shape)
-            m = np.zeros_like(occ)
-            for axis in (0, 1):
-                o = occ if axis == 0 else occ.T
-                mm = np.zeros_like(o)
-                for r in range(o.shape[1]):
-                    col = o[:, r]
-                    i = 0
-                    while i < len(col):
-                        if not col[i]:
-                            j = i
-                            while j < len(col) and not col[j]:
-                                j += 1
-                            w = (j - i) * cell
-                            if i > 0 and j < len(col) and lo < w < hi:
-                                mm[i:j, r] = True
-                            i = j
-                        else:
-                            i += 1
-                m |= mm if axis == 0 else mm.T
-            slot = m if slot is None else (slot & m)
+        near = [h for h, bb in boxes.items() if bb[0] < x1 and bb[1] > x0 and bb[2] < y1 and bb[3] > y0
+                and bb[4] <= max(hz) and bb[5] >= min(hz)]
+        if not [h for h in near if h != g]:
+            continue
+        cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+        R = 0.5 * math.hypot(x1 - x0, y1 - y0)                              # rotated grids cover the region's circle
+        us = np.arange(-R, R, cell) + cell / 2
+        U, V = np.meshgrid(us, us, indexing="ij")
         best = 0
-        for axis in (0, 1):                                              # longest run of slot cells along x or y
-            s = slot if axis == 0 else slot.T
-            for r in range(s.shape[0]):
-                k = 0
-                for v in s[r]:
-                    k = k + 1 if v else 0
-                    best = max(best, k)
+        for ang in angles:
+            ca, sa = math.cos(math.radians(ang)), math.sin(math.radians(ang))
+            pts = np.stack([cx + ca * U.ravel() - sa * V.ravel(), cy + sa * U.ravel() + ca * V.ravel(), np.zeros(U.size)], 1)
+            per = {}
+            for z in hz:
+                pts[:, 2] = z
+                occ = np.zeros(len(pts), bool)
+                for h in near:
+                    if not (boxes[h][4] <= z <= boxes[h][5]) or not halfspaces(h):
+                        continue
+                    ins = np.ones(len(pts), bool)
+                    for n, d in halfspaces(h):
+                        ins &= pts @ n - d <= 1e-4
+                    occ |= ins
+                if not occ.any():
+                    continue
+                occ = occ.reshape(U.shape)
+                per[z] = _gap_mask(occ, cell, lo, hi) | _gap_mask(occ.T, cell, lo, hi).T
+            for za in per:
+                for zb in per:
+                    if zb - za >= 0.5 - 1e-6:
+                        best = max(best, _longest_run(per[za] & per[zb]))
+            if best * cell >= run:
+                break
         if best * cell >= run:
             found.append((g, round(best * cell, 2), tuple(round(v, 2) for v in b), fz))
     return found
@@ -195,6 +229,14 @@ def voxel_selftest():
         L.prism(0.0, 0.3 + gap + (a if n == 6 else r), r, 0.0, 2.0, n=n)
         got = len(wedge_voxel(L))
         check(got == want, "voxel selftest: n=%d gap %.2f -> %d slots (want %d)" % (n, gap, got, want))
+    for gap, want in ((0.3, 1), (0.45, 1), (0.9, 0)):                       # two 45-degree square columns (sec review H)
+        L = Lod("geo", LOD_GEOMETRY)
+        r = 1.5
+        L.prism(0.0, 0.0, r, 0.0, 2.0, n=4)                                     # a diamond: edges at 45 degrees
+        k = (r * math.sqrt(2) + gap) / math.sqrt(2)
+        L.prism(k, k, r, 0.0, 2.0, n=4)
+        got = len(wedge_voxel(L))
+        check(got >= want and (want or got == 0), "voxel selftest: diagonal gap %.2f -> %d slots (want %d)" % (gap, got, want))
 
 
 def comp_boxes_raw_set(lod):
@@ -203,14 +245,30 @@ def comp_boxes_raw_set(lod):
 
 ACCEPTED_VOXEL = {}
 
-ACCEPTED_PANES = {
-    "ExtinguisherCabinet": "Res1 door glass of a wall cabinet 0.2 m deep: no room for a head behind it",
-}
+ACCEPTED_PANES = {}     # {(asset, centre): reason} - none left once Geometry is consulted (D91 sec review L)
 
 
-def one_sided_panes(lod):
+def geo_halfspaces(lod):
+    """Halfspaces of every Geometry component; None for a non-convex one (reported by convexity())."""
+    return [_halfspaces(lod, g) for g in lod.groups if g.startswith("Component")]
+
+
+def convexity(lod):
+    """D91 (sec review L): components must be convex (the engine requires it; the voxel test assumes it)."""
+    bad = []
+    for g in lod.groups:
+        if not g.startswith("Component"):
+            continue
+        h = _halfspaces(lod, g)
+        if any(any(lod.verts[i][0] * n[0] + lod.verts[i][1] * n[1] + lod.verts[i][2] * n[2] - d > 1e-3 for n, d in h)
+               for i in lod.groups[g]):
+            bad.append(g)
+    return bad
+
+
+def one_sided_panes(lod, geo=None):
     from test_city import one_sided_panes as osp
-    return osp(lod)
+    return osp(lod, geo_halfspaces(geo) if geo is not None else None)
 
 
 def comp_boxes_raw(lod):
@@ -605,14 +663,16 @@ def main():
             for sl in WEDGE(comp_boxes_raw(lods["geo"]), GROUND):
                 check(False, "%s geo: wedge slot %.2f m wide over %.2f m between %s and %s" % (n, sl[0], sl[1], sl[2], sl[3]))
             WEDGE_SKIPPED[0] += sum(1 for g in lods["geo"].groups if g.startswith("Component")) - len(comp_boxes_raw(lods["geo"]))
-            for (g, r, b, _fz) in wedge_voxel(lods["geo"]):                    # D91: next to sloped / round parts
+            for g in convexity(lods["geo"]):
+                check(False, "%s geo: %s is not convex" % (n, g))
+            decks = sorted({0.0} | {round(v[2], 1) for v in lods["road"].verts} if "road" in lods else {0.0})
+            for (g, r, b, _fz) in wedge_voxel(lods["geo"], floors=decks):     # D91: next to sloped / round parts
                 if (n, g) not in ACCEPTED_VOXEL:
                     check(False, "%s geo: wedge slot over %.2f m next to non-box %s %s" % (n, r, g, b))
         for k in ("res0", "res1"):                                      # D91: no one-way glass (test_city.one_sided_panes)
             if k in lods and not S.KIT[n].get("city"):
-                one = one_sided_panes(lods[k])
-                if one and n not in ACCEPTED_PANES:
-                    check(False, "%s %s: one-sided opaque glassfar panes at %s" % (n, k, one[:4]))
+                one = [c for c in one_sided_panes(lods[k], lods.get("geo")) if (n, c) not in ACCEPTED_PANES]
+                check(not one, "%s %s: one-sided opaque glassfar panes at %s" % (n, k, one[:4]))
         if S.KIT[n]["category"] in ("floor", "roof"):
             module_checks(n, lods)
         if n in getattr(S, "LANDMARK_SIZE", {}):                    # D61: Geometry inside the placement footprint

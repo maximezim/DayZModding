@@ -203,7 +203,9 @@ def test_class(name, fresh_loot):
     fresh_loot.update(C.LOOT_OUT)
     for k in NEED:
         check(k in lods and lods[k].verts, "%s: missing LOD %s" % (name, k))
-    from test_kit import wedge_voxel                                            # D91: next to sloped parts (stairs, cars)
+    from test_kit import wedge_voxel, geo_halfspaces                            # D91: next to sloped parts (stairs, cars)
+    global GEO_HS
+    GEO_HS = geo_halfspaces(lods["geo"])
     for (g, r, b, fz) in wedge_voxel(lods["geo"], floors=[z for (_u, _f, z) in P.levels] + [P.top]):
         check(False, "%s geo: wedge slot over %.2f m next to non-box %s %s (floor %.1f)" % (name, r, g, b, fz))
     facade_cover(lods, P, name)
@@ -218,7 +220,7 @@ def test_class(name, fresh_loot):
                     and min(lod.verts[i][2] for i in idx) < P.top              # belfry / cupola: above the roof, unreachable
                     and not backed(lod, [lod.verts[i] for i in idx]))          # painted on a solid wall (projection window)
         check(n_bad == 0, "%s %s: %d opaque glassfar / glassvoid faces in outer openings" % (name, k, n_bad))
-        one = one_sided_panes(lod)                                            # D91: at any height (roof glazing too)
+        one = one_sided_panes(lod, GEO_HS)                                    # D91: at any height (roof glazing too)
         check(not one, "%s %s: one-sided opaque glassfar panes at %s" % (name, k, one[:4]))
     geo = lods["geo"]
     check(geo.mass > 0 and geo.props.get("autocenter") == "0", "%s: Geometry mass / autocenter" % name)
@@ -313,37 +315,85 @@ def in_opening(pts, P):
     return False
 
 
-def one_sided_panes(lod, zmax=None, min_area=0.05):
-    """D91: vertical opaque glassfar faces of at least `min_area` (a head) with nothing behind them - no wall within
-    5 cm (painted on), no coplanar twin (double-sided pane) and no opposite glassfar face within 0.5 m (a closed dark
-    block, e.g. cupola windows): one-way glass. Returns their centres."""
-    out = []
-    for idx, m, _u in lod.faces:
-        if m != "glassfar":
+def _nrm(pts):
+    import numpy as np
+    p = np.asarray(pts, float)
+    n = sum(np.cross(p[k] - p[0], p[k + 1] - p[0]) for k in range(1, len(p) - 1))   # winding: the visible side
+    ln = np.linalg.norm(n)
+    return n / ln if ln > 1e-12 else n
+
+
+def _covers(q, pts, n, frac=0.9):
+    """Face q's projection on the plane of `pts` (normal n) covers at least `frac` of the pane's bounding box."""
+    import numpy as np
+    a = int(np.argmax(np.abs(n)))
+    o = [j for j in range(3) if j != a]
+    pa = [(min(p[j] for p in pts), max(p[j] for p in pts)) for j in o]
+    qa = [(min(p[j] for p in q), max(p[j] for p in q)) for j in o]
+    ov = 1.0
+    full = 1.0
+    for (p0, p1), (q0, q1) in zip(pa, qa):
+        ov *= max(0.0, min(p1, q1) - max(p0, q0))
+        full *= max(1e-9, p1 - p0)
+    return ov >= frac * full
+
+
+def one_sided_panes(lod, geo_halfspaces=None, min_area=0.05):
+    """D91 (rev. after the sec review): opaque glassfar faces of any orientation with nothing behind them - no opaque
+    wall within 5 cm, no opposite-facing glassfar twin covering it (coplanar double-sided pane, or the far side of a
+    closed dark block within 0.5 m) - and with room for a head on their see-through side (the point 0.25 m behind
+    the centre is not inside Geometry). Coplanar small faces are merged before `min_area` (a head). Returns centres."""
+    import numpy as np
+    cand = {}
+    gl = [(idx, [lod.verts[i] for i in idx]) for idx, m, _u in lod.faces if m == "glassfar"]
+    for idx, pts in gl:
+        n = _nrm(pts)
+        if not n.any() or backed_any(lod, pts, n):
             continue
-        pts = [lod.verts[i] for i in idx]
-        flat = [j for j in range(2) if max(p[j] for p in pts) - min(p[j] for p in pts) < 0.01]
-        if not flat or C._area(pts) < min_area or (zmax is not None and min(p[2] for p in pts) >= zmax):
-            continue
-        if backed(lod, pts):
-            continue
-        a = flat[0]
-        c = sum(p[a] for p in pts) / len(pts)
-        cen = [sum(p[j] for p in pts) / len(pts) for j in range(3)]
-        o = [j for j in range(3) if j != a]
+        c = np.mean(np.asarray(pts, float), 0)
+        d = float(n @ c)
         twin = False
-        for idx2, _m2, _u2 in lod.faces:
+        for idx2, q in gl:
             if set(idx2) == set(idx):
                 continue
-            q = [lod.verts[i] for i in idx2]
-            v = [p[a] for p in q]
-            if max(v) - min(v) < 0.01 and (abs(v[0] - c) < 0.005 or (_m2 == "glassfar" and abs(v[0] - c) < 0.5)) and all(
-                    min(p[j] for p in q) <= cen[j] <= max(p[j] for p in q) for j in o):
+            n2 = _nrm(q)
+            if n2 @ n > -0.99:
+                continue                                         # must face the other way
+            dist = d - float(n @ np.asarray(q[0], float))        # > 0: behind the pane
+            if -0.005 < dist < 0.5 and _covers(q, pts, n):
                 twin = True
                 break
-        if not twin:
-            out.append(tuple(round(v, 2) for v in cen))
-    return out
+        if twin:
+            continue
+        back = c - 0.25 * n
+        if geo_halfspaces and any(all(back @ hn - hd <= 1e-4 for hn, hd in h) for h in geo_halfspaces if h):
+            continue                                             # nobody can be on the see-through side
+        key = (tuple(np.round(n, 2)), round(d, 2))
+        cand.setdefault(key, []).append((C._area(pts), tuple(round(v, 2) for v in c)))
+    return [faces[0][1] for faces in cand.values() if sum(a for a, _c in faces) >= min_area]
+
+
+def backed_any(lod, pts, n):
+    """An opaque face parallel to the pane within 5 cm behind it covers >= 90 % of it (painted on a wall)."""
+    import numpy as np
+    c = np.mean(np.asarray(pts, float), 0)
+    for idx, m, _u in lod.faces:
+        if m in SEE_THROUGH or m in ("glassfar", "glassvoid"):
+            continue
+        q = [lod.verts[i] for i in idx]
+        n2 = _nrm(q)
+        if abs(abs(n2 @ n) - 1) > 0.01:
+            continue
+        dist = float(n @ c) - float(n @ np.asarray(q[0], float))
+        if 0.0 < dist < 0.05 and _covers(q, pts, n, frac=0.9):           # covers the pane, not just its centre
+            return True
+    return False
+
+
+def _inside_proj(q, c, n):
+    import numpy as np
+    a = int(np.argmax(np.abs(n)))
+    return all(min(p[j] for p in q) - 1e-6 <= c[j] <= max(p[j] for p in q) + 1e-6 for j in range(3) if j != a)
 
 
 def backed(lod, pts):
@@ -379,6 +429,8 @@ def opening_cover(lods, P, name):
                 miss += 1
         check(miss == 0, "%s %s: %d window panes of Res1 missing" % (name, k, miss))
 
+
+GEO_HS = None
 
 SEE_THROUGH = {"glass", "foliage", "vegetation", "decal_dirt", "decal_cracks", "decal_graffiti", "decal_grime",
                "roadmark", "windows", "windows_lit", "lamp", "lamp_cool", "fair_ca"}   # glassfar is opaque (D90)
@@ -457,6 +509,40 @@ def facade_cover(lods, P, name):
                 check(got >= 0.8 * ref, "%s %s: facade %s=%.1f keeps %.0f of %.0f m2" % (name, k, "xy"[axis], c, got, ref))
 
 
+def pane_selftest():
+    """D91 (sec review H/M): pinned cases for one_sided_panes."""
+    from skygeo import Lod, LOD_RES, LOD_GEOMETRY
+    from test_kit import geo_halfspaces
+    Q = [(0, 0, 0), (1, 0, 0), (1, 0, 1), (0, 0, 1)]                            # 1 m2 pane in y = 0, visible from -y
+    def run(build, geo=None):
+        L = Lod("r", LOD_RES, 0)
+        build(L)
+        return len(one_sided_panes(L, geo_halfspaces(geo) if geo else None))
+    check(run(lambda L: L.quad(Q, (0, -1, 0), mat="glassfar")) == 1, "pane selftest: one-sided pane missed")
+    check(run(lambda L: L.quad(Q, (0, -1, 0), mat="glassfar", double=True)) == 0, "pane selftest: double pane flagged")
+    check(run(lambda L: (L.quad(Q, (0, -1, 0), mat="glassfar"), L.quad(Q, (0, -1, 0), mat="glassfar"))) == 1,
+          "pane selftest: a same-facing duplicate counted as twin")
+    small = [(0.4, 0.001, 0.4), (0.6, 0.001, 0.4), (0.6, 0.001, 0.6), (0.4, 0.001, 0.6)]
+    check(run(lambda L: (L.quad(Q, (0, -1, 0), mat="glassfar"), L.quad(small, (0, 1, 0), mat="paint"))) == 1,
+          "pane selftest: a small decal behind counted as backing")
+    far = [(p[0], 0.45, p[2]) for p in Q]
+    check(run(lambda L: (L.quad(Q, (0, -1, 0), mat="glassfar"), L.quad(far, (0, -1, 0), mat="glassfar"))) == 2,
+          "pane selftest: a same-facing pane 0.45 m behind counted as a closed block")
+    check(run(lambda L: (L.quad(Q, (0, -1, 0), mat="glassfar"), L.quad(far, (0, 1, 0), mat="glassfar"))) == 0,
+          "pane selftest: closed dark block flagged")
+    def tiles(L):
+        for i in range(5):
+            for j in range(5):
+                L.quad([(i * .2, 0, j * .2), (i * .2 + .2, 0, j * .2), (i * .2 + .2, 0, j * .2 + .2), (i * .2, 0, j * .2 + .2)],
+                       (0, -1, 0), mat="glassfar")
+    check(run(tiles) == 1, "pane selftest: 25 tiles of 0.04 m2 not merged")
+    diag = [(0, 0, 0), (0.7, 0.7, 0), (0.7, 0.7, 1), (0, 0, 1)]
+    check(run(lambda L: L.quad(diag, (0.7, -0.7, 0), mat="glassfar")) == 1, "pane selftest: 45-degree pane missed")
+    G = Lod("geo", LOD_GEOMETRY)
+    G.box(0.0, 1.0, 0.0, 0.5, 0.0, 1.0)                                         # solid behind: nobody on the back side
+    check(run(lambda L: L.quad(Q, (0, -1, 0), mat="glassfar"), G) == 0, "pane selftest: pane on a solid flagged")
+
+
 def wedge_selftest():
     """D89: pinned cases for build_city.wedge_slots (floor z = 0, roof z = 10)."""
     class P:
@@ -488,6 +574,7 @@ def main():
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     names = argv[argv.index("--only") + 1].split(",") if "--only" in argv else sorted(C.BUILDERS)
     wedge_selftest()
+    pane_selftest()
     fresh = {}
     for n in names:
         test_class(n, fresh)
