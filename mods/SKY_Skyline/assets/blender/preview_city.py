@@ -1,7 +1,7 @@
 """Render review images of the procedural city buildings (Res0) - no game needed.
 
     blender -b --factory-startup -P preview_city.py -- --out <dir> [--tex <png dir>] [--only Rowhouse,Police]
-        [--shot states|street|interior|roof] [--night]
+        [--shot states|street|interior|roof] [--night] [--lod res1x]   (--lod: render that LOD instead of Res0, D90)
 
 states   one image per archetype: intact / damaged / ruined side by side, front 3/4 view
 street   all archetypes (one state each, seeded mix) along a street, as a city block would read
@@ -26,7 +26,8 @@ from skygeo import build_object, optional_arma_toolbox  # noqa: E402
 
 def place(name, x, y, cache, cut_front=None):
     lods = C.BUILDERS[name]()
-    res0 = [l for l in lods if l.name == "res0"][0]
+    res0 = [l for l in lods if l.name == LOD_NAME] or [l for l in lods if l.name == "res0"]
+    res0 = res0[0]
     seen, keep = set(), []
     for f in res0.faces:
         k = frozenset(tuple(round(c, 4) for c in res0.verts[i]) for i in f[0])
@@ -58,6 +59,7 @@ def place(name, x, y, cache, cut_front=None):
 
 
 cut_front_z = 1e9
+LOD_NAME = "res0"
 
 
 def ground_street(width):
@@ -79,13 +81,14 @@ def ground_street(width):
 
 
 def main():
-    global cut_front_z
+    global cut_front_z, LOD_NAME
     argv = sys.argv[sys.argv.index("--") + 1:]
     out = argv[argv.index("--out") + 1]
     tex = argv[argv.index("--tex") + 1] if "--tex" in argv else None
     only = argv[argv.index("--only") + 1].split(",") if "--only" in argv else list(S.CITY_ARCHETYPES)
     shot = argv[argv.index("--shot") + 1] if "--shot" in argv else "states"
     PT.NIGHT = "--night" in argv
+    LOD_NAME = argv[argv.index("--lod") + 1] if "--lod" in argv else "res0"
     PT.DAYZ = "--dayz" in argv
     os.makedirs(out, exist_ok=True)
     jobs = []
@@ -166,7 +169,8 @@ def main():
             dist = max(x * 0.62, hmax * 2.4, 30.0)
             PT.camera((x * 0.32, -dist, hmax * 0.8 + 4.0), (x * 0.5 - 4.0, 0.0, hmax * 0.38), 26)
             bpy.context.scene.render.resolution_x, bpy.context.scene.render.resolution_y = 1400, 760
-        PT.render(os.path.join(out, "%s_%s%s.png" % (title, shot, "_night" if PT.NIGHT else "")))
+        PT.render(os.path.join(out, "%s_%s%s%s.png" % (title, shot, "_night" if PT.NIGHT else "",
+                                                       "" if LOD_NAME == "res0" else "_" + LOD_NAME)))
         print("RENDERED", title)
 
 

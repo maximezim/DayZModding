@@ -73,10 +73,15 @@ def main():
         if (not g or not g["mass"]) and e.get("category") not in ("flat", "decal", "veg"):
             errs.append("Geometry missing or massless")
         # budget keys by LOD resolution (full audit: the city exterior LOD sits at 1.5 between res1 and res2)
-        keys = {0.0: "res0", 1.0: "res1", 1.5: "res1x", 2.0: "res2", 3.0: "res3"}
+        keys = {0.0: "res0", 1.0: "res1", 1.5: "res1x", 1.75: "res1y", 2.0: "res2", 3.0: "res3"}   # 1.75: D90 mid LOD
         for l in res:
             key = keys.get(round(l["resolution"], 2))
-            lim = b.get(key, b.get("res1")) if key == "res1x" else b.get(key)
+            if key == "res1x":
+                lim = b.get(key, b.get("res1"))
+            elif key == "res1y":                                                  # D90 perf review: a real cap
+                lim = b.get(key, int(0.35 * b["res1"]) if "res1" in b else None)
+            else:
+                lim = b.get(key)
             if key and lim is not None and l["triangles"] > lim:
                 over.append("%s %d > %d" % (key, l["triangles"], lim))
         # ASSET_QUALITY_GUIDE section 6: no LOD step below 5 % of the previous (popping); the last LOD (the far

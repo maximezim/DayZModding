@@ -97,7 +97,19 @@ def comp_boxes(lod):
 
 
 def comp_boxes_raw(lod):
-    return [b for _g, b in comp_boxes(lod)]
+    """Axis-aligned box components only (every vertex on its bounding box's corners): a sloped part (Ferris wheel
+    A-frame legs, ramps) would be compared by a bounding box far larger than the part (D90 false positives)."""
+    out = []
+    for g, b in comp_boxes(lod):
+        pts = [lod.verts[i] for i in lod.groups[g]]
+        if all(any(abs(p[j] - b[2 * j + s]) < 1e-4 for s in (0, 1)) for p in pts for j in range(3)):
+            out.append(b)
+        else:
+            WEDGE_SKIPPED[0] += 1                                           # reported (D90 sec review L)
+    return out
+
+
+WEDGE_SKIPPED = [0]
 
 
 class _Ground:
@@ -496,6 +508,7 @@ def main():
         for f in FAIL:
             print("  FAIL", f)
         sys.exit(1)
+    print("WEDGE: %d non-box Geometry components not compared (sloped / round parts, D90)" % WEDGE_SKIPPED[0])
     print("KIT GEOMETRY TESTS: PASS (%d assets)" % len(names))
 
 

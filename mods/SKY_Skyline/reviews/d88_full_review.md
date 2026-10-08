@@ -70,3 +70,11 @@ scans (PASS); the new Res 1.5 LOD is render-only and inside the Res1 hull. `test
 
 Facades, ruin cuts, clutter and shop rooms read as intended. The gap is that the interior walls are plain (paint only).
 Wall dressing (skirting, switches, radiators, frames) is the next content batch.
+
+## Correction (D90)
+
+The Res 1.5 exterior LOD described above was broken: its band was measured from the vertex extremes, and the canopies,
+awnings, signs and AC units that stand proud of the facades pushed the real walls out of it. Most street facades were
+missing from that LOD (the courtyard block's front kept 74 of 593 m2). The renders in this review were all Res0, and
+no gate compared far LODs with Res1, so nothing caught it. D90 fixed the band and added the gates `facade_cover`,
+`opening_cover` and `far_see_through` in test_city (`reviews/d90_gates.md`).

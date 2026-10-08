@@ -25,6 +25,8 @@ sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.dirname(HERE))
 import skyspec as S  # noqa: E402
 
+# glassfar is OPAQUE in game (no alpha, D90): it stays here because its remaining Res0 uses sit on solid backs or out of
+# reach (wreck screens, cupola, belfry, sawtooth glazing); test_city fails any glassfar in a reachable window opening
 SEE_THROUGH = {"glass", "glassfar", "foliage", "vegetation", "decal_dirt", "decal_cracks", "decal_graffiti", "decal_grime",
                "roadmark", "windows", "windows_lit", "lamp", "lamp_cool", "fair_ca"}
 

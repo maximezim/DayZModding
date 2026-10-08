@@ -912,10 +912,15 @@ def window(L, P, sd, a0, a1, s0, s1, skin, key, rec, residential, frame_uv):
             for k in ("res0", "res1"):
                 sd.box(L[k], a0 - 0.08, a1 + 0.08, z + tilt, z + 0.18 + tilt, -0.03, 0.0, mat="wood", uv=UV_OAK)
             sd.box(L["fire"], a0 - 0.08, a1 + 0.08, z, z + 0.18, -0.03, 0.0, mat="pen_wood")
+        # D90: the gaps between the boards show the room in Res0 / Res1; the hollow far LODs get a dark backing
+        L["res1"].quad(sd.rect(a0, a1, s0, s1, WT - 0.02), sd.out, "glassvoid", UV_GLASS)
     if state == "broken":                                                   # soot plume over the opening
         r0.quad(sd.rect(a0 - 0.3, a1 + 0.3, s1 - 0.1, s1 + 1.1, -0.006), sd.out, "decal_dirt",
                 UVRect(ax, 2, (a0 - 0.3, s1 - 0.1), (a1 + 0.3, s1 + 1.1), (0, 1, 1, 0)))
-        L["res0"].quad(sd.rect(a0, a1, s0, s1, WT - 0.02), sd.out, "glassfar", UV_GLASS)       # dark void
+        # dark void only for the far LODs (no interior there): `glassvoid` lives in Res1 until exterior_lod copies it
+        # as glassfar, then build() strips it. D90 sec: in Res0 it was an opaque one-sided pane in a broken (open)
+        # window - outside saw dark, inside saw out and shot through: one-way concealment
+        L["res1"].quad(sd.rect(a0, a1, s0, s1, WT - 0.02), sd.out, "glassvoid", UV_GLASS)
     if residential and state == "glass" and P.state == 0:                     # curtains inside
         for c0, c1 in ((a0 - 0.15, a0 + 0.3), (a1 - 0.3, a1 + 0.15)):
             uv = DT.band_fit("textile", "curtain", c0, c1, s0 - 0.6, s1 + 0.1, axes=(ax, 2), u_rep=0.8)
@@ -1557,6 +1562,10 @@ def furnish(L, P, l, r, kind, z, top):
             DT.pendant(L, cx, cy, top - 0.02, 0.55 if kind != "hall" else 0.35, r=0.22)
         else:
             L["res0"].prism(cx, cy, 0.22, top - 0.6, top - 0.46, n=12, mat="metal", uv=DT.UV_PAINT)   # dead shade, shallow (D82)
+        if kind in ("hall", "bedroom") and P.state < 2:                    # D90: smoke detector off the lamp (Res0, 20 tris)
+            sx = cx + (0.9 if w > 2.4 else 0.0)
+            sy = cy if w > 2.4 else cy + 0.9 * (1 if d > 2.4 else 0)
+            L["res0"].prism(sx, sy, 0.065, top - 0.04, top - 0.005, n=6, mat="paint", uv=DT.paint_uv("white"))
     # D84: seeded layout variant per room (0 = the original kit, unchanged); swaps pieces, at most one collision
     # part more than the original layout (geo budgets)
     var = int(h01(P.name, l, kind, "var", round(cx, 1), round(cy, 1)) * 3)
@@ -2017,7 +2026,7 @@ def furnish(L, P, l, r, kind, z, top):
                 for gy in (y0 + 3.0, cy, y1 - 3.0):
                     L["res0"].prism(gx, gy, 0.3, top - 0.9, top - 0.8, n=12, mat="lamp_cool")
     elif kind == "parking":
-        stalls = [(y0 + 0.4, y0 + 4.6), (y1 - 4.6, y1 - 0.4)]
+        stalls = [(y0 + 0.1, y0 + 4.3), (y1 - 4.3, y1 - 0.1)]          # D90 wedge check: nose 0.1 m off the barrier (was 0.4)
         for si, (sy0_, sy1_) in enumerate(stalls):
             sx = x0 + 3.0
             while sx + 1.9 < x1 - 0.8:
@@ -4046,9 +4055,16 @@ def wedge_slots(bx, P, lo=0.15, hi=0.6, run=1.0, height=0.5):
                     continue
                 ol, oh = max(a[2 * o], b[2 * o]), min(a[2 * o + 1], b[2 * o + 1])
                 zl, zh = max(a[4], b[4]), min(a[5], b[5])
-                if oh - ol < run or zh - zl < height or not any(abs(zl - z) < 0.1 for z in levels):
+                if oh - ol < run or zh - zl < height:
                     continue
                 g0, g1_ = (a[2 * ax + 1], b[2 * ax]) if g1 > 0 else (b[2 * ax + 1], a[2 * ax])
+                # something to stand on under the gap - a floor level or (D90) a plinth / deck / stage top - at most
+                # 0.1 m above zl and less than 0.45 m below it (one box on a low plinth beside a floor box: D90 sec L)
+                sup = [z for z in levels if z <= zl + 0.1] + [
+                    c[5] for c in bx if c[5] <= zl + 0.1 and c[2 * ax] < g1_ and c[2 * ax + 1] > g0
+                    and c[2 * o] < oh and c[2 * o + 1] > ol]
+                if not sup or zl - max(sup) >= 0.45:
+                    continue
                 # D89 (sec review L): what fills the gap is cut out of the run; a thin post no longer hides a long slot
                 fill = sorted((max(ol, c[2 * o]), min(oh, c[2 * o + 1])) for c in bx
                               if c is not a and c is not b and c[2 * ax] < g1_ - 0.01 and c[2 * ax + 1] > g0 + 0.01
@@ -4143,7 +4159,28 @@ def build(arch, state):
     geo.mass = 15000.0 + 6000.0 * len(P.levels)
     LOOT_OUT["Land_SKY_" + P.name] = loot_points(L, P)
     macro_variant(L, P)
-    return [v.lod for v in L.values()] + [exterior_lod(L, P)]
+    ext = exterior_lod(L, P)
+    strip_faces(L["res1"].lod, "glassvoid")                                   # far-LOD-only voids (see window())
+    if P.A["skin"][0] == "open":                                              # open decks: no "exterior"
+        return [v.lod for v in L.values()]
+    mid = far_mid_lod(ext, L["res2"].lod, P)
+    if (mid is None and _tris(ext) > EXT_MAX * _tris(L["res1"].lod)          # D90 perf: no near-copy of Res1 (kept when
+            and _tris(L["res2"].lod) >= 0.05 * _tris(L["res1"].lod)):         # a Res 1.75 follows, or Res1 -> Res2 < 5 %)
+        return [v.lod for v in L.values()]
+    return [v.lod for v in L.values()] + [ext] + ([mid] if mid else [])
+
+
+def strip_faces(lod, mat):
+    """Drop every face of material `mat`, compacting the vertices and selections."""
+    faces = [f for f in lod.faces if f[1] != mat]
+    if len(faces) == len(lod.faces):
+        return
+    used = sorted({i for idx, _m, _u in faces for i in idx})
+    remap = {o: n for n, o in enumerate(used)}
+    lod.verts = [lod.verts[i] for i in used]
+    lod.faces = [(tuple(remap[i] for i in idx), m, uv) for idx, m, uv in faces]
+    lod.groups = {g: {remap[i] for i in vs if i in remap} for g, vs in lod.groups.items()}
+    lod.groups = {g: vs for g, vs in lod.groups.items() if vs}
 
 
 EXT_BAND = 0.9      # m: faces within this of the outer walls / yard walls (or in the roof zone) are exterior
@@ -4151,7 +4188,7 @@ EXT_ROOF = 2.5      # m below the highest point: parapets, roof plant, skylights
 # far-LOD rule (check_assets: no blended alpha from Res2 on): blended decals dropped (the grime macro covers that range),
 # clear glass swapped for the opaque far glass; alpha-TESTED materials (gen_configs.ALPHA_TEST) stay
 EXT_DROP = {"decal_grime", "decal_dirt"}
-EXT_SWAP = {"glass": "glassfar"}
+EXT_SWAP = {"glass": "glassfar", "glassvoid": "glassfar"}
 
 
 def exterior_lod(L, P):
@@ -4164,10 +4201,11 @@ def exterior_lod(L, P):
     ext = Lod("res1x", LOD_RES, 1.5)
     if not r1.verts:
         return ext
-    xs = [v[0] for v in r1.verts]
-    ys = [v[1] for v in r1.verts]
     zs = [v[2] for v in r1.verts]
-    x0, x1, y0, y1, ztop = min(xs), max(xs), min(ys), max(ys), max(zs)
+    ztop = max(zs)
+    # D90 fix: the band is measured from the footprint walls, not the vertex extremes - canopies, awnings, signs and
+    # AC units stand proud of the facade and pushed the real wall out of the band (front facades went missing)
+    x0, x1, y0, y1 = -P.hw, P.hw, -P.hd, P.hd
     yard = getattr(P, "yard", None)
     remap = {}
     for idx, mat, uv in r1.faces:
@@ -4178,6 +4216,7 @@ def exterior_lod(L, P):
             yx0, yx1, yy0, yy1 = yard[:4]
             outer = (yx0 - EXT_BAND < cx < yx1 + EXT_BAND and yy0 - EXT_BAND < cy < yy1 + EXT_BAND
                      and not (yx0 + EXT_BAND < cx < yx1 - EXT_BAND and yy0 + EXT_BAND < cy < yy1 - EXT_BAND))
+        outer = outer or mat == "rubble"                 # D90: collapse debris is the ruin's silhouette (no see-through)
         if not outer or mat in EXT_DROP:
             continue
         mat = EXT_SWAP.get(mat, mat)
@@ -4193,6 +4232,80 @@ def exterior_lod(L, P):
         if kept:
             ext.groups[g] = kept
     return ext
+
+
+def _tris(lod):
+    return sum(len(i) - 2 for i, _m, _u in lod.faces)
+
+
+def _area(pts):
+    import numpy as np
+    p = np.asarray(pts, float)
+    return 0.5 * float(np.linalg.norm(sum(np.cross(p[0] - p[k], p[0] - p[k + 1]) for k in range(1, len(p) - 1))))
+
+
+EXT_MAX = 0.85      # D90 perf review: a Res 1.5 holding > 85 % of Res1 (small buildings) is dropped - memory for nothing
+MID_STEP = 7.0      # a Res 1.75 LOD where Res 1.5 has more than 7x the triangles of Res 2 (D90: P58 step warnings)...
+MID_MIN = 3000      # ...and at least this many (small buildings: a 6th LOD saves too little)
+MID_TARGET = 0.25   # ...holding about a quarter of Res 1.5: its large faces (walls, slabs, glass, roof); trims and gear go
+MID_TARGET_BIG = 0.15   # Res 1.5 over 10 k tris: a sixth, so the step on to Res 2 stays >= ~20 %
+
+
+SHELL_DEPTH = 0.4   # m: faces parallel to a wall plane within this of it (recessed glass, boards, shutters) are shell
+
+
+def _on_shell(pts, P):
+    """Face parallel to an outer wall plane (or a yard wall plane) and within SHELL_DEPTH of it: the wall itself and
+    what fills its openings (recessed glass, boards, shutters) - the silhouette, never dropped from far LODs."""
+    planes = [(0, -P.hw), (0, P.hw), (1, -P.hd), (1, P.hd)]
+    if getattr(P, "yard", None):
+        yx0, yx1, yy0, yy1 = P.yard[:4]
+        planes += [(0, yx0), (0, yx1), (1, yy0), (1, yy1)]
+    for a, c in planes:
+        v = [p[a] for p in pts]
+        if max(v) - min(v) < 0.01 and abs(v[0] - c) < SHELL_DEPTH:
+            return True
+    return False
+
+
+def far_mid_lod(ext, r2, P):
+    """D90: the 3 largest buildings stepped from a 8-14 k-tri Res 1.5 to a 300-700-tri Res 2 (< 5 %, popping risk,
+    P58). This resolution-1.75 LOD keeps the Res 1.5 faces whose area is above a cut-off searched so that about
+    MID_TARGET of the triangles stay - the broad planes that carry the silhouette; frames, cornices, plant and
+    clutter drop out. Faces in the outer / yard wall planes are always kept (small piers between windows would
+    leave holes). Door selections are kept for the kept vertices. None where the step is already gentle."""
+    from skygeo import Lod
+    t1, t2 = _tris(ext), max(1, _tris(r2))
+    if t1 <= MID_STEP * t2 or (t1 < MID_MIN and t1 <= 20 * t2):       # small but a < 5 % step: still needed
+        return None
+    target = MID_TARGET_BIG if t1 > 10000 else MID_TARGET
+    areas = [_area([ext.verts[i] for i in idx]) for idx, _m, _u in ext.faces]
+    tri = [len(idx) - 2 for idx, _m, _u in ext.faces]
+    shell = {k for k, (idx, _m, _u) in enumerate(ext.faces) if _on_shell([ext.verts[i] for i in idx], P)}
+    order = sorted(range(len(areas)), key=lambda k: -areas[k])
+    keep, n = set(shell), sum(tri[k] for k in shell)
+    for k in order:
+        if n >= target * t1:
+            break
+        keep.add(k)
+        n += tri[k]
+    mid = Lod("res1y", LOD_RES, 1.75)
+    remap = {}
+    for k, (idx, mat, uv) in enumerate(ext.faces):
+        if k not in keep:
+            continue
+        nidx = []
+        for i in idx:
+            if i not in remap:
+                remap[i] = len(mid.verts)
+                mid.verts.append(ext.verts[i])
+            nidx.append(remap[i])
+        mid.faces.append((tuple(nidx), mat, uv))
+    for g, vs in ext.groups.items():
+        kept = {remap[i] for i in vs if i in remap}
+        if kept:
+            mid.groups[g] = kept
+    return mid
 
 
 def macro_variant(L, P):

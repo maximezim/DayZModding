@@ -809,6 +809,16 @@ collision and looks.
 | WD-03 | Climb onto a roof with a tank (if reachable) and walk round the tank and the stair bulkhead | No gap to get stuck in, no space under the tank; the tank blocks shots | | |
 | WD-04 | At the landfill, walk between the mounds on the west side | No narrow slot between mounds; loot lies in front of each mound | | |
 
+## 54. Far LODs, broken windows, ceilings (D90)
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| FL-01 | Walk away from the courtyard block, hospital and apartment blocks from 20 m to 600 m (P58) | Street facades stay whole at every distance; windows stay windows; no building turns hollow | | |
+| FL-02 | Look at ruined blocks from 150-400 m (P63) | No sky or street seen straight through broken or boarded windows; dark rooms instead | | |
+| FL-03 | Stand inside a ruined flat behind a broken window; have a friend look at you from the street at 10-40 m | Your friend sees you through the open window (no dark pane in front of you) | | |
+| FL-04 | Walk along the parked wrecks on every garage deck | Car noses flush against the barrier; no gap to get stuck in | | |
+| FL-05 | Halls and bedrooms in flats | A smoke detector on the ceiling beside the lamp | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -893,4 +903,5 @@ collision and looks.
 | Shop windows, lived-in facades, wedge slots §51 | | | |
 | Full quality review fixes §52 | | | |
 | Wall dressing and roof clutter §53 | | | |
+| Far LODs, broken windows, ceilings §54 | | | |
 | FPS protocol (`FPS_PROTOCOL.md` §4 thresholds) | | | |

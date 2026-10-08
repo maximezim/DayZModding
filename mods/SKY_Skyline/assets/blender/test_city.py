@@ -203,6 +203,18 @@ def test_class(name, fresh_loot):
     fresh_loot.update(C.LOOT_OUT)
     for k in NEED:
         check(k in lods and lods[k].verts, "%s: missing LOD %s" % (name, k))
+    facade_cover(lods, P, name)
+    opening_cover(lods, P, name)
+    far_see_through(lods, P, name)
+    # D90 (sec): glassfar is opaque (no alpha). In a reachable window opening of Res0 / Res1 it would be a one-sided
+    # dark pane - outside sees nothing, inside sees and shoots out. Far LODs only.
+    for k in ("res0", "res1"):
+        lod = lods[k]
+        n_bad = sum(1 for idx, m, _u in lod.faces
+                    if m in ("glassfar", "glassvoid") and in_opening([lod.verts[i] for i in idx], P)
+                    and min(lod.verts[i][2] for i in idx) < P.top              # belfry / cupola: above the roof, unreachable
+                    and not backed(lod, [lod.verts[i] for i in idx]))          # painted on a solid wall (projection window)
+        check(n_bad == 0, "%s %s: %d opaque glassfar / glassvoid faces in outer openings" % (name, k, n_bad))
     geo = lods["geo"]
     check(geo.mass > 0 and geo.props.get("autocenter") == "0", "%s: Geometry mass / autocenter" % name)
     for k in ("geo", "view", "fire"):
@@ -283,6 +295,130 @@ def test_class(name, fresh_loot):
     check(len(C.LOOT_OUT.get(e["cls"], [])) >= 1 or (state == 2 and tiny), "%s: no loot points" % name)
 
 
+def in_opening(pts, P):
+    """Own definition (not build_city._on_shell, so a change there cannot blind the test): parallel to an outer or
+    yard wall plane, within 0.4 m of it."""
+    planes = [(0, -P.hw), (0, P.hw), (1, -P.hd), (1, P.hd)]
+    if getattr(P, "yard", None):
+        planes += [(0, P.yard[0]), (0, P.yard[1]), (1, P.yard[2]), (1, P.yard[3])]
+    for a, c in planes:
+        v = [p[a] for p in pts]
+        if max(v) - min(v) < 0.01 and abs(v[0] - c) < 0.4:
+            return True
+    return False
+
+
+def backed(lod, pts):
+    """An opaque face parallel to `pts` within 5 cm covers its centre: the pane is painted on a wall, not an opening."""
+    a = next(j for j in range(2) if max(p[j] for p in pts) - min(p[j] for p in pts) < 0.01)
+    c = [sum(p[j] for p in pts) / len(pts) for j in range(3)]
+    o = [j for j in range(3) if j != a]
+    for idx, m, _u in lod.faces:
+        if m in SEE_THROUGH or m in ("glassfar", "glassvoid"):
+            continue
+        q = [lod.verts[i] for i in idx]
+        v = [p[a] for p in q]
+        if max(v) - min(v) < 0.01 and 0.0 < abs(v[0] - c[a]) < 0.05 and all(
+                min(p[j] for p in q) <= c[j] <= max(p[j] for p in q) for j in o):
+            return True
+    return False
+
+
+def opening_cover(lods, P, name):
+    """D90: the glass / void / board faces filling the outer window openings in Res1 (parallel to a wall, within
+    0.4 m) must all survive into res1x / res1y - an empty opening at range shows a hollow building."""
+    for k in ("res1x", "res1y"):
+        if k not in lods:
+            continue
+        have = {frozenset(tuple(round(c, 3) for c in lods[k].verts[i]) for i in idx)
+                for idx, m, _u in lods[k].faces}
+        miss = 0
+        for idx, m, _u in lods["res1"].faces:
+            if not m.startswith("glass"):
+                continue
+            pts = [lods["res1"].verts[i] for i in idx]
+            if in_opening(pts, P) and frozenset(tuple(round(c, 3) for c in p) for p in pts) not in have:
+                miss += 1
+        check(miss == 0, "%s %s: %d window panes of Res1 missing" % (name, k, miss))
+
+
+SEE_THROUGH = {"glass", "foliage", "vegetation", "decal_dirt", "decal_cracks", "decal_graffiti", "decal_grime",
+               "roadmark", "windows", "windows_lit", "lamp", "lamp_cool", "fair_ca"}   # glassfar is opaque (D90)
+
+
+def through_rays(lod, P, n_h=12, n_a=24):
+    """Horizontal rays straight across the footprint (both axes) on a grid; count those that meet no opaque face."""
+    import numpy as np
+    tri = []
+    for idx, m, _u in lod.faces:
+        if m in SEE_THROUGH:
+            continue
+        p = [lod.verts[i] for i in idx]
+        for k in range(1, len(p) - 1):
+            tri.append((p[0], p[k], p[k + 1]))
+    if not tri:
+        return 0, 0
+    T = np.array(tri, float)
+    v0, e1, e2 = T[:, 0], T[:, 1] - T[:, 0], T[:, 2] - T[:, 0]
+    zs = [0.6 + (P.top - 1.2) * (i + 0.5) / n_h for i in range(n_h)]
+    rays = []
+    for ax, half_a, half_o in ((0, P.hw, P.hd), (1, P.hd, P.hw)):
+        for z in zs:
+            for j in range(n_a):
+                o = -half_o * 0.9 + 1.8 * half_o * (j + 0.5) / n_a
+                if ax == 0:
+                    rays.append(((-half_a - 2.0, o, z), (1.0, 0.0, 0.0)))
+                else:
+                    rays.append(((o, -half_a - 2.0, z), (0.0, 1.0, 0.0)))
+    passed = 0
+    for orig, d in rays:
+        o_, d_ = np.array(orig), np.array(d)
+        pv = np.cross(d_, e2)
+        det = (e1 * pv).sum(1)
+        ok = np.abs(det) > 1e-12
+        inv = 1.0 / np.where(ok, det, 1.0)
+        tv = o_ - v0
+        u = (tv * pv).sum(1) * inv
+        q = np.cross(tv, e1)
+        v = (q * d_).sum(1) * inv
+        t = (e2 * q).sum(1) * inv
+        if not (ok & (u >= 0) & (v >= 0) & (u + v <= 1) & (t > 0)).any():
+            passed += 1
+    return passed, len(rays)
+
+
+def far_see_through(lods, P, name):
+    """D90 (sec review M): no far LOD lets more rays straight through the building than Res1 does (a hollow shell or
+    open broken windows would show what is inside / behind it at range)."""
+    if "res1x" not in lods:
+        return
+    ref, n = through_rays(lods["res1"], P)
+    for k in ("res1x", "res1y"):
+        if k in lods:
+            got, _n = through_rays(lods[k], P)
+            check(got <= ref, "%s %s: %d of %d rays pass straight through (Res1: %d)" % (name, k, got, n, ref))
+
+
+def facade_cover(lods, P, name):
+    """D90: each outer facade plane keeps >= 80 % of its Res1 face area in the far LODs built from it (res1x, res1y):
+    the D88 exterior LOD dropped most of the street facade and no gate saw it."""
+    def plane_area(lod, axis, c):
+        a = 0.0
+        for idx, m, _u in lod.faces:
+            pts = [lod.verts[i] for i in idx]
+            if m not in C.EXT_DROP and max(abs(p[axis] - c) for p in pts) < 0.05:     # decals: dropped on purpose
+                a += C._area(pts)
+        return a
+    for axis, c in ((1, -P.hd), (1, P.hd), (0, -P.hw), (0, P.hw)):
+        ref = plane_area(lods["res1"], axis, c)
+        if ref < 5.0:
+            continue
+        for k in ("res1x", "res1y"):
+            if k in lods:
+                got = plane_area(lods[k], axis, c)
+                check(got >= 0.8 * ref, "%s %s: facade %s=%.1f keeps %.0f of %.0f m2" % (name, k, "xy"[axis], c, got, ref))
+
+
 def wedge_selftest():
     """D89: pinned cases for build_city.wedge_slots (floor z = 0, roof z = 10)."""
     class P:
@@ -301,6 +437,13 @@ def wedge_selftest():
     check(hits(A, at(0, 1.4, 2.4, 0, 4), at(0, 1.0, 1.4, 0.8, 3.2)) == 0, "wedge selftest: short leftover runs flagged")
     R = (0.0, 1.0, 0.0, 4.0, 10.0, 11.0)
     check(hits(R, at(10, 1.4, 2.4, 0, 4)) == 1, "wedge selftest: roof-level slot not found")
+    D = (0.0, 1.0, 0.0, 4.0, 0.6, 1.6)                                          # D90: on a 0.6 m stage
+    stage = (-1.0, 3.5, -1.0, 5.0, 0.0, 0.6)
+    check(hits(D, at(0.6, 1.4, 2.4, 0, 4), stage) == 1, "wedge selftest: slot on a stage not found")
+    check(hits(D, at(0.6, 1.4, 2.4, 0, 4)) == 0, "wedge selftest: floating pair (nothing under the gap) flagged")
+    plinth = (1.4, 2.4, 0.0, 4.0, 0.0, 0.3)                                     # floor box beside a box on a 0.3 m plinth
+    check(hits((0.0, 1.0, 0.0, 4.0, 0.0, 1.6), at(0.3, 1.4, 2.4, 0, 4), plinth) == 1,
+          "wedge selftest: slot beside a box on a low plinth not found")
 
 
 def main():
