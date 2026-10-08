@@ -538,8 +538,8 @@
             <category name="containers" />
             <tag name="floor" />
             <point pos="-1.300000 0.000000 -1.300000" range="0.600000" height="1.500000" />
+            <point pos="-0.000000 0.000000 -1.300000" range="0.600000" height="1.500000" />
             <point pos="-1.300000 0.000000 -3.900000" range="0.600000" height="1.500000" />
-            <point pos="-0.000000 0.000000 -3.900000" range="0.600000" height="1.500000" />
         </container>
     </group>
     <group name="Land_SKY_City_BarB_Intact" lootmax="1">
@@ -548,9 +548,9 @@
             <category name="food" />
             <category name="containers" />
             <tag name="floor" />
+            <point pos="-0.000000 0.000000 -1.300000" range="0.600000" height="1.500000" />
             <point pos="-1.300000 0.000000 -1.300000" range="0.600000" height="1.500000" />
-            <point pos="-0.000000 0.000000 -3.900000" range="0.600000" height="1.500000" />
-            <point pos="3.900000 0.000000 -0.000000" range="0.600000" height="1.500000" />
+            <point pos="1.300000 0.000000 -2.600000" range="0.600000" height="1.500000" />
         </container>
     </group>
     <group name="Land_SKY_City_BarB_Ruined" lootmax="1">
@@ -760,12 +760,12 @@
             <tag name="floor" />
             <point pos="-1.100000 0.000000 -7.400000" range="0.600000" height="1.500000" />
             <point pos="-8.900000 0.000000 -6.100000" range="0.600000" height="1.500000" />
-            <point pos="-1.100000 0.000000 -10.000000" range="0.600000" height="1.500000" />
             <point pos="8.000000 0.000000 -10.000000" range="0.600000" height="1.500000" />
             <point pos="6.700000 0.000000 -8.700000" range="0.600000" height="1.500000" />
             <point pos="0.200000 0.000000 -12.600000" range="0.600000" height="1.500000" />
             <point pos="-6.300000 0.000000 -8.700000" range="0.600000" height="1.500000" />
             <point pos="1.500000 0.000000 -7.400000" range="0.600000" height="1.500000" />
+            <point pos="-6.300000 0.000000 -10.000000" range="0.600000" height="1.500000" />
         </container>
     </group>
     <group name="Land_SKY_City_CinemaB_Intact" lootmax="4">
@@ -2076,9 +2076,9 @@
             <category name="books" />
             <tag name="floor" />
             <point pos="5.700000 0.000000 11.400000" range="0.600000" height="1.500000" />
-            <point pos="-22.900000 0.000000 -0.300000" range="0.600000" height="1.500000" />
             <point pos="-9.900000 0.000000 11.400000" range="0.600000" height="1.500000" />
             <point pos="-0.800000 0.000000 -10.700000" range="0.600000" height="1.500000" />
+            <point pos="-20.300000 0.000000 6.200000" range="0.600000" height="1.500000" />
             <point pos="-13.800000 5.000000 4.900000" range="0.600000" height="1.500000" />
             <point pos="-20.300000 5.000000 -6.800000" range="0.600000" height="1.500000" />
             <point pos="-11.200000 5.000000 14.000000" range="0.600000" height="1.500000" />

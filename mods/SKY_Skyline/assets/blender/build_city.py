@@ -3066,6 +3066,7 @@ def furnish_venue(L, P, l, r, kind, z, top, zones):
     w, d = x1 - x0, y1 - y0
     lit = P.state == 0
     Lz = lifted(L, z)
+    var = int(h01(P.name, l, kind, "var", round(cx, 1), round(cy, 1)) * 3)   # D86 venue layout variant (0 = original)
     if kind == "hyper":
         # checkout lines along the front, trolley corral by the door
         for xk in [x0 + 6.0 + i * 3.6 for i in range(int((w - 12.0) / 3.6) + 1)]:
@@ -3150,9 +3151,23 @@ def furnish_venue(L, P, l, r, kind, z, top, zones):
             if yy < y1 - 2.6:
                 DT.wall_art(Lz, x0, yy, 1.7, 1.0, 1.5, "+x", cell)
                 DT.wall_art(Lz, x1, yy, 1.7, 1.0, 1.5, "-x", ("art_d", "art_c", "art_b", "art_a")[i])
-        for (px, py) in ((cx - 1.5, cy), (cx + 1.5, cy)):                       # velvet rope posts
-            L["res0"].prism(px, py, 0.05, z, z + 0.95, n=8, mat="metal", uv=DT.UV_ALU)
-        bar(L["res0"], (cx - 1.5, cy, z + 0.85), (cx + 1.5, cy, z + 0.8), 0.02, "textile", DT.band_fit("textile", "curtain", 0, 1, 0, 1))
+        if var == 1 and clear(zones, (cx - 1.6, cx + 1.6, cy - 0.45, cy + 0.45)):
+            # D86: two arcade cabinets back to back (collide + View like a wardrobe), screens as thin render
+            for (ax0, ax1) in ((cx - 1.5, cx - 0.8), (cx + 0.8, cx + 1.5)):
+                piece(L, (ax0, ax1, cy - 0.4, cy + 0.4, z, z + 1.8), "paint", DT.paint_uv("slate"), pen="wood", view=True)
+                L["res0"].box(ax0 + 0.08, ax1 - 0.08, cy - 0.42, cy - 0.4, z + 1.1, z + 1.55, mat="paint", uv=DT.paint_uv("sage"))
+                L["res0"].box(ax0, ax1, cy - 0.6, cy - 0.4, z + 0.9, z + 0.95, mat="paint", uv=DT.paint_uv("terracotta"))   # control deck
+        elif var == 2 and clear(zones, (cx - 1.2, cx + 1.2, cy - 0.3, cy + 0.3)):
+            # D86: a waiting bench and a cardboard film standee (render-only, 1 cm)
+            DT.bench(Lz, cx - 1.2, cx + 0.4, cy - 0.25, cy + 0.2)
+            sw = (cx + 0.7, cx + 1.3)
+            # two-sided 1 cm board (no one-way sight), the poster on its front face just proud of it
+            L["res0"].box(sw[0], sw[1], cy - 0.005, cy + 0.005, z + 0.02, z + 1.85, mat="paint", uv=DT.paint_uv("white"))
+            DT.wall_art(Lz, (sw[0] + sw[1]) / 2, cy - 0.006, 0.95, 0.56, 1.75, "-y", "art_b")
+        else:
+            for (px, py) in ((cx - 1.5, cy), (cx + 1.5, cy)):                   # velvet rope posts
+                L["res0"].prism(px, py, 0.05, z, z + 0.95, n=8, mat="metal", uv=DT.UV_ALU)
+            bar(L["res0"], (cx - 1.5, cy, z + 0.85), (cx + 1.5, cy, z + 0.8), 0.02, "textile", DT.band_fit("textile", "curtain", 0, 1, 0, 1))
         if lit:
             for gx in (cx - 4.0, cx, cx + 4.0):
                 DT.pendant(L, gx, cy, top - 0.02, 1.4, r=0.45)
@@ -3196,7 +3211,21 @@ def furnish_venue(L, P, l, r, kind, z, top, zones):
                     L["res0"].box(bb2[0], bb2[1], *(sorted((by + s_ * 1.05, by + s_ * 1.1))), z + 0.45, z + 1.15,
                                   mat="fabric", uv=UV_FAB["blue"])
         pt = (cx + 0.3, cx + 2.8, cy - 1.0, cy + 0.4)                            # pool table
-        if clear(zones, pt):
+        # the original bar keeps its pool table; BarB draws darts or a stage (both bars drew darts by hash alone)
+        var = 0 if P.arch == "Bar" else 1 + int(h01(P.name, "bar_var") * 2)
+        if var == 1 and clear(zones, pt):
+            # D86: darts corner - two pub tables and a dartboard on the east wall
+            for (tx0, ty0) in ((pt[0] + 0.1, pt[2] + 0.1), (pt[0] + 1.4, pt[2] + 0.6)):
+                table(L, tx0, tx0 + 0.7, ty0, ty0 + 0.7, z)
+            if clear(zones, (x1 - 0.1, x1, cy - 0.35, cy + 0.35)):                 # not in a doorway (D84 rule)
+                DT.wall_art(Lz, x1, cy, 1.5, 0.45, 0.45, "-x", "art_a")
+        elif var == 2 and clear(zones, pt):
+            # D86: a low stage (walkable, 0.3 m step) with a mic stand
+            piece(L, (pt[0], pt[1], pt[2], pt[3], z, z + 0.3), "wood", UV_OAK)
+            mx, my = (pt[0] + pt[1]) / 2, (pt[2] + pt[3]) / 2
+            L["res0"].prism(mx, my, 0.015, z + 0.3, z + 1.75, n=6, mat="metal", uv=DT.UV_STEEL)
+            L["res0"].prism(mx, my, 0.18, z + 0.3, z + 0.32, n=10, mat="metal", uv=DT.UV_STEEL)
+        elif clear(zones, pt):
             piece(L, pt + (z, z + 0.8), "wood", UV_WALNUT)
             L["res0"].hquad(pt[0] + 0.1, pt[1] - 0.1, pt[2] + 0.1, pt[3] - 0.1, z + 0.801, mat="paint", uv=DT.paint_uv("sage"))
             for (qx, qy) in ((pt[0] + 0.1, pt[2] + 0.1), (pt[1] - 0.1, pt[2] + 0.1), (pt[0] + 0.1, pt[3] - 0.1),
@@ -3400,9 +3429,10 @@ def mall_unit(L, P, l, r, kind, z, top, zones, lit):
             if lit:
                 L["res0"].box(kb[0], kb[1], kb[2], kb[3], z + 2.0, z + 2.6, mat="lamp")
     else:
+        var = int(h01(P.name, l, kind, "var", round(cx, 1), round(cy, 1)) * 3)   # D86: 0 clothes, 1 shoes, 2 phones
         rails_ = 0
         ry = y0 + 1.2
-        while ry < y1 - 1.0 and rails_ < 4:
+        while ry < y1 - 1.0 and rails_ < (4 if var == 0 else 1):              # the first rail (search spot) always stays
             if clear(zones, (x0 + 0.8, x1 - 0.8, ry - 0.3, ry + 0.3)) and x1 - x0 > 3.0:
                 garment_rail(L, x0 + 1.0, min(x1 - 1.0, x0 + 3.4), ry, z, key + (ry,))
                 if rails_ == 0 and ry + 0.9 < y1 - 0.3:
@@ -3410,14 +3440,34 @@ def mall_unit(L, P, l, r, kind, z, top, zones, lit):
                 rails_ += 1
             ry += 1.6
         tb = (cx - 0.5, cx + 0.5, cy - 0.35, cy + 0.35)
-        if clear(zones, tb):
+        if var == 1:
+            # shoe shop: shelving along the back wall (render-only steel, thin), a fitting bench in the middle
+            sb = (x0 + 0.4, x1 - 0.4, y1 - 0.4, y1 - 0.05)
+            if sb[1] - sb[0] > 1.0 and clear(zones, sb):
+                shelf_unit(L, *sb, z, h=1.8)
+            if clear(zones, (cx - 0.7, cx + 0.7, cy - 0.25, cy + 0.25)):
+                DT.bench(lifted(L, z), cx - 0.7, cx + 0.7, cy - 0.22, cy + 0.22)
+        elif var == 2:
+            # phone shop: a service counter on the side wall, a display table with handsets
+            sc = (x1 - 0.7, x1 - 0.1, y0 + 0.6, min(y1 - 0.6, y0 + 2.6))
+            if sc[3] - sc[2] > 1.0 and clear(zones, sc):
+                kitchen_run(L, *sc, z)
+            if clear(zones, tb):
+                table(L, *tb, z, h=0.9)
+                for i in range(6):
+                    hx = tb[0] + 0.08 + (i % 3) * 0.3
+                    hy = cy - 0.2 + (i // 3) * 0.3
+                    L["res0"].box(hx, hx + 0.08, hy, hy + 0.15, z + 0.9, z + 0.91, mat="paint", uv=DT.paint_uv("slate"))
+        elif clear(zones, tb):
             table(L, *tb, z, h=0.8)
             for i in range(4):
                 L["res0"].box(tb[0] + 0.05 + i * 0.23, tb[0] + 0.25 + i * 0.23, cy - 0.15, cy + 0.15, z + 0.8, z + 0.86,
                               mat="fabric", uv=UV_FAB[("blue", "beige", "grey", "blue")[i]])
-        for i in range(2):
+        for i in range(2 if var == 0 else 1):
             mx = x1 - 0.6 - i * 0.7
             my = y0 + 0.6 if (y1 - y0) > 3 else cy
+            if var == 2 and x1 - 0.7 < mx + 0.3 and y0 + 0.6 <= my <= y0 + 2.6:
+                continue                                                         # the counter stands there
             mannequin(L, mx, my, z, key + (i,))
     if lit:
         DT.downlight(L, cx, cy, top - 0.02)
