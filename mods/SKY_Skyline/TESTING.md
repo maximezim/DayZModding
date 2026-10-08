@@ -779,6 +779,15 @@ collision and looks.
 | VR-01 | Visit both bars, both cinema foyers and 10 mall shops | Pool table / darts / stage, ropes / arcade / standee, clothes / shoe / phone shops vary; behind-bar and costume-rail searches work; nothing blocks a door or shutter | | |
 | VR-02 | Look closely at a reception desk, kitchenette, server rack and locker bank (P55) | Soft contact shadows in recesses and at the base; no black or noisy patches; RPT clean | | |
 
+## 51. Shop windows, lived-in facades, wedge slots (D87)
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| SL-01 | Walk along shop rows and corner shops | Window displays match the shop (produce, pharmacy, paint cans, papers, goods); the counter walkway and the door stay free | | |
+| SL-02 | Look up at apartment blocks from the street at 10-80 m | AC units, satellite dishes and laundry on some windows; no popping at the LOD switch; nothing reachable or climbable | | |
+| SL-03 | In ruined buildings, walk along rubble next to furniture and walls | No gap you get stuck in; rubble fillers collide and look like debris | | |
+| SL-04 | Look at bus stops, ad columns and phone booths in daylight (P55) | Soft contact shadow at the base and in corners; no black patches | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -816,6 +825,7 @@ collision and looks.
 | Grime macro / rooms §48 | | | |
 | Public rooms / baked AO §49 | | | |
 | Venue rooms / AO props §50 | | | |
+| Shop windows / facades / slots §51 | | | |
 | Placement §9 | | | |
 | Roof drop §10 | | | |
 | Clean logs §11 | | | |

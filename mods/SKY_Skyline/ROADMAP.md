@@ -44,7 +44,8 @@ Rules that do not change (CLAUDE.md):
 | **D84** grime macro + interiors | grime macro on the wall materials (B3 -> P54), seeded room layout variants (living / bedroom / kitchen / office) with new furniture; per-prop baked AO deferred to the Blender bake path | built-unverified |
 | **D85** public rooms + AO pilot | exam / classroom / ward variants, per-building grime offsets, AO baked on a second UV set (VendingMachine pilot, P55) | built-unverified |
 | **D86** AO props + venue rooms | baked AO on 4 more hero props (P55), bar / foyer / mall shop variants, search-point-inside-furniture test | built-unverified |
-| **D87** next cloud batch | street-level variety (shop window dressing per shop type, balcony clutter), AO for street props with unique UVs (bus stop, kiosk) | planned |
+| **D87** street life + wedge-slot gate | shop window displays, facade clutter (AC, dishes, laundry), AO on 3 street props, `wedge_slots` gate with fixes across the city and a ruin filler | built-unverified |
+| **D88** next cloud batch | interior wall dressing per room type (posters, clocks, calendars, notice boards), roof clutter on flat roofs (water tanks, vents, antennas), extend the wedge-slot check to the kit props | planned |
 | **T2** terrain | survey a site or build the custom terrain (Terrain Builder import of `terrain/out`, P11), open the metro hatches | planned (after T1) |
 | **T3** perf | FPS protocol, server perf probe (B11), merged furniture if needed (D43) | planned (after T1) |
 
@@ -116,10 +117,10 @@ P14 alarm noise reach, P15 horde caps, P16 drunk thresholds, P17 search cooldown
 P18 wet hydrant = vanilla well behaviour on a spawned object, P19 jam density (are vehicles really blocked?),
 P20 siren sound config (range, loudness). All are in the PENDING_VERIFICATION.md table with their fix.
 
-## Status (after D86)
+## Status (after D87)
 
-Every phase from D61 to D86 is built and passes the offline gates (`reviews/d61_gates.md` ...
-`reviews/d86_gates.md`). Nothing has run in DayZ: no TESTING sign-off row is filled and every `P`
+Every phase from D61 to D87 is built and passes the offline gates (`reviews/d61_gates.md` ...
+`reviews/d87_gates.md`). Nothing has run in DayZ: no TESTING sign-off row is filled and every `P`
 parameter (P1-P55) is still an assumption. About 60 % of a releasable v1.0 (PROGRESS_REPORT "Status at a
 glance"). The next step that unblocks the most is **T1**, the first test session on the Windows machine.
-Further content (D87+) is worth less until T1 shows what reads and runs in game.
+Further content (D88+) is worth less until T1 shows what reads and runs in game.

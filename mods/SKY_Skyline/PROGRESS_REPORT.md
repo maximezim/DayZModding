@@ -1,6 +1,6 @@
 # SKY_Skyline progress report
 
-## Status at a glance (after D86, 2026-10-08)
+## Status at a glance (after D87, 2026-10-08)
 
 **Overall: about 61 % of a releasable v1.0.** About 92 % of the content is authored and every offline gate
 passes. But nothing has been packed, signed or run in DayZ yet. In-game verification is 0 % and carries the
@@ -8,15 +8,15 @@ most weight of what remains.
 
 | Area | Weight | Done | Why |
 |---|---|---|---|
-| Design and spec (23 ideas, city catalog, decisions D1-D86) | 10 % | 100 % | every idea has a design or a documented block |
+| Design and spec (23 ideas, city catalog, decisions D1-D87) | 10 % | 100 % | every idea has a design or a documented block |
 | Content authored (models, scripts, configs, economy, layouts) | 30 % | 92 % | 21 of 23 ideas built; horses and drivable vehicles blocked on Workbench skills; the underground needs a custom terrain |
-| Offline quality gates (tests, budgets, generators, script xref, reviews) | 10 % | 100 % | test_city 191, test_kit 279 (with hull and wiring checks), check_assets 289 / 0 over, layout 0 failed, texture references 76 / 0 missing, concealment gate over kit + city 0 open findings, slit gate PASS (depth-checked, city blocking), ruin cut gate PASS, perf + security reviews on every batch |
-| Asset quality to ASSET_QUALITY_GUIDE section 8 | 15 % | 77 % | street kit (three passes), street surfaces, car parks and hulks, the interior room kit, venues and underground passed close-up passes; wood, fabric, paver, concrete, brick, stucco, panel, limestone and trim maps have real depth (D77, D80, D82, D83 soldier course and sill); grime macro on the wall materials (D84); rooms vary per flat and in clinics / schools / hospitals (D84, D85); grime differs per building; baked AO on the five hero props (D85, D86, second UV set); venue rooms vary (D86) |
+| Offline quality gates (tests, budgets, generators, script xref, reviews) | 10 % | 100 % | test_city 191, test_kit 279 (with hull and wiring checks), check_assets 289 / 0 over, layout 0 failed, texture references 76 / 0 missing, concealment gate over kit + city 0 open findings, slit gate PASS (depth-checked, city blocking), ruin cut gate PASS, wedge-slot gate PASS, perf + security reviews on every batch |
+| Asset quality to ASSET_QUALITY_GUIDE section 8 | 15 % | 79 % | street kit (three passes), street surfaces, car parks and hulks, the interior room kit, venues and underground passed close-up passes; wood, fabric, paver, concrete, brick, stucco, panel, limestone and trim maps have real depth (D77, D80, D82, D83 soldier course and sill); grime macro on the wall materials (D84); rooms vary per flat and in clinics / schools / hospitals (D84, D85); grime differs per building; baked AO on 8 hero and street props (D85-D87, second UV set); venue rooms vary (D86); shop windows and lived-in facades (D87) |
 | Pack, sign, PAA on Windows (full mod) | 10 % | 10 % | toolchain verified with the empty template only (SETUP_REPORT); the 18 SKY packages were never packed |
-| In-game verification (TESTING sign-off, P-parameters) | 20 % | 0 % | 0 of 52 sign-off rows, 0 of 55 `P` assumptions, `CITY_TESTED` empty |
+| In-game verification (TESTING sign-off, P-parameters) | 20 % | 0 % | 0 of 53 sign-off rows, 0 of 55 `P` assumptions, `CITY_TESTED` empty |
 | Release prep (real site / terrain, FPS numbers, server-owner docs) | 5 % | 20 % | layouts and terrain generator ready; no surveyed site, no Terrain Builder import, no FPS run, no perf probe |
 
-Weighted: 10 + 27.6 + 10 + 11.55 + 1 + 0 + 1 = **61.2 %**.
+Weighted: 10 + 27.6 + 10 + 11.85 + 1 + 0 + 1 = **61.5 %**.
 
 ### Built (offline-verified, `built-unverified`)
 - **City**: 35 building types and 60 variants, 156 procedural models in 3 ruin states, plus 15 venue
@@ -451,3 +451,11 @@ The reception desk, kitchenette, server rack and lockers now have their own bake
 machine. Venues vary too: one bar keeps its pool table while the other has darts or a small stage, cinema foyers have
 arcade machines or a film standee, and mall shops are clothes, shoe or phone shops. A new test makes sure no search spot
 ends up buried inside furniture. Reviews: `reviews/d86_gates.md`.
+
+## 38. Street life and no more wedge gaps (D87)
+
+Shops now dress their windows by trade (produce crates, pharmacy shelves, paint cans, newspapers), and apartment
+facades carry AC units, satellite dishes and laundry. Bus stops, ad columns and phone booths got baked shadows. A new
+check looks for narrow gaps between pieces of furniture and walls where a player could get stuck; it found a dozen
+(sideboards, a school bench, mall counters and escalators, factory racks, rubble in ruins) and all are fixed.
+Reviews: `reviews/d87_gates.md`.
