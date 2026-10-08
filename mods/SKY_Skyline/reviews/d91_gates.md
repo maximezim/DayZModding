@@ -2,8 +2,8 @@
 
 | Gate | Command | Result |
 |---|---|---|
-| One-way concealment, kit + city | `python assets/blender/test_conceal.py --city --jobs 3` | CONCEAL_RESULT |
-| Slits, kit + city | `python assets/blender/test_slits.py --city` | SLITS_RESULT |
+| One-way concealment, kit + city | `python assets/blender/test_conceal.py --city --jobs 3` | PASS (273 models, 86 min) |
+| Slits, kit + city | `python assets/blender/test_slits.py --city` | PASS (273; same two scoped acceptances; 34 views > 9 Mpx skipped) |
 | City geometry (+ one-way glass at every height, voxel wedge check, self-tests) | `python assets/blender/test_city.py` | first runs found: sawtooth glazing (one-sided above the roof line, missed by a height exemption that was then removed), cupola caps, cinema legroom flagged by a one-height voxel rule (rule tightened to two heights >= 0.5 m apart); PASS (191), ~5.5 min |
 | Kit geometry (+ one-way glass, voxel wedge check, convexity) | `python assets/blender/test_kit.py` | first runs: 4 non-convex bridge checkpoint barriers, Barrier_Concrete, 2 viaduct barriers, the flooded sewer water plane -> convex hulls, double-sided water; PASS (279; 180 non-box parts voxel-checked) |
 | Self-tests | `wedge_selftest` (10), `pane_selftest` (10), `voxel_selftest` (7) | PASS; mutations (factory glazing back to one-sided, shell depth, voids) FAIL as they should |
