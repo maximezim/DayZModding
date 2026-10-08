@@ -800,6 +800,15 @@ collision and looks.
 | RV-06 | Ride the elevator of the tallest tower to every stop | The car reaches every stop; the level syncs to a client that joins mid-ride | | |
 | RV-07 | Trigger the alarm alone, then with 4+ players nearby (P61) | Alone: a small horde arriving over a few seconds, no hitch; more players: larger, still capped | | |
 
+## 53. Wall dressing and roof clutter (D89)
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| WD-01 | Walk through flats, offices, the clinic and the school (P62) | Switches beside doors, sockets low on the walls, skirting along the outer walls, radiators under windows; nothing flickers | | |
+| WD-02 | From a tall tower, look down on apartment blocks and the hardware store | Vents, mushroom vents, a conduit and on some roofs a water tank; no floating parts, the tank throws a shadow | | |
+| WD-03 | Climb onto a roof with a tank (if reachable) and walk round the tank and the stair bulkhead | No gap to get stuck in, no space under the tank; the tank blocks shots | | |
+| WD-04 | At the landfill, walk between the mounds on the west side | No narrow slot between mounds; loot lies in front of each mound | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -883,4 +892,5 @@ collision and looks.
 | Venue rooms and baked AO props §50 | | | |
 | Shop windows, lived-in facades, wedge slots §51 | | | |
 | Full quality review fixes §52 | | | |
+| Wall dressing and roof clutter §53 | | | |
 | FPS protocol (`FPS_PROTOCOL.md` §4 thresholds) | | | |

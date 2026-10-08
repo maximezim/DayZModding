@@ -96,6 +96,23 @@ def comp_boxes(lod):
     return out
 
 
+def comp_boxes_raw(lod):
+    return [b for _g, b in comp_boxes(lod)]
+
+
+class _Ground:
+    """build_city.wedge_slots asks P.levels for the floor heights: kit props stand on z = 0 (floor / roof modules too)."""
+    levels = [("ground", 0.0, 0.0)]
+
+
+GROUND = _Ground()
+
+
+def WEDGE(bx, P):
+    from build_city import wedge_slots
+    return wedge_slots(bx, P)
+
+
 def hull_slits(lod, tol=0.001, max_gap=0.3, min_overlap=0.05):
     """D74 hull test: two components stacked over each other (footprints overlap by more than min_overlap m on
     both axes) must touch or overlap vertically within tol; a gap of tol..max_gap is a slit bullets, sight or
@@ -456,6 +473,9 @@ def main():
                 comps = [g for g, v in lods["geo"].groups.items() if g.startswith("Component") and v & gv]
                 check(len(comps) == 1 and lods["geo"].groups[comps[0]] == gv,
                       "%s: door %s is not exactly one Geometry component" % (n, dn))
+        if "geo" in lods and not S.KIT[n].get("city"):                   # D89: wedge slots on kit props (city: test_city)
+            for sl in WEDGE(comp_boxes_raw(lods["geo"]), GROUND):
+                check(False, "%s geo: wedge slot %.2f m wide over %.2f m between %s and %s" % (n, sl[0], sl[1], sl[2], sl[3]))
         if S.KIT[n]["category"] in ("floor", "roof"):
             module_checks(n, lods)
         if n in getattr(S, "LANDMARK_SIZE", {}):                    # D61: Geometry inside the placement footprint

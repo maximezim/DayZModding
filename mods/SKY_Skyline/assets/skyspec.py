@@ -1405,7 +1405,7 @@ for _n in ("Sewer_Straight", "Sewer_Access", "Sewer_End", "Sewer_Junction", "Sew
     KIT[_n]["flood"] = True
 # CE loot of the two loot destinations (ROADMAP ideas 13, 23): the landfill has a bit of everything at the foot of
 # each rubbish mound; the bridge is the high-risk military drop (deck points + the two sniper nests).
-_LF_MOUNDS = [(-11.0, 8.0, 5.5), (2.0, 11.0, 5.0), (12.0, 6.0, 6.5), (-12.0, -6.0, 4.0), (9.5, -8.0, 4.5), (-2.0, 1.5, 3.5),
+_LF_MOUNDS = [(-11.0, 8.0, 5.5), (3.0, 11.0, 5.0), (12.0, 6.0, 6.5), (-12.0, -6.0, 4.0), (9.5, -8.0, 4.5), (-2.0, 1.5, 3.5),
               (-4.0, -12.5, 3.0)]
 LOOT.update({
     "Land_SKY_Landfill": {"usages": ["Industrial", "Farm", "Village"], "lootmax": 8, "containers": [

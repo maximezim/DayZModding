@@ -117,16 +117,18 @@ P14 alarm noise reach, P15 horde caps, P16 drunk thresholds, P17 search cooldown
 P18 wet hydrant = vanilla well behaviour on a spawned object, P19 jam density (are vehicles really blocked?),
 P20 siren sound config (range, loudness). All are in the PENDING_VERIFICATION.md table with their fix.
 
-## Status (after D88)
+## Status (after D89)
 
 Every phase from D61 to D87 is built and passes the offline gates (`reviews/d61_gates.md` ...
-`reviews/d87_gates.md`). D88 was a full quality review (`reviews/d88_full_review.md`): full-mod security and perf
+`reviews/d87_gates.md`, `reviews/d89_gates.md`). D88 was a full quality review (`reviews/d88_full_review.md`): full-mod security and perf
 audits, their fixes, and a re-review of the fixes. Nothing has run in DayZ: no TESTING sign-off row is filled and every
-`P` parameter (P1-P61) is still an assumption. About 62 % of a releasable v1.0 (PROGRESS_REPORT "Status at a
+`P` parameter (P1-P62) is still an assumption. About 62 % of a releasable v1.0 (PROGRESS_REPORT "Status at a
 glance"). The next step that unblocks the most is **T1**, the first test session on the Windows machine.
 
 **Release gates added by D88**: run `SKY_SiteSurvey` on the chosen terrain site before shipping any layout (security
 M4); the TESTING §52 rows (light director, client flood, Res 1.5 LOD, kennel door rule, rare cap, horde scaling) pass.
 
-**Next cloud batches** (worth less than T1): D89 interior wall dressing (skirting, switches, radiators, frames); roof
-clutter; the wedge-slot check over kit props.
+D89 added wall dressing (switches, sockets, skirting, radiators), roof clutter and the wedge check over kit props and roofs.
+
+**Next cloud batches** (worth less than T1): ceiling detail in flats; the wedge check for props on plinths / raised decks;
+a Res 1.75 shell for the three largest buildings if P58 shows popping.

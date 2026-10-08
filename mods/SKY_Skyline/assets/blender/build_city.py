@@ -924,6 +924,10 @@ def window(L, P, sd, a0, a1, s0, s1, skin, key, rec, residential, frame_uv):
     return state
 
 
+RADIATOR_USES = ("office", "police_ground", "police_upper", "corridor", "clinic_ground", "double_exam", "double_ward",
+                 "double_class", "double_office", "bank_ground")
+
+
 def facade(L, P, key, lvl):
     """One side, one level. Returns door/roller openings for the Geometry wall."""
     use, fh, z0 = P.levels[lvl]
@@ -1101,7 +1105,7 @@ def facade(L, P, key, lvl):
         if SK.get("shutters") and st != "broken":
             for (a, b) in ((w0 - 0.55, w0 - 0.03), (w1 + 0.03, w1 + 0.55)):
                 sd.box(r0, a, b, s0, s1, -0.04, -0.005, mat="paint", uv=DT.paint_uv("sage"))
-        if residential and st == "glass" and P.state == 0:                                  # radiator
+        if (residential or use in RADIATOR_USES) and st == "glass" and P.state == 0:          # radiator (D89: + offices / public)
             sd.box(r0, c - 0.5, c + 0.5, z0 + 0.15, z0 + 0.7, WT + 0.03, WT + 0.11, mat="paint", uv=DT.paint_uv("white"),
                    skip=(sd.out_key, "-z"))
         if A["group"] == "residential" and skin == "panel" and lvl > 0 and i % 2 == 1:      # french balcony rail
@@ -1166,6 +1170,7 @@ def facade_level_extras(L, P, sd, lvl, openings):
     skin = P.A["skin"][0]
     mat = S.CITY_SKINS[skin]["mat"]
     wmat, wuv = wall(P, skin)
+    inner_skirting(L, P, sd, lvl, openings)
     shop = lvl == 0 and P.A.get("ground") == "shopfront" and sd.key in P.A.get("shop_sides", ())
     sd.quad(L["res2"], sd.a0, sd.a1, z0, top, 0.0, mat="glassfar" if (skin == "curtain" or shop) else wmat,
             uv=UV_GLASS if (skin == "curtain" or shop) else wuv)
@@ -1184,6 +1189,29 @@ def facade_level_extras(L, P, sd, lvl, openings):
             for a, b in segs:
                 sd.box(L[k], a, b, z0, z0 + ST["plinth"], -0.04, 0.0, mat="stone", uv=DT.stone_uv("granite"),
                        skip=(sd.in_key, "-z"))
+
+
+def inner_skirting(L, P, sd, lvl, openings):
+    """D89: skirting along the inner face of the outer walls (the partitions had it since D55), broken at doors.
+    Front + top faces only (4 tris a run), Res0; not behind shop glass, curtain / metal / open skins or warehouses."""
+    use, _fh, z0 = P.levels[lvl]
+    skin = P.A["skin"][0]
+    if skin in ("curtain", "metal", "open") or use in ("warehouse",) or use in NO_CEILING:
+        return
+    if lvl == 0 and P.A.get("ground") == "shopfront" and sd.key in P.A.get("shop_sides", ()):
+        return
+    e = WT if sd.key.lstrip("i") in ("S", "N") else 0.0
+    cur, segs = sd.a0 + e, []
+    for (o0, o1, oz0, _oz1) in sorted(openings):
+        if oz0 > z0 + 0.1:                                                       # openings above the floor (parking decks)
+            continue
+        segs.append((cur, o0))
+        cur = o1
+    segs.append((cur, sd.a1 - e))
+    for a, b in segs:
+        if b - a > 0.1:
+            sd.box(L["res0"], a, b, z0, z0 + 0.08, WT, WT + 0.012, mat="paint", uv=DT.paint_uv("white"),   # no new section
+                   skip=(sd.out_key, "-z") + sd.ends)
 
 
 # ================================================================== shell: slabs, stairs, roof
@@ -1347,6 +1375,31 @@ def partitions(L, P, walls, z0, top, band):
     Lz = lifted(L, z0)
     DT.door_trims(Lz, walls, PT / 2)
     DT.skirting(Lz, walls, PT / 2)
+    wall_fittings(Lz, P, walls, z0)
+
+
+def wall_fittings(L, P, walls, key):
+    """D89 wall dressing: a light switch beside each partition doorway (latch side, 1.05 m) and a socket low on the
+    other face (0.25 m). Render-only Res0 quads 8 mm proud (2 tris each - perf review: box sides unseen past 2 m;
+    paint: no new section); skipped where the wall runs out beside the door."""
+    tw = DT.D["trim_w"]
+    for wi, (axis, c, a0, a1, ops) in enumerate(walls):
+        for oi, (o0, o1) in enumerate(ops):
+            s = 1 if h01(P.name, "sw", key, wi, oi) < 0.5 else -1
+            right = h01(P.name, "swr", key, wi, oi) < 0.5
+            for (face, z0, z1, w, dist) in ((s, 1.02, 1.14, 0.08, 0.1), (-s, 0.22, 0.3, 0.12, 0.45)):
+                if right and o1 + tw + dist + w < a1 - 0.1:
+                    p0 = o1 + tw + dist
+                elif o0 - tw - dist - w > a0 + 0.1:
+                    p0 = o0 - tw - dist - w
+                else:
+                    continue
+                f = c + face * (PT / 2 + 0.008)
+                if axis == "x":
+                    pts, nrm = [(p0, f, z0), (p0 + w, f, z0), (p0 + w, f, z1), (p0, f, z1)], (0, face, 0)
+                else:
+                    pts, nrm = [(f, p0, z0), (f, p0 + w, z0), (f, p0 + w, z1), (f, p0, z1)], (face, 0, 0)
+                L["res0"].quad(pts, nrm, mat="paint", uv=DT.paint_uv("white"))
 
 
 FLOOR = {"living": "parquet", "bedroom": "parquet", "kitchen": "tile", "hall": "tile", "shop": "tile", "storage": None,
@@ -2405,6 +2458,97 @@ def roof(L, P):
         DT.obstruction_light(Lt, hw - 1.0, hd - 1.0, 4.0) if P.state == 0 else None
     skylight(L, P)
     roof_signs(L, P, skin)
+    roof_clutter(L, P)
+
+
+def roof_occupied(P):
+    """Plan rects already used on a flat roof (gear placed by roof(), the stair bulkhead, atrium, yard)."""
+    hw, hd = P.hw, P.hd
+    occ = []
+    if P.A["group"] in ("residential", "mixed"):
+        occ += [(x - 0.4, x + 0.4, y - 0.3, y + 0.3) for (x, y) in ((-hw * 0.6, hd * 0.55), (hw * 0.5, hd * 0.55))]
+        occ.append((-hw * 0.2 - 0.5, -hw * 0.2 + 0.5, -hd * 0.3 - 0.5, -hd * 0.3 + 0.5))
+    else:
+        occ.append((-hw * 0.6, -hw * 0.6 + 2.2, -1.0, 1.0))
+        if P.W > 15:
+            occ.append((hw * 0.3, hw * 0.3 + 2.2, -hd * 0.6, -hd * 0.6 + 1.8))
+        occ.append((hw - 1.5, hw - 0.5, hd - 1.5, hd - 0.5))
+    if P.stair:
+        x0, x1, y0, y1 = P.stair
+        occ.append((x0, x1, y0 + 1.2, y1))
+    if P.A.get("skylight") and P.atrium:
+        x0, x1, y0, y1 = P.atrium
+        occ.append((x0 - 0.3, x1 + 0.3, y0 - 0.3, y1 + 0.3))
+    if P.yard:
+        x0, x1, y0, y1 = P.yard
+        occ.append((x0 - WT, x1 + WT, y0 - WT, y1 + WT))
+    return occ
+
+
+def roof_clutter(L, P):
+    """D89 flat-roof clutter (the roofs are seen from the towers): vent pipes with caps, mushroom vents, a conduit
+    run from the gear to the parapet, and on some residential roofs a panel water tank on a steel frame. Render-only and
+    low (<= 0.9 m, pipes <= 0.07 m radius) except the tank, which collides as one solid box from the roof up (nothing to
+    crawl under) and stays >= 1 m from parapets and other gear (no wedge slots, test_city)."""
+    if P.A.get("roof") in ("pitched", "sawtooth") or not P.A.get("roof_gear", True) or P.state == 2:
+        return
+    hw, hd, top = P.hw, P.hd, P.top
+    occ = roof_occupied(P)
+    m = WT + 0.9                                                               # clear of the parapet
+
+    def free(x0, x1, y0, y1, margin):
+        if x0 < -hw + m or x1 > hw - m or y0 < -hd + m or y1 > hd - m:
+            return False
+        return not any(x0 - margin < b[1] and b[0] < x1 + margin and y0 - margin < b[3] and b[2] < y1 + margin for b in occ)
+
+    def spot(tag, w, d, margin, tries=24):
+        for t in range(tries):
+            x = -hw + m + w / 2 + (2 * hw - 2 * m - w) * h01(P.arch, tag, "x", t)
+            y = -hd + m + d / 2 + (2 * hd - 2 * m - d) * h01(P.arch, tag, "y", t)
+            r = (x - w / 2, x + w / 2, y - d / 2, y + d / 2)
+            if free(*r, margin):
+                occ.append(r)
+                return x, y
+        return None
+
+    r0, r1 = L["res0"], L["res1"]                                            # seeded per archetype: all states match
+    if P.A["group"] in ("residential", "mixed") and P.W > 10 and h01(P.arch, "tank") < 0.5:
+        s = spot("tank", 1.8, 1.4, 1.0)
+        if s:
+            x, y = s
+            x0, x1, y0, y1 = x - 0.8, x + 0.8, y - 0.6, y + 0.6
+            for k in ("res0", "res1"):
+                L[k].box(x0, x1, y0, y1, top + 0.3, top + 1.5, mat="metal", uv=DT.UV_PAINT, skip=("-z",))
+            for k in ("geo", "view", "fire", "shadow"):                          # one solid incl. the frame: no crawl space
+                L[k].box(x0, x1, y0, y1, top, top + 1.5, **(kw_for(k, "metal", DT.UV_PAINT, "metal") if k != "shadow" else {}))
+            # steel skirt round the frame (sec review L: open legs would show a gap the solid collision blocks)
+            r0.box(x0 + 0.02, x1 - 0.02, y0 + 0.02, y1 - 0.02, top, top + 0.3, mat="metal", uv=DT.UV_STEEL, skip=("-z", "+z"))
+            r0.box(x - 0.3, x + 0.3, y - 0.3, y + 0.3, top + 1.5, top + 1.56, mat="metal", uv=DT.UV_STEEL)   # manhole lid
+            occ.append((x0, x1, y0, y1))
+    n = 2 + min(4, int(P.W * P.D / 120))
+    for i in range(n):                                                         # vent pipes with rain caps
+        s = spot(("vent", i), 0.3, 0.3, 0.4)
+        if not s:
+            continue
+        x, y = s
+        h = 0.5 + 0.35 * h01(P.arch, "vh", i)
+        r0.prism(x, y, 0.06, top, top + h, n=8, mat="metal", uv=DT.UV_STEEL)
+        r0.prism(x, y, 0.11, top + h, top + h + 0.05, n=8, mat="metal", uv=DT.UV_PAINT)
+        r1.prism(x, y, 0.06, top, top + h, n=4, mat="metal", uv=DT.UV_STEEL)
+    for i in range(1 + int(h01(P.arch, "mush") * 2)):                          # mushroom vents
+        s = spot(("mush", i), 0.5, 0.5, 0.4)
+        if s:
+            x, y = s
+            r0.prism(x, y, 0.1, top, top + 0.35, n=8, mat="metal", uv=DT.UV_ALU)
+            r0.prism(x, y, 0.22, top + 0.35, top + 0.45, n=8, mat="metal", uv=DT.UV_ALU)
+    g = occ[0] if P.A["group"] not in ("residential", "mixed") else occ[2]   # conduit: gear / mast -> S parapet
+    gx, gy = (g[0] + g[1]) / 2, g[2]
+    ye = -hd + WT
+    if gy - ye > 0.5 and not any(b is not g and b[0] - 0.1 < gx < b[1] + 0.1 and ye < b[3] and b[2] < gy for b in occ):
+        r0.box(gx - 0.04, gx + 0.04, ye, gy, top + 0.1, top + 0.16, mat="metal", uv=DT.UV_PAINT, skip=("-z",))
+        for j in range(int((gy - ye) / 1.2)):                                  # sleepers
+            yy = ye + 0.4 + j * 1.2
+            r0.box(gx - 0.12, gx + 0.12, yy, yy + 0.1, top, top + 0.1, mat="concrete", uv=UV_REVEAL, skip=("-z",))
 
 
 def roof_signs(L, P, skin):
@@ -3890,7 +4034,7 @@ def wedge_slots(bx, P, lo=0.15, hi=0.6, run=1.0, height=0.5):
     """D87: floor-standing collision boxes facing each other across a lo..hi m gap over more than `run` m, nothing
     else in the gap: a slot a player wedges into (and AI cannot path). Gaps under lo are flush, over hi walkable.
     Returns (gap, run, box a, box b) with boxes rounded for reports; test_city fails on any."""
-    levels = [z for (_u, _f, z) in P.levels]
+    levels = [z for (_u, _f, z) in P.levels] + ([P.top] if getattr(P, "top", None) is not None else [])   # D89: roof gear too
     out = []
     for i, a in enumerate(bx):
         for b in bx[i + 1:]:
@@ -3905,9 +4049,18 @@ def wedge_slots(bx, P, lo=0.15, hi=0.6, run=1.0, height=0.5):
                 if oh - ol < run or zh - zl < height or not any(abs(zl - z) < 0.1 for z in levels):
                     continue
                 g0, g1_ = (a[2 * ax + 1], b[2 * ax]) if g1 > 0 else (b[2 * ax + 1], a[2 * ax])
-                if any(c is not a and c is not b and c[2 * ax] < g1_ - 0.01 and c[2 * ax + 1] > g0 + 0.01
-                       and c[2 * o] < oh and c[2 * o + 1] > ol and c[4] < zh and c[5] > zl for c in bx):
-                    continue                                                   # something fills the gap
+                # D89 (sec review L): what fills the gap is cut out of the run; a thin post no longer hides a long slot
+                fill = sorted((max(ol, c[2 * o]), min(oh, c[2 * o + 1])) for c in bx
+                              if c is not a and c is not b and c[2 * ax] < g1_ - 0.01 and c[2 * ax + 1] > g0 + 0.01
+                              and c[2 * o] < oh and c[2 * o + 1] > ol and c[4] < zh and c[5] > zl)
+                best, cur = (0.0, ol, oh), ol
+                for (f0, f1) in fill + [(oh, oh)]:
+                    if f0 - cur > best[0]:
+                        best = (f0 - cur, cur, f0)
+                    cur = max(cur, f1)
+                if best[0] < run:
+                    continue
+                ol, oh = best[1], best[2]
                 out.append((round(g, 2), round(oh - ol, 2), tuple(round(v, 2) for v in a), tuple(round(v, 2) for v in b),
                             (ax, g0, g1_, ol, oh, zl, zh)))
     return out

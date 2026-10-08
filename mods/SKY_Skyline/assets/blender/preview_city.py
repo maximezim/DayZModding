@@ -1,11 +1,12 @@
 """Render review images of the procedural city buildings (Res0) - no game needed.
 
     blender -b --factory-startup -P preview_city.py -- --out <dir> [--tex <png dir>] [--only Rowhouse,Police]
-        [--shot states|street|interior] [--night]
+        [--shot states|street|interior|roof] [--night]
 
 states   one image per archetype: intact / damaged / ruined side by side, front 3/4 view
 street   all archetypes (one state each, seeded mix) along a street, as a city block would read
 interior one image per archetype: ground floor of the intact building, cut open at the front
+roof     one image per archetype: the intact roof seen from a neighbouring tower (D89 roof clutter)
 """
 import math
 import os
@@ -155,6 +156,9 @@ def main():
         if shot == "interior":
             cx, A = spans[0]
             PT.camera((cx - A["w"] * 0.15, -A["d"] / 2 - 2.5, 1.7), (cx + A["w"] * 0.1, A["d"] * 0.2, 1.1), 16)
+        elif shot == "roof":
+            cx, A = spans[0]
+            PT.camera((cx - A["w"] * 0.6, -A["d"] * 0.9 - 4.0, hmax + 9.0), (cx, 0.0, hmax), 22)
         elif shot == "street":
             PT.camera((-8.0, -30.0, 14.0), (x * 0.45, 0.0, hmax * 0.35), 24)
             bpy.context.scene.render.resolution_x, bpy.context.scene.render.resolution_y = 1600, 800

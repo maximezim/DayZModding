@@ -283,9 +283,30 @@ def test_class(name, fresh_loot):
     check(len(C.LOOT_OUT.get(e["cls"], [])) >= 1 or (state == 2 and tiny), "%s: no loot points" % name)
 
 
+def wedge_selftest():
+    """D89: pinned cases for build_city.wedge_slots (floor z = 0, roof z = 10)."""
+    class P:
+        levels = [("x", 3.0, 0.0)]
+        top = 10.0
+    A = (0.0, 1.0, 0.0, 4.0, 0.0, 1.0)
+    def hits(*bx):
+        return len(C.wedge_slots(list(bx), P))
+    def at(z, *b):
+        return (b[0], b[1], b[2], b[3], z, z + 1.0)
+    check(hits(A, at(0, 1.4, 2.4, 0, 4)) == 1, "wedge selftest: 0.4 m slot not found")
+    check(hits(A, at(0, 1.1, 2.1, 0, 4)) == 0, "wedge selftest: 0.1 m (flush) flagged")
+    check(hits(A, at(0, 1.8, 2.8, 0, 4)) == 0, "wedge selftest: 0.8 m (walkable) flagged")
+    check(hits(A, at(0, 1.4, 2.4, 0, 4), at(0, 1.0, 1.4, 0, 4)) == 0, "wedge selftest: filled slot flagged")
+    check(hits(A, at(0, 1.4, 2.4, 0, 4), at(0, 1.0, 1.4, 1.9, 2.1)) == 1, "wedge selftest: a thin post hides the slot")
+    check(hits(A, at(0, 1.4, 2.4, 0, 4), at(0, 1.0, 1.4, 0.8, 3.2)) == 0, "wedge selftest: short leftover runs flagged")
+    R = (0.0, 1.0, 0.0, 4.0, 10.0, 11.0)
+    check(hits(R, at(10, 1.4, 2.4, 0, 4)) == 1, "wedge selftest: roof-level slot not found")
+
+
 def main():
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     names = argv[argv.index("--only") + 1].split(",") if "--only" in argv else sorted(C.BUILDERS)
+    wedge_selftest()
     fresh = {}
     for n in names:
         test_class(n, fresh)

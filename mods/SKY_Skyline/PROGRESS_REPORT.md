@@ -1,6 +1,6 @@
 # SKY_Skyline progress report
 
-## Status at a glance (after D88 full review, 2026-10-08)
+## Status at a glance (after D89, 2026-10-08)
 
 **Overall: about 62 % of a releasable v1.0.** About 92 % of the content is authored and every offline gate
 passes. But nothing has been packed, signed or run in DayZ yet. In-game verification is 0 % and carries the
@@ -8,15 +8,15 @@ most weight of what remains.
 
 | Area | Weight | Done | Why |
 |---|---|---|---|
-| Design and spec (23 ideas, city catalog, decisions D1-D88) | 10 % | 100 % | every idea has a design or a documented block |
+| Design and spec (23 ideas, city catalog, decisions D1-D89) | 10 % | 100 % | every idea has a design or a documented block |
 | Content authored (models, scripts, configs, economy, layouts) | 30 % | 92 % | 21 of 23 ideas built; horses and drivable vehicles blocked on Workbench skills; the underground needs a custom terrain |
-| Offline quality gates (tests, budgets, generators, script xref, reviews) | 10 % | 100 % | test_city 191, test_kit 279 (with hull and wiring checks), check_assets 289 / 0 over, layout 0 failed, texture references 85 / 0 missing, concealment gate over kit + city 0 open findings, slit gate PASS (depth-checked, city blocking), ruin cut gate PASS, wedge-slot gate PASS, perf + security reviews on every batch, full-mod audit + re-review (D88: every finding fixed or accepted with a reason) |
-| Asset quality to ASSET_QUALITY_GUIDE section 8 | 15 % | 80 % | street kit (three passes), street surfaces, car parks and hulks, the interior room kit, venues and underground passed close-up passes; wood, fabric, paver, concrete, brick, stucco, panel, limestone and trim maps have real depth (D77, D80, D82, D83 soldier course and sill); grime macro on the wall materials (D84); rooms vary per flat and in clinics / schools / hospitals (D84, D85); grime differs per building; baked AO on 8 hero and street props (D85-D87, second UV set); venue rooms vary (D86); shop windows and lived-in facades (D87); Res 1.5 exterior LOD on every city building (D88) |
+| Offline quality gates (tests, budgets, generators, script xref, reviews) | 10 % | 100 % | test_city 191, test_kit 279 (with hull and wiring checks), check_assets 289 / 0 over, layout 0 failed, texture references 85 / 0 missing, concealment gate over kit + city 0 open findings, slit gate PASS (depth-checked, city blocking), ruin cut gate PASS, wedge-slot gate PASS (city incl. roofs, and kit props), perf + security reviews on every batch, full-mod audit + re-review (D88: every finding fixed or accepted with a reason) |
+| Asset quality to ASSET_QUALITY_GUIDE section 8 | 15 % | 81 % | street kit (three passes), street surfaces, car parks and hulks, the interior room kit, venues and underground passed close-up passes; wood, fabric, paver, concrete, brick, stucco, panel, limestone and trim maps have real depth (D77, D80, D82, D83 soldier course and sill); grime macro on the wall materials (D84); rooms vary per flat and in clinics / schools / hospitals (D84, D85); grime differs per building; baked AO on 8 hero and street props (D85-D87, second UV set); venue rooms vary (D86); shop windows and lived-in facades (D87); Res 1.5 exterior LOD on every city building (D88); switches, sockets, skirting and radiators on the walls, roof clutter and water tanks (D89) |
 | Pack, sign, PAA on Windows (full mod) | 10 % | 10 % | toolchain verified with the empty template only (SETUP_REPORT); the 18 SKY packages were never packed |
-| In-game verification (TESTING sign-off, P-parameters) | 20 % | 0 % | 0 of 79 sign-off rows, 0 of 61 `P` assumptions, `CITY_TESTED` empty |
+| In-game verification (TESTING sign-off, P-parameters) | 20 % | 0 % | 0 of 80 sign-off rows, 0 of 62 `P` assumptions, `CITY_TESTED` empty |
 | Release prep (real site / terrain, FPS numbers, server-owner docs) | 5 % | 20 % | layouts and terrain generator ready; no surveyed site, no Terrain Builder import, no FPS run, no perf probe |
 
-Weighted: 10 + 27.6 + 10 + 12 + 1 + 0 + 1 = **61.6 %** (about 62 %).
+Weighted: 10 + 27.6 + 10 + 12.15 + 1 + 0 + 1 = **61.75 %** (about 62 %).
 
 ### Built (offline-verified, `built-unverified`)
 - **City**: 35 building types and 60 variants, 156 procedural models in 3 ruin states, plus 15 venue
@@ -31,7 +31,7 @@ Weighted: 10 + 27.6 + 10 + 12 + 1 + 0 + 1 = **61.6 %** (about 62 %).
 ### Not done / blocked
 1. **First in-game session**: packing, signing, PAA conversion, a dedicated + diag run, logs.
    `TEST_SESSION.md` is the script. It needs the Windows machine; the cloud sessions cannot run DayZ.
-2. **61 engine assumptions** (PENDING_VERIFICATION P1-P61) and **79 sign-off rows** (TESTING): each has a
+2. **62 engine assumptions** (PENDING_VERIFICATION P1-P62) and **80 sign-off rows** (TESTING): each has a
    one-line fix ready.
 3. **Blocked on skills outside the procedural pipeline**:
    - horses (idea 11);
@@ -45,10 +45,10 @@ Weighted: 10 + 27.6 + 10 + 12 + 1 + 0 + 1 = **61.6 %** (about 62 %).
 Done since this list was first written: hull test 2 / slit test (D79, D82, D83), street kit pass 3 (D78), texture
 depth and grime macro maps (D77, D80, D84), baked AO on hero props (D85-D87), interior variety (D84-D86). Night lights
 on billboards / traffic lights were dropped (D81). Still open:
-- **Interior wall dressing**: rooms have plain painted walls. Skirting, switches, sockets, radiators and frames are the
-  next batch (D89).
-- **Roof clutter**: vents, antennas, water tanks and cable runs on flat roofs.
-- **Wedge-slot check for kit props**: today only `test_city` runs it.
+- Done in D89: interior wall dressing (switches, sockets, outer-wall skirting, radiators in public rooms), roof clutter
+  and water tanks, the wedge-slot check over kit props and roofs.
+- **Wedge check limits**: props on plinths / raised decks and sloped shapes are not compared yet.
+- **Ceiling detail in flats**: smoke detectors, vents (cheap, Res0) - low value until T1.
 - **Merged furniture (D43)**: deferred until FPS is measured.
 - **Placement survey on the real site** (D88, security M4): a release gate.
 - Elevator hum / ding sounds (manifest: planned).
@@ -471,3 +471,11 @@ budget checker now checks by LOD resolution, LOD steps and view / fire density. 
 broken flood fallback, a missed base-gate case and some client cost in the new code; all fixed. Docs: 27 missing test
 sign-off rows and a missing decision row added; stale items in this report corrected. Reviews:
 `reviews/d88_full_review.md`.
+
+## 40. Lived-in rooms and roofs (D89)
+
+Rooms now have light switches by the doors, sockets low on the walls, skirting along every wall and radiators under the
+windows of offices, clinics and schools as well as flats. Flat roofs carry vent pipes, mushroom vents, a cable conduit
+and, on some apartment blocks, a water tank that you cannot crawl under. The check for narrow gaps a player could get
+stuck in now also runs on roofs and on every non-city prop; it found one at the landfill (fixed by moving a mound).
+Reviews: `reviews/d89_gates.md`.
