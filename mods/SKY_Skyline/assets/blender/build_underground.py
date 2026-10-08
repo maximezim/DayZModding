@@ -254,7 +254,7 @@ def build_sewer_straight(access=False, end=False, collapsed=False, flooded=False
     if flooded:                                                                                   # D67: standing water to the knees
         for k in ("res0", "res1"):
             L[k].lod.quad([(-SW_IN, -hy, zf + 0.35), (SW_IN, -hy, zf + 0.35), (SW_IN, hy - 0.5, zf + 0.35), (-SW_IN, hy - 0.5, zf + 0.35)],
-                          (0, 0, 1), "glassfar", C.UV_GLASS)
+                          (0, 0, 1), "glassfar", C.UV_GLASS, double=True)          # D91: no one-way water surface
         for i in range(5):                                                                        # floating junk
             fx, fy = -1.5 + 3.0 * h01(name, "fx", i), -4.5 + 9.0 * h01(name, "fy", i)
             L["res0"].box(fx - 0.15, fx + 0.15, fy - 0.1, fy + 0.1, zf + 0.33, zf + 0.4, mat="trash", uv=UVWorld(S.MATERIALS["trash"]["sheet_m"]))

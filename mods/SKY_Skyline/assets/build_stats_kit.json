@@ -1,12 +1,12 @@
 {
  "sky_barrier_concrete.p3d": {
-  "fire": 20,
-  "geo": 20,
+  "fire": 12,
+  "geo": 12,
   "res0": 172,
   "res1": 36,
   "res2": 12,
-  "shadow": 20,
-  "view": 20
+  "shadow": 12,
+  "view": 12
  },
  "sky_barrier_steel.p3d": {
   "fire": 24,

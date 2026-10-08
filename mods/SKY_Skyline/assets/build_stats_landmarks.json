@@ -1,7 +1,7 @@
 {
  "sky_bridge_long.p3d": {
-  "fire": 1088,
-  "geo": 1112,
+  "fire": 1056,
+  "geo": 1080,
   "mem": 0,
   "res0": 5398,
   "res1": 1370,
@@ -9,7 +9,7 @@
   "res3": 32,
   "road": 14,
   "shadow": 120,
-  "view": 584
+  "view": 552
  },
  "sky_fair_booth.p3d": {
   "fire": 132,
@@ -240,8 +240,8 @@
   "view": 36
  },
  "sky_viaduct_straight.p3d": {
-  "fire": 76,
-  "geo": 76,
+  "fire": 60,
+  "geo": 60,
   "mem": 0,
   "res0": 360,
   "res1": 146,
@@ -249,7 +249,7 @@
   "res3": 20,
   "road": 2,
   "shadow": 36,
-  "view": 76
+  "view": 60
  },
  "sky_wreck_garbagetruck.p3d": {
   "fire": 36,

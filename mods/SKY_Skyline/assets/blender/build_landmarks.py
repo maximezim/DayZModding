@@ -19,6 +19,7 @@ sys.path.insert(0, os.path.dirname(HERE))
 import build_city as C  # noqa: E402
 import detail as DT  # noqa: E402
 import skyspec as S  # noqa: E402
+import build_kit as K  # noqa: E402
 from build_kit import KIT_MATS, line_quad  # noqa: E402
 from skygeo import UVBand, UVRect, UVWorld, run_cli  # noqa: E402
 
@@ -1079,8 +1080,9 @@ def deck(L, x0, x1, y0, y1, z, t=0.9, barriers=True, mats=("concrete", None)):
         for sx in (-1, 1):
             xb = sx * (x1 - 0.25) if sx > 0 else x0 + 0.25
             prof = [(xb - 0.3, z), (xb + 0.3, z), (xb + 0.1, z + 0.25), (xb + 0.08, z + 0.85), (xb - 0.08, z + 0.85), (xb - 0.1, z + 0.25)]
+            hull = K.convex_profile(prof)                                       # D91: Geometry must be convex
             for k in ("res0", "res1", "res2", "geo", "fire", "view"):
-                L[k].extrude_y(prof, y0, y1, **kw_for(k, "concrete", UV_CONC, "concrete"))
+                L[k].extrude_y(prof if k.startswith("res") else hull, y0, y1, **kw_for(k, "concrete", UV_CONC, "concrete"))
 
 
 def build_viaduct_straight():
@@ -1307,8 +1309,10 @@ def build_bridge():
     jersey = [(-6.0, -5.0, -1.0), (-3.0, 1.0, 5.0), (3.0, -5.0, -1.0), (6.0, 1.0, 5.0)]
     for (x, ya, yb) in jersey:
         prof = [(ya, 0.0), (yb, 0.0), (yb - 0.2, 0.3), (yb - 0.3, 1.0), (ya + 0.3, 1.0), (ya + 0.2, 0.3)]
-        for k in ("res0", "res1", "res2", "geo", "fire", "view"):
-            L[k].extrude_x([(p[0], p[1]) for p in prof], x - 0.3, x + 0.3, **kw_for(k, "concrete", UV_CONC, "concrete"))
+        hull = K.convex_profile(prof)                                            # D91: Geometry must be convex (the
+        for k in ("res0", "res1", "res2", "geo", "fire", "view"):                  # jersey knee is not; <= 9 cm off)
+            pr = prof if k.startswith("res") else hull
+            L[k].extrude_x([(p[0], p[1]) for p in pr], x - 0.3, x + 0.3, **kw_for(k, "concrete", UV_CONC, "concrete"))
     for (x, y) in ((-10.0, -3.5), (10.0, 3.5)):                                  # sandbag nests (half rings)
         for i in range(5):
             a0 = math.pi * i / 5

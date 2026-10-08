@@ -346,9 +346,23 @@ def one_sided_panes(lod, geo_halfspaces=None, min_area=0.05):
     import numpy as np
     cand = {}
     gl = [(idx, [lod.verts[i] for i in idx]) for idx, m, _u in lod.faces if m == "glassfar"]
+    # perf: planes whose glassfar faces add up to less than a head (bottles, small trims) are dropped up front
+    plane_area = {}
+    info = []
     for idx, pts in gl:
         n = _nrm(pts)
-        if not n.any() or backed_any(lod, pts, n):
+        if not n.any():
+            continue
+        c = np.mean(np.asarray(pts, float), 0)
+        key = (tuple(np.round(n, 2)), round(float(n @ c), 2))
+        plane_area[key] = plane_area.get(key, 0.0) + C._area(pts)
+        info.append((idx, pts, n, key))
+    big = [(idx, pts, n) for idx, pts, n, key in info if plane_area[key] >= min_area]
+    if not big:
+        return []
+    gl = [(idx, pts) for idx, pts, _n, key in info if plane_area[key] >= 0.5 * min_area]   # twins: sizeable faces only
+    for idx, pts, n in big:
+        if backed_any(lod, pts, n):
             continue
         c = np.mean(np.asarray(pts, float), 0)
         d = float(n @ c)
@@ -373,21 +387,56 @@ def one_sided_panes(lod, geo_halfspaces=None, min_area=0.05):
     return [faces[0][1] for faces in cand.values() if sum(a for a, _c in faces) >= min_area]
 
 
-def backed_any(lod, pts, n):
-    """An opaque face parallel to the pane within 5 cm behind it covers >= 90 % of it (painted on a wall)."""
+_OPAQUE_CACHE = {}
+
+
+def _opaque_planes(lod):
+    """Per LOD (cached): unit normals, plane offsets and bounding boxes of its opaque faces, as arrays (perf)."""
     import numpy as np
-    c = np.mean(np.asarray(pts, float), 0)
-    for idx, m, _u in lod.faces:
-        if m in SEE_THROUGH or m in ("glassfar", "glassvoid"):
-            continue
-        q = [lod.verts[i] for i in idx]
-        n2 = _nrm(q)
-        if abs(abs(n2 @ n) - 1) > 0.01:
-            continue
-        dist = float(n @ c) - float(n @ np.asarray(q[0], float))
-        if 0.0 < dist < 0.05 and _covers(q, pts, n, frac=0.9):           # covers the pane, not just its centre
-            return True
-    return False
+    key = id(lod)
+    if key not in _OPAQUE_CACHE:
+        N, D, LO, HI = [], [], [], []
+        for idx, m, _u in lod.faces:
+            if m in SEE_THROUGH or m in ("glassfar", "glassvoid"):
+                continue
+            q = np.asarray([lod.verts[i] for i in idx], float)
+            n = _nrm(q)
+            if not n.any():
+                continue
+            N.append(n)
+            D.append(float(n @ q[0]))
+            LO.append(q.min(0))
+            HI.append(q.max(0))
+        _OPAQUE_CACHE.clear()                                    # one LOD at a time
+        _OPAQUE_CACHE[key] = (np.array(N).reshape(-1, 3), np.array(D), np.array(LO).reshape(-1, 3),
+                              np.array(HI).reshape(-1, 3))
+    return _OPAQUE_CACHE[key]
+
+
+def backed_any(lod, pts, n):
+    """An opaque face parallel to the pane, coplanar or within 5 cm behind it, covers >= 90 % of it (painted on a
+    wall, or resting on a shelf)."""
+    import numpy as np
+    N, D, LO, HI = _opaque_planes(lod)
+    if not len(N):
+        return False
+    p = np.asarray(pts, float)
+    par = np.abs(np.abs(N @ n) - 1) <= 0.01
+    # distance of each candidate plane behind the pane: n . c - (a point of that plane) . n
+    plane_pt = N * D[:, None]                                    # the plane's point closest to the origin
+    dist = float(n @ p.mean(0)) - plane_pt @ n
+    sel = par & (dist > -0.005) & (dist < 0.05)
+    if not sel.any():
+        return False
+    a = int(np.argmax(np.abs(n)))
+    o = [j for j in range(3) if j != a]
+    pl, ph = p.min(0), p.max(0)
+    ov = np.ones(sel.sum())
+    full = 1.0
+    for j in o:
+        ov *= np.clip(np.minimum(ph[j], HI[sel, j]) - np.maximum(pl[j], LO[sel, j]), 0, None)
+        full *= max(1e-9, ph[j] - pl[j])
+    return bool((ov >= 0.9 * full).any())
 
 
 def _inside_proj(q, c, n):

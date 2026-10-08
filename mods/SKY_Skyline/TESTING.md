@@ -819,6 +819,15 @@ collision and looks.
 | FL-04 | Walk along the parked wrecks on every garage deck | Car noses flush against the barrier; no gap to get stuck in | | |
 | FL-05 | Halls and bedrooms in flats | A smoke detector on the ceiling beside the lamp | | |
 
+## 55. One-way glass, wedges, convex barriers (D91)
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| OW-01 | Inside a damaged / ruined factory hall, look up through the roof glazing; from a tower, look down at it | Opaque both ways (grimy glass), never see-through from one side only | | |
+| OW-02 | Walk round the cinema, stadium, viaduct and car-jam props, stairs and ramps | No narrow gap to get stuck in next to sloped or round parts | | |
+| OW-03 | Shoot the foot of jersey barriers (kit, viaduct, bridge checkpoint) at 0-0.3 m (P64) | Hits land on the barrier surface; no visible air hits | | |
+| OW-04 | In the flooded sewer end, look at the water from below the surface level (crouch at the end wall) | The water surface is dark from both sides | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -904,4 +913,5 @@ collision and looks.
 | Full quality review fixes §52 | | | |
 | Wall dressing and roof clutter §53 | | | |
 | Far LODs, broken windows, ceilings §54 | | | |
+| One-way glass, wedges, convex barriers §55 | | | |
 | FPS protocol (`FPS_PROTOCOL.md` §4 thresholds) | | | |

@@ -1,6 +1,6 @@
 # SKY_Skyline progress report
 
-## Status at a glance (after D90, 2026-10-08)
+## Status at a glance (after D91, 2026-10-08)
 
 **Overall: about 62 % of a releasable v1.0.** About 92 % of the content is authored and every offline gate
 passes. But nothing has been packed, signed or run in DayZ yet. In-game verification is 0 % and carries the
@@ -8,12 +8,12 @@ most weight of what remains.
 
 | Area | Weight | Done | Why |
 |---|---|---|---|
-| Design and spec (23 ideas, city catalog, decisions D1-D90) | 10 % | 100 % | every idea has a design or a documented block |
+| Design and spec (23 ideas, city catalog, decisions D1-D91) | 10 % | 100 % | every idea has a design or a documented block |
 | Content authored (models, scripts, configs, economy, layouts) | 30 % | 92 % | 21 of 23 ideas built; horses and drivable vehicles blocked on Workbench skills; the underground needs a custom terrain |
-| Offline quality gates (tests, budgets, generators, script xref, reviews) | 10 % | 100 % | test_city 191, test_kit 279 (with hull and wiring checks), check_assets 289 / 0 over, layout 0 failed, texture references 85 / 0 missing, concealment gate over kit + city 0 open findings, slit gate PASS (depth-checked, city blocking), ruin cut gate PASS, wedge-slot gate PASS (city incl. roofs and raised floors, and kit props), far-LOD gates (facade cover, window panes, see-through rays, no one-way panes) PASS, perf + security reviews on every batch, full-mod audit + re-review (D88: every finding fixed or accepted with a reason) |
+| Offline quality gates (tests, budgets, generators, script xref, reviews) | 10 % | 100 % | test_city 191, test_kit 279 (with hull and wiring checks), check_assets 289 / 0 over, layout 0 failed, texture references 85 / 0 missing, concealment gate over kit + city 0 open findings, slit gate PASS (depth-checked, city blocking), ruin cut gate PASS, wedge-slot gate PASS (city incl. roofs and raised floors, and kit props), far-LOD gates (facade cover, window panes, see-through rays) PASS, one-way glass rule (every model, any orientation) PASS, wedge check next to sloped / round parts PASS, convex Geometry PASS, perf + security reviews on every batch, full-mod audit + re-review (D88: every finding fixed or accepted with a reason) |
 | Asset quality to ASSET_QUALITY_GUIDE section 8 | 15 % | 81 % | street kit (three passes), street surfaces, car parks and hulks, the interior room kit, venues and underground passed close-up passes; wood, fabric, paver, concrete, brick, stucco, panel, limestone and trim maps have real depth (D77, D80, D82, D83 soldier course and sill); grime macro on the wall materials (D84); rooms vary per flat and in clinics / schools / hospitals (D84, D85); grime differs per building; baked AO on 8 hero and street props (D85-D87, second UV set); venue rooms vary (D86); shop windows and lived-in facades (D87); Res 1.5 exterior LOD on every city building (D88); switches, sockets, skirting and radiators on the walls, roof clutter and water tanks (D89); far LODs fixed (whole facades), Res 1.75 on the 52 largest, no one-way window panes (D90) |
 | Pack, sign, PAA on Windows (full mod) | 10 % | 10 % | toolchain verified with the empty template only (SETUP_REPORT); the 18 SKY packages were never packed |
-| In-game verification (TESTING sign-off, P-parameters) | 20 % | 0 % | 0 of 81 sign-off rows, 0 of 63 `P` assumptions, `CITY_TESTED` empty |
+| In-game verification (TESTING sign-off, P-parameters) | 20 % | 0 % | 0 of 82 sign-off rows, 0 of 64 `P` assumptions, `CITY_TESTED` empty |
 | Release prep (real site / terrain, FPS numbers, server-owner docs) | 5 % | 20 % | layouts and terrain generator ready; no surveyed site, no Terrain Builder import, no FPS run, no perf probe |
 
 Weighted: 10 + 27.6 + 10 + 12.15 + 1 + 0 + 1 = **61.75 %** (about 62 %).
@@ -31,7 +31,7 @@ Weighted: 10 + 27.6 + 10 + 12.15 + 1 + 0 + 1 = **61.75 %** (about 62 %).
 ### Not done / blocked
 1. **First in-game session**: packing, signing, PAA conversion, a dedicated + diag run, logs.
    `TEST_SESSION.md` is the script. It needs the Windows machine; the cloud sessions cannot run DayZ.
-2. **63 engine assumptions** (PENDING_VERIFICATION P1-P63) and **81 sign-off rows** (TESTING): each has a
+2. **64 engine assumptions** (PENDING_VERIFICATION P1-P64) and **82 sign-off rows** (TESTING): each has a
    one-line fix ready.
 3. **Blocked on skills outside the procedural pipeline**:
    - horses (idea 11);
@@ -49,7 +49,8 @@ on billboards / traffic lights were dropped (D81). Still open:
   and water tanks, the wedge-slot check over kit props and roofs.
 - Done in D90: far LOD fix and Res 1.75, broken-window one-way panes removed, wedge check on raised floors, smoke
   detectors.
-- **Wedge check limits**: sloped and round parts (180 in the kit) are not compared.
+- Done in D91: one-way glass rule everywhere, wedge check next to sloped / round parts, convex collision gate.
+- **Wedge check limit**: a pocket open at a single body height (prone under an overhang) is not flagged.
 - **Merged furniture (D43)**: deferred until FPS is measured.
 - **Placement survey on the real site** (D88, security M4): a release gate.
 - Elevator hum / ding sounds (manifest: planned).
@@ -493,3 +494,12 @@ The same work found an older problem: broken windows had a dark pane in the open
 outside saw a dark window; a player inside could see and shoot out. Broken windows are now really open up close, and
 only the distant versions show them dark. Parked wrecks in the garage no longer leave a gap at the barrier where a
 player could get stuck, and flats have smoke detectors. Reviews: `reviews/d90_gates.md`.
+
+## 42. Closing the last see-through and stuck-spot gaps (D91)
+
+The check for one-way glass now covers every model, glass at any angle, and glass split into small tiles; it only
+ignores glass that nobody can stand behind. It found four more spots (factory roof glazing, church belfry, a dome on the
+town hall, the water surface in a flooded sewer), all fixed. The check for places where a player gets stuck now also
+looks next to round and sloped parts (columns, ramps, stairs, car bodies), in every direction, at four body heights.
+A new check that every collision part is convex (the game requires it) found the concrete road barriers; their
+collision now follows a convex outline. Reviews: `reviews/d91_gates.md`.

@@ -406,6 +406,25 @@ def build_trafficlight():
 JERSEY = [(-0.3, 0.0), (0.3, 0.0), (0.1, 0.3), (0.08, 0.8), (-0.08, 0.8), (-0.1, 0.3)]
 
 
+def convex_profile(prof):
+    """D91: convex hull of a 2D profile, counter-clockwise like the input - for Geometry / Fire / View extrusions
+    (the engine needs convex components; the jersey knee is concave by a few cm)."""
+    pts = sorted(set(prof))
+
+    def cross(o, a, b):
+        return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
+    lower, upper = [], []
+    for p in pts:
+        while len(lower) >= 2 and cross(lower[-2], lower[-1], p) <= 0:
+            lower.pop()
+        lower.append(p)
+    for p in reversed(pts):
+        while len(upper) >= 2 and cross(upper[-2], upper[-1], p) <= 0:
+            upper.pop()
+        upper.append(p)
+    return lower[:-1] + upper[:-1]
+
+
 def build_barrier_concrete():
     """3 m jersey barrier (D73 close-up pass): chamfered ends, chipped edges with rebar showing, a lifting
     loop, faded red / white hazard stripes on the slope, drainage slots at the foot. Collision unchanged."""
@@ -433,9 +452,10 @@ def build_barrier_concrete():
         L["res0"].box(-0.06, 0.06, y - 0.05, y + 0.05, z, z + 0.08, mat="concrete", uv=UV_CONC_REVEAL)
         _bar(L["res0"], (0.0, y, z + 0.04),
               (0.03, y + (0.12 if y > 0 else -0.12), z + 0.1), 0.006, "rust", UV_RUST)
-    L["geo"].extrude_y(JERSEY, -1.5, 1.5)
-    L["view"].extrude_y(JERSEY, -1.5, 1.5)
-    L["fire"].extrude_y(JERSEY, -1.5, 1.5, mat="pen_concrete")
+    hull = convex_profile(JERSEY)                                              # D91: Geometry must be convex
+    L["geo"].extrude_y(hull, -1.5, 1.5)
+    L["view"].extrude_y(hull, -1.5, 1.5)
+    L["fire"].extrude_y(hull, -1.5, 1.5, mat="pen_concrete")
     return finish(L, 2000.0)
 
 
