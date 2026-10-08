@@ -2,8 +2,8 @@
 
 | Gate | Command | Result |
 |---|---|---|
-| One-way concealment, kit + city | `python assets/blender/test_conceal.py --city --jobs 4` | CONCEAL_RESULT |
-| Slits, kit + city | `python assets/blender/test_slits.py --city` | SLITS_RESULT |
+| One-way concealment, kit + city | `python assets/blender/test_conceal.py --city --jobs 4` | PASS (273 models, 66 min) |
+| Slits, kit + city | `python assets/blender/test_slits.py --city` | PASS (273; same two scoped acceptances; 34 views > 9 Mpx skipped) |
 | City geometry + new far-LOD gates | `python assets/blender/test_city.py` | first runs found: the D88 Res 1.5 bug (street facades missing), Res 1.75 empty window openings, 22 wedge slots beside garage wrecks, far-LOD see-through on garages and 4 courtyard ruins, one cinema pane (painted on a wall: exempt) -> all fixed; PASS (191) |
 | Gate mutations | old band / shell depth 0.04 / voids dropped / void back in Res0 | FAIL each (74 of 593 m2 front kept; 265 panes missing; 123 vs 22 rays through; 67 one-way panes) |
 | Kit geometry | `python assets/blender/test_kit.py` | first run: 4 FAILED (Ferris wheel: sloped A-frame legs compared by bounding box) -> only axis-aligned box parts compared, the rest counted (180); PASS (279) |
