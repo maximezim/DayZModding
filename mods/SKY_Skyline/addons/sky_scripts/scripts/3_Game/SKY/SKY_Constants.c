@@ -23,6 +23,7 @@ class SKY_Const
 	static const string LOG_TAG = "[SKY] ";
 	//! Per-player minimum interval between elevator/keycard requests (ms).
 	static const int PLAYER_REQUEST_INTERVAL_MS = 1500;
+	static const int ELEVATOR_MAX_STOPS = 64;			// synced car level range 0..63 (Core33 has 35 stops)
 	//! Per-player minimum interval between logged keycard denials (ms).
 	static const int DENIAL_LOG_INTERVAL_MS = 5000;
 	//! Upper bound of tracked identities before the rate limiter prunes.
@@ -38,6 +39,12 @@ class SKY_Const
 	static const bool LIGHTS_ENABLED = true;
 	//! Max lights per building module (memory points light_1..light_4 in priority order).
 	static const int LIGHTS_PER_MODULE = 2;
+	// full audit perf H1: lights only near the camera (client light director, SKY_Lighting.c)
+	static const float LIGHTS_ON_RANGE = 150.0;		//!< a building within this distance may light up
+	static const float LIGHTS_OFF_RANGE = 180.0;	//!< ...and goes dark beyond this (hysteresis)
+	static const int LIGHTS_MAX_BUILDINGS = 24;		//!< lit buildings at once (x LIGHTS_PER_MODULE / hyper 4 lights)
+	static const int LIGHTS_MAX_REGISTERED = 4096;	//!< registry bound (a whole terrain city)
+	static const int LIGHTS_TICK_MS = 1000;
 	//! Lights in the double-height lobby.
 	static const int LIGHTS_LOBBY = 4;
 }
@@ -75,6 +82,8 @@ class SKY_Life
 	static const int SEARCH_PLAYER_INTERVAL_MS = 4000;
 	//! Upper bound of tracked searched spots.
 	static const int SEARCH_MAX_SPOTS = 4096;
+	static const int SEARCH_RARE_PER_HOUR = 3;		//!< server-wide cap per rare class per hour (full audit L4)
+	static const int SEARCH_RARE_WINDOW_MS = 3600000;
 	//! Highest search_N memory point read (matches build_city.SEARCH_MAX).
 	static const int SEARCH_POINTS = 8;
 	//! Chance (0..1) to cut a hand on trash without gloves.
@@ -101,7 +110,10 @@ class SKY_Life
 	static const float HORDE_RING_MAX = 140.0;
 	static const int HORDE_GROUP = 6;				//!< infected per spawn
 	static const int HORDE_PER_ANCHOR = 18;
-	static const int HORDE_GLOBAL_MAX = 72;
+	static const int HORDE_GLOBAL_MAX = 72;			//!< hard ceiling; the live cap scales with players (below)
+	static const int HORDE_BASE_CAP = 12;			//!< full audit perf H2: live cap = BASE + PER_PLAYER x online players
+	static const int HORDE_PER_PLAYER = 4;
+	static const int HORDE_STAGGER_MS = 250;		//!< one infected per 250 ms instead of 6 in one frame
 	static const int HORDE_RESPAWN_MS = 300000;		//!< per-anchor interval between spawns
 	static const int HORDE_MAX_ANCHORS = 64;
 	static const int HORDE_CORPSE_MS = 600000;		//!< tracked corpses deleted after this (no player near)
@@ -135,6 +147,8 @@ class SKY_Beasts
 	static const float KENNEL_BARK_NOISE = 3.0;		//!< x vanilla alarm-clock noise (infected come to look)
 	static const int MAX_KENNELS = 1024;			//!< all kennels (placed or carried); see M1 in reviews/d62_gates.md
 	static const int KENNEL_STORE_VERSION = 1;
+	static const float KENNEL_DOOR_CLEAR = 2.5;		//!< no kennel placed this close to a building door (full audit M2)
+	static const float KENNEL_DOOR_SCAN = 40.0;		//!< object query radius (large buildings: origin far from doors)
 
 	// ---- rats - P22
 	static const float RAT_BITE_RADIUS = 2.5;		//!< from the nest centre (rats sit up to 1.4 m out + 1.1 m reach)

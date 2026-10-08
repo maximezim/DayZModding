@@ -39,10 +39,11 @@ class Land_SKY_TowerA_Core extends House
 	protected ref array<vector> m_SkyCabPos;	// model-space memory points, cached per stop
 	protected ref array<vector> m_SkyPanelPos;
 	protected ref array<vector> m_SkyCallPos;
+	protected ref array<string> m_SkyDoorAnims;	// "elev_door_l<i>" cached once (perf: no string building per sync)
 
 	void Land_SKY_TowerA_Core()
 	{
-		RegisterNetSyncVariableInt("m_SkyCarLevel", 0, 31);
+		RegisterNetSyncVariableInt("m_SkyCarLevel", 0, SKY_Const.ELEVATOR_MAX_STOPS - 1);	// Core33 has 35 stops (sec M3: was 0..31)
 		RegisterNetSyncVariableInt("m_SkyState", 0, SKY_ElevatorState.TRAVEL);
 		RegisterNetSyncVariableBool("m_SkyDoorsOpen");
 		SkyLoadConfig();
@@ -73,6 +74,14 @@ class Land_SKY_TowerA_Core extends House
 		m_SkyPanelReach     = ConfigGetFloat("skyPanelReach");
 		if (m_SkyStops.Count() < 2 || m_SkyMaxOccupants < 1)
 			SKY_Log.Warn(GetType() + ": invalid elevator config (skyStops / skyMaxOccupants)");
+		if (m_SkyStops.Count() > SKY_Const.ELEVATOR_MAX_STOPS)
+		{
+			SKY_Log.Warn(GetType() + ": more stops than the synced level range, extra stops ignored");
+			m_SkyStops.Resize(SKY_Const.ELEVATOR_MAX_STOPS);
+		}
+		m_SkyDoorAnims = new array<string>();
+		for (int d = 0; d < m_SkyStops.Count(); d++)
+			m_SkyDoorAnims.Insert("elev_door_l" + d);
 	}
 
 	//! Memory points are cached once (model space); missing points disable that stop.
@@ -127,7 +136,7 @@ class Land_SKY_TowerA_Core extends House
 			float phase = 0;
 			if (m_SkyDoorsOpen && i == m_SkyCarLevel)
 				phase = 1;
-			SetAnimationPhase("elev_door_l" + i, phase);
+			SetAnimationPhase(m_SkyDoorAnims[i], phase);
 		}
 	}
 
@@ -259,6 +268,8 @@ class Land_SKY_TowerA_Core extends House
 			return;
 
 		int now = g_Game.GetTime();
+		if (!m_SkyPlayerLimiter)	// lazy: objects baked into a terrain may skip EEInit (sec L2)
+			m_SkyPlayerLimiter = new SKY_RateLimiter(SKY_Const.PLAYER_REQUEST_INTERVAL_MS);
 		if (!m_SkyPlayerLimiter.Allow(player.GetIdentity().GetId(), now))
 			return;	// silent: action spam
 		if (!SkyCanRequest(player, cmd))

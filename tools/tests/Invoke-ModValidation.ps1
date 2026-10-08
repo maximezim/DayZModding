@@ -262,6 +262,12 @@ elseif (Test-Path -LiteralPath (Join-DzPath $modDir 'assets' 'check_assets.py'))
             Invoke-DzCheck $t $Python @($tp)
         }
     }
+    # Fast security gates (full audit): ruin render/collision agreement and the slit test's own selftest. The
+    # hour-long concealment / slit scans over the whole city run in assets\Build-SkyAssets.ps1.
+    $ruin = Join-DzPath $modDir 'assets' 'blender' 'test_ruin_cuts.py'
+    if (Test-Path -LiteralPath $ruin) { Invoke-DzCheck 'test_ruin_cuts' $Python @($ruin) }
+    $slits = Join-DzPath $modDir 'assets' 'blender' 'test_slits.py'
+    if (Test-Path -LiteralPath $slits) { Invoke-DzCheck 'test_slits --selftest' $Python @($slits, '--selftest') }
 } else { Add-Step 'static checks' 'SKIP' 'mod has no assets\check_assets.py' }
 
 # 2. build, sign, deploy

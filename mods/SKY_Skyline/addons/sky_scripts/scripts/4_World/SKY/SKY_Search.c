@@ -45,6 +45,11 @@ class SKY_SearchService
 	protected ref map<string, ref SKY_SearchTable> m_Tables;
 	protected ref map<string, int> m_Spots;			//!< spot key -> time searched (ms)
 	protected ref SKY_RateLimiter m_Rate;
+	//! Full audit L4: rare classes are capped server-wide per hour so a spot rotation cannot farm them
+	//! (the CE does not count search loot). Bounded: only the classes in s_Rare are ever keys.
+	protected static ref set<string> s_Rare;
+	protected ref map<string, int> m_RareCount;
+	protected int m_RareWindow;
 
 	static SKY_SearchService Get()
 	{
@@ -57,6 +62,12 @@ class SKY_SearchService
 	{
 		m_Spots = new map<string, int>();
 		m_Rate = new SKY_RateLimiter(SKY_Life.SEARCH_PLAYER_INTERVAL_MS);
+		m_RareCount = new map<string, int>();
+		s_Rare = new set<string>();
+		array<string> rare = {"Lockpick", "CombatKnife", "Handcuffs", "HandcuffKeys", "Morphine", "Epinephrine", "StartKitIV",
+			"SalineBag", "PersonalRadio", "Megaphone"};
+		foreach (string r : rare)
+			s_Rare.Insert(r);
 		m_Tables = new map<string, ref SKY_SearchTable>();
 		// Class names checked against vanilla dayzOffline.chernarusplus db/types.xml (P17: balance).
 		array<string> trash = {"Rag", "Paper", "Pen_Black", "BakedBeansCan_Opened", "SardinesCan_Opened", "TunaCan_Opened",
@@ -240,7 +251,11 @@ class SKY_SearchService
 			for (int k = 0; k < n; k++)
 			{
 				vector p = spot + Vector(Math.RandomFloatInclusive(-0.4, 0.4), lift, Math.RandomFloatInclusive(-0.4, 0.4));
-				g_Game.CreateObjectEx(table.m_Items.GetRandomElement(), p, flags);
+				if (!ClearDrop(player, spot + Vector(0, lift, 0), p))
+					p = spot + Vector(0, lift, 0);					// full audit L1: never behind a wall / in furniture
+				string cls = PickItem(table, now);
+				if (cls != "")
+					g_Game.CreateObjectEx(cls, p, flags);
 			}
 			player.MessageStatus("You found something.");
 		}
@@ -255,6 +270,38 @@ class SKY_SearchService
 				player.GetBleedingManagerServer().AttemptAddBleedingSourceBySelection("LeftForeArmRoll");
 			player.MessageImportant("You cut your hand on broken glass.");
 		}
+	}
+
+	//! Full audit L1: the offset item position must be reachable in a straight line from the spot (Geometry).
+	static bool ClearDrop(PlayerBase player, vector from, vector to)
+	{
+		vector hitPos;
+		vector hitDir;
+		int hitComp;
+		return !DayZPhysics.RaycastRV(from, to, hitPos, hitDir, hitComp, null, null, player, false, false, ObjIntersectGeom);
+	}
+
+	//! Full audit L4: a random entry; a rare class over its hourly cap is re-rolled (3 tries) or skipped.
+	protected string PickItem(SKY_SearchTable table, int now)
+	{
+		if (now - m_RareWindow > SKY_Life.SEARCH_RARE_WINDOW_MS)
+		{
+			m_RareWindow = now;
+			m_RareCount.Clear();
+		}
+		for (int t = 0; t < 3; t++)
+		{
+			string cls = table.m_Items.GetRandomElement();
+			if (s_Rare.Find(cls) < 0)							// common item: no cap
+				return cls;
+			int c = m_RareCount.Get(cls);
+			if (c < SKY_Life.SEARCH_RARE_PER_HOUR)
+			{
+				m_RareCount.Set(cls, c + 1);
+				return cls;
+			}
+		}
+		return "";
 	}
 
 	//! Drop expired spots; false if the map is still full.

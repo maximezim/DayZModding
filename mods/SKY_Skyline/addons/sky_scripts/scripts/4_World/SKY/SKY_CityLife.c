@@ -55,6 +55,7 @@ class SKY_CityLife
 	protected static ref SKY_CityLife s_Instance;
 
 	protected ref array<ref SKY_HordeMember> m_Members = new array<ref SKY_HordeMember>();
+	protected int m_Pending;			//!< infected scheduled by SpawnGroup, not yet created (staggered)
 	protected ref array<Man> m_Players = new array<Man>();
 	protected ref array<string> m_Infected;
 	protected ref NoiseParams m_Noise;
@@ -90,6 +91,7 @@ class SKY_CityLife
 		if (!s_Instance)
 			return;
 		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).Remove(s_Instance.Tick);
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).Remove(s_Instance.SpawnOne);
 		s_Instance = null;
 	}
 
@@ -191,7 +193,11 @@ class SKY_CityLife
 	//! One group on a ring round `center`, out of every player's close range. Returns the number spawned.
 	protected int SpawnGroup(Land_SKY_SirenTower anchor, vector center, float rmin, float rmax, int count, int cap)
 	{
-		int room = cap - m_Members.Count();
+		// full audit perf H2: the cap scales with the players online (the CE does not count these infected);
+		// an alarm keeps its extra headroom on top of the scaled base
+		int scaled = SKY_Life.HORDE_BASE_CAP + SKY_Life.HORDE_PER_PLAYER * m_Players.Count();
+		cap = Math.Min(cap, scaled + (cap - SKY_Life.HORDE_GLOBAL_MAX));
+		int room = cap - m_Members.Count() - m_Pending;
 		if (room <= 0)
 			return 0;
 		count = Math.Min(count, room);
@@ -209,26 +215,33 @@ class SKY_CityLife
 		}
 		if (!ok)
 			return 0;
-		int spawned = 0;
 		for (int i = 0; i < count; i++)
 		{
 			vector zp = Vector(p[0] + Math.RandomFloatInclusive(-4, 4), 0, p[2] + Math.RandomFloatInclusive(-4, 4));
 			zp[1] = g_Game.SurfaceY(zp[0], zp[2]);
-			Object obj = g_Game.CreateObjectEx(m_Infected.GetRandomElement(), zp, ECE_PLACE_ON_SURFACE | ECE_INITAI | ECE_EQUIP_ATTACHMENTS);
-			ZombieBase z = ZombieBase.Cast(obj);
-			if (!z)
-			{
-				if (obj)
-					g_Game.ObjectDelete(obj);
-				continue;
-			}
-			SKY_HordeMember mb = new SKY_HordeMember();
-			mb.m_Zombie = z;
-			mb.m_Anchor = anchor;
-			m_Members.Insert(mb);
-			spawned++;
+			m_Pending++;
+			g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(SpawnOne, i * SKY_Life.HORDE_STAGGER_MS, false, anchor, zp);
 		}
-		return spawned;
+		return count;
+	}
+
+	//! One infected of a staggered group (perf H2: no 6-AI hitch in one frame).
+	protected void SpawnOne(Land_SKY_SirenTower anchor, vector zp)
+	{
+		if (m_Pending > 0)
+			m_Pending--;
+		Object obj = g_Game.CreateObjectEx(m_Infected.GetRandomElement(), zp, ECE_PLACE_ON_SURFACE | ECE_INITAI | ECE_EQUIP_ATTACHMENTS);
+		ZombieBase z = ZombieBase.Cast(obj);
+		if (!z)
+		{
+			if (obj)
+				g_Game.ObjectDelete(obj);
+			return;
+		}
+		SKY_HordeMember mb = new SKY_HordeMember();
+		mb.m_Zombie = z;
+		mb.m_Anchor = anchor;
+		m_Members.Insert(mb);
 	}
 
 	protected void UpdateAlarm(int now)

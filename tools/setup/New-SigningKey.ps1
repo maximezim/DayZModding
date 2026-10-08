@@ -25,8 +25,7 @@ $cfg   = Get-DzConfig
 $paths = Get-DzPaths -Config $cfg
 if (-not $KeyDir) { $KeyDir = $paths.KeyDir }
 $KeyDir = [System.IO.Path]::GetFullPath($KeyDir)
-$repo = (Get-DzRepoRoot).TrimEnd('\') + '\'
-if (($KeyDir.TrimEnd('\') + '\').StartsWith($repo, [System.StringComparison]::OrdinalIgnoreCase)) {
+if (Test-DzPathInRepo $KeyDir) {
     throw "Refusing to create keys inside the repository ($KeyDir)."
 }
 Assert-DzTool 'DSCreateKey.exe' $paths.DSCreateKey

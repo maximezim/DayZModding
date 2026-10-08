@@ -97,7 +97,7 @@ def parse(path):
         r.u32()  # flags
         pts = [struct.unpack("<fffI", r.take(16))[:3] for _ in range(n_pts)]
         r.take(12 * n_nrm)
-        textures, materials = set(), set()
+        textures, materials, pairs = set(), set(), set()
         tris = 0
         for _ in range(n_faces):
             nv = r.i32()
@@ -108,6 +108,7 @@ def parse(path):
                 textures.add(tex)
             if mat:
                 materials.add(mat)
+            pairs.add((tex, mat))                 # one section per (texture, material) pair (perf audit M4)
             tris += 1 if nv == 3 else 2
         if r.take(4) != b"TAGG":
             raise ValueError("missing TAGG")
@@ -144,6 +145,7 @@ def parse(path):
             "mass": mass,
             "textures": sorted(textures),
             "materials": sorted(materials),
+            "sections": len(pairs),
             "bbox": [[min(xs), min(ys), min(zs)], [max(xs), max(ys), max(zs)]],
         })
     return lods

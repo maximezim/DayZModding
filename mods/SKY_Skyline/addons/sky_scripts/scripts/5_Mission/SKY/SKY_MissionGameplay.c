@@ -6,11 +6,13 @@ modded class MissionGameplay
 	{
 		super.OnMissionStart();
 		SKY_Ambience.StartClient();
+		SKY_LightDirector.StartClient();						// full audit perf H1
 	}
 
 	override void OnMissionFinish()
 	{
 		SKY_Ambience.StopClient();
+		SKY_LightDirector.StopClient();
 		super.OnMissionFinish();
 	}
 }

@@ -27,6 +27,37 @@ function Test-DzWindows {
 
 function Get-DzRepoRoot { return $script:RepoRoot }
 
+# Real path: full path with every existing junction / symlink segment replaced by its target (security audit L5:
+# a relative path, '..' or the P:\<Mod> junction must not hide a key inside the repository).
+function Resolve-DzRealPath {
+    param([Parameter(Mandatory)][string]$Path)
+    $full = [System.IO.Path]::GetFullPath($Path)
+    $parts = $full.TrimEnd('\').Split('\')
+    $cur = $parts[0] + '\'
+    for ($i = 1; $i -lt $parts.Count; $i++) {
+        $cur = [System.IO.Path]::Combine($cur, $parts[$i])
+        $item = Get-Item -LiteralPath $cur -Force -ErrorAction SilentlyContinue
+        if ($item -and $item.LinkType -and $item.Target) {
+            $target = @($item.Target)[0]
+            if (-not [System.IO.Path]::IsPathRooted($target)) { $target = [System.IO.Path]::Combine((Split-Path $cur -Parent), $target) }
+            $cur = [System.IO.Path]::GetFullPath($target)
+        }
+    }
+    return $cur
+}
+
+function Test-DzPathInRepo {
+    param([Parameter(Mandatory)][string]$Path)
+    $repoFull = (Get-DzRepoRoot).TrimEnd('\') + '\'
+    $repoReal = (Resolve-DzRealPath $repoFull).TrimEnd('\') + '\'
+    foreach ($p in @([System.IO.Path]::GetFullPath($Path), (Resolve-DzRealPath $Path))) {
+        $q = $p.TrimEnd('\') + '\'
+        if ($q.StartsWith($repoFull, [System.StringComparison]::OrdinalIgnoreCase) -or
+            $q.StartsWith($repoReal, [System.StringComparison]::OrdinalIgnoreCase)) { return $true }
+    }
+    return $false
+}
+
 function Join-DzPath {
     # Join-DzPath with any number of segments (5.1 has no -AdditionalChildPath).
     # An unknown base (tool not installed) yields '' instead of a misleading relative path.

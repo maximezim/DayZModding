@@ -46,6 +46,54 @@ class SKY_Kennel extends DeployableContainer_Base
 		SkySetGuarding(false);
 	}
 
+	//! Security review (full audit M2): a guarded kennel cannot be damaged or moved, so it must not seal a door.
+	//! Checked on the server too (actiondeployobject.c:67 re-runs CanBePlaced with the server hologram).
+	override bool CanBePlaced(Man player, vector position)
+	{
+		if (!super.CanBePlaced(player, position))
+			return false;
+		return !SkyNearDoor(position);
+	}
+
+	override string CanBePlacedFailMessage(Man player, vector position)
+	{
+		if (SkyNearDoor(position))
+			return "Too close to a door";
+		return super.CanBePlacedFailMessage(player, position);
+	}
+
+	protected vector m_SkyDoorPos = "0 -10000 0";	//!< last door check (the hologram asks every frame)
+	protected bool m_SkyDoorNear;
+
+	protected bool SkyNearDoor(vector position)
+	{
+		if (vector.DistanceSq(position, m_SkyDoorPos) < 0.01)
+			return m_SkyDoorNear;
+		m_SkyDoorPos = position;
+		m_SkyDoorNear = SkyScanDoors(position);
+		return m_SkyDoorNear;
+	}
+
+	protected bool SkyScanDoors(vector position)
+	{
+		array<Object> objs = new array<Object>();
+		g_Game.GetObjectsAtPosition(position, SKY_Beasts.KENNEL_DOOR_SCAN, objs, null);
+		float r2 = SKY_Beasts.KENNEL_DOOR_CLEAR * SKY_Beasts.KENNEL_DOOR_CLEAR;
+		foreach (Object o : objs)
+		{
+			Building b = Building.Cast(o);
+			if (!b)
+				continue;
+			int n = b.GetDoorCount();
+			for (int i = 0; i < n; i++)
+			{
+				if (vector.DistanceSq(b.GetDoorSoundPos(i), position) < r2)	// world space (building.c:79)
+					return true;
+			}
+		}
+		return false;
+	}
+
 	bool SkyIsGuarding()
 	{
 		return m_SkyGuarding;
@@ -75,8 +123,10 @@ class SKY_Kennel extends DeployableContainer_Base
 
 	protected void SkySetGuarding(bool guarding)
 	{
-		if (g_Game.IsServer())
-			SetAllowDamage(!guarding);			// security D62 H1: a ruined container spills its cargo (container_base.c:94-100)
+		// security D62 H1: a ruined container spills its cargo (container_base.c:94-100); set only on change
+		// (perf review: was every 30 s per kennel) - GetAllowDamage, object.c:1187
+		if (g_Game.IsServer() && GetAllowDamage() == guarding)
+			SetAllowDamage(!guarding);
 		if (guarding == m_SkyGuarding)
 			return;
 		m_SkyGuarding = guarding;
@@ -212,6 +262,36 @@ modded class ItemBase
 		if (SkyInGuardedKennel())
 			return false;
 		return super.ShouldSplitQuantity(quantity);
+	}
+
+	//! Full audit M1: items nested in a guarded kennel (in a backpack, attachments of a stored gun) are locked
+	//! too - the kennel's own overrides only see its direct cargo.
+	override bool CanReleaseCargo(EntityAI cargo)
+	{
+		if (SkyInGuardedKennel())
+			return false;
+		return super.CanReleaseCargo(cargo);
+	}
+
+	override bool CanReleaseAttachment(EntityAI attachment)
+	{
+		if (SkyInGuardedKennel())
+			return false;
+		return super.CanReleaseAttachment(attachment);
+	}
+
+	override bool CanReceiveItemIntoCargo(EntityAI item)
+	{
+		if (SkyInGuardedKennel())
+			return false;
+		return super.CanReceiveItemIntoCargo(item);
+	}
+
+	override bool CanReceiveAttachment(EntityAI attachment, int slotId)
+	{
+		if (SkyInGuardedKennel())
+			return false;
+		return super.CanReceiveAttachment(attachment, slotId);
 	}
 
 	override bool CanBeCombined(EntityAI other_item, bool reservation_check = true, bool stack_max_limit = false)

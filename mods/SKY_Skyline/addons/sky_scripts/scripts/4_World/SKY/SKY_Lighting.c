@@ -63,10 +63,108 @@ class SKY_HyperLight extends SKY_InteriorLight
 	}
 }
 
+/*
+	Full audit perf H1: buildings no longer create their lights on init. They register with this client-only
+	director; one 1 s timer lights the nearest LIGHTS_MAX_BUILDINGS within LIGHTS_ON_RANGE of the camera and
+	switches buildings off beyond LIGHTS_OFF_RANGE. Map objects of a terrain city never get EEDelete, so the
+	registry is pruned of null entries every tick and bounded (LIGHTS_MAX_REGISTERED).
+*/
+class SKY_LightDirector
+{
+	protected static ref array<SKY_LitBuilding> s_All = new array<SKY_LitBuilding>();
+	protected static ref array<SKY_LitBuilding> s_Cand = new array<SKY_LitBuilding>();	//!< reused per tick
+	protected static ref array<float> s_CandD = new array<float>();
+	protected static bool s_Running;
+
+	static void Register(SKY_LitBuilding b)
+	{
+		if (g_Game.IsDedicatedServer() || !SKY_Const.LIGHTS_ENABLED || !b || s_All.Count() >= SKY_Const.LIGHTS_MAX_REGISTERED)
+			return;
+		s_All.Insert(b);					// once per building (SKY_LitBuilding.m_SkyRegistered)
+	}
+
+	static void Unregister(SKY_LitBuilding b)
+	{
+		int i = s_All.Find(b);
+		if (i >= 0)
+			s_All.Remove(i);
+	}
+
+	static void StartClient()
+	{
+		if (g_Game.IsDedicatedServer() || s_Running || !SKY_Const.LIGHTS_ENABLED)
+			return;
+		s_Running = true;
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(SKY_LightDirector.Tick, SKY_Const.LIGHTS_TICK_MS, true);
+	}
+
+	static void StopClient()
+	{
+		if (!s_Running)
+			return;
+		s_Running = false;
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).Remove(SKY_LightDirector.Tick);
+		foreach (SKY_LitBuilding b : s_All)
+		{
+			if (b)
+				b.SkySetLit(false);
+		}
+	}
+
+	static void Tick()
+	{
+		vector cam = g_Game.GetCurrentCameraPosition();
+		float on2 = SKY_Const.LIGHTS_ON_RANGE * SKY_Const.LIGHTS_ON_RANGE;
+		float off2 = SKY_Const.LIGHTS_OFF_RANGE * SKY_Const.LIGHTS_OFF_RANGE;
+		int lit = 0;
+		s_Cand.Clear();
+		s_CandD.Clear();
+		for (int i = s_All.Count() - 1; i >= 0; i--)
+		{
+			SKY_LitBuilding b = s_All[i];
+			if (!b)
+			{
+				s_All.Remove(i);
+				continue;
+			}
+			float d = vector.DistanceSq(b.GetPosition(), cam);
+			if (b.SkyIsLit())
+			{
+				if (d > off2)
+					b.SkySetLit(false);
+				else
+					lit++;
+			}
+			else if (d < on2)
+			{
+				int at = s_CandD.Count();					// tiny sorted insert, nearest first
+				while (at > 0 && s_CandD[at - 1] > d)
+					at--;
+				s_Cand.InsertAt(b, at);
+				s_CandD.InsertAt(d, at);
+			}
+		}
+		for (int k = 0; k < s_Cand.Count() && lit < SKY_Const.LIGHTS_MAX_BUILDINGS; k++)
+		{
+			s_Cand[k].SkySetLit(true);
+			lit++;
+		}
+	}
+}
+
 class SKY_LitBuilding extends House
 {
 	protected ref array<ScriptedLightBase> m_SkyLights;
 	protected bool m_SkyLightsDone;
+	protected bool m_SkyRegistered;
+
+	protected void SkyRegister()
+	{
+		if (m_SkyRegistered)
+			return;
+		m_SkyRegistered = true;
+		SKY_LightDirector.Register(this);
+	}
 
 	//! Light memory points in priority order (capped by SkyLightCount()).
 	protected void SkyLightPoints(notnull array<string> pts)
@@ -91,19 +189,39 @@ class SKY_LitBuilding extends House
 	override void EEInit()
 	{
 		super.EEInit();
-		SkyCreateLights();
+		SkyRegister();
 	}
 
 	override void DeferredInit()
 	{
 		super.DeferredInit();
-		SkyCreateLights();
+		SkyRegister();
 	}
 
 	override void EEDelete(EntityAI parent)
 	{
 		super.EEDelete(parent);
+		SKY_LightDirector.Unregister(this);
 		SkyDestroyLights();
+	}
+
+	void ~SKY_LitBuilding()
+	{
+		SKY_LightDirector.Unregister(this);
+	}
+
+	bool SkyIsLit()
+	{
+		return m_SkyLightsDone;
+	}
+
+	//! Director only (client).
+	void SkySetLit(bool lit)
+	{
+		if (lit)
+			SkyCreateLights();
+		else
+			SkyDestroyLights();
 	}
 
 	protected void SkyCreateLights()
@@ -135,6 +253,7 @@ class SKY_LitBuilding extends House
 				light.Destroy();
 		}
 		m_SkyLights.Clear();
+		m_SkyLightsDone = false;
 	}
 }
 

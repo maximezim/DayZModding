@@ -81,14 +81,17 @@ class SKY_SiteSurvey
 		res.label = req.label;
 		res.center = req.center;
 		res.yaw = req.yaw;
-		res.halfW = req.halfW;
-		res.halfD = req.halfD;
 		res.samples = new array<float>();
 		res.objects = new array<ref SKY_SurveyObject>();
 		res.minY = float.MAX;
 		res.maxY = -float.MAX;
 
-		float step = Math.Max(req.step, Math.Max(req.halfW, req.halfD) * 2 / MAX_STEP_COUNT);
+		// full audit L3: a request file with step <= 0 and zero / huge half-sizes hung the server start loop
+		req.halfW = Math.Clamp(req.halfW, 1.0, 1000.0);
+		req.halfD = Math.Clamp(req.halfD, 1.0, 1000.0);
+		float step = Math.Max(Math.Max(req.step, 0.25), Math.Max(req.halfW, req.halfD) * 2 / MAX_STEP_COUNT);
+		res.halfW = req.halfW;
+		res.halfD = req.halfD;
 		for (float u = -req.halfW; u <= req.halfW + 0.001; u += step)
 		{
 			for (float v = -req.halfD; v <= req.halfD + 0.001; v += step)

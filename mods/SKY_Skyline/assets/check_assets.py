@@ -72,9 +72,24 @@ def main():
         g = by.get("Geometry")
         if (not g or not g["mass"]) and e.get("category") not in ("flat", "decal", "veg"):
             errs.append("Geometry missing or massless")
-        for i, key in enumerate(("res0", "res1", "res2", "res3")):
-            if key in b and i < len(res) and res[i]["triangles"] > b[key]:
-                over.append("%s %d > %d" % (key, res[i]["triangles"], b[key]))
+        # budget keys by LOD resolution (full audit: the city exterior LOD sits at 1.5 between res1 and res2)
+        keys = {0.0: "res0", 1.0: "res1", 1.5: "res1x", 2.0: "res2", 3.0: "res3"}
+        for l in res:
+            key = keys.get(round(l["resolution"], 2))
+            lim = b.get(key, b.get("res1")) if key == "res1x" else b.get(key)
+            if key and lim is not None and l["triangles"] > lim:
+                over.append("%s %d > %d" % (key, l["triangles"], lim))
+        # ASSET_QUALITY_GUIDE section 6: no LOD step below 5 % of the previous (popping); the last LOD (the far
+        # impostor box) is exempt (full audit perf M4)
+        # underground pieces (sewer / metro) are buried and only seen from inside at close range: exempt
+        for i in range(1, len(res) - 1) if e.get("category") != "underground" else ():
+            if res[i - 1]["triangles"] > 200 and res[i]["triangles"] < 0.05 * res[i - 1]["triangles"]:
+                over.append("LOD step %d -> %d (< 5 %%)" % (res[i - 1]["triangles"], res[i]["triangles"]))
+        # View / Fire Geometry density (server raycasts / ballistics): hypotheses 2x / 3x the geo_tris budget
+        if "geo_tris" in b:
+            for lname, k in (("View Geometry", 2.0), ("Fire Geometry", 3.0)):
+                if lname in by and by[lname]["triangles"] > k * b["geo_tris"]:
+                    over.append("%s %d > %d" % (lname.split()[0].lower(), by[lname]["triangles"], k * b["geo_tris"]))
         if "shadow" in b and "Shadow Volume" in by and by["Shadow Volume"]["triangles"] > b["shadow"]:
             over.append("shadow %d > %d" % (by["Shadow Volume"]["triangles"], b["shadow"]))
         if g:
@@ -84,7 +99,7 @@ def main():
             if "geo_tris" in b and g["triangles"] > b["geo_tris"]:
                 over.append("geo tris %d > %d" % (g["triangles"], b["geo_tris"]))
         if res and "sections_res0" in b:
-            sec = len(set(res[0]["materials"]) | set(res[0]["textures"])) // 2 or 1
+            sec = res[0].get("sections") or 1                     # unique (texture, material) pairs (perf audit M4)
             if sec > b["sections_res0"]:
                 over.append("res0 sections %d > %d" % (sec, b["sections_res0"]))
         if e.get("category") != "decal":          # decal Res2 blending is a documented decision (D22)

@@ -3990,7 +3990,56 @@ def build(arch, state):
     geo.mass = 15000.0 + 6000.0 * len(P.levels)
     LOOT_OUT["Land_SKY_" + P.name] = loot_points(L, P)
     macro_variant(L, P)
-    return [v.lod for v in L.values()]
+    return [v.lod for v in L.values()] + [exterior_lod(L, P)]
+
+
+EXT_BAND = 0.9      # m: faces within this of the outer walls / yard walls (or in the roof zone) are exterior
+EXT_ROOF = 2.5      # m below the highest point: parapets, roof plant, skylights
+# far-LOD rule (check_assets: no blended alpha from Res2 on): blended decals dropped (the grime macro covers that range),
+# clear glass swapped for the opaque far glass; alpha-TESTED materials (gen_configs.ALPHA_TEST) stay
+EXT_DROP = {"decal_grime", "decal_dirt"}
+EXT_SWAP = {"glass": "glassfar"}
+
+
+def exterior_lod(L, P):
+    """Full audit (ASSET_QUALITY_GUIDE section 6: each LOD ~40-60 % of the previous): Res1 still carries the whole
+    interior, invisible at the range where the far shell takes over, so the chain dropped 30 % -> 3 %. This
+    resolution-1.5 LOD is Res1's exterior only - outer facades, roof zone and (courtyard blocks) the yard facades -
+    with the door selections kept so doors still animate. Typically 35-60 % of Res1."""
+    from skygeo import Lod
+    r1 = L["res1"].lod
+    ext = Lod("res1x", LOD_RES, 1.5)
+    if not r1.verts:
+        return ext
+    xs = [v[0] for v in r1.verts]
+    ys = [v[1] for v in r1.verts]
+    zs = [v[2] for v in r1.verts]
+    x0, x1, y0, y1, ztop = min(xs), max(xs), min(ys), max(ys), max(zs)
+    yard = getattr(P, "yard", None)
+    remap = {}
+    for idx, mat, uv in r1.faces:
+        pts = [r1.verts[i] for i in idx]
+        cx, cy, cz = (sum(p[k] for p in pts) / len(pts) for k in range(3))
+        outer = min(cx - x0, x1 - cx, cy - y0, y1 - cy) < EXT_BAND or cz > ztop - EXT_ROOF
+        if not outer and yard:
+            yx0, yx1, yy0, yy1 = yard[:4]
+            outer = (yx0 - EXT_BAND < cx < yx1 + EXT_BAND and yy0 - EXT_BAND < cy < yy1 + EXT_BAND
+                     and not (yx0 + EXT_BAND < cx < yx1 - EXT_BAND and yy0 + EXT_BAND < cy < yy1 - EXT_BAND))
+        if not outer or mat in EXT_DROP:
+            continue
+        mat = EXT_SWAP.get(mat, mat)
+        nidx = []
+        for i in idx:
+            if i not in remap:
+                remap[i] = len(ext.verts)
+                ext.verts.append(r1.verts[i])
+            nidx.append(remap[i])
+        ext.faces.append((tuple(nidx), mat, uv))
+    for g, vs in r1.groups.items():                      # door selections (model.cfg animations), kept verts only
+        kept = {remap[i] for i in vs if i in remap}
+        if kept:
+            ext.groups[g] = kept
+    return ext
 
 
 def macro_variant(L, P):

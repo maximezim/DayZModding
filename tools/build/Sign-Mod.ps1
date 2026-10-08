@@ -25,8 +25,7 @@ $paths = Get-DzPaths -Config $cfg
 if (-not $OutputRoot) { $OutputRoot = $paths.BuildDir }
 
 if (-not $paths.KeyName) { throw 'No signing key configured. Run tools\setup\New-SigningKey.ps1 -KeyName <Tag> first.' }
-$repo = (Get-DzRepoRoot).TrimEnd('\') + '\'
-if ($paths.PrivateKey.StartsWith($repo, [System.StringComparison]::OrdinalIgnoreCase)) {
+if (Test-DzPathInRepo $paths.PrivateKey) {
     throw "Private key '$($paths.PrivateKey)' is inside the repository. Move it out (signing.keyDir)."
 }
 Assert-DzTool 'DSSignFile' $paths.DSSignFile -DryRun:$DryRun
