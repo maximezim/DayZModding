@@ -1109,7 +1109,7 @@ def facade(L, P, key, lvl):
                 sd.box(r0, w0 - 0.1, w1 + 0.1, zz, zz + 0.03, -0.2, -0.17, mat="metal", uv=DT.UV_STEEL)
             for a in (w0 - 0.1, (w0 + w1) / 2, w1 + 0.1):
                 sd.box(r0, a - 0.015, a + 0.015, s0, s0 + 0.98, -0.2, -0.17, mat="metal", uv=DT.UV_STEEL, skip=("-z",))
-        if residential and lvl > 0 and P.state < 2:
+        if residential and lvl > 0 and P.state < 2 and not str(key).startswith("i"):   # yard sides face walkable galleries
             facade_clutter(L, P, sd, bkey, w0, w1, b0, b1, s0, s1, st, rail=(skin == "panel" and i % 2 == 1),
                            shutters=bool(SK.get("shutters")))
     flush()
