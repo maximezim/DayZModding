@@ -277,6 +277,8 @@ def test_class(name, fresh_loot):
                   and b[4] < z + 1.0 and b[5] > z + 0.1]
         check(not inside, "%s: search point %s (%g, %g, %g) is inside a collision box %s" % (
             name, g, x, y, z, tuple(round(v, 2) for v in inside[0]) if inside else ()))
+    for sl in C.wedge_slots([b for _g, b in comp_boxes(lods["geo"])], P):                                            # D87 (sec review): no wedge slots
+        check(False, "%s: %.2f m slot over %.2f m between collision boxes %s and %s" % ((name,) + sl[:4]))
     tiny = (P.ix1 - P.ix0) * (P.iy1 - P.iy0) < 30.0
     check(len(C.LOOT_OUT.get(e["cls"], [])) >= 1 or (state == 2 and tiny), "%s: no loot points" % name)
 

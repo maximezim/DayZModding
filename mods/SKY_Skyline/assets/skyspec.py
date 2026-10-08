@@ -1229,6 +1229,10 @@ AO_PROPS = {                                                    # 256: ~70 px/m 
     "Kitchenette": {"tag": "kitch", "size": 256, "mats": ("metal", "wood", "tile")},
     "ServerRack": {"tag": "rack", "size": 256, "mats": ("metal", "rust")},
     "Locker": {"tag": "lock", "size": 256, "mats": ("metal", "rust")},
+    # D87: street props (outdoor, on the pavement plane)
+    "BusStop": {"tag": "bstop", "size": 256, "mats": ("rust", "paint")},
+    "AdColumn": {"tag": "adcol", "size": 256, "mats": ("concrete", "paint", "metal")},
+    "PhoneBooth": {"tag": "phone", "size": 256, "mats": ("metal", "concrete")},
 }
 for _n, _a in AO_PROPS.items():
     for _m in _a["mats"]:

@@ -181,6 +181,12 @@ def build_phone_booth():
 
 BUILDERS = {"BusStop": build_bus_stop, "AdColumn": build_ad_column, "PhoneBooth": build_phone_booth}
 
+import aobake  # noqa: E402
+
+for _n in S.AO_PROPS:                                     # D87: baked AO on UV set 1 (skyspec.AO_PROPS, P55)
+    if _n in BUILDERS:
+        BUILDERS[_n] = aobake.with_ao(BUILDERS[_n], S.AO_PROPS[_n])
+
 
 def modules():
     return {n: (BUILDERS[n], e["pbo"], e["p3d"]) for n, e in S.KIT.items() if n in BUILDERS}

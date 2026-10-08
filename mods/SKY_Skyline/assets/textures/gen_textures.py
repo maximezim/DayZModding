@@ -1668,19 +1668,21 @@ def grime_macro(size, out):
 
 def ao_props(size, out):
     """D85 pilot: bake AO for the props in skyspec.AO_PROPS onto their unique UV set 1 (assets/blender/aobake.py,
-    the same unwrap build_props writes). Softened to 0.4..1 like the other _as maps (recesses never go black)."""
+    the uv1 the builders write - build_props and build_streetprops, D87). Softened to 0.4..1 like the other _as maps (recesses never go black)."""
     import sys
     here = os.path.dirname(os.path.abspath(__file__))
     sys.path.insert(0, os.path.join(here, ".."))
     sys.path.insert(0, os.path.join(here, "..", "blender"))
     import aobake
     import build_props
+    import build_streetprops
     import skyspec as S
+    builders = dict(build_props.BUILDERS, **build_streetprops.BUILDERS)
     for name, spec in S.AO_PROPS.items():
-        lods = {l.name: l for l in build_props.BUILDERS[name]()}
+        lods = {l.name: l for l in builders[name]()}
         r0 = lods["res0"]
-        n = spec["size"]                                   # baked at the shipped size (the unwrap depends on it)
-        ao = aobake.bake(r0, aobake.unwrap(r0, n), n)
+        n = spec["size"]                                   # baked into the builder's own UV set 1 (aobake.with_ao)
+        ao = aobake.bake(r0, r0.uv1, n)
         img = Image.fromarray(np.clip((0.4 + 0.6 * ao) * 255, 0, 255).astype(np.uint8), "L").convert("RGB")
         img.save(os.path.join(out, "sky_%s_as.png" % spec["tag"]))
 

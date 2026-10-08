@@ -149,6 +149,9 @@ textures:
   - {name: sky_kitch, maps: [as(256)], size: 256, use: baked AO of the Kitchenette on its unique UV set 1 (aobake.py, Stage4 uvSource tex1; D86 / P55), status: built-unverified}
   - {name: sky_rack, maps: [as(256)], size: 256, use: baked AO of the ServerRack on its unique UV set 1 (aobake.py, Stage4 uvSource tex1; D86 / P55), status: built-unverified}
   - {name: sky_lock, maps: [as(256)], size: 256, use: baked AO of the Locker on its unique UV set 1 (aobake.py, Stage4 uvSource tex1; D86 / P55), status: built-unverified}
+  - {name: sky_bstop, maps: [as(256)], size: 256, use: baked AO of the BusStop on its unique UV set 1 (aobake.py, Stage4 uvSource tex1; D87 / P55), status: built-unverified}
+  - {name: sky_adcol, maps: [as(256)], size: 256, use: baked AO of the AdColumn on its unique UV set 1 (aobake.py, Stage4 uvSource tex1; D87 / P55), status: built-unverified}
+  - {name: sky_phone, maps: [as(256)], size: 256, use: baked AO of the PhoneBooth on its unique UV set 1 (aobake.py, Stage4 uvSource tex1; D87 / P55), status: built-unverified}
   - {name: sky_hq_facade, maps: [co, nohq(2048), smdi(1024)], size: 4096, use: "HQ facade atlas (D60) - brushed bronze / ribbed bronze spandrel / flamed granite / bronze louvre bands, 6 m sheet; the only 4K texture", status: built-unverified}
 
   - {name: sky_signs4, maps: [co], size: 1024, use: "venue variant signs (D69): universam, kino Oktyabr, TC Galaktika, pivnaya, FC Torpedo (+3 spare bands)", status: built-unverified}

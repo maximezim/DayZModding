@@ -278,7 +278,8 @@ class Plan:
             ax0, ax1, ay0, _ay1 = self.atrium
             for l in range(len(self.levels) - 1):
                 run = self.levels[l][1] * 1.732                  # 30 degree flight
-                xs = (ax1 + 0.6, ax1 + 2.2) if l % 2 == 0 else (ax0 - 2.2, ax0 - 0.6)
+                # D87: 1.0 m off the atrium (a 0.6 m strip between balustrade and escalator was a wedge slot)
+                xs = (ax1 + 1.0, ax1 + 2.6) if l % 2 == 0 else (ax0 - 2.6, ax0 - 1.0)
                 self.escalators.append((l, xs[0], xs[1], ay0, ay0 + run))
         if A.get("ramps"):
             for l in range(len(self.levels) - 1):
@@ -1108,8 +1109,46 @@ def facade(L, P, key, lvl):
                 sd.box(r0, w0 - 0.1, w1 + 0.1, zz, zz + 0.03, -0.2, -0.17, mat="metal", uv=DT.UV_STEEL)
             for a in (w0 - 0.1, (w0 + w1) / 2, w1 + 0.1):
                 sd.box(r0, a - 0.015, a + 0.015, s0, s0 + 0.98, -0.2, -0.17, mat="metal", uv=DT.UV_STEEL, skip=("-z",))
+        if residential and lvl > 0 and P.state < 2:
+            facade_clutter(L, P, sd, bkey, w0, w1, b0, b1, s0, s1, st, rail=(skin == "panel" and i % 2 == 1),
+                           shutters=bool(SK.get("shutters")))
     flush()
     return sd, openings
+
+
+def facade_clutter(L, P, sd, bkey, w0, w1, b0, b1, s0, s1, st, rail=False, shutters=False):
+    """D87 lived-in facades (upper residential floors, out of reach from the street): a split-system AC unit beside
+    or under the window, a satellite dish on a bracket, or laundry on a French-balcony rail. Seeded per window; most
+    windows stay bare. Render-only, nothing deeper than 0.5 m off the wall. AC body and dish plate also in Res1 (no
+    pop at the LOD switch, perf M); faces against the wall or hidden are skipped (perf L)."""
+    r0, r1 = L["res0"], L["res1"]
+    back = (sd.in_key,)
+    r = h01(P.name, bkey, "clutter")
+    if r < 0.10:                                                              # AC unit (0.7 x 0.45 x 0.25 m)
+        if not shutters and w1 + 0.9 < b1:
+            a0, z0 = w1 + 0.15, s0 + 0.15
+        else:
+            a0, z0 = (w0 + w1) / 2 - 0.35, s0 - 0.62                         # under the sill
+        for lod in (r0, r1):
+            sd.box(lod, a0, a0 + 0.7, z0, z0 + 0.45, -0.27, -0.02, mat="paint", uv=DT.paint_uv("white"), skip=back)
+        sd.quad(r0, a0 + 0.08, a0 + 0.62, z0 + 0.07, z0 + 0.38, -0.272, mat="metal", uv=DT.UV_STEEL)   # grille
+        for k in (a0 + 0.1, a0 + 0.6):                                        # brackets: underside + sides only
+            sd.box(r0, k - 0.015, k + 0.015, z0 - 0.04, z0, -0.27, -0.02, mat="metal", uv=DT.UV_STEEL, skip=back + ("+z",))
+    elif r < 0.16 and w1 + 0.85 < b1 and not shutters:                        # satellite dish (clips shutters: skipped)
+        a = w1 + 0.45
+        z = s1 - 0.2
+        sd.box(r0, a - 0.02, a + 0.02, z - 0.02, z + 0.02, -0.3, -0.02, mat="metal", uv=DT.UV_STEEL, skip=back)  # arm
+        for lod in (r0, r1):
+            sd.box(lod, a - 0.28, a + 0.28, z - 0.28, z + 0.28, -0.34, -0.31, mat="paint", uv=DT.paint_uv("white"))
+        sd.box(r0, a - 0.015, a + 0.015, z - 0.015, z + 0.015, -0.5, -0.34, mat="metal", uv=DT.UV_STEEL)  # LNB arm
+    elif r < 0.30 and rail and st != "broken":                                # laundry on the balcony rail
+        n = 2 + int(h01(P.name, bkey, "ln") * 3)
+        for j in range(n):
+            a = w0 + 0.05 + j * (w1 - w0 - 0.1) / n
+            wj = min(0.45, (w1 - w0 - 0.1) / n - 0.05)
+            hj = 0.35 + 0.25 * h01(P.name, bkey, "lh", j)
+            band = ("blue", "beige", "grey")[int(h01(P.name, bkey, "lc", j) * 3)]
+            sd.quad(r0, a, a + wj, s0 + 0.95 - hj, s0 + 0.95, -0.21, mat="fabric", uv=UV_FAB[band], double=True)   # 4 tris
 
 
 def facade_level_extras(L, P, sd, lvl, openings):
@@ -1395,6 +1434,61 @@ def clear(zones, box):
     return not any(x0 < b[1] and b[0] < x1 and y0 < b[3] and b[2] < y1 for b in zones)
 
 
+def shop_window(L, P, r, z, zones):
+    """D87: a window display along the street wall (y0) left and right of the door, by shop type. One collision
+    stand per span (<= 0.9 m, the window stays see-through above it); goods on it are small render-only pieces."""
+    x0, x1, y0, y1 = r
+    arch = P.arch
+    if P.A.get("catalog", arch) == "PostOffice":
+        return
+    ya, yb = y0 + 0.08, y0 + 0.58
+    # the shop counter (kitchen_run x1-2.4..x1-0.4 at y0+1.2) keeps its walkway: no stand in front of it (sec M)
+    zones = zones + [(x1 - 2.6, x1, y0, y0 + 1.9)]
+    for (a, b) in ((x0 + 0.4, min(x0 + 2.8, (x0 + x1) / 2 - 0.2)), (max(x1 - 2.8, (x0 + x1) / 2 + 0.2), x1 - 0.4)):
+        if b - a < 1.0 or not clear(zones, (a, b, ya, yb + 0.1)):
+            continue
+        k = (P.name, round(a, 1))
+        if "Market" in arch:                                                    # stepped produce stand + crates
+            piece(L, (a, b, ya, yb, z, z + 0.5), "wood", UV_OAK)
+            L["res0"].box(a, b, ya + 0.25, yb, z + 0.5, z + 0.8, mat="wood", uv=UV_OAK)
+            n = int((b - a) / 0.45)
+            for i in range(n):
+                cx_ = a + 0.05 + i * (b - a - 0.1) / n
+                for (zz, y_a, y_b) in ((z + 0.5, ya + 0.02, ya + 0.24), (z + 0.8, ya + 0.27, yb - 0.02)):
+                    col = ("terracotta", "sage", "beige")[int(h01(k, i, zz) * 3)]
+                    L["res0"].box(cx_, cx_ + 0.38, y_a, y_b, zz, zz + 0.12, mat="paint", uv=DT.paint_uv(col))
+            L["geo"].box(a, b, ya + 0.25, yb, z + 0.5, z + 0.8)                  # the upper step collides too
+            L["fire"].box(a, b, ya + 0.25, yb, z + 0.5, z + 0.8, mat="pen_wood")
+        elif "Pharmacy" in arch:                                                # white display shelf with boxes
+            piece(L, (a, b, ya, yb, z, z + 0.9), "paint", DT.paint_uv("white"), pen="wood")
+            for i in range(int((b - a) / 0.22)):
+                if h01(k, "box", i) < 0.7:
+                    bx = a + 0.05 + i * 0.22
+                    L["res0"].box(bx, bx + 0.16, ya + 0.1, ya + 0.3, z + 0.9, z + 1.06, mat="paint",
+                                  uv=DT.paint_uv(("white", "sage", "beige")[int(h01(k, "bc", i) * 3)]))
+        elif "Hardware" in arch:                                                # pallet stand with paint cans
+            piece(L, (a, b, ya, yb, z, z + 0.3), "wood", UV_OAK)
+            for i in range(int((b - a) / 0.2)):
+                for j in range(2):
+                    if h01(k, "can", i, j) < 0.8:
+                        L["res0"].prism(a + 0.12 + i * 0.2, ya + 0.15 + j * 0.22, 0.08, z + 0.3, z + 0.48, n=6,
+                                        mat="paint", uv=DT.paint_uv(("terracotta", "slate", "sage", "white")[int(h01(k, "cc", i, j) * 4)]))
+        elif "News" in arch:                                                    # newspaper rack, papers face the street
+            piece(L, (a, b, y0 + 0.02, yb, z, z + 0.8), "wood", UV_WALNUT)           # flush to the wall: no slot
+            for i in range(int((b - a) / 0.32)):
+                px = a + 0.04 + i * 0.32
+                for zz in (z + 0.35, z + 0.6):
+                    L["res0"].box(px, px + 0.28, ya + 0.1, ya + 0.15, zz, zz + 0.2, mat="paint",
+                                  uv=DT.paint_uv("white" if h01(k, "np", i, zz) < 0.6 else "beige"))
+        else:                                                                   # general shop: goods table
+            piece(L, (a, b, ya, yb, z, z + 0.75), "wood", UV_LAMINATE)
+            for i in range(int((b - a) / 0.3)):
+                if h01(k, "g", i) < 0.75:
+                    gx = a + 0.06 + i * 0.3
+                    L["res0"].box(gx, gx + 0.22, ya + 0.1, yb - 0.1, z + 0.75, z + 0.92, mat="textile",
+                                  uv=DT.band_fit("textile", "rug_a", gx, gx + 0.22, ya, yb))
+
+
 def furnish(L, P, l, r, kind, z, top):
     """Baked furniture and fixtures per room kind (coherent kit, collides where walkable).
     Every collidable piece is skipped if it would enter a keep-clear zone (doors, stair)."""
@@ -1500,6 +1594,7 @@ def furnish(L, P, l, r, kind, z, top):
         if d > 3.0 and clear(zones, (cx - 0.5, cx + 0.5, cy - 0.4, cy + 0.4)):
             table(L, cx - 0.5, cx + 0.5, cy - 0.4, cy + 0.4, z)
     elif kind == "shop":
+        shop_window(L, P, r, z, zones)                                           # D87 window display per shop type
         for row_y in (cy - 1.3, cy + 0.3):
             shelf_unit(L, x0 + 1.0, cx - 0.4, row_y - 0.25, row_y + 0.25, z, h=1.6)
         kitchen_run(L, x1 - 2.4, x1 - 0.4, y0 + 1.2, y0 + 1.8, z)                     # counter
@@ -1741,7 +1836,7 @@ def furnish(L, P, l, r, kind, z, top):
                 box = (a, b, min(far + sgn * 0.8, far + sgn * (d - 1.6)), max(far + sgn * 0.8, far + sgn * (d - 1.6)))
                 if clear(zones, box):
                     kitchen_run(L, *box, z)
-            tb = (cx - 1.0, cx + 1.0, min(far + sgn * 0.2, far + sgn * 0.8), max(far + sgn * 0.2, far + sgn * 0.8))
+            tb = (cx - 1.0, cx + 1.0, min(far + sgn * 0.02, far + sgn * 0.62), max(far + sgn * 0.02, far + sgn * 0.62))   # flush: no slot (D87)
             if clear(zones, tb):
                 table(L, *tb, z, h=0.9)
         elif var == 2 and w > 4.0:
@@ -1859,8 +1954,8 @@ def furnish(L, P, l, r, kind, z, top):
         n_racks = max(1, int((x1 - x0 - 8.0) / 6.0))
         for i in range(n_racks):
             rx = x0 + 4.0 + i * 6.0
-            if clear(zones, (rx, rx + 3.0, y1 - 1.4, y1 - 0.4)):
-                shelf_unit(L, rx, rx + 3.0, y1 - 1.4, y1 - 0.4, z, h=3.0)
+            if clear(zones, (rx, rx + 3.0, y1 - 1.02, y1)):                       # flush: a 0.4 m slot behind was a wedge (D87)
+                shelf_unit(L, rx, rx + 3.0, y1 - 1.02, y1 - 0.02, z, h=3.0)
         for yy in (y0 + 1.0, y1 - 0.5):                                              # crane runway + bridge (Res0)
             L["res0"].box(x0, x1, yy - 0.2, yy + 0.2, top - 1.4, top - 1.0, mat="metal", uv=DT.UV_PAINT)
         L["res0"].box(cx - 0.3, cx + 0.3, y0 + 1.0, y1 - 0.5, top - 1.6, top - 1.2, mat="metal", uv=DT.UV_PAINT)
@@ -3423,7 +3518,8 @@ def mall_unit(L, P, l, r, kind, z, top, zones, lit):
     cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
     key = (P.name, l, round(cx, 1), round(cy, 1))
     if kind == "food":
-        kb = (x0 + 0.3, x1 - 0.3, y1 - 0.9, y1 - 0.2) if (x1 - x0) >= (y1 - y0) else (x0 + 0.2, x0 + 0.9, y0 + 0.3, y1 - 0.3)
+        # D87: counters flush to the back / side wall (a 0.2 m slot behind them was a wedge)
+        kb = (x0 + 0.3, x1 - 0.3, y1 - 0.72, y1 - 0.02) if (x1 - x0) >= (y1 - y0) else (x0 + 0.02, x0 + 0.72, y0 + 0.3, y1 - 0.3)
         if clear(zones, kb):
             kitchen_run(L, *kb, z)
             if lit:
@@ -3790,6 +3886,46 @@ def comp_boxes(lod):
     return out
 
 
+def wedge_slots(bx, P, lo=0.15, hi=0.6, run=1.0, height=0.5):
+    """D87: floor-standing collision boxes facing each other across a lo..hi m gap over more than `run` m, nothing
+    else in the gap: a slot a player wedges into (and AI cannot path). Gaps under lo are flush, over hi walkable.
+    Returns (gap, run, box a, box b) with boxes rounded for reports; test_city fails on any."""
+    levels = [z for (_u, _f, z) in P.levels]
+    out = []
+    for i, a in enumerate(bx):
+        for b in bx[i + 1:]:
+            for ax in (0, 1):
+                o = 1 - ax
+                g1, g2 = b[2 * ax] - a[2 * ax + 1], a[2 * ax] - b[2 * ax + 1]
+                g = g1 if g1 > 0 else g2
+                if not (lo < g < hi):
+                    continue
+                ol, oh = max(a[2 * o], b[2 * o]), min(a[2 * o + 1], b[2 * o + 1])
+                zl, zh = max(a[4], b[4]), min(a[5], b[5])
+                if oh - ol < run or zh - zl < height or not any(abs(zl - z) < 0.1 for z in levels):
+                    continue
+                g0, g1_ = (a[2 * ax + 1], b[2 * ax]) if g1 > 0 else (b[2 * ax + 1], a[2 * ax])
+                if any(c is not a and c is not b and c[2 * ax] < g1_ - 0.01 and c[2 * ax + 1] > g0 + 0.01
+                       and c[2 * o] < oh and c[2 * o + 1] > ol and c[4] < zh and c[5] > zl for c in bx):
+                    continue                                                   # something fills the gap
+                out.append((round(g, 2), round(oh - ol, 2), tuple(round(v, 2) for v in a), tuple(round(v, 2) for v in b),
+                            (ax, g0, g1_, ol, oh, zl, zh)))
+    return out
+
+
+def close_slots(L, P):
+    """D87: in ruins, rubble lands next to surviving furniture and walls and leaves wedge slots; fill each with a
+    rubble block (collides, renders as rubble) up to the lower of the two neighbours - debris spills into the gap."""
+    for _ in range(3):
+        sl = wedge_slots(comp_boxes(L["geo"].lod), P)
+        if not sl:
+            return
+        for (_g, _r, _a, _b, (ax, g0, g1, ol, oh, zl, zh)) in sl:
+            box = (g0, g1, ol, oh) if ax == 0 else (ol, oh, g0, g1)
+            for k in ("res0", "res1", "geo", "fire", "view"):
+                L[k].lod.box(*box, zl, zh, **kw_for(k, "rubble", UV_RUBBLE, "concrete"))
+
+
 def loot_points(L, P):
     """Deterministic floor loot points: on a slab, clear of every solid, outside the stair and
     the collapse; fewer in ruins."""
@@ -3845,6 +3981,8 @@ def build(arch, state):
     landmark(L, P)
     bell_tower(L, P)
     ruin_extras(L, P)
+    if P.state == 2:
+        close_slots(L, P)                                                      # D87 wedge slots next to rubble
     dress(L, P)
     memory(L, P)
     geo = L["geo"].lod

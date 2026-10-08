@@ -86,6 +86,20 @@ def unwrap(lod, size=512, skip=("glass", "glassfar")):
     return uv1
 
 
+def with_ao(fn, spec):
+    """Wrap a builder: its Res0 gets the unique UV set 1 (charts only for the faces that will read the AO map: the
+    spec's materials; decals, signs and atlas faces still occlude in the bake) and those faces switch to the
+    sky_<mat>_<tag> rvmat variants (D85 pilot, D87 shared by build_props and build_streetprops)."""
+    def build():
+        lods = fn()
+        r0 = [l for l in lods if l.name == "res0"][0]
+        keep = set(spec["mats"])
+        r0.uv1 = unwrap(r0, spec["size"], skip={m for _i, m, _u in r0.faces if m not in keep})
+        r0.faces = [(i, ("%s_%s" % (m, spec["tag"])) if m in keep else m, uv) for (i, m, uv) in r0.faces]
+        return lods
+    return build
+
+
 def _hemisphere(n_rays):
     """Fixed cosine-weighted directions around +Z (Fibonacci spiral): the bake is deterministic."""
     i = np.arange(n_rays) + 0.5
