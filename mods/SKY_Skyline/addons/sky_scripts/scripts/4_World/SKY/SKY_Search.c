@@ -131,8 +131,7 @@ class SKY_SearchService
 		if (s_TypeTable.Find(type, table))
 			return table;
 		table = "";
-		if (obj.IsBuilding() || obj.IsInherited(House))
-			g_Game.ConfigGetText("CfgVehicles " + type + " skySearch", table);
+		g_Game.ConfigGetText("CfgVehicles " + type + " skySearch", table);
 		s_TypeTable.Insert(type, table);
 		return table;
 	}
@@ -237,7 +236,7 @@ class SKY_SearchService
 		m_Spots.Set(key, now);
 
 		bool found = Math.RandomFloat01() < table.m_HitChance;
-		if (found && !ItemBudget(now))
+		if (found && !ItemBudget(now, identity.GetId()))
 			found = false;											// D94 security audit M3: server-wide hourly budget
 		if (found)
 		{
@@ -288,22 +287,29 @@ class SKY_SearchService
 
 	protected int m_HourItems;										//!< successful finds in the current hour window
 	protected ref array<Man> m_BudgetPlayers = new array<Man>();
+	protected ref map<string, int> m_HourPerId = new map<string, int>();	//!< finds per identity this hour (bounded)
 
 	//! D94 security audit M3: at most SEARCH_ITEMS_PER_HOUR + SEARCH_ITEMS_PER_PLAYER x online finds per hour
 	//! server-wide (search loot is outside the CE; hundreds of spots x 1 search / 10 s per player would flood it).
-	protected bool ItemBudget(int now)
+	protected bool ItemBudget(int now, string id)
 	{
 		if (now - m_RareWindow > SKY_Life.SEARCH_RARE_WINDOW_MS)		// same hourly window as the rare cap
 		{
 			m_RareWindow = now;
 			m_RareCount.Clear();
 			m_HourItems = 0;
+			m_HourPerId.Clear();
 		}
 		g_Game.GetPlayers(m_BudgetPlayers);
 		int cap = SKY_Life.SEARCH_ITEMS_PER_HOUR + SKY_Life.SEARCH_ITEMS_PER_PLAYER * m_BudgetPlayers.Count();
 		m_BudgetPlayers.Clear();
 		if (m_HourItems >= cap)
 			return false;
+		// re-review M: one player (a macro) must not drain the shared pool - per identity cap, map bounded
+		int mine = m_HourPerId.Get(id);
+		if (mine >= SKY_Life.SEARCH_ITEMS_PER_ID_HOUR || (mine == 0 && m_HourPerId.Count() >= SKY_Const.RATE_LIMIT_MAX_ENTRIES))
+			return false;
+		m_HourPerId.Set(id, mine + 1);
 		m_HourItems++;
 		return true;
 	}

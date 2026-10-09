@@ -74,6 +74,8 @@ modded class PlayerBase
 	protected void SkyAlcoholTick(float dt)
 	{
 		m_SkyAlcohol = Math.Max(0, m_SkyAlcohol - SKY_Life.ALCOHOL_DECAY * dt);
+		if (m_SkyAlcohol <= 0)
+			m_SkyHealLeft = 0;									// re-review L: sober again, the budget is gone
 		SkyUpdateDrunkLevel();
 		if (m_SkyDrunk == 1 && m_SkyHealLeft > 0)					// D94 security L4: heal bounded by what was drunk
 		{

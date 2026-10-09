@@ -123,6 +123,7 @@ class SKY_LightDirector
 		float on2 = SKY_Const.LIGHTS_ON_RANGE * SKY_Const.LIGHTS_ON_RANGE;
 		float off2 = SKY_Const.LIGHTS_OFF_RANGE * SKY_Const.LIGHTS_OFF_RANGE;
 		int lit = 0;
+		int off = 0;										// D94 perf: dawn switches off at most CREATE_PER_TICK a tick
 		s_Cand.Clear();
 		s_CandD.Clear();
 		for (int i = s_All.Count() - 1; i >= 0; i--)
@@ -135,7 +136,14 @@ class SKY_LightDirector
 			}
 			float d = vector.DistanceSq(b.GetPosition(), cam);
 			if (!night && !b.SkyLitByDay())
-				d = off2 + 1;									// out of range by day
+			{
+				if (b.SkyIsLit() && off < SKY_Const.LIGHTS_CREATE_PER_TICK)
+				{
+					b.SkySetLit(false);								// by day: off, spread over a few ticks
+					off++;
+				}
+				continue;
+			}
 			if (b.SkyIsLit())
 			{
 				if (d > off2)

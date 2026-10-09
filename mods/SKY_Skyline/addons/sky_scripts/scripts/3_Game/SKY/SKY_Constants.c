@@ -88,6 +88,7 @@ class SKY_Life
 	static const int SEARCH_RARE_WINDOW_MS = 3600000;
 	static const int SEARCH_ITEMS_PER_HOUR = 120;		//!< D94: server-wide successful finds per hour (+ per player below)
 	static const int SEARCH_ITEMS_PER_PLAYER = 4;
+	static const int SEARCH_ITEMS_PER_ID_HOUR = 30;		//!< D94 re-review: finds per player per hour
 	//! Highest search_N memory point read (matches build_city.SEARCH_MAX).
 	static const int SEARCH_POINTS = 8;
 	//! Chance (0..1) to cut a hand on trash without gloves.

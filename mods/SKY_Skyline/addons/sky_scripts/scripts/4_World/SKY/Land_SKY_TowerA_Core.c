@@ -283,10 +283,10 @@ class Land_SKY_TowerA_Core extends House
 
 		int level = SkyLevelOfPlayer(player);
 		int target = SkyTargetFor(cmd, level);
-		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).Remove(SkyAutoClose);
 
 		if ((cmd == SKY_ElevatorCmd.CALL || cmd == SKY_ElevatorCmd.OPEN) && target == m_SkyCarLevel)
 		{
+			g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).Remove(SkyAutoClose);
 			SkySetState(SKY_ElevatorState.OPEN, true);
 			g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(SkyAutoClose, m_SkyDoorOpenMs, false);
 			return;
@@ -315,7 +315,8 @@ class Land_SKY_TowerA_Core extends House
 			return;
 		}
 
-		m_SkyTargetLevel = target;
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).Remove(SkyAutoClose);	// re-review L: only once accepted (a
+		m_SkyTargetLevel = target;											// refused call no longer cancels it)
 		m_SkyNextUseMs = now + m_SkyCooldownMs;
 		SkySetState(SKY_ElevatorState.CLOSING, false);
 		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(SkyDepart, SKY_Const.DOOR_ANIM_MS, false);

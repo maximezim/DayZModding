@@ -80,6 +80,7 @@ if ($Models) {
     Run-Py @((Join-Path $mod 'assets\blender\test_ruin_cuts.py'))          # D83 (P53): whole-kept ruin pieces have render AND collision
     Run-Gen 'test_city.py' @()
     Run-Py @((Join-Path $mod 'assets\city_progress.py'))
+    Remove-Item Env:SKY_P3D_BACKEND -ErrorAction SilentlyContinue   # D94: do not leak the writer choice into this shell
 }
 
 Write-DzStep 'Configs, economy, checks'

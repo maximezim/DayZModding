@@ -300,7 +300,7 @@ modded class ItemBase
 {
 	bool SkyInGuardedKennel()
 	{
-		if (SKY_Kennel.s_SkyGuardCount <= 0)	// no kennel guarding: inventory checks cost one compare
+		if (SKY_Kennel.s_SkyGuardCount <= 0 || !GetHierarchyParent())	// none guarding, or a loose item: one compare
 			return false;
 		SKY_Kennel k = SKY_Kennel.Cast(GetHierarchyRoot());
 		return k && k != this && k.SkyIsGuarding();

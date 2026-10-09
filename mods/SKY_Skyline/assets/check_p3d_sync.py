@@ -6,9 +6,11 @@ or a P3D was edited by hand (generated outputs are regenerated, never edited - C
 
     python assets/check_p3d_sync.py [--only build_city,build_kit] [--keep]
 
-Exit 1 on any stale, missing or extra P3D. Takes ~4 min for all ten builders.
+Exit 1 on any stale, missing or extra P3D. ~1 min for all ten builders (4 in parallel; the native writer always - a
+stale SKY_P3D_BACKEND=atb from a Build-SkyAssets run in the same shell must not switch writers).
 """
 import argparse
+import concurrent.futures
 import filecmp
 import os
 import shutil
@@ -35,11 +37,15 @@ def main():
     os.makedirs(out, exist_ok=True)
     fails = []
     try:
-        for b in builders:
-            r = subprocess.run([sys.executable, os.path.join(HERE, "blender", b + ".py"), "--", "--out", out],
-                               capture_output=True, text=True)
-            if r.returncode != 0:
-                fails.append("%s failed: %s" % (b, (r.stdout + r.stderr).strip().splitlines()[-1:]))
+        env = dict(os.environ, SKY_P3D_BACKEND="native")
+
+        def run(b):
+            return b, subprocess.run([sys.executable, os.path.join(HERE, "blender", b + ".py"), "--", "--out", out],
+                                     capture_output=True, text=True, env=env)
+        with concurrent.futures.ThreadPoolExecutor(4) as ex:                 # separate PBO folders and stats files
+            for b, r in ex.map(run, builders):
+                if r.returncode != 0:
+                    fails.append("%s failed: %s" % (b, (r.stdout + r.stderr).strip().splitlines()[-1:]))
         built = set()
         for root, _d, files in os.walk(out):
             for f in files:

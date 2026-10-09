@@ -836,6 +836,18 @@ collision and looks.
 | WW-02 | Walk through damaged and ruined buildings | Water stains under ceilings, mould in corners; no stain over a doorway | | |
 | WW-03 | Look at facades from the street (regression) | Rising damp, run-off, sill streaks and moss look as before (the sheet layout changed) | | |
 
+## 57. Second full assessment fixes (D94)
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| FA-01 | Try to place a kennel inside a building, on a stair landing, in an elevator cab, then in the open (P67) | Refused indoors ("Kennels go outdoors, clear of doors and gates"); allowed outside | | |
+| FA-02 | Second player: with a kennel guarding (owner offline), try every action on items inside it (unload ammo, combine, drink) | All refused; the owner, once online, uses it normally | | |
+| FA-03 | Lights: walk the centre at noon, then at night | No building lights by day except the hypermarket; at night as before (§52 RV-01) | | |
+| FA-04 | Search 40+ spots in an hour with one player | Finds stop after ~30 (then "Nothing useful."); items left on the floor vanish on restart, taken ones persist | | |
+| FA-05 | Drink a beer while hurt, then keep sipping | Healing stops after a while, more sips heal little | | |
+| FA-06 | Two players: one calls the Tower A car away repeatedly | The second call within 20 s says "Please wait..."; doors on the other floor still close by themselves | | |
+| FA-07 | Look down a street of 10+ buildings at 25-150 m (P66) | No FPS drop from the facade grime | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -923,4 +935,5 @@ collision and looks.
 | Far LODs, broken windows, ceilings §54 | | | |
 | One-way glass, wedges, convex barriers §55 | | | |
 | Lived-in interior walls §56 | | | |
+| Second full assessment fixes §57 | | | |
 | FPS protocol (`FPS_PROTOCOL.md` §4 thresholds) | | | |
