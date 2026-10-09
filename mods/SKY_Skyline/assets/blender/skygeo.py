@@ -207,6 +207,17 @@ class Lod:
         for s in sel:
             self.groups.setdefault(s, set()).update(range(base, base + 8))
 
+    def ramp_slab(self, x0, x1, y_low, y_high, z_low, z_high, t=0.30, mat=None, uv=None, sel=(), component=None):
+        """Collision for one stair flight: a sloped slab of vertical thickness t running along Y from
+        (y_low, z_low) to (y_high, z_high); top and bottom are parallel (convex, 8 vertices). Use this instead
+        of wedge() for flights that stack: a wedge's flat bottom fills the space under the flight above and
+        leaves floor_height/2 - 0.25 m of headroom at the top of each flight (1.5 m in Tower A), so a standing
+        player is blocked and only a crouching one fits (TESTING C-03, 2026-10-09)."""
+        verts = [(x0, y_low, z_low - t), (x0, y_high, z_high - t), (x0, y_high, z_high), (x0, y_low, z_low),
+                 (x1, y_low, z_low - t), (x1, y_high, z_high - t), (x1, y_high, z_high), (x1, y_low, z_low)]
+        faces = [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)]
+        self.solid(verts, faces, mat=mat, uv=uv, sel=sel, component=component)
+
     def solid(self, verts, faces, mat=None, uv=None, sel=(), component=None):
         """Closed convex solid from vertices + polygon index lists. Faces are
         oriented outward from the centroid; polygons > 4 verts are fanned
@@ -453,9 +464,44 @@ def run_cli(modules, materials, stats_name):
         sys.exit(1)
 
 
+MAX_LOD_POINTS = 60000      # engine limit: about 65535 vertices per LOD (16-bit indices); the binarizer splits vertices per
+                            # normal / UV, so the MLOD point count must stay clear of it. Found in game 2026-10-09: all 17 models
+                            # with a LOD over 65535 points were rejected ("Too many vertices") and the buildings were missing.
+
+
+def enforce_vertex_budget(lods, path):
+    """A graphical (Resolution) LOD over MAX_LOD_POINTS is replaced by the next lower-detail Resolution LOD that fits, keeping
+    its name, distance and selections. The over-detailed geometry is dropped for that model (it could not be loaded anyway).
+    Returns the list of (lod name, points, replaced by, points)."""
+    import copy
+    res = sorted([l for l in lods if l.lod == LOD_RES], key=lambda l: l.distance)
+    done = []
+    for i, lod in enumerate(res):
+        if len(lod.verts) <= MAX_LOD_POINTS:
+            continue
+        repl = None
+        for cand in res[i + 1:]:
+            if len(cand.verts) <= MAX_LOD_POINTS and set(lod.groups) <= set(cand.groups):
+                repl = cand
+                break
+        if repl is None:
+            raise ValueError("%s: LOD %s has %d points (> %d) and no lower Resolution LOD fits with the same selections"
+                             % (path, lod.name, len(lod.verts), MAX_LOD_POINTS))
+        new = copy.deepcopy(repl)
+        new.name, new.lod, new.distance = lod.name, lod.lod, lod.distance
+        new.props = dict(lod.props)
+        lods[lods.index(lod)] = new
+        done.append((lod.name, len(lod.verts), repl.name, len(repl.verts)))
+        print("LOD BUDGET %s: %s had %d points (> %d), now uses %s (%d points)" % (
+            os.path.basename(path), lod.name, len(lod.verts), MAX_LOD_POINTS, repl.name, len(repl.verts)))
+    return done
+
+
 def export_p3d(lods, materials, path):
     """Write an MLOD .p3d. Default: the standalone writer (p3dwriter, no add-on, any Blender or plain
     Python - D60). SKY_P3D_BACKEND=atb uses Arma Toolbox (Blender 4.2 + ARMATOOLBOX_PATH) instead."""
+    lods = list(lods)
+    enforce_vertex_budget(lods, path)
     if os.environ.get("SKY_P3D_BACKEND", "native").lower() == "atb":
         return export_p3d_atb(lods, materials, path)
     import p3dwriter

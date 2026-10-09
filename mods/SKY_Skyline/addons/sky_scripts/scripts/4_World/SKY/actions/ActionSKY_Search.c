@@ -60,8 +60,12 @@ class ActionSKY_Search : ActionContinuousBase
 			return true;												// object-origin spots: no line-of-sight test (as the server)
 		int now = g_Game.GetTime();
 		vector pos = player.GetPosition();
-		if (obj != m_SkyLosObj || idx != m_SkyLosIdx || now - m_SkyLosTime > SKY_Life.SEARCH_LOS_CACHE_MS
-			|| vector.DistanceSq(pos, m_SkyLosPos) > 0.09)
+		bool stale = obj != m_SkyLosObj || idx != m_SkyLosIdx;
+		if (now - m_SkyLosTime > SKY_Life.SEARCH_LOS_CACHE_MS)
+			stale = true;
+		if (vector.DistanceSq(pos, m_SkyLosPos) > 0.09)
+			stale = true;
+		if (stale)
 		{
 			m_SkyLosObj = obj;
 			m_SkyLosIdx = idx;

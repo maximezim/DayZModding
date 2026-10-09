@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<map>
+    <group name="Land_SKY_TowerA_Lobby" pos="1610.000000 161.998001 4350.000000" rpy="-0.000000 0.000000 0.000000" a="90.000000" />
+    <group name="Land_SKY_TowerA_Roof_Helipad" pos="1610.000000 186.498001 4350.000000" rpy="-0.000000 0.000000 0.000000" a="90.000000" />
+    <group name="Land_SKY_TowerA_Floor_Office" pos="1610.000000 182.998001 4350.000000" rpy="-0.000000 0.000000 0.000000" a="90.000000" />
+    <group name="Land_SKY_TowerA_Floor_Office" pos="1610.000000 172.498001 4350.000000" rpy="-0.000000 0.000000 0.000000" a="90.000000" />
+    <group name="Land_SKY_TowerA_Floor_Office" pos="1610.000000 175.998001 4350.000000" rpy="-0.000000 0.000000 0.000000" a="90.000000" />
+    <group name="Land_SKY_TowerA_Floor_Office" pos="1610.000000 179.498001 4350.000000" rpy="-0.000000 0.000000 0.000000" a="90.000000" />
+    <group name="Land_SKY_TowerA_Floor_Office" pos="1610.000000 168.998001 4350.000000" rpy="-0.000000 0.000000 0.000000" a="90.000000" />
+</map>

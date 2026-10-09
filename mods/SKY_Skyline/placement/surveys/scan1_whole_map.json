@@ -1,0 +1,160 @@
+{
+    "label": "scan1",
+    "win": 192.0,
+    "maxRelief": 0.800000011920929,
+    "blocks": 102400,
+    "candidates": 49,
+    "sites": [
+        {
+            "x": 10080.0,
+            "z": 1920.0,
+            "relief": 0.010000228881835938,
+            "minY": 6.0,
+            "maxY": 6.010000228881836,
+            "objects": 413,
+            "trees": 177,
+            "other": 236,
+            "otherTypes": [
+                "Land_Lamp_City1_amp",
+                "Land_Container_1Moh",
+                "KobraOptic",
+                "Land_Shed_Closed",
+                "Land_Wall_Gate_Ind1_L",
+                "Land_Shed_W2",
+                "Land_Wall_Gate_Ind2B_L",
+                "Land_Wall_Gate_Ind2B_R"
+            ]
+        },
+        {
+            "x": 12768.0,
+            "z": 9744.0,
+            "relief": 0.1800246238708496,
+            "minY": 5.96999979019165,
+            "maxY": 6.1500244140625,
+            "objects": 283,
+            "trees": 46,
+            "other": 237,
+            "otherTypes": [
+                "Land_Guardhouse",
+                "Land_Wall_Gate_Ind2B_L",
+                "Land_Wall_Gate_Ind2B_R",
+                "Hoodie_Blue",
+                "Land_Shed_Closed",
+                "Land_Shed_M4",
+                "MediumTent",
+                "BarbedWire"
+            ]
+        },
+        {
+            "x": 12240.0,
+            "z": 12528.0,
+            "relief": 0.2132720947265625,
+            "minY": 139.78672790527345,
+            "maxY": 140.0,
+            "objects": 44,
+            "trees": 44,
+            "other": 0,
+            "otherTypes": []
+        },
+        {
+            "x": 12096.0,
+            "z": 12720.0,
+            "relief": 0.2580108642578125,
+            "minY": 139.7419891357422,
+            "maxY": 140.0,
+            "objects": 61,
+            "trees": 52,
+            "other": 9,
+            "otherTypes": [
+                "BallisticHelmet_UN",
+                "AK_PlasticHndgrd",
+                "Ammo_40mm_Smoke_Green",
+                "Land_Wreck_offroad02_aban1",
+                "Land_Wreck_Uaz",
+                "Offroad_02_Wheel",
+                "AK_RailHndgrd",
+                "Ammo_545x39Tracer"
+            ]
+        },
+        {
+            "x": 10512.0,
+            "z": 2256.0,
+            "relief": 0.5259432792663574,
+            "minY": 5.947999477386475,
+            "maxY": 6.473942756652832,
+            "objects": 495,
+            "trees": 109,
+            "other": 386,
+            "otherTypes": [
+                "Land_Wall_Gate_FenR_Big_R",
+                "Land_HouseBlock_2F8",
+                "Land_HouseBlock_1F3",
+                "Land_City_Stand_News1",
+                "Land_City_Stand_News2",
+                "Land_Shed_W3",
+                "Land_Power_Pole_Conc4_Lamp_Amp",
+                "Land_Shed_W4"
+            ]
+        },
+        {
+            "x": 4704.0,
+            "z": 10368.0,
+            "relief": 0.619354248046875,
+            "minY": 338.7006530761719,
+            "maxY": 339.32000732421877,
+            "objects": 440,
+            "trees": 302,
+            "other": 138,
+            "otherTypes": [
+                "MilitaryBeret_Red",
+                "Land_Workshop2",
+                "Land_Container_1Mo",
+                "BurlapSack",
+                "Land_Mil_Tent_Big3",
+                "Land_Mil_Tent_Big1_3",
+                "Land_Mil_Tent_Big1_2",
+                "Land_Misc_Toilet_Mobile"
+            ]
+        },
+        {
+            "x": 11904.0,
+            "z": 12672.0,
+            "relief": 0.6193695068359375,
+            "minY": 139.70669555664063,
+            "maxY": 140.32606506347657,
+            "objects": 253,
+            "trees": 175,
+            "other": 78,
+            "otherTypes": [
+                "Land_wreck_truck01_aban1_orange",
+                "TrackSuitPants_Green",
+                "#animator",
+                "Land_Medical_Tent_Big",
+                "Land_Medical_Tent_Shower",
+                "Land_Container_1Aoh",
+                "Land_Wreck_offroad02_aban2",
+                "Offroad_02_Wheel"
+            ]
+        },
+        {
+            "x": 3552.0,
+            "z": 2256.0,
+            "relief": 0.7000017166137695,
+            "minY": 5.6579999923706059,
+            "maxY": 6.358001708984375,
+            "objects": 240,
+            "trees": 201,
+            "other": 39,
+            "otherTypes": [
+                "Land_Shed_Closed",
+                "CanvasBag_Olive",
+                "Shovel",
+                "Land_Factory_Small",
+                "CargoPants_Blue",
+                "JumpsuitJacket_Green",
+                "Hoodie_Blue",
+                "Land_Shed_W3"
+            ]
+        }
+    ]
+}

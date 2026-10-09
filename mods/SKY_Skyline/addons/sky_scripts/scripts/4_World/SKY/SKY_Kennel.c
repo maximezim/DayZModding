@@ -288,8 +288,12 @@ class SKY_Kennel extends DeployableContainer_Base
 	{
 		super.AfterStoreLoad();
 		if (g_Game.IsServer())
-			SkySetGuarding(SKY_CreatureLife.IsKennelRegistered(this) && !GetHierarchyParent() && m_SkyOwner != ""
-				&& SKY_Time.NowUtc() - m_SkyLastSeen <= SKY_Beasts.KENNEL_GUARD_S);
+		{
+			bool guarding = SKY_CreatureLife.IsKennelRegistered(this) && !GetHierarchyParent() && m_SkyOwner != "";
+			if (SKY_Time.NowUtc() - m_SkyLastSeen > SKY_Beasts.KENNEL_GUARD_S)
+				guarding = false;
+			SkySetGuarding(guarding);
+		}
 	}
 }
 

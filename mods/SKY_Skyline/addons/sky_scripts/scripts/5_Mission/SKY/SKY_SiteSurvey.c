@@ -4,6 +4,7 @@
 	Drop $profile:SKY_survey_request.json into the server profile folder:
 		{ "label": "site1", "center": [x, z], "yaw": 0, "halfW": 13, "halfD": 13,
 		  "step": 2.0, "exportRadius": 40 }
+	"mode": "scan" runs the whole-map terrain scan instead (SKY_TerrainScan.c; "center" is still required, any value).
 	Start the server (with the tower spawned via objectSpawnersArr if you also want
 	loot positions). After ~15 s it writes $profile:SKY_survey_result.json with:
 	  - ground height samples over the (rotated) footprint (SurfaceY)
@@ -21,6 +22,14 @@ class SKY_SurveyRequest
 	float halfD;
 	float step;
 	float exportRadius;
+	string mode;				// "" = site survey; "scan" = terrain scan (SKY_TerrainScan.c)
+	float x0;
+	float z0;
+	float x1;
+	float z1;
+	float win;
+	float maxRelief;
+	int top;
 }
 
 class SKY_SurveyObject
@@ -60,7 +69,10 @@ class SKY_SiteSurvey
 			SKY_Log.Warn("survey request invalid: " + err);
 			return;
 		}
-		Run(req);
+		if (req.mode == "scan")
+			SKY_TerrainScan.Start(req);
+		else
+			Run(req);
 	}
 
 	static vector Local(SKY_SurveyRequest req, float u, float v)

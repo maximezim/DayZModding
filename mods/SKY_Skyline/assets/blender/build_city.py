@@ -1321,8 +1321,8 @@ def stairs(L, P):
         L["res1"].ramp(xb[0], xb[1], yA1, yA0, zm, zt, mat="concrete", uv=UV_REVEAL)
         for k in ("geo", "fire"):
             kw = {"mat": "pen_concrete"} if k == "fire" else {}
-            L[k].wedge(xa[0], xa[1], yA0, yA1, z0 - 0.25, z0, zm, **kw)
-            L[k].wedge(xb[0], xb[1], yA1, yA0, zm - 0.25, zm, zt, **kw)
+            L[k].ramp_slab(xa[0], xa[1], yA0, yA1, z0, zm, **kw)
+            L[k].ramp_slab(xb[0], xb[1], yA1, yA0, zm, zt, **kw)
         L["road"].ramp(xa[0], xa[1], yA0, yA1, z0, zm, mat="road_int", uv=UV_TILE)
         L["road"].ramp(xb[0], xb[1], yA1, yA0, zm, zt, mat="road_int", uv=UV_TILE)
         for (xr, ya_, yb_, za_, zb_) in ((xa[1] - 0.06, yA0, yA1, z0, zm), (xb[0] + 0.06, yA1, yA0, zm, zt)):  # handrails

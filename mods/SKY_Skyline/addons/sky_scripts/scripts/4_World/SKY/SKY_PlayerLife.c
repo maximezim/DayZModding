@@ -121,7 +121,7 @@ modded class PlayerBase
 	override void OnVariablesSynchronized()
 	{
 		super.OnVariablesSynchronized();
-		if (m_SkyDrunk != m_SkyDrunkShown && this == g_Game.GetPlayer())
+		if (m_SkyDrunk != m_SkyDrunkShown && g_Game.GetPlayer() == this)
 			SkyApplyDrunkEffect();
 	}
 

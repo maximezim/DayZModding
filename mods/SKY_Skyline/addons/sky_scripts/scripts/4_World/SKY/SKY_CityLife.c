@@ -253,8 +253,8 @@ class SKY_CityLife
 			if (m_AlarmGroupsLeft > 0)
 			{
 				m_AlarmGroupsLeft--;
-				SpawnGroup(m_AlarmSiren, m_AlarmSiren.GetPosition(), SKY_Life.ALARM_RING_MIN, SKY_Life.ALARM_RING_MAX, SKY_Life.HORDE_GROUP,
-					SKY_Life.HORDE_GLOBAL_MAX + SKY_Life.ALARM_EXTRA_CAP);
+				int alarmCap = SKY_Life.HORDE_GLOBAL_MAX + SKY_Life.ALARM_EXTRA_CAP;
+				SpawnGroup(m_AlarmSiren, m_AlarmSiren.GetPosition(), SKY_Life.ALARM_RING_MIN, SKY_Life.ALARM_RING_MAX, SKY_Life.HORDE_GROUP, alarmCap);
 			}
 			if (now >= m_AlarmEnd)
 			{

@@ -46,7 +46,7 @@ Rules that do not change (CLAUDE.md):
 | **D86** AO props + venue rooms | baked AO on 4 more hero props (P55), bar / foyer / mall shop variants, search-point-inside-furniture test | built-unverified |
 | **D87** street life + wedge-slot gate | shop window displays, facade clutter (AC, dishes, laundry), AO on 3 street props, `wedge_slots` gate with fixes across the city and a ruin filler | built-unverified |
 | **D88** next cloud batch | interior wall dressing per room type (posters, clocks, calendars, notice boards), roof clutter on flat roofs (water tanks, vents, antennas), extend the wedge-slot check to the kit props | planned |
-| **T2** terrain | survey a site or build the custom terrain (Terrain Builder import of `terrain/out`, P11), open the metro hatches | planned (after T1) |
+| **T2** terrain | survey a site or build the custom terrain (Terrain Builder import of `terrain/out`, P11), open the metro hatches. **Custom terrain for the metro and sewers is an open TODO, see the section below** | planned (after T1) |
 | **T3** perf | FPS protocol, server perf probe (B11), merged furniture if needed (D43) | planned (after T1) |
 
 ## The 23 ideas
@@ -110,6 +110,28 @@ ground (cut-and-cover). On a custom terrain (Level 2), the sewers and metro beco
 - service hatches in the `ParkingLot_Metro` pieces;
 - flood level = `clamp(rain - 0.6, 0, 0.4) / 0.4 * 1.2 m`, raised over 10 min and drained over 30 min;
 - underground darkness through vanilla `cfgundergroundtriggers.json`, a format that exists on Livonia.
+
+## TODO: custom terrain for the metro and the sewers (user, 2026-10-09)
+
+**Status: open, blocked on the user's go-ahead (map name and size) and a Terrain Builder session on Windows.**
+
+Metro stations/tunnels and the sewer network cannot be tested or played on vanilla Chernarus: objectSpawnersArr only puts objects on the
+terrain surface, a vanilla heightmap cannot be cut, and the generator refuses `underground:` layouts with `target: spawner`
+(TESTING UG-07). They need a custom terrain, Level 2 of `docs/MOD_DEVELOPMENT_GUIDE.md` section 4.3. The 2026-10-09 test city
+(TESTING section 58, `placement/city_chernarus.yaml`) is a Level 0 city and has only the two surface `MetroEntrance` kiosks.
+
+What to do, in order:
+1. User decides the map name and size (the generator default is 1024 x 1024 m at 1 m, city plateau at 120 m). Never start without it.
+2. Generate the sources: `python placement/sky_layout.py --layout placement/citylife_template.yaml --out placement/out_citylife` then
+   `python terrain/gen_terrain.py` (heightmap, masks, trenches under every sewer and metro piece, `objects_terrain.csv`).
+3. Terrain Builder: import heightmap, masks, layers, objects (P11, P28). Build the `.wrp` through the PBO pipeline, add CfgWorlds,
+   a mission folder with its own CE files, the navmesh.
+4. Open the metro hatches (`ParkingLot_Metro`), merge `cfgundergroundtriggers_snippet.json`, test the flood script (TESTING section 28,
+   UG-01 to UG-07; P25-P29, P34, P35).
+5. Gates: perf (terrain cell size, clutter, objects per km2), security (no under-terrain voids, no unreachable loot), QA (walk every road).
+
+Until then metro and sewer pieces can only be spawned in the air on the diag server to check collision and looks
+(`Land_SKY_Sewer_Straight` at y + 20, TESTING section 28).
 
 ## New pending parameters (PENDING_VERIFICATION.md)
 

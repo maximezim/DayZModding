@@ -1,0 +1,64 @@
+# SKY_Skyline CITY on Chernarus (test city, 2026-10-09) -> python placement/sky_layout.py --layout placement/city_chernarus.yaml --out placement/out_city_chernarus --no-entity-cap
+# Derived from city_template.yaml. Site: an airfield apron at (12240, 12528), found by the whole-map terrain scan
+# (surveys/scan1_whole_map.json, SKY_TerrainScan) and surveyed at full resolution (surveys/city2.json): 0.33 m relief over
+# 208 m, ground 140 m, only bushes + taxiway pieces inside. target spawner with the entity cap off (site.entity_cap).
+# CourtyardBlock / CourtyardBlockBrick landmarks removed: their models exceed the vertex limit (TESTING WIN-06).
+#
+#
+# A Chernogorsk-sized quarter generated from the procedural city buildings (D57): a 192 x 192 m street
+# grid (12 m tiles, a street every 4th cell), 12 blocks (36 x 36 m, four merged to 84 x 36 m for the big
+# landmarks by closing street cells), each filled lot by lot by
+# placement/city_fill.py from its zone (skyspec.CITY_ZONES: archetype mix, ruin mix, rubble lots).
+# Change a block's zone or seed to re-roll it; the result is deterministic.
+# target: terrain - a whole city is too many replicated entities for objectSpawnersArr (ENTITY_CAP);
+# it is meant to be baked into a custom terrain (MOD_DEVELOPMENT_GUIDE 4.3), city_objects.csv is the
+# object list for that import. Site coordinates are UNFILLED (placeholder), like the district template.
+map: chernarusplus
+mission: dayzOffline.chernarusplus
+
+site:
+  name: city-chernarus
+  placeholder: false
+  target: spawner
+  entity_cap: off               # test city: ENTITY_CAP is a warning (placement/README.md), measure FPS
+  allow_existing: [decal_, runwaypanel, centerline, taxiway, airfield_light, sidewalk3_border, wall_stone]   # airfield furniture, listed in the report
+  center: [12240.0, 12528.0]    # world X, Z (terrain scan site 2: flat airfield apron, no vanilla structures)
+  yaw: 0.0
+  survey: surveys/city2.json
+  base_y: null
+  clearance: 0.05
+  max_ground_drop: 2.2
+
+streets:
+  origin: [0.0, 0.0]
+  extent: [-8, 8, -8, 8]
+  ns: [-8, -4, 0, 4, 8]
+  ew: [-8, -4, 0, 4, 8]
+  crossings: [[0, -6], [0, 6], [-6, 0], [6, 0], [-4, 2], [4, -2]]
+  # street cells built over: merged blocks for the big landmarks (factory, town hall square,
+  # department store, hospital) - D58
+  closed: [[-4, -7], [-4, -6], [-4, -5], [0, -3], [0, -2], [0, -1], [0, 1], [0, 2], [0, 3], [5, 4], [6, 4], [7, 4]]
+  lights_every: 3
+  base_y: null
+
+# zone map (north up):   residential residential midtown     midtown  (D3+D4 merged: hospital)
+#                        residential downtown    downtown    midtown  (B3+C3 merged: department store)
+#                        midtown     downtown    downtown    frontline (B2+C2 merged: town hall, police)
+#                        industrial  industrial  frontline   frontline (A1+B1 merged: factory hall)
+# Landmarks are placed explicitly (`buildings`); the fill packs around them.
+blocks:
+  - {id: AB1, buildings: [{type: FactoryHall, ruin: damaged, at: [-22.0, -5.5], yaw: 0}, {type: ParkingGarage, ruin: ruined, at: [22.0, -5.5], yaw: 0}], cells: [-7, -7, -1, -5], fill: {zone: industrial, seed: 7}}
+  - {id: C1, cells: [1, -7, 3, -5], fill: {zone: frontline, seed: 15}}
+  - {id: D1, cells: [5, -7, 7, -5], fill: {zone: frontline, seed: 19}}
+  - {id: A2, buildings: [{type: SupermarketSmall, ruin: intact, at: [0.0, -10.5], yaw: 0}, {type: GasStation, ruin: damaged, at: [0.0, 10.25], yaw: 180}], cells: [-7, -3, -5, -1], fill: {zone: midtown, seed: 8}}
+  - {id: BC2, buildings: [{type: TownHall, ruin: intact, at: [-22.0, -8.5], yaw: 0}, {type: Police, ruin: damaged, at: [22.0, -10.5], yaw: 0}, {type: Bank, ruin: intact, at: [0.0, -10.5], yaw: 0}], cells: [-3, -3, 3, -1], fill: {zone: downtown, seed: 12}}
+  - {id: D2, buildings: [{type: FireStation, ruin: damaged, at: [0.0, -9.5], yaw: 0}], cells: [5, -3, 7, -1], fill: {zone: frontline, seed: 20}}
+  - {id: A3, cells: [-7, 1, -5, 3], fill: {zone: residential, seed: 9}}
+  - {id: BC3, buildings: [{type: DepartmentStore, ruin: intact, at: [-20.0, -2.5], yaw: 0}, {type: Clinic, ruin: intact, at: [22.0, 10.5], yaw: 180}], cells: [-3, 1, 3, 3], fill: {zone: downtown, seed: 17}}
+  - {id: D34, buildings: [{type: Hospital, ruin: damaged, at: [-5.5, 0.0], yaw: 90}], cells: [5, 1, 7, 7], fill: {zone: midtown, seed: 21}}
+  - {id: A4, buildings: [{type: School, ruin: intact, at: [0.0, 9.5], yaw: 180}], cells: [-7, 5, -5, 7], fill: {zone: residential, seed: 10}}
+  - {id: B4, buildings: [{type: Church, ruin: intact, at: [0.0, -5.5], yaw: 0}], cells: [-3, 5, -1, 7], fill: {zone: residential, seed: 14}}
+  - {id: C4, cells: [1, 5, 3, 7], fill: {zone: midtown, seed: 18}}
+
+towers: []
+decals: []

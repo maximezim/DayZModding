@@ -56,9 +56,82 @@ def get(lods, name):
     return [l for l in lods if l.name == name][0]
 
 
+def _convex_solids(lod):
+    """Per closed convex Component: (bbox lo, bbox hi, [(normal, point)] outward face planes). Computed once."""
+    by_vert = {}
+    for idx, _mat, _uv in lod.faces:
+        for i in idx:
+            by_vert.setdefault(i, []).append(idx)
+    out = []
+    for name, verts in lod.groups.items():
+        if not name.startswith("Component"):
+            continue
+        pts = [lod.verts[i] for i in verts]
+        lo = tuple(min(q[k] for q in pts) for k in range(3))
+        hi = tuple(max(q[k] for q in pts) for k in range(3))
+        c = tuple(sum(q[k] for q in pts) / len(pts) for k in range(3))
+        seen = set()
+        planes = []
+        for i in verts:
+            for idx in by_vert.get(i, ()):
+                if idx in seen or not set(idx) <= verts:
+                    continue
+                seen.add(idx)
+                a, b, d = (lod.verts[j] for j in idx[:3])
+                u = tuple(b[k] - a[k] for k in range(3))
+                v = tuple(d[k] - a[k] for k in range(3))
+                n = (u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0])
+                if sum(n[k] * (c[k] - a[k]) for k in range(3)) > 0:
+                    n = tuple(-x for x in n)
+                planes.append((n, a))
+        out.append((lo, hi, planes))
+    return out
+
+
+def _inside(solids_, p, eps=1e-4):
+    for lo, hi, planes in solids_:
+        if not all(lo[k] < p[k] < hi[k] for k in range(3)):
+            continue
+        if all(sum(n[k] * (p[k] - a[k]) for k in range(3)) <= eps for n, a in planes):
+            return True
+    return False
+
+
+STAND_HEADROOM = 2.0       # m: standing character is about 1.8 m; crouching (about 1.4 m) must not be the only way up
+
+
+def check_stairs(spec, label):
+    """Walk both flights of every storey section along their centre line and require standing headroom.
+    Found in game 2026-10-09 (TESTING C-03): flat-bottomed stair wedges left 1.5 m under the flight above."""
+    C = S.CORE
+    w = S.WALL_T
+    geo = _convex_solids(get(T.build_core(spec), "geo"))
+    iy0 = C["y"][0] + w
+    half = S.FLOOR_H / 2
+    yA0, yA1 = iy0 + 1.2, -0.25
+    n_sections = int(round(S.elevator_stops(spec)[-1] / S.FLOOR_H))
+    worst = (99.0, None)
+    for sec in range(n_sections):
+        z0 = sec * S.FLOOR_H
+        for xc, up in ((-1.5, True), (1.5, False)):
+            for i in range(21):
+                f = i / 20.0
+                y = yA0 + f * (yA1 - yA0) if up else yA1 - f * (yA1 - yA0)
+                zf = z0 + f * half if up else z0 + half + f * half
+                head = 0.0
+                while head < 2.5 and not _inside(geo, (xc, y, zf + 0.03 + head)):
+                    head += 0.05
+                if head + 0.03 < worst[0]:
+                    worst = (head + 0.03, (sec, xc, round(y, 2), round(zf, 2)))
+    check(worst[0] >= STAND_HEADROOM,
+          "%s stairs: standing headroom only %.2f m (< %.1f) at section %s, x=%s, y=%s, floor z=%s"
+          % (label, worst[0], STAND_HEADROOM, worst[1][0], worst[1][1], worst[1][2], worst[1][3]) if worst[1] else "")
+
+
 def check_core(spec, label):
     """Doors, cab and landings at every stop + memory points the elevator script needs per stop."""
     C = S.CORE
+    check_stairs(spec, label)
     core = T.build_core(spec)
     geo = get(core, "geo")
     boxes = solids(geo)
@@ -91,6 +164,7 @@ def main():
         if k != "A":
             check_core(spec, "core " + k)                       # tall cores (D58)
     C = S.CORE
+    check_stairs(S.TOWER_A, "core A")
     core = T.build_core()
     geo = get(core, "geo")
     boxes = solids(geo)

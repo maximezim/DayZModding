@@ -19,6 +19,10 @@ Layout content (all optional except site):
             (placement/city_fill.py, skyspec.CITY_ZONES), `buildings:` places explicit ones
   site.target  spawner (default: objectSpawnersArr, ENTITY_CAP applies) | terrain (a whole city
             for a custom map: no cap, also writes city_objects.csv for the terrain import)
+  site.allow_existing  [substring, ...]: survey object types to ignore in the overlap checks (case-insensitive), counted
+            and listed in the report; for test cities on a site with unavoidable map objects (airfield decals)
+  site.entity_cap  on (default) | off: with `off` (or --no-entity-cap) ENTITY_CAP overruns are warnings, not
+            errors, so a big test city can be spawned through objectSpawnersArr on a vanilla map
   towers    site-frame towers (legacy) - same keys as block towers
   tower     {id, type: TowerA, floors: [5 variants], roof: variant, lobby: A|B, yaw, furnish: {level: set}}
   decals    {tower, face: N|E|S|W, u, z, type}: flush on the facade at DECAL_OFFSET (D16, D19)
@@ -140,6 +144,8 @@ class Ctx:
         self.fill_stats = {}
         self.max_drop = 0.0
         self.cutters = False
+        self.allow = ()                  # site.allow_existing: lower-case substrings of survey object types to ignore
+        self.allowed = {}                # (type, x, z) -> type of the objects ignored because of it
 
     def soft(self, msg):
         (self.errors if self.strict else self.warnings).append(msg)
@@ -152,6 +158,16 @@ class Ctx:
 VEGETATION = ("tree", "bush", "plant", "grass", "t_", "b_")   # survey object types/models allowed to overlap (hypothesis)
 
 
+def is_allowed(ctx, o):
+    """site.allow_existing (test cities on a site with harmless or unavoidable map objects, e.g. an airfield's
+    runway decals): ignored by the overlap checks but counted and listed in the report."""
+    t = o["type"].lower()
+    if ctx.allow and any(a in t for a in ctx.allow):
+        ctx.allowed[(o["type"], round(o["pos"][0], 1), round(o["pos"][2], 1))] = o["type"]
+        return True
+    return False
+
+
 def foreign_objects(ctx, survey, what, test):
     """Survey objects inside an area: Land_* = error; vegetation = warning; anything else
     (rocks, walls, fences) = error in --strict (security batch-5 L1/M2)."""
@@ -159,6 +175,8 @@ def foreign_objects(ctx, survey, what, test):
         if o["type"].startswith("Land_SKY_"):
             continue
         if test(o["pos"][0], o["pos"][2]):
+            if is_allowed(ctx, o):
+                continue
             msg = "%s contains existing object %s at %s" % (what, o["type"], [round(v, 1) for v in o["pos"]])
             if o["type"].startswith("Land_"):
                 ctx.errors.append(msg)
@@ -370,7 +388,7 @@ def place_city(ctx, lay, block_rects, world, site_yaw, survey, site, tile_quads,
             return "no survey samples"
         for o in survey.get("objects", []):
             if not o["type"].startswith("Land_SKY_") and inside_fp(o["pos"][0], o["pos"][2]) and \
-                    not o["type"].lower().startswith(VEGETATION):
+                    not o["type"].lower().startswith(VEGETATION) and not is_allowed(ctx, o):
                 return "existing object %s" % o["type"]
         if arch in S.VEG_PIECES:
             return None
@@ -965,11 +983,14 @@ def main():
     ap.add_argument("--layout", default=os.path.join(HERE, "layout.yaml"))
     ap.add_argument("--out", default=os.path.join(HERE, "out"))
     ap.add_argument("--strict", action="store_true", help="fail on placeholder site / missing survey")
+    ap.add_argument("--no-entity-cap", action="store_true",
+                    help="report ENTITY_CAP overruns as warnings instead of errors (also: site.entity_cap: off); test cities only")
     ap.add_argument("--others", default="", help="comma-separated sky_objects.json of the server's other districts (ENTITY_CAP per_server)")
     a = ap.parse_args()
     lay = yaml.safe_load(open(a.layout))
     site = lay["site"]
     ctx = Ctx(a.strict)
+    ctx.allow = tuple(str(x).lower() for x in site.get("allow_existing", []) or [])
     # grass through ground floors: cutters on spawner sites by default; a custom terrain paints no-clutter ground
     ctx.cutters = bool(site.get("clutter_cutters", site.get("target", "spawner") != "terrain"))
 
@@ -1157,20 +1178,41 @@ def main():
     loot = loot_of(ctx.objects)
     total = len(ctx.objects)
     terrain = site.get("target", "spawner") == "terrain"
+    nocap = a.no_entity_cap or str(site.get("entity_cap", "on")).lower() in ("off", "false", "0", "none")
+    if nocap and not terrain:
+        ctx.notes.append("ENTITY_CAP BYPASSED by request (%d entities + %d loot; default caps %d per district / %d per server)"
+                         % (total, loot, S.ENTITY_CAP["per_district"], S.ENTITY_CAP["per_server"]))
     if terrain:
         ctx.notes.append("target terrain: ENTITY_CAP not applied (%d objects + %d loot would be %s the spawner cap %d); "
                          "deploy through a custom terrain, city_objects.csv" % (
                              total, loot, "over" if total + loot > S.ENTITY_CAP["per_district"] else "within",
                              S.ENTITY_CAP["per_district"]))
     elif total + loot > S.ENTITY_CAP["per_district"]:
-        ctx.errors.append("%d entities + %d loot items > ENTITY_CAP per_district %d" % (total, loot, S.ENTITY_CAP["per_district"]))
+        msg = "%d entities + %d loot items > ENTITY_CAP per_district %d" % (total, loot, S.ENTITY_CAP["per_district"])
+        if nocap:
+            ctx.warnings.append(msg + " (cap bypassed: --no-entity-cap / site.entity_cap: off; test only, measure server and client FPS)")
+        else:
+            ctx.errors.append(msg)
     server = total + loot
     for other in [x for x in a.others.split(",") if x]:
         objs = json.load(open(other))["Objects"]
         server += len(objs) + loot_of(objs)
         ctx.notes.append("other district %s: %d entities + %d loot" % (other, len(objs), loot_of(objs)))
     if server > S.ENTITY_CAP["per_server"] and not terrain:
-        ctx.errors.append("server total %d (entities + loot) > ENTITY_CAP per_server %d" % (server, S.ENTITY_CAP["per_server"]))
+        msg = "server total %d (entities + loot) > ENTITY_CAP per_server %d" % (server, S.ENTITY_CAP["per_server"])
+        if nocap:
+            ctx.warnings.append(msg + " (cap bypassed)")
+        else:
+            ctx.errors.append(msg)
+    if ctx.allowed:
+        kinds = {}
+        for t in ctx.allowed.values():
+            key = t.split(": ")[-1].rsplit(".", 1)[0]
+            kinds[key] = kinds.get(key, 0) + 1
+        top = ", ".join("%s x%d" % kv for kv in sorted(kinds.items(), key=lambda kv: -kv[1])[:10])
+        ctx.warnings.append("site.allow_existing ignored %d existing map objects under the layout (%s). Raised ones (kerbs, "
+                            "lights, walls) can poke through streets and lots; ground decals are covered by the street slab"
+                            % (len(ctx.allowed), top))
     # loot export (placement/README.md section 3): ExportProxyData must reach every module/prop
     radius = max([math.hypot(o["pos"][0] - cx0, o["pos"][2] - cz0) for o in ctx.objects] or [0.0]) + 5.0
     ctx.notes.append("loot export: survey request \"exportRadius\" >= %.0f m around site.center" % math.ceil(radius))

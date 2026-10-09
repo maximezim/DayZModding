@@ -64,3 +64,10 @@ Only valid with FPS_PROTOCOL.md §0 done (probe, frame cap, mapgrouppos export, 
 * `tested` -> `done` only after the FPS protocol row(s) covering it passed. Nothing is `done` today.
 * Record the commit, date and tester in the TESTING.md sign-off table; change statuses in
   `manifest.yaml` (hand-written sections) and `gen_manifest.py` (generated kit section).
+
+## 5. Open work that is not a parameter flip
+
+- **Custom terrain for the metro and sewers**: needed before any underground test (UG-01..UG-07); blocked on the user's map name and size.
+  Full steps in `ROADMAP.md`, section "TODO: custom terrain for the metro and the sewers".
+- **City models over the vertex limit (TESTING WIN-06)**: 19 city buildings lost their Resolution 0 detail to the exporter's vertex budget;
+  a proper fix splits or trims them so the close-up detail returns.

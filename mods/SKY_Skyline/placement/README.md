@@ -109,3 +109,25 @@ The committed `out/` uses the **placeholder** site (7500, 7500, Y = 0). Do not d
   (class, x, y, z, yaw) for the terrain import (P11). Render any layout with
   `assets/blender/preview_district.py -- --objects <out>/sky_objects.json --out <dir>`.
 
+## 6. Terrain scan, cap bypass and map objects on the site (D95)
+
+**Find a flat site.** `SKY_TerrainScan.c` samples the whole map in slices (no stall) and reports the flattest windows:
+```
+{ "mode": "scan", "label": "scan1", "center": [0, 0], "x0": 0, "z0": 0, "x1": 15360, "z1": 15360, "win": 192, "maxRelief": 0.8, "top": 30 }
+```
+Put it in `SKY_survey_request.json` of the server profile and start the server (server only is enough). About a minute later
+`SKY_scan_result.json` has the best non-overlapping windows with the number of trees / bushes / other map objects inside
+(unclassed runway decals and kerbs are counted too). Then survey the chosen centre normally (section 1) with
+`halfW` / `halfD` up to 104 m at `step` about 3 m (the survey is limited to 64 x 64 samples per request). On Chernarus only 49
+windows of 192 m with <= 0.8 m relief exist (`surveys/scan1_whole_map.json`).
+
+**Bypass the caps.** `python placement/sky_layout.py --layout <yaml> --no-entity-cap` or `site.entity_cap: off`: ENTITY_CAP
+overruns become warnings (also under `--strict`), the counts stay in the report. For test cities only; measure server and client FPS.
+
+**Map objects on the site.** `site.allow_existing: [substring, ...]` ignores survey objects whose type contains one of the
+substrings, in the street-tile, tower and city-lot overlap checks. They are counted and listed in the report; raised ones (kerbs,
+lights, walls) can poke through. Vegetation was always only a warning. The example is `city_chernarus.yaml`.
+
+**Deploy a city.** Copy `out_city_chernarus/sky_objects.json` to `<mission>\sky\sky_city.json`, list it in `cfggameplay.json`
+`objectSpawnersArr`, merge `zombie_territories_snippet.xml`, and lift the fresh spawn 0.6 m in the mission `init.c`
+(`CreateCharacter`), because the street slab stands 0.1-0.3 m above the ground. Loot needs the `ExportProxyData` pass (section 3).

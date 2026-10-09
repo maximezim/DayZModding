@@ -1,0 +1,960 @@
+# Placement report
+
+map: chernarusplus  site: city-chernarus  status: **PASS (with warnings)**
+
+## Errors
+- none
+
+## Warnings
+- street tile (-7, -8) contains existing object BushHard_b_prunusSpinosa_2s at [12161.9, 142.3, 12426.5]
+- street tile (-6, -8) contains existing object BushHard_b_prunusSpinosa_2s at [12167.7, 142.1, 12438.0]
+- street tile (-6, -4) contains existing object BushHard_b_prunusSpinosa_1s at [12162.3, 141.8, 12475.5]
+- street tile (-6, 0) contains existing object BushHard_b_corylusAvellana_2s at [12165.6, 141.9, 12533.0]
+- street tile (-6, 0) contains existing object BushHard_b_prunusSpinosa_2s at [12166.0, 142.8, 12528.0]
+- street tile (-6, 0) contains existing object BushHard_b_prunusSpinosa_2s at [12167.8, 141.8, 12530.2]
+- street tile (-5, 4) contains existing object BushHard_b_corylusAvellana_2s at [12179.1, 142.2, 12571.2]
+- street tile (-5, 4) contains existing object BushHard_b_prunusSpinosa_2s at [12184.0, 142.9, 12580.8]
+- street tile (-5, 4) contains existing object BushHard_b_prunusSpinosa_1s at [12182.5, 141.6, 12573.2]
+- street tile (-5, 4) contains existing object BushHard_b_prunusSpinosa_2s at [12181.6, 141.9, 12578.9]
+- street tile (-4, 6) contains existing object BushHard_b_corylusAvellana_2s at [12192.0, 142.4, 12597.1]
+- street tile (-4, 6) contains existing object BushHard_b_prunusSpinosa_2s at [12194.0, 142.1, 12599.2]
+- street tile (0, 5) contains existing object BushHard_b_prunusSpinosa_1s at [12236.5, 141.6, 12588.6]
+- street tile (0, 5) contains existing object BushHard_b_prunusSpinosa_1s at [12239.1, 141.5, 12588.5]
+- street tile (1, 4) contains existing object BushSoft_b_betulaHumilis_1s at [12249.6, 140.9, 12571.0]
+- street tile (1, 4) contains existing object BushSoft_b_betulaHumilis_1s at [12250.1, 140.7, 12573.2]
+- street tile (4, 1) contains existing object BushHard_b_prunusSpinosa_2s at [12287.5, 142.1, 12536.3]
+- street tile (4, 1) contains existing object BushSoft_b_betulaHumilis_1s at [12285.3, 140.8, 12537.3]
+- street tile (4, 8) contains existing object BushHard_b_prunusSpinosa_1s at [12292.3, 141.5, 12624.1]
+- street tile (8, -2) contains existing object BushSoft_b_betulaHumilis_1s at [12333.1, 140.9, 12499.4]
+- ParkingGarage_Ruined in block AB1 contains existing object BushHard_b_prunusSpinosa_2s at [12202.2, 141.8, 12454.1]
+- RowhouseRender_Damaged in block A3 contains existing object BushHard_b_corylusAvellana_2s at [12170.7, 143.1, 12534.9]
+- RowhouseRender_Damaged in block A3 contains existing object BushHard_b_prunusSpinosa_2s at [12168.0, 143.0, 12537.5]
+- RowhouseRender_Damaged in block A3 contains existing object BushHard_b_prunusSpinosa_1s at [12170.8, 141.3, 12545.2]
+- CafeBrick_Intact in block A3 contains existing object TreeHard_t_PiceaAbies_2s at [12173.8, 148.2, 12564.1]
+- CafeBrick_Intact in block A3 contains existing object BushHard_b_prunusSpinosa_2s at [12179.8, 142.7, 12568.2]
+- CafeBrick_Intact in block A3 contains existing object BushHard_t_PiceaAbies_1s at [12174.3, 142.2, 12559.6]
+- CafeBrick_Intact in block A3 contains existing object BushHard_b_prunusSpinosa_1s at [12177.9, 141.6, 12565.7]
+- Hospital_Damaged in block D34 contains existing object BushSoft_b_betulaHumilis_1s at [12310.1, 140.7, 12564.4]
+- Church_Intact in block B4 contains existing object BushHard_b_corylusAvellana_2s at [12221.3, 142.7, 12599.1]
+- 831 entities + 355 loot items > ENTITY_CAP per_district 800 (cap bypassed: --no-entity-cap / site.entity_cap: off; test only, measure server and client FPS)
+- site.allow_existing ignored 280 existing map objects under the layout (decal_runwaypanel_2 x60, decal_runwaypanel_damage_1 x35, sidewalk3_border x34, decal_runwaypanel_line_8m x26, decal_runwaypanel_damage_3 x20, grass_runwaypanel_double2 x17, airfield_light_edge x17, decal_runwaypanel_damage_2 x17, grass_runwaypanel_double1 x16, decal_runwaypanel_line_15m x14). Raised ones (kerbs, lights, walls) can poke through streets and lots; ground decals are covered by the street slab
+
+## Notes
+- survey: surveys/city2.json (label city2, 4225 samples, 389 objects)
+- street plane y 140.06 (one height for every tile)
+- ENTITY_CAP BYPASSED by request (831 entities + 355 loot; default caps 800 per district / 2500 per server)
+- loot export: survey request "exportRadius" >= 141 m around site.center
+
+## Entity counts (caps: entities + loot 800 per district / 2500 per server, 25 props per floor / 70 per tower)
+- modules: 0
+- buildings: 95
+- vegetation: 35
+- cutters: 532
+- tiles: 133
+- lights: 36
+- props: 0
+- decals: 0
+- **total: 831** entities, 355 loot items (max), server total 1186
+
+## City buildings by type (intact / damaged / ruined)
+- AptBlockBrick: 1 / 0 / 1
+- AptBlockTall: 0 / 0 / 1
+- Bank: 1 / 0 / 0
+- Cafe: 2 / 0 / 3
+- CafeBrick: 2 / 1 / 0
+- Church: 1 / 0 / 0
+- Clinic: 1 / 0 / 1
+- CornerHardware: 1 / 1 / 0
+- CornerPharmacy: 1 / 2 / 0
+- CornerShop: 1 / 3 / 0
+- DepartmentStore: 1 / 0 / 0
+- FactoryHall: 0 / 1 / 0
+- FireStation: 0 / 2 / 0
+- GarageBlock: 1 / 2 / 1
+- GasStation: 0 / 1 / 0
+- Hospital: 0 / 1 / 0
+- Kiosk: 0 / 2 / 1
+- KioskCafe: 1 / 0 / 0
+- MetroEntrance: 2 / 0 / 0
+- OfficeTall: 0 / 0 / 1
+- ParkingGarage: 0 / 0 / 1
+- ParkingLotSmall: 2 / 0 / 0
+- Police: 0 / 1 / 0
+- Rowhouse: 6 / 3 / 4
+- RowhousePanel: 1 / 1 / 0
+- RowhouseRender: 2 / 4 / 1
+- RubbleLot: 0 / 0 / 3
+- School: 1 / 0 / 0
+- Shed: 5 / 0 / 0
+- ShedBrick: 2 / 0 / 1
+- ShopRow: 2 / 1 / 0
+- ShopRowMarket: 1 / 1 / 0
+- ShopRowNews: 1 / 0 / 0
+- Substation: 1 / 1 / 0
+- SupermarketSmall: 1 / 0 / 0
+- TownHall: 1 / 0 / 0
+- Villa: 1 / 0 / 0
+- VillaBrick: 1 / 2 / 0
+- WaterTower: 1 / 0 / 0
+- Workshop: 0 / 1 / 0
+- **all: 45 / 31 / 19** (95 buildings)
+
+## Terrain fit and overgrowth (D59)
+- lots the terrain could not take (given to a smaller type or left as yard): 190
+  - Kiosk: no survey samples
+  - Kiosk: no survey samples
+  - Kiosk: no survey samples
+  - Kiosk: no survey samples
+  - Kiosk: no survey samples
+  - Kiosk: no survey samples
+  - KioskCafe: no survey samples
+  - Kiosk: no survey samples
+  - KioskCafe: no survey samples
+  - Kiosk: no survey samples
+  - KioskCafe: no survey samples
+  - Kiosk: no survey samples
+  - KioskCafe: no survey samples
+  - KioskCafe: no survey samples
+  - Kiosk: no survey samples
+  - Kiosk: no survey samples
+  - KioskCafe: no survey samples
+  - KioskCafe: no survey samples
+  - Kiosk: no survey samples
+  - Kiosk: no survey samples
+- slivers avoided (gap < 0.8 m between buildings): 94
+- deepest ground drop under a city building: 0.38 m (skirt 1.5 m)
+- clutter cutters: 532 (ClutterCutter6x6)
+- vegetation: Veg_Birch 3, Veg_Bush 6, Veg_TreeDead 3, Veg_Weeds 23
+
+## Objects (831)
+- Land_SKY_Street_Intersection at [12144.0, 140.0567, 12432.0] yaw 0.0
+- Land_SKY_Street_Straight_B at [12144.0, 140.0567, 12444.0] yaw 0.0
+- Land_SKY_StreetLight at [12139.5, 140.2067, 12444.0] yaw 0.0
+- Land_SKY_Street_Straight at [12144.0, 140.0567, 12456.0] yaw 0.0
+- Land_SKY_Street_Straight at [12144.0, 140.0567, 12468.0] yaw 0.0
+- Land_SKY_Street_Intersection at [12144.0, 140.0567, 12480.0] yaw 0.0
+- Land_SKY_Street_Straight at [12144.0, 140.0567, 12492.0] yaw 0.0
+- Land_SKY_StreetLight at [12139.5, 140.2067, 12492.0] yaw 0.0
+- Land_SKY_Street_Straight at [12144.0, 140.0567, 12504.0] yaw 0.0
+- Land_SKY_Street_Straight at [12144.0, 140.0567, 12516.0] yaw 0.0
+- Land_SKY_Street_Intersection at [12144.0, 140.0567, 12528.0] yaw 0.0
+- Land_SKY_Street_Straight at [12144.0, 140.0567, 12540.0] yaw 0.0
+- Land_SKY_StreetLight at [12139.5, 140.2067, 12540.0] yaw 0.0
+- Land_SKY_Street_Straight at [12144.0, 140.0567, 12552.0] yaw 0.0
+- Land_SKY_Street_Straight at [12144.0, 140.0567, 12564.0] yaw 0.0
+- Land_SKY_Street_Intersection at [12144.0, 140.0567, 12576.0] yaw 0.0
+- Land_SKY_Street_Straight at [12144.0, 140.0567, 12588.0] yaw 0.0
+- Land_SKY_StreetLight at [12139.5, 140.2067, 12588.0] yaw 0.0
+- Land_SKY_Street_Straight at [12144.0, 140.0567, 12600.0] yaw 0.0
+- Land_SKY_Street_Straight at [12144.0, 140.0567, 12612.0] yaw 0.0
+- Land_SKY_Street_Intersection at [12144.0, 140.0567, 12624.0] yaw 0.0
+- Land_SKY_Street_Straight_B at [12156.0, 140.0567, 12432.0] yaw 90.0
+- Land_SKY_StreetLight at [12156.0, 140.2067, 12436.5] yaw 90.0
+- Land_SKY_Street_Straight at [12156.0, 140.0567, 12480.0] yaw 90.0
+- Land_SKY_StreetLight at [12156.0, 140.2067, 12484.5] yaw 90.0
+- Land_SKY_Street_Straight at [12156.0, 140.0567, 12528.0] yaw 90.0
+- Land_SKY_StreetLight at [12156.0, 140.2067, 12532.5] yaw 90.0
+- Land_SKY_Street_Straight at [12156.0, 140.0567, 12576.0] yaw 90.0
+- Land_SKY_StreetLight at [12156.0, 140.2067, 12580.5] yaw 90.0
+- Land_SKY_Street_Straight_B at [12156.0, 140.0567, 12624.0] yaw 90.0
+- Land_SKY_StreetLight at [12156.0, 140.2067, 12628.5] yaw 90.0
+- Land_SKY_Street_Straight_B at [12168.0, 140.0567, 12432.0] yaw 90.0
+- Land_SKY_Street_Straight_B at [12168.0, 140.0567, 12480.0] yaw 90.0
+- Land_SKY_Street_Crossing at [12168.0, 140.0567, 12528.0] yaw 90.0
+- Land_SKY_Street_Straight_B at [12168.0, 140.0567, 12576.0] yaw 90.0
+- Land_SKY_Street_Straight at [12168.0, 140.0567, 12624.0] yaw 90.0
+- Land_SKY_Street_Straight at [12180.0, 140.0567, 12432.0] yaw 90.0
+- Land_SKY_Street_Straight at [12180.0, 140.0567, 12480.0] yaw 90.0
+- Land_SKY_Street_Straight at [12180.0, 140.0567, 12528.0] yaw 90.0
+- Land_SKY_Street_Straight_B at [12180.0, 140.0567, 12576.0] yaw 90.0
+- Land_SKY_Street_Straight at [12180.0, 140.0567, 12624.0] yaw 90.0
+- Land_SKY_Street_Intersection at [12192.0, 140.0567, 12432.0] yaw 0.0
+- Land_SKY_Street_Intersection at [12192.0, 140.0567, 12480.0] yaw 0.0
+- Land_SKY_Street_Straight_B at [12192.0, 140.0567, 12492.0] yaw 0.0
+- Land_SKY_StreetLight at [12187.5, 140.2067, 12492.0] yaw 0.0
+- Land_SKY_Street_Straight_B at [12192.0, 140.0567, 12504.0] yaw 0.0
+- Land_SKY_Street_Straight_B at [12192.0, 140.0567, 12516.0] yaw 0.0
+- Land_SKY_Street_Intersection at [12192.0, 140.0567, 12528.0] yaw 0.0
+- Land_SKY_Street_Straight at [12192.0, 140.0567, 12540.0] yaw 0.0
+- Land_SKY_StreetLight at [12187.5, 140.2067, 12540.0] yaw 0.0
+- Land_SKY_Street_Crossing at [12192.0, 140.0567, 12552.0] yaw 0.0
+- Land_SKY_Street_Straight at [12192.0, 140.0567, 12564.0] yaw 0.0
+- Land_SKY_Street_Intersection at [12192.0, 140.0567, 12576.0] yaw 0.0
+- Land_SKY_Street_Straight_B at [12192.0, 140.0567, 12588.0] yaw 0.0
+- Land_SKY_Street_Straight at [12192.0, 140.0567, 12600.0] yaw 0.0
+- Land_SKY_StreetLight at [12187.5, 140.2067, 12600.0] yaw 0.0
+- Land_SKY_Street_Straight_B at [12192.0, 140.0567, 12612.0] yaw 0.0
+- Land_SKY_Street_Intersection at [12192.0, 140.0567, 12624.0] yaw 0.0
+- Land_SKY_Street_Straight at [12204.0, 140.0567, 12432.0] yaw 90.0
+- Land_SKY_StreetLight at [12204.0, 140.2067, 12436.5] yaw 90.0
+- Land_SKY_Street_Straight at [12204.0, 140.0567, 12480.0] yaw 90.0
+- Land_SKY_StreetLight at [12204.0, 140.2067, 12484.5] yaw 90.0
+- Land_SKY_Street_Straight at [12204.0, 140.0567, 12528.0] yaw 90.0
+- Land_SKY_Street_Straight at [12204.0, 140.0567, 12576.0] yaw 90.0
+- Land_SKY_StreetLight at [12204.0, 140.2067, 12580.5] yaw 90.0
+- Land_SKY_Street_Straight at [12204.0, 140.0567, 12624.0] yaw 90.0
+- Land_SKY_StreetLight at [12204.0, 140.2067, 12628.5] yaw 90.0
+- Land_SKY_Street_Straight at [12216.0, 140.0567, 12432.0] yaw 90.0
+- Land_SKY_Street_Straight_B at [12216.0, 140.0567, 12480.0] yaw 90.0
+- Land_SKY_Street_Straight_B at [12216.0, 140.0567, 12528.0] yaw 90.0
+- Land_SKY_StreetLight at [12216.0, 140.2067, 12532.5] yaw 90.0
+- Land_SKY_Street_Straight_B at [12216.0, 140.0567, 12576.0] yaw 90.0
+- Land_SKY_Street_Straight at [12216.0, 140.0567, 12624.0] yaw 90.0
+- Land_SKY_Street_Straight at [12228.0, 140.0567, 12432.0] yaw 90.0
+- Land_SKY_Street_Straight at [12228.0, 140.0567, 12480.0] yaw 90.0
+- Land_SKY_Street_Straight at [12228.0, 140.0567, 12528.0] yaw 90.0
+- Land_SKY_Street_Straight at [12228.0, 140.0567, 12576.0] yaw 90.0
+- Land_SKY_Street_Straight at [12228.0, 140.0567, 12624.0] yaw 90.0
+- Land_SKY_Street_Intersection at [12240.0, 140.0567, 12432.0] yaw 0.0
+- Land_SKY_Street_Straight at [12240.0, 140.0567, 12444.0] yaw 0.0
+- Land_SKY_StreetLight at [12235.5, 140.2067, 12444.0] yaw 0.0
+- Land_SKY_Street_Crossing at [12240.0, 140.0567, 12456.0] yaw 0.0
+- Land_SKY_Street_Straight at [12240.0, 140.0567, 12468.0] yaw 0.0
+- Land_SKY_Street_Intersection at [12240.0, 140.0567, 12480.0] yaw 0.0
+- Land_SKY_Street_Intersection at [12240.0, 140.0567, 12528.0] yaw 0.0
+- Land_SKY_Street_Intersection at [12240.0, 140.0567, 12576.0] yaw 0.0
+- Land_SKY_Street_Straight_B at [12240.0, 140.0567, 12588.0] yaw 0.0
+- Land_SKY_Street_Crossing at [12240.0, 140.0567, 12600.0] yaw 0.0
+- Land_SKY_Street_Straight_B at [12240.0, 140.0567, 12612.0] yaw 0.0
+- Land_SKY_StreetLight at [12235.5, 140.2067, 12612.0] yaw 0.0
+- Land_SKY_Street_Intersection at [12240.0, 140.0567, 12624.0] yaw 0.0
+- Land_SKY_Street_Straight at [12252.0, 140.0567, 12432.0] yaw 90.0
+- Land_SKY_StreetLight at [12252.0, 140.2067, 12436.5] yaw 90.0
+- Land_SKY_Street_Straight_B at [12252.0, 140.0567, 12480.0] yaw 90.0
+- Land_SKY_StreetLight at [12252.0, 140.2067, 12484.5] yaw 90.0
+- Land_SKY_Street_Straight at [12252.0, 140.0567, 12528.0] yaw 90.0
+- Land_SKY_Street_Straight at [12252.0, 140.0567, 12576.0] yaw 90.0
+- Land_SKY_StreetLight at [12252.0, 140.2067, 12580.5] yaw 90.0
+- Land_SKY_Street_Straight_B at [12252.0, 140.0567, 12624.0] yaw 90.0
+- Land_SKY_StreetLight at [12252.0, 140.2067, 12628.5] yaw 90.0
+- Land_SKY_Street_Straight at [12264.0, 140.0567, 12432.0] yaw 90.0
+- Land_SKY_Street_Straight_B at [12264.0, 140.0567, 12480.0] yaw 90.0
+- Land_SKY_Street_Straight at [12264.0, 140.0567, 12528.0] yaw 90.0
+- Land_SKY_StreetLight at [12264.0, 140.2067, 12532.5] yaw 90.0
+- Land_SKY_Street_Straight_B at [12264.0, 140.0567, 12576.0] yaw 90.0
+- Land_SKY_Street_Straight_B at [12264.0, 140.0567, 12624.0] yaw 90.0
+- Land_SKY_Street_Straight at [12276.0, 140.0567, 12432.0] yaw 90.0
+- Land_SKY_Street_Straight_B at [12276.0, 140.0567, 12480.0] yaw 90.0
+- Land_SKY_Street_Straight at [12276.0, 140.0567, 12528.0] yaw 90.0
+- Land_SKY_Street_Straight_B at [12276.0, 140.0567, 12576.0] yaw 90.0
+- Land_SKY_Street_Straight at [12276.0, 140.0567, 12624.0] yaw 90.0
+- Land_SKY_Street_Intersection at [12288.0, 140.0567, 12432.0] yaw 0.0
+- Land_SKY_Street_Straight at [12288.0, 140.0567, 12444.0] yaw 0.0
+- Land_SKY_StreetLight at [12283.5, 140.2067, 12444.0] yaw 0.0
+- Land_SKY_Street_Straight at [12288.0, 140.0567, 12456.0] yaw 0.0
+- Land_SKY_Street_Straight at [12288.0, 140.0567, 12468.0] yaw 0.0
+- Land_SKY_Street_Intersection at [12288.0, 140.0567, 12480.0] yaw 0.0
+- Land_SKY_Street_Straight at [12288.0, 140.0567, 12492.0] yaw 0.0
+- Land_SKY_StreetLight at [12283.5, 140.2067, 12492.0] yaw 0.0
+- Land_SKY_Street_Crossing at [12288.0, 140.0567, 12504.0] yaw 0.0
+- Land_SKY_Street_Straight at [12288.0, 140.0567, 12516.0] yaw 0.0
+- Land_SKY_Street_Intersection at [12288.0, 140.0567, 12528.0] yaw 0.0
+- Land_SKY_Street_Straight_B at [12288.0, 140.0567, 12540.0] yaw 0.0
+- Land_SKY_Street_Straight_B at [12288.0, 140.0567, 12552.0] yaw 0.0
+- Land_SKY_StreetLight at [12283.5, 140.2067, 12552.0] yaw 0.0
+- Land_SKY_Street_Straight at [12288.0, 140.0567, 12564.0] yaw 0.0
+- Land_SKY_Street_Intersection at [12288.0, 140.0567, 12576.0] yaw 0.0
+- Land_SKY_Street_Straight at [12288.0, 140.0567, 12588.0] yaw 0.0
+- Land_SKY_Street_Straight at [12288.0, 140.0567, 12600.0] yaw 0.0
+- Land_SKY_StreetLight at [12283.5, 140.2067, 12600.0] yaw 0.0
+- Land_SKY_Street_Straight at [12288.0, 140.0567, 12612.0] yaw 0.0
+- Land_SKY_Street_Intersection at [12288.0, 140.0567, 12624.0] yaw 0.0
+- Land_SKY_Street_Straight at [12300.0, 140.0567, 12432.0] yaw 90.0
+- Land_SKY_StreetLight at [12300.0, 140.2067, 12436.5] yaw 90.0
+- Land_SKY_Street_Straight at [12300.0, 140.0567, 12480.0] yaw 90.0
+- Land_SKY_StreetLight at [12300.0, 140.2067, 12484.5] yaw 90.0
+- Land_SKY_Street_Straight at [12300.0, 140.0567, 12528.0] yaw 90.0
+- Land_SKY_Street_Straight at [12300.0, 140.0567, 12624.0] yaw 90.0
+- Land_SKY_StreetLight at [12300.0, 140.2067, 12628.5] yaw 90.0
+- Land_SKY_Street_Straight at [12312.0, 140.0567, 12432.0] yaw 90.0
+- Land_SKY_Street_Straight_B at [12312.0, 140.0567, 12480.0] yaw 90.0
+- Land_SKY_Street_Crossing at [12312.0, 140.0567, 12528.0] yaw 90.0
+- Land_SKY_Street_Straight at [12312.0, 140.0567, 12624.0] yaw 90.0
+- Land_SKY_Street_Straight_B at [12324.0, 140.0567, 12432.0] yaw 90.0
+- Land_SKY_Street_Straight at [12324.0, 140.0567, 12480.0] yaw 90.0
+- Land_SKY_Street_Straight at [12324.0, 140.0567, 12528.0] yaw 90.0
+- Land_SKY_StreetLight at [12324.0, 140.2067, 12532.5] yaw 90.0
+- Land_SKY_Street_Straight at [12324.0, 140.0567, 12624.0] yaw 90.0
+- Land_SKY_Street_Intersection at [12336.0, 140.0567, 12432.0] yaw 0.0
+- Land_SKY_Street_Straight at [12336.0, 140.0567, 12444.0] yaw 0.0
+- Land_SKY_StreetLight at [12331.5, 140.2067, 12444.0] yaw 0.0
+- Land_SKY_Street_Straight at [12336.0, 140.0567, 12456.0] yaw 0.0
+- Land_SKY_Street_Straight at [12336.0, 140.0567, 12468.0] yaw 0.0
+- Land_SKY_Street_Intersection at [12336.0, 140.0567, 12480.0] yaw 0.0
+- Land_SKY_Street_Straight_B at [12336.0, 140.0567, 12492.0] yaw 0.0
+- Land_SKY_StreetLight at [12331.5, 140.2067, 12492.0] yaw 0.0
+- Land_SKY_Street_Straight at [12336.0, 140.0567, 12504.0] yaw 0.0
+- Land_SKY_Street_Straight_B at [12336.0, 140.0567, 12516.0] yaw 0.0
+- Land_SKY_Street_Intersection at [12336.0, 140.0567, 12528.0] yaw 0.0
+- Land_SKY_Street_Straight_B at [12336.0, 140.0567, 12540.0] yaw 0.0
+- Land_SKY_StreetLight at [12331.5, 140.2067, 12540.0] yaw 0.0
+- Land_SKY_Street_Straight at [12336.0, 140.0567, 12552.0] yaw 0.0
+- Land_SKY_Street_Straight at [12336.0, 140.0567, 12564.0] yaw 0.0
+- Land_SKY_Street_Intersection at [12336.0, 140.0567, 12576.0] yaw 0.0
+- Land_SKY_Street_Straight at [12336.0, 140.0567, 12588.0] yaw 0.0
+- Land_SKY_StreetLight at [12331.5, 140.2067, 12588.0] yaw 0.0
+- Land_SKY_Street_Straight_B at [12336.0, 140.0567, 12600.0] yaw 0.0
+- Land_SKY_Street_Straight_B at [12336.0, 140.0567, 12612.0] yaw 0.0
+- Land_SKY_Street_Intersection at [12336.0, 140.0567, 12624.0] yaw 0.0
+- Land_SKY_City_FactoryHall_Damaged at [12170.0, 140.05, 12450.5] yaw 0.0
+- ClutterCutter6x6 at [12155.0, 140.0, 12441.5] yaw 0.0
+- ClutterCutter6x6 at [12155.0, 140.0, 12447.5] yaw 0.0
+- ClutterCutter6x6 at [12155.0, 140.0, 12453.5] yaw 0.0
+- ClutterCutter6x6 at [12155.0, 140.0, 12459.5] yaw 0.0
+- ClutterCutter6x6 at [12161.0, 140.0, 12441.5] yaw 0.0
+- ClutterCutter6x6 at [12161.0, 140.0, 12447.5] yaw 0.0
+- ClutterCutter6x6 at [12161.0, 140.0, 12453.5] yaw 0.0
+- ClutterCutter6x6 at [12161.0, 140.0, 12459.5] yaw 0.0
+- ClutterCutter6x6 at [12167.0, 140.0, 12441.5] yaw 0.0
+- ClutterCutter6x6 at [12167.0, 140.0, 12447.5] yaw 0.0
+- ClutterCutter6x6 at [12167.0, 140.0, 12453.5] yaw 0.0
+- ClutterCutter6x6 at [12167.0, 140.0, 12459.5] yaw 0.0
+- ClutterCutter6x6 at [12173.0, 140.0, 12441.5] yaw 0.0
+- ClutterCutter6x6 at [12173.0, 140.0, 12447.5] yaw 0.0
+- ClutterCutter6x6 at [12173.0, 140.0, 12453.5] yaw 0.0
+- ClutterCutter6x6 at [12173.0, 140.0, 12459.5] yaw 0.0
+- ClutterCutter6x6 at [12179.0, 140.0, 12441.5] yaw 0.0
+- ClutterCutter6x6 at [12179.0, 140.0, 12447.5] yaw 0.0
+- ClutterCutter6x6 at [12179.0, 140.0, 12453.5] yaw 0.0
+- ClutterCutter6x6 at [12179.0, 140.0, 12459.5] yaw 0.0
+- ClutterCutter6x6 at [12185.0, 140.0, 12441.5] yaw 0.0
+- ClutterCutter6x6 at [12185.0, 140.0, 12447.5] yaw 0.0
+- ClutterCutter6x6 at [12185.0, 140.0, 12453.5] yaw 0.0
+- ClutterCutter6x6 at [12185.0, 140.0, 12459.5] yaw 0.0
+- Land_SKY_City_ParkingGarage_Ruined at [12214.0, 140.05, 12450.5] yaw 0.0
+- ClutterCutter6x6 at [12202.0, 140.0, 12441.5] yaw 0.0
+- ClutterCutter6x6 at [12202.0, 140.0, 12447.5] yaw 0.0
+- ClutterCutter6x6 at [12202.0, 140.0, 12453.5] yaw 0.0
+- ClutterCutter6x6 at [12202.0, 140.0, 12459.5] yaw 0.0
+- ClutterCutter6x6 at [12208.0, 140.0, 12441.5] yaw 0.0
+- ClutterCutter6x6 at [12208.0, 140.0, 12447.5] yaw 0.0
+- ClutterCutter6x6 at [12208.0, 140.0, 12453.5] yaw 0.0
+- ClutterCutter6x6 at [12208.0, 140.0, 12459.5] yaw 0.0
+- ClutterCutter6x6 at [12214.0, 140.0, 12441.5] yaw 0.0
+- ClutterCutter6x6 at [12214.0, 140.0, 12447.5] yaw 0.0
+- ClutterCutter6x6 at [12214.0, 140.0, 12453.5] yaw 0.0
+- ClutterCutter6x6 at [12214.0, 140.0, 12459.5] yaw 0.0
+- ClutterCutter6x6 at [12220.0, 140.0, 12441.5] yaw 0.0
+- ClutterCutter6x6 at [12220.0, 140.0, 12447.5] yaw 0.0
+- ClutterCutter6x6 at [12220.0, 140.0, 12453.5] yaw 0.0
+- ClutterCutter6x6 at [12220.0, 140.0, 12459.5] yaw 0.0
+- ClutterCutter6x6 at [12226.0, 140.0, 12441.5] yaw 0.0
+- ClutterCutter6x6 at [12226.0, 140.0, 12447.5] yaw 0.0
+- ClutterCutter6x6 at [12226.0, 140.0, 12453.5] yaw 0.0
+- ClutterCutter6x6 at [12226.0, 140.0, 12459.5] yaw 0.0
+- Land_SKY_City_Substation_Damaged at [12193.0, 140.05, 12442.5] yaw 0.0
+- ClutterCutter6x6 at [12190.5, 140.0, 12440.5] yaw 0.0
+- ClutterCutter6x6 at [12190.5, 140.0, 12444.5] yaw 0.0
+- ClutterCutter6x6 at [12195.5, 140.0, 12440.5] yaw 0.0
+- ClutterCutter6x6 at [12195.5, 140.0, 12444.5] yaw 0.0
+- Land_SKY_City_GarageBlock_Damaged at [12224.5, 140.05, 12470.5] yaw 180.0
+- ClutterCutter6x6 at [12230.5, 140.0, 12470.5] yaw 180.0
+- ClutterCutter6x6 at [12224.5, 140.0, 12470.5] yaw 180.0
+- ClutterCutter6x6 at [12218.5, 140.0, 12470.5] yaw 180.0
+- Land_SKY_City_Workshop_Damaged at [12207.0, 140.05, 12468.5] yaw 180.0
+- ClutterCutter6x6 at [12210.0, 140.0, 12471.0] yaw 180.0
+- ClutterCutter6x6 at [12210.0, 140.0, 12466.0] yaw 180.0
+- ClutterCutter6x6 at [12204.0, 140.0, 12471.0] yaw 180.0
+- ClutterCutter6x6 at [12204.0, 140.0, 12466.0] yaw 180.0
+- Land_SKY_City_GarageBlock_Ruined at [12189.5, 140.05, 12470.5] yaw 180.0
+- ClutterCutter6x6 at [12195.5, 140.0, 12470.5] yaw 180.0
+- ClutterCutter6x6 at [12189.5, 140.0, 12470.5] yaw 180.0
+- ClutterCutter6x6 at [12183.5, 140.0, 12470.5] yaw 180.0
+- Land_SKY_City_GarageBlock_Intact at [12169.0, 140.05, 12470.5] yaw 180.0
+- ClutterCutter6x6 at [12175.0, 140.0, 12470.5] yaw 180.0
+- ClutterCutter6x6 at [12169.0, 140.0, 12470.5] yaw 180.0
+- ClutterCutter6x6 at [12163.0, 140.0, 12470.5] yaw 180.0
+- Land_SKY_City_WaterTower at [12154.5, 140.05, 12470.5] yaw 180.0
+- ClutterCutter6x6 at [12154.5, 140.0, 12470.5] yaw 180.0
+- Land_SKY_City_Shed_Intact at [12232.0, 140.05, 12440.5] yaw 270.0
+- ClutterCutter6x6 at [12232.0, 140.0, 12440.5] yaw 270.0
+- Land_SKY_City_Shed_Intact at [12232.0, 140.05, 12447.0] yaw 270.0
+- ClutterCutter6x6 at [12232.0, 140.0, 12447.0] yaw 270.0
+- Land_SKY_Veg_Weeds at [12191.6271, 140.0, 12449.9861] yaw 90.0
+- Land_SKY_Veg_Weeds at [12192.014, 140.0, 12461.7018] yaw 270.0
+- Land_SKY_Veg_Weeds at [12196.6517, 140.0, 12456.2746] yaw 90.0
+- Land_SKY_Veg_Weeds at [12199.1492, 140.0, 12465.2185] yaw 90.0
+- Land_SKY_Veg_Weeds at [12231.6367, 140.0, 12455.1123] yaw 90.0
+- Land_SKY_City_CornerShop_Damaged at [12252.5, 140.05, 12444.5] yaw 0.0
+- ClutterCutter6x6 at [12249.5, 140.0, 12441.5] yaw 0.0
+- ClutterCutter6x6 at [12249.5, 140.0, 12447.5] yaw 0.0
+- ClutterCutter6x6 at [12255.5, 140.0, 12441.5] yaw 0.0
+- ClutterCutter6x6 at [12255.5, 140.0, 12447.5] yaw 0.0
+- Land_SKY_City_RubbleLot_B at [12266.0, 140.05, 12444.5] yaw 0.0
+- ClutterCutter6x6 at [12263.0, 140.0, 12441.5] yaw 0.0
+- ClutterCutter6x6 at [12263.0, 140.0, 12447.5] yaw 0.0
+- ClutterCutter6x6 at [12269.0, 140.0, 12441.5] yaw 0.0
+- ClutterCutter6x6 at [12269.0, 140.0, 12447.5] yaw 0.0
+- Land_SKY_City_RowhouseRender_Damaged at [12275.6, 140.05, 12444.5] yaw 0.0
+- ClutterCutter6x6 at [12273.8, 140.0, 12441.5] yaw 0.0
+- ClutterCutter6x6 at [12273.8, 140.0, 12447.5] yaw 0.0
+- ClutterCutter6x6 at [12277.4, 140.0, 12441.5] yaw 0.0
+- ClutterCutter6x6 at [12277.4, 140.0, 12447.5] yaw 0.0
+- Land_SKY_City_CornerShop_Damaged at [12275.5, 140.05, 12467.5] yaw 180.0
+- ClutterCutter6x6 at [12278.5, 140.0, 12470.5] yaw 180.0
+- ClutterCutter6x6 at [12278.5, 140.0, 12464.5] yaw 180.0
+- ClutterCutter6x6 at [12272.5, 140.0, 12470.5] yaw 180.0
+- ClutterCutter6x6 at [12272.5, 140.0, 12464.5] yaw 180.0
+- Land_SKY_City_RubbleLot_A at [12262.0, 140.05, 12467.5] yaw 180.0
+- ClutterCutter6x6 at [12265.0, 140.0, 12470.5] yaw 180.0
+- ClutterCutter6x6 at [12265.0, 140.0, 12464.5] yaw 180.0
+- ClutterCutter6x6 at [12259.0, 140.0, 12470.5] yaw 180.0
+- ClutterCutter6x6 at [12259.0, 140.0, 12464.5] yaw 180.0
+- Land_SKY_City_Rowhouse_Intact at [12252.4, 140.05, 12467.5] yaw 180.0
+- ClutterCutter6x6 at [12254.2, 140.0, 12470.5] yaw 180.0
+- ClutterCutter6x6 at [12254.2, 140.0, 12464.5] yaw 180.0
+- ClutterCutter6x6 at [12250.6, 140.0, 12470.5] yaw 180.0
+- ClutterCutter6x6 at [12250.6, 140.0, 12464.5] yaw 180.0
+- Land_SKY_City_Rowhouse_Damaged at [12252.5, 140.05, 12456.4] yaw 90.0
+- ClutterCutter6x6 at [12249.5, 140.0, 12458.2] yaw 90.0
+- ClutterCutter6x6 at [12255.5, 140.0, 12458.2] yaw 90.0
+- ClutterCutter6x6 at [12249.5, 140.0, 12454.6] yaw 90.0
+- ClutterCutter6x6 at [12255.5, 140.0, 12454.6] yaw 90.0
+- Land_SKY_City_Rowhouse_Ruined at [12275.5, 140.05, 12455.6] yaw 270.0
+- ClutterCutter6x6 at [12278.5, 140.0, 12453.8] yaw 270.0
+- ClutterCutter6x6 at [12272.5, 140.0, 12453.8] yaw 270.0
+- ClutterCutter6x6 at [12278.5, 140.0, 12457.4] yaw 270.0
+- ClutterCutter6x6 at [12272.5, 140.0, 12457.4] yaw 270.0
+- Land_SKY_City_RubbleLot_D at [12300.5, 140.05, 12444.5] yaw 0.0
+- ClutterCutter6x6 at [12297.5, 140.0, 12441.5] yaw 0.0
+- ClutterCutter6x6 at [12297.5, 140.0, 12447.5] yaw 0.0
+- ClutterCutter6x6 at [12303.5, 140.0, 12441.5] yaw 0.0
+- ClutterCutter6x6 at [12303.5, 140.0, 12447.5] yaw 0.0
+- Land_SKY_City_ShopRow_Damaged at [12311.0, 140.05, 12445.5] yaw 0.0
+- ClutterCutter6x6 at [12308.75, 140.0, 12440.8333] yaw 0.0
+- ClutterCutter6x6 at [12308.75, 140.0, 12445.5] yaw 0.0
+- ClutterCutter6x6 at [12308.75, 140.0, 12450.1667] yaw 0.0
+- ClutterCutter6x6 at [12313.25, 140.0, 12440.8333] yaw 0.0
+- ClutterCutter6x6 at [12313.25, 140.0, 12445.5] yaw 0.0
+- ClutterCutter6x6 at [12313.25, 140.0, 12450.1667] yaw 0.0
+- Land_SKY_City_Rowhouse_Ruined at [12319.1, 140.05, 12444.5] yaw 0.0
+- ClutterCutter6x6 at [12317.3, 140.0, 12441.5] yaw 0.0
+- ClutterCutter6x6 at [12317.3, 140.0, 12447.5] yaw 0.0
+- ClutterCutter6x6 at [12320.9, 140.0, 12441.5] yaw 0.0
+- ClutterCutter6x6 at [12320.9, 140.0, 12447.5] yaw 0.0
+- Land_SKY_City_CornerShop_Damaged at [12323.5, 140.05, 12467.5] yaw 180.0
+- ClutterCutter6x6 at [12326.5, 140.0, 12470.5] yaw 180.0
+- ClutterCutter6x6 at [12326.5, 140.0, 12464.5] yaw 180.0
+- ClutterCutter6x6 at [12320.5, 140.0, 12470.5] yaw 180.0
+- ClutterCutter6x6 at [12320.5, 140.0, 12464.5] yaw 180.0
+- Land_SKY_City_AptBlockBrick_Ruined at [12307.0, 140.05, 12467.5] yaw 180.0
+- ClutterCutter6x6 at [12313.0, 140.0, 12470.5] yaw 180.0
+- ClutterCutter6x6 at [12313.0, 140.0, 12464.5] yaw 180.0
+- ClutterCutter6x6 at [12307.0, 140.0, 12470.5] yaw 180.0
+- ClutterCutter6x6 at [12307.0, 140.0, 12464.5] yaw 180.0
+- ClutterCutter6x6 at [12301.0, 140.0, 12470.5] yaw 180.0
+- ClutterCutter6x6 at [12301.0, 140.0, 12464.5] yaw 180.0
+- Land_SKY_City_Rowhouse_Damaged at [12300.5, 140.05, 12455.4] yaw 90.0
+- ClutterCutter6x6 at [12297.5, 140.0, 12457.2] yaw 90.0
+- ClutterCutter6x6 at [12303.5, 140.0, 12457.2] yaw 90.0
+- ClutterCutter6x6 at [12297.5, 140.0, 12453.6] yaw 90.0
+- ClutterCutter6x6 at [12303.5, 140.0, 12453.6] yaw 90.0
+- Land_SKY_City_GarageBlock_Damaged at [12326.5, 140.05, 12447.5] yaw 270.0
+- ClutterCutter6x6 at [12326.5, 140.0, 12441.5] yaw 270.0
+- ClutterCutter6x6 at [12326.5, 140.0, 12447.5] yaw 270.0
+- ClutterCutter6x6 at [12326.5, 140.0, 12453.5] yaw 270.0
+- Land_SKY_Veg_Weeds at [12315.1972, 140.0, 12454.3795] yaw 180.0
+- Land_SKY_City_SupermarketSmall_Intact at [12168.0, 140.05, 12493.5] yaw 0.0
+- ClutterCutter6x6 at [12162.0, 140.0, 12488.8333] yaw 0.0
+- ClutterCutter6x6 at [12162.0, 140.0, 12493.5] yaw 0.0
+- ClutterCutter6x6 at [12162.0, 140.0, 12498.1667] yaw 0.0
+- ClutterCutter6x6 at [12168.0, 140.0, 12488.8333] yaw 0.0
+- ClutterCutter6x6 at [12168.0, 140.0, 12493.5] yaw 0.0
+- ClutterCutter6x6 at [12168.0, 140.0, 12498.1667] yaw 0.0
+- ClutterCutter6x6 at [12174.0, 140.0, 12488.8333] yaw 0.0
+- ClutterCutter6x6 at [12174.0, 140.0, 12493.5] yaw 0.0
+- ClutterCutter6x6 at [12174.0, 140.0, 12498.1667] yaw 0.0
+- Land_SKY_City_GasStation_Damaged at [12168.0, 140.05, 12511.0] yaw 180.0
+- ClutterCutter6x6 at [12175.5, 140.0, 12519.0833] yaw 180.0
+- ClutterCutter6x6 at [12175.5, 140.0, 12514.25] yaw 180.0
+- ClutterCutter6x6 at [12175.5, 140.0, 12509.4167] yaw 180.0
+- ClutterCutter6x6 at [12170.5, 140.0, 12519.0833] yaw 180.0
+- ClutterCutter6x6 at [12170.5, 140.0, 12514.25] yaw 180.0
+- ClutterCutter6x6 at [12170.5, 140.0, 12509.4167] yaw 180.0
+- ClutterCutter6x6 at [12165.5, 140.0, 12519.0833] yaw 180.0
+- ClutterCutter6x6 at [12165.5, 140.0, 12514.25] yaw 180.0
+- ClutterCutter6x6 at [12165.5, 140.0, 12509.4167] yaw 180.0
+- ClutterCutter6x6 at [12160.5, 140.0, 12519.0833] yaw 180.0
+- ClutterCutter6x6 at [12160.5, 140.0, 12514.25] yaw 180.0
+- ClutterCutter6x6 at [12160.5, 140.0, 12509.4167] yaw 180.0
+- Land_SKY_City_Rowhouse_Intact at [12154.1, 140.05, 12492.5] yaw 0.0
+- ClutterCutter6x6 at [12152.3, 140.0, 12489.5] yaw 0.0
+- ClutterCutter6x6 at [12152.3, 140.0, 12495.5] yaw 0.0
+- ClutterCutter6x6 at [12155.9, 140.0, 12489.5] yaw 0.0
+- ClutterCutter6x6 at [12155.9, 140.0, 12495.5] yaw 0.0
+- Land_SKY_City_Rowhouse_Damaged at [12181.8, 140.05, 12492.5] yaw 0.0
+- ClutterCutter6x6 at [12180.0, 140.0, 12489.5] yaw 0.0
+- ClutterCutter6x6 at [12180.0, 140.0, 12495.5] yaw 0.0
+- ClutterCutter6x6 at [12183.6, 140.0, 12489.5] yaw 0.0
+- ClutterCutter6x6 at [12183.6, 140.0, 12495.5] yaw 0.0
+- Land_SKY_City_RowhouseRender_Intact at [12154.4, 140.05, 12515.5] yaw 180.0
+- ClutterCutter6x6 at [12156.2, 140.0, 12518.5] yaw 180.0
+- ClutterCutter6x6 at [12156.2, 140.0, 12512.5] yaw 180.0
+- ClutterCutter6x6 at [12152.6, 140.0, 12518.5] yaw 180.0
+- ClutterCutter6x6 at [12152.6, 140.0, 12512.5] yaw 180.0
+- Land_SKY_City_Kiosk_Damaged at [12151.7, 140.05, 12506.5] yaw 90.0
+- ClutterCutter6x6 at [12151.7, 140.0, 12506.5] yaw 90.0
+- Land_SKY_Veg_Weeds at [12156.7134, 140.0, 12501.471] yaw 0.0
+- Land_SKY_Veg_Weeds at [12180.3652, 140.0, 12515.8319] yaw 0.0
+- Land_SKY_Veg_Weeds at [12162.8227, 140.0, 12504.4082] yaw 180.0
+- Land_SKY_Veg_Weeds at [12182.9076, 140.0, 12504.0393] yaw 180.0
+- Land_SKY_City_TownHall_Intact at [12218.0, 140.05, 12495.5] yaw 0.0
+- ClutterCutter6x6 at [12209.0, 140.0, 12489.5] yaw 0.0
+- ClutterCutter6x6 at [12209.0, 140.0, 12495.5] yaw 0.0
+- ClutterCutter6x6 at [12209.0, 140.0, 12501.5] yaw 0.0
+- ClutterCutter6x6 at [12215.0, 140.0, 12489.5] yaw 0.0
+- ClutterCutter6x6 at [12215.0, 140.0, 12495.5] yaw 0.0
+- ClutterCutter6x6 at [12215.0, 140.0, 12501.5] yaw 0.0
+- ClutterCutter6x6 at [12221.0, 140.0, 12489.5] yaw 0.0
+- ClutterCutter6x6 at [12221.0, 140.0, 12495.5] yaw 0.0
+- ClutterCutter6x6 at [12221.0, 140.0, 12501.5] yaw 0.0
+- ClutterCutter6x6 at [12227.0, 140.0, 12489.5] yaw 0.0
+- ClutterCutter6x6 at [12227.0, 140.0, 12495.5] yaw 0.0
+- ClutterCutter6x6 at [12227.0, 140.0, 12501.5] yaw 0.0
+- Land_SKY_City_Police_Damaged at [12262.0, 140.05, 12493.5] yaw 0.0
+- ClutterCutter6x6 at [12254.5, 140.0, 12488.8333] yaw 0.0
+- ClutterCutter6x6 at [12254.5, 140.0, 12493.5] yaw 0.0
+- ClutterCutter6x6 at [12254.5, 140.0, 12498.1667] yaw 0.0
+- ClutterCutter6x6 at [12259.5, 140.0, 12488.8333] yaw 0.0
+- ClutterCutter6x6 at [12259.5, 140.0, 12493.5] yaw 0.0
+- ClutterCutter6x6 at [12259.5, 140.0, 12498.1667] yaw 0.0
+- ClutterCutter6x6 at [12264.5, 140.0, 12488.8333] yaw 0.0
+- ClutterCutter6x6 at [12264.5, 140.0, 12493.5] yaw 0.0
+- ClutterCutter6x6 at [12264.5, 140.0, 12498.1667] yaw 0.0
+- ClutterCutter6x6 at [12269.5, 140.0, 12488.8333] yaw 0.0
+- ClutterCutter6x6 at [12269.5, 140.0, 12493.5] yaw 0.0
+- ClutterCutter6x6 at [12269.5, 140.0, 12498.1667] yaw 0.0
+- Land_SKY_City_Bank_Intact at [12240.0, 140.05, 12493.5] yaw 0.0
+- ClutterCutter6x6 at [12234.6667, 140.0, 12488.8333] yaw 0.0
+- ClutterCutter6x6 at [12234.6667, 140.0, 12493.5] yaw 0.0
+- ClutterCutter6x6 at [12234.6667, 140.0, 12498.1667] yaw 0.0
+- ClutterCutter6x6 at [12240.0, 140.0, 12488.8333] yaw 0.0
+- ClutterCutter6x6 at [12240.0, 140.0, 12493.5] yaw 0.0
+- ClutterCutter6x6 at [12240.0, 140.0, 12498.1667] yaw 0.0
+- ClutterCutter6x6 at [12245.3333, 140.0, 12488.8333] yaw 0.0
+- ClutterCutter6x6 at [12245.3333, 140.0, 12493.5] yaw 0.0
+- ClutterCutter6x6 at [12245.3333, 140.0, 12498.1667] yaw 0.0
+- Land_SKY_City_MetroEntrance_A at [12200.5, 140.05, 12489.5] yaw 0.0
+- ClutterCutter6x6 at [12200.5, 140.0, 12489.5] yaw 0.0
+- Land_SKY_City_ShopRowMarket_Damaged at [12276.5, 140.05, 12493.5] yaw 0.0
+- ClutterCutter6x6 at [12274.25, 140.0, 12488.8333] yaw 0.0
+- ClutterCutter6x6 at [12274.25, 140.0, 12493.5] yaw 0.0
+- ClutterCutter6x6 at [12274.25, 140.0, 12498.1667] yaw 0.0
+- ClutterCutter6x6 at [12278.75, 140.0, 12488.8333] yaw 0.0
+- ClutterCutter6x6 at [12278.75, 140.0, 12493.5] yaw 0.0
+- ClutterCutter6x6 at [12278.75, 140.0, 12498.1667] yaw 0.0
+- Land_SKY_City_CornerPharmacy_Damaged at [12275.5, 140.05, 12515.5] yaw 180.0
+- ClutterCutter6x6 at [12278.5, 140.0, 12518.5] yaw 180.0
+- ClutterCutter6x6 at [12278.5, 140.0, 12512.5] yaw 180.0
+- ClutterCutter6x6 at [12272.5, 140.0, 12518.5] yaw 180.0
+- ClutterCutter6x6 at [12272.5, 140.0, 12512.5] yaw 180.0
+- Land_SKY_City_Clinic_Ruined at [12260.0, 140.05, 12514.5] yaw 180.0
+- ClutterCutter6x6 at [12265.3333, 140.0, 12519.1667] yaw 180.0
+- ClutterCutter6x6 at [12265.3333, 140.0, 12514.5] yaw 180.0
+- ClutterCutter6x6 at [12265.3333, 140.0, 12509.8333] yaw 180.0
+- ClutterCutter6x6 at [12260.0, 140.0, 12519.1667] yaw 180.0
+- ClutterCutter6x6 at [12260.0, 140.0, 12514.5] yaw 180.0
+- ClutterCutter6x6 at [12260.0, 140.0, 12509.8333] yaw 180.0
+- ClutterCutter6x6 at [12254.6667, 140.0, 12519.1667] yaw 180.0
+- ClutterCutter6x6 at [12254.6667, 140.0, 12514.5] yaw 180.0
+- ClutterCutter6x6 at [12254.6667, 140.0, 12509.8333] yaw 180.0
+- Land_SKY_City_AptBlockTall_Ruined at [12241.5, 140.05, 12515.5] yaw 180.0
+- ClutterCutter6x6 at [12247.5, 140.0, 12518.5] yaw 180.0
+- ClutterCutter6x6 at [12247.5, 140.0, 12512.5] yaw 180.0
+- ClutterCutter6x6 at [12241.5, 140.0, 12518.5] yaw 180.0
+- ClutterCutter6x6 at [12241.5, 140.0, 12512.5] yaw 180.0
+- ClutterCutter6x6 at [12235.5, 140.0, 12518.5] yaw 180.0
+- ClutterCutter6x6 at [12235.5, 140.0, 12512.5] yaw 180.0
+- Land_SKY_ParkingLot_B at [12219.0, 140.05, 12515.5] yaw 180.0
+- ClutterCutter6x6 at [12228.0, 140.0, 12518.5] yaw 180.0
+- ClutterCutter6x6 at [12228.0, 140.0, 12512.5] yaw 180.0
+- ClutterCutter6x6 at [12222.0, 140.0, 12518.5] yaw 180.0
+- ClutterCutter6x6 at [12222.0, 140.0, 12512.5] yaw 180.0
+- ClutterCutter6x6 at [12216.0, 140.0, 12518.5] yaw 180.0
+- ClutterCutter6x6 at [12216.0, 140.0, 12512.5] yaw 180.0
+- ClutterCutter6x6 at [12210.0, 140.0, 12518.5] yaw 180.0
+- ClutterCutter6x6 at [12210.0, 140.0, 12512.5] yaw 180.0
+- Land_SKY_Veg_Bush at [12200.5725, 140.0, 12513.735] yaw 180.0
+- Land_SKY_Veg_Weeds at [12225.0119, 140.0, 12507.3376] yaw 0.0
+- Land_SKY_City_FireStation_Damaged at [12312.0, 140.05, 12494.5] yaw 0.0
+- ClutterCutter6x6 at [12303.75, 140.0, 12489.1667] yaw 0.0
+- ClutterCutter6x6 at [12303.75, 140.0, 12494.5] yaw 0.0
+- ClutterCutter6x6 at [12303.75, 140.0, 12499.8333] yaw 0.0
+- ClutterCutter6x6 at [12309.25, 140.0, 12489.1667] yaw 0.0
+- ClutterCutter6x6 at [12309.25, 140.0, 12494.5] yaw 0.0
+- ClutterCutter6x6 at [12309.25, 140.0, 12499.8333] yaw 0.0
+- ClutterCutter6x6 at [12314.75, 140.0, 12489.1667] yaw 0.0
+- ClutterCutter6x6 at [12314.75, 140.0, 12494.5] yaw 0.0
+- ClutterCutter6x6 at [12314.75, 140.0, 12499.8333] yaw 0.0
+- ClutterCutter6x6 at [12320.25, 140.0, 12489.1667] yaw 0.0
+- ClutterCutter6x6 at [12320.25, 140.0, 12494.5] yaw 0.0
+- ClutterCutter6x6 at [12320.25, 140.0, 12499.8333] yaw 0.0
+- Land_SKY_City_CornerHardware_Intact at [12323.5, 140.05, 12515.5] yaw 180.0
+- ClutterCutter6x6 at [12326.5, 140.0, 12518.5] yaw 180.0
+- ClutterCutter6x6 at [12326.5, 140.0, 12512.5] yaw 180.0
+- ClutterCutter6x6 at [12320.5, 140.0, 12518.5] yaw 180.0
+- ClutterCutter6x6 at [12320.5, 140.0, 12512.5] yaw 180.0
+- Land_SKY_City_RowhouseRender_Ruined at [12312.4, 140.05, 12515.5] yaw 180.0
+- ClutterCutter6x6 at [12314.2, 140.0, 12518.5] yaw 180.0
+- ClutterCutter6x6 at [12314.2, 140.0, 12512.5] yaw 180.0
+- ClutterCutter6x6 at [12310.6, 140.0, 12518.5] yaw 180.0
+- ClutterCutter6x6 at [12310.6, 140.0, 12512.5] yaw 180.0
+- Land_SKY_City_Substation_Intact at [12302.3, 140.05, 12517.5] yaw 180.0
+- ClutterCutter6x6 at [12304.8, 140.0, 12519.5] yaw 180.0
+- ClutterCutter6x6 at [12304.8, 140.0, 12515.5] yaw 180.0
+- ClutterCutter6x6 at [12299.8, 140.0, 12519.5] yaw 180.0
+- ClutterCutter6x6 at [12299.8, 140.0, 12515.5] yaw 180.0
+- Land_SKY_City_Rowhouse_Ruined at [12300.5, 140.05, 12508.4] yaw 90.0
+- ClutterCutter6x6 at [12297.5, 140.0, 12510.2] yaw 90.0
+- ClutterCutter6x6 at [12303.5, 140.0, 12510.2] yaw 90.0
+- ClutterCutter6x6 at [12297.5, 140.0, 12506.6] yaw 90.0
+- ClutterCutter6x6 at [12303.5, 140.0, 12506.6] yaw 90.0
+- Land_SKY_Veg_TreeDead at [12327.6585, 140.0, 12492.3702] yaw 270.0
+- Land_SKY_Veg_TreeDead at [12325.3153, 140.0, 12505.781] yaw 270.0
+- Land_SKY_Veg_Bush at [12298.0443, 140.0, 12488.8127] yaw 180.0
+- Land_SKY_Veg_Weeds at [12296.6443, 140.0, 12497.2927] yaw 90.0
+- Land_SKY_Veg_Weeds at [12298.0939, 140.0, 12501.6113] yaw 180.0
+- Land_SKY_Veg_TreeDead at [12314.6195, 140.0, 12506.5267] yaw 90.0
+- Land_SKY_Veg_Weeds at [12327.6228, 140.0, 12502.0022] yaw 180.0
+- Land_SKY_City_CornerPharmacy_Intact at [12156.5, 140.05, 12540.5] yaw 0.0
+- ClutterCutter6x6 at [12153.5, 140.0, 12537.5] yaw 0.0
+- ClutterCutter6x6 at [12153.5, 140.0, 12543.5] yaw 0.0
+- ClutterCutter6x6 at [12159.5, 140.0, 12537.5] yaw 0.0
+- ClutterCutter6x6 at [12159.5, 140.0, 12543.5] yaw 0.0
+- Land_SKY_City_RowhouseRender_Damaged at [12168.1, 140.05, 12540.5] yaw 0.0
+- ClutterCutter6x6 at [12166.3, 140.0, 12537.5] yaw 0.0
+- ClutterCutter6x6 at [12166.3, 140.0, 12543.5] yaw 0.0
+- ClutterCutter6x6 at [12169.9, 140.0, 12537.5] yaw 0.0
+- ClutterCutter6x6 at [12169.9, 140.0, 12543.5] yaw 0.0
+- Land_SKY_City_VillaBrick_Damaged at [12178.7, 140.05, 12539.5] yaw 0.0
+- ClutterCutter6x6 at [12176.2, 140.0, 12537.0] yaw 0.0
+- ClutterCutter6x6 at [12176.2, 140.0, 12542.0] yaw 0.0
+- ClutterCutter6x6 at [12181.2, 140.0, 12537.0] yaw 0.0
+- ClutterCutter6x6 at [12181.2, 140.0, 12542.0] yaw 0.0
+- Land_SKY_City_CafeBrick_Intact at [12179.5, 140.05, 12562.5] yaw 180.0
+- ClutterCutter6x6 at [12182.5, 140.0, 12567.0] yaw 180.0
+- ClutterCutter6x6 at [12182.5, 140.0, 12562.0] yaw 180.0
+- ClutterCutter6x6 at [12176.5, 140.0, 12567.0] yaw 180.0
+- ClutterCutter6x6 at [12176.5, 140.0, 12562.0] yaw 180.0
+- Land_SKY_City_RowhousePanel_Intact at [12167.9, 140.05, 12563.5] yaw 180.0
+- ClutterCutter6x6 at [12169.7, 140.0, 12566.5] yaw 180.0
+- ClutterCutter6x6 at [12169.7, 140.0, 12560.5] yaw 180.0
+- ClutterCutter6x6 at [12166.1, 140.0, 12566.5] yaw 180.0
+- ClutterCutter6x6 at [12166.1, 140.0, 12560.5] yaw 180.0
+- Land_SKY_City_Villa_Intact at [12157.3, 140.05, 12564.5] yaw 180.0
+- ClutterCutter6x6 at [12159.8, 140.0, 12567.0] yaw 180.0
+- ClutterCutter6x6 at [12159.8, 140.0, 12562.0] yaw 180.0
+- ClutterCutter6x6 at [12154.8, 140.0, 12567.0] yaw 180.0
+- ClutterCutter6x6 at [12154.8, 140.0, 12562.0] yaw 180.0
+- Land_SKY_City_RowhousePanel_Damaged at [12156.5, 140.05, 12555.9] yaw 90.0
+- ClutterCutter6x6 at [12153.5, 140.0, 12557.7] yaw 90.0
+- ClutterCutter6x6 at [12159.5, 140.0, 12557.7] yaw 90.0
+- ClutterCutter6x6 at [12153.5, 140.0, 12554.1] yaw 90.0
+- ClutterCutter6x6 at [12159.5, 140.0, 12554.1] yaw 90.0
+- Land_SKY_City_KioskCafe_Intact at [12151.7, 140.05, 12548.8] yaw 90.0
+- ClutterCutter6x6 at [12151.7, 140.0, 12548.8] yaw 90.0
+- Land_SKY_City_Rowhouse_Intact at [12179.5, 140.05, 12548.1] yaw 270.0
+- ClutterCutter6x6 at [12182.5, 140.0, 12546.3] yaw 270.0
+- ClutterCutter6x6 at [12176.5, 140.0, 12546.3] yaw 270.0
+- ClutterCutter6x6 at [12182.5, 140.0, 12549.9] yaw 270.0
+- ClutterCutter6x6 at [12176.5, 140.0, 12549.9] yaw 270.0
+- Land_SKY_City_ShedBrick_Intact at [12184.0, 140.05, 12555.7] yaw 270.0
+- ClutterCutter6x6 at [12184.0, 140.0, 12555.7] yaw 270.0
+- Land_SKY_Veg_Weeds at [12155.9355, 140.0, 12550.3635] yaw 180.0
+- Land_SKY_Veg_Bush at [12165.5505, 140.0, 12550.5382] yaw 0.0
+- Land_SKY_Veg_Birch at [12174.3794, 140.0, 12555.1824] yaw 180.0
+- Land_SKY_City_DepartmentStore_Intact at [12220.0, 140.05, 12549.5] yaw 0.0
+- ClutterCutter6x6 at [12202.8571, 140.0, 12537.5] yaw 0.0
+- ClutterCutter6x6 at [12202.8571, 140.0, 12543.5] yaw 0.0
+- ClutterCutter6x6 at [12202.8571, 140.0, 12549.5] yaw 0.0
+- ClutterCutter6x6 at [12202.8571, 140.0, 12555.5] yaw 0.0
+- ClutterCutter6x6 at [12202.8571, 140.0, 12561.5] yaw 0.0
+- ClutterCutter6x6 at [12208.5714, 140.0, 12537.5] yaw 0.0
+- ClutterCutter6x6 at [12208.5714, 140.0, 12543.5] yaw 0.0
+- ClutterCutter6x6 at [12208.5714, 140.0, 12549.5] yaw 0.0
+- ClutterCutter6x6 at [12208.5714, 140.0, 12555.5] yaw 0.0
+- ClutterCutter6x6 at [12208.5714, 140.0, 12561.5] yaw 0.0
+- ClutterCutter6x6 at [12214.2857, 140.0, 12537.5] yaw 0.0
+- ClutterCutter6x6 at [12214.2857, 140.0, 12543.5] yaw 0.0
+- ClutterCutter6x6 at [12214.2857, 140.0, 12549.5] yaw 0.0
+- ClutterCutter6x6 at [12214.2857, 140.0, 12555.5] yaw 0.0
+- ClutterCutter6x6 at [12214.2857, 140.0, 12561.5] yaw 0.0
+- ClutterCutter6x6 at [12220.0, 140.0, 12537.5] yaw 0.0
+- ClutterCutter6x6 at [12220.0, 140.0, 12543.5] yaw 0.0
+- ClutterCutter6x6 at [12220.0, 140.0, 12549.5] yaw 0.0
+- ClutterCutter6x6 at [12220.0, 140.0, 12555.5] yaw 0.0
+- ClutterCutter6x6 at [12220.0, 140.0, 12561.5] yaw 0.0
+- ClutterCutter6x6 at [12225.7143, 140.0, 12537.5] yaw 0.0
+- ClutterCutter6x6 at [12225.7143, 140.0, 12543.5] yaw 0.0
+- ClutterCutter6x6 at [12225.7143, 140.0, 12549.5] yaw 0.0
+- ClutterCutter6x6 at [12225.7143, 140.0, 12555.5] yaw 0.0
+- ClutterCutter6x6 at [12225.7143, 140.0, 12561.5] yaw 0.0
+- ClutterCutter6x6 at [12231.4286, 140.0, 12537.5] yaw 0.0
+- ClutterCutter6x6 at [12231.4286, 140.0, 12543.5] yaw 0.0
+- ClutterCutter6x6 at [12231.4286, 140.0, 12549.5] yaw 0.0
+- ClutterCutter6x6 at [12231.4286, 140.0, 12555.5] yaw 0.0
+- ClutterCutter6x6 at [12231.4286, 140.0, 12561.5] yaw 0.0
+- ClutterCutter6x6 at [12237.1429, 140.0, 12537.5] yaw 0.0
+- ClutterCutter6x6 at [12237.1429, 140.0, 12543.5] yaw 0.0
+- ClutterCutter6x6 at [12237.1429, 140.0, 12549.5] yaw 0.0
+- ClutterCutter6x6 at [12237.1429, 140.0, 12555.5] yaw 0.0
+- ClutterCutter6x6 at [12237.1429, 140.0, 12561.5] yaw 0.0
+- Land_SKY_City_Clinic_Intact at [12262.0, 140.05, 12562.5] yaw 180.0
+- ClutterCutter6x6 at [12267.3333, 140.0, 12567.1667] yaw 180.0
+- ClutterCutter6x6 at [12267.3333, 140.0, 12562.5] yaw 180.0
+- ClutterCutter6x6 at [12267.3333, 140.0, 12557.8333] yaw 180.0
+- ClutterCutter6x6 at [12262.0, 140.0, 12567.1667] yaw 180.0
+- ClutterCutter6x6 at [12262.0, 140.0, 12562.5] yaw 180.0
+- ClutterCutter6x6 at [12262.0, 140.0, 12557.8333] yaw 180.0
+- ClutterCutter6x6 at [12256.6667, 140.0, 12567.1667] yaw 180.0
+- ClutterCutter6x6 at [12256.6667, 140.0, 12562.5] yaw 180.0
+- ClutterCutter6x6 at [12256.6667, 140.0, 12557.8333] yaw 180.0
+- Land_SKY_City_ShopRowMarket_Intact at [12244.5, 140.05, 12541.5] yaw 0.0
+- ClutterCutter6x6 at [12242.25, 140.0, 12536.8333] yaw 0.0
+- ClutterCutter6x6 at [12242.25, 140.0, 12541.5] yaw 0.0
+- ClutterCutter6x6 at [12242.25, 140.0, 12546.1667] yaw 0.0
+- ClutterCutter6x6 at [12246.75, 140.0, 12536.8333] yaw 0.0
+- ClutterCutter6x6 at [12246.75, 140.0, 12541.5] yaw 0.0
+- ClutterCutter6x6 at [12246.75, 140.0, 12546.1667] yaw 0.0
+- Land_SKY_City_ShopRowNews_Intact at [12253.5, 140.05, 12541.5] yaw 0.0
+- ClutterCutter6x6 at [12251.25, 140.0, 12536.8333] yaw 0.0
+- ClutterCutter6x6 at [12251.25, 140.0, 12541.5] yaw 0.0
+- ClutterCutter6x6 at [12251.25, 140.0, 12546.1667] yaw 0.0
+- ClutterCutter6x6 at [12255.75, 140.0, 12536.8333] yaw 0.0
+- ClutterCutter6x6 at [12255.75, 140.0, 12541.5] yaw 0.0
+- ClutterCutter6x6 at [12255.75, 140.0, 12546.1667] yaw 0.0
+- Land_SKY_City_OfficeTall_Ruined at [12268.5, 140.05, 12543.5] yaw 0.0
+- ClutterCutter6x6 at [12262.5, 140.0, 12537.5] yaw 0.0
+- ClutterCutter6x6 at [12262.5, 140.0, 12543.5] yaw 0.0
+- ClutterCutter6x6 at [12262.5, 140.0, 12549.5] yaw 0.0
+- ClutterCutter6x6 at [12268.5, 140.0, 12537.5] yaw 0.0
+- ClutterCutter6x6 at [12268.5, 140.0, 12543.5] yaw 0.0
+- ClutterCutter6x6 at [12268.5, 140.0, 12549.5] yaw 0.0
+- ClutterCutter6x6 at [12274.5, 140.0, 12537.5] yaw 0.0
+- ClutterCutter6x6 at [12274.5, 140.0, 12543.5] yaw 0.0
+- ClutterCutter6x6 at [12274.5, 140.0, 12549.5] yaw 0.0
+- Land_SKY_City_ShopRow_Intact at [12277.0, 140.05, 12562.5] yaw 180.0
+- ClutterCutter6x6 at [12279.25, 140.0, 12567.1667] yaw 180.0
+- ClutterCutter6x6 at [12279.25, 140.0, 12562.5] yaw 180.0
+- ClutterCutter6x6 at [12279.25, 140.0, 12557.8333] yaw 180.0
+- ClutterCutter6x6 at [12274.75, 140.0, 12567.1667] yaw 180.0
+- ClutterCutter6x6 at [12274.75, 140.0, 12562.5] yaw 180.0
+- ClutterCutter6x6 at [12274.75, 140.0, 12557.8333] yaw 180.0
+- Land_SKY_City_CafeBrick_Damaged at [12248.0, 140.05, 12562.5] yaw 180.0
+- ClutterCutter6x6 at [12251.0, 140.0, 12567.0] yaw 180.0
+- ClutterCutter6x6 at [12251.0, 140.0, 12562.0] yaw 180.0
+- ClutterCutter6x6 at [12245.0, 140.0, 12567.0] yaw 180.0
+- ClutterCutter6x6 at [12245.0, 140.0, 12562.0] yaw 180.0
+- Land_SKY_City_MetroEntrance_B at [12201.5, 140.05, 12567.5] yaw 90.0
+- ClutterCutter6x6 at [12201.5, 140.0, 12567.5] yaw 90.0
+- Land_SKY_Veg_Weeds at [12220.2263, 140.0, 12566.6385] yaw 90.0
+- Land_SKY_Veg_Bush at [12225.7605, 140.0, 12567.0062] yaw 0.0
+- Land_SKY_City_Hospital_Damaged at [12306.5, 140.05, 12576.0] yaw 90.0
+- ClutterCutter6x6 at [12297.5, 140.0, 12593.1429] yaw 90.0
+- ClutterCutter6x6 at [12303.5, 140.0, 12593.1429] yaw 90.0
+- ClutterCutter6x6 at [12309.5, 140.0, 12593.1429] yaw 90.0
+- ClutterCutter6x6 at [12315.5, 140.0, 12593.1429] yaw 90.0
+- ClutterCutter6x6 at [12297.5, 140.0, 12587.4286] yaw 90.0
+- ClutterCutter6x6 at [12303.5, 140.0, 12587.4286] yaw 90.0
+- ClutterCutter6x6 at [12309.5, 140.0, 12587.4286] yaw 90.0
+- ClutterCutter6x6 at [12315.5, 140.0, 12587.4286] yaw 90.0
+- ClutterCutter6x6 at [12297.5, 140.0, 12581.7143] yaw 90.0
+- ClutterCutter6x6 at [12303.5, 140.0, 12581.7143] yaw 90.0
+- ClutterCutter6x6 at [12309.5, 140.0, 12581.7143] yaw 90.0
+- ClutterCutter6x6 at [12315.5, 140.0, 12581.7143] yaw 90.0
+- ClutterCutter6x6 at [12297.5, 140.0, 12576.0] yaw 90.0
+- ClutterCutter6x6 at [12303.5, 140.0, 12576.0] yaw 90.0
+- ClutterCutter6x6 at [12309.5, 140.0, 12576.0] yaw 90.0
+- ClutterCutter6x6 at [12315.5, 140.0, 12576.0] yaw 90.0
+- ClutterCutter6x6 at [12297.5, 140.0, 12570.2857] yaw 90.0
+- ClutterCutter6x6 at [12303.5, 140.0, 12570.2857] yaw 90.0
+- ClutterCutter6x6 at [12309.5, 140.0, 12570.2857] yaw 90.0
+- ClutterCutter6x6 at [12315.5, 140.0, 12570.2857] yaw 90.0
+- ClutterCutter6x6 at [12297.5, 140.0, 12564.5714] yaw 90.0
+- ClutterCutter6x6 at [12303.5, 140.0, 12564.5714] yaw 90.0
+- ClutterCutter6x6 at [12309.5, 140.0, 12564.5714] yaw 90.0
+- ClutterCutter6x6 at [12315.5, 140.0, 12564.5714] yaw 90.0
+- ClutterCutter6x6 at [12297.5, 140.0, 12558.8571] yaw 90.0
+- ClutterCutter6x6 at [12303.5, 140.0, 12558.8571] yaw 90.0
+- ClutterCutter6x6 at [12309.5, 140.0, 12558.8571] yaw 90.0
+- ClutterCutter6x6 at [12315.5, 140.0, 12558.8571] yaw 90.0
+- Land_SKY_City_RowhouseRender_Damaged at [12298.1, 140.05, 12540.5] yaw 0.0
+- ClutterCutter6x6 at [12296.3, 140.0, 12537.5] yaw 0.0
+- ClutterCutter6x6 at [12296.3, 140.0, 12543.5] yaw 0.0
+- ClutterCutter6x6 at [12299.9, 140.0, 12537.5] yaw 0.0
+- ClutterCutter6x6 at [12299.9, 140.0, 12543.5] yaw 0.0
+- Land_SKY_City_FireStation_Damaged at [12314.2, 140.05, 12542.5] yaw 0.0
+- ClutterCutter6x6 at [12305.95, 140.0, 12537.1667] yaw 0.0
+- ClutterCutter6x6 at [12305.95, 140.0, 12542.5] yaw 0.0
+- ClutterCutter6x6 at [12305.95, 140.0, 12547.8333] yaw 0.0
+- ClutterCutter6x6 at [12311.45, 140.0, 12537.1667] yaw 0.0
+- ClutterCutter6x6 at [12311.45, 140.0, 12542.5] yaw 0.0
+- ClutterCutter6x6 at [12311.45, 140.0, 12547.8333] yaw 0.0
+- ClutterCutter6x6 at [12316.95, 140.0, 12537.1667] yaw 0.0
+- ClutterCutter6x6 at [12316.95, 140.0, 12542.5] yaw 0.0
+- ClutterCutter6x6 at [12316.95, 140.0, 12547.8333] yaw 0.0
+- ClutterCutter6x6 at [12322.45, 140.0, 12537.1667] yaw 0.0
+- ClutterCutter6x6 at [12322.45, 140.0, 12542.5] yaw 0.0
+- ClutterCutter6x6 at [12322.45, 140.0, 12547.8333] yaw 0.0
+- Land_SKY_City_CornerHardware_Damaged at [12323.5, 140.05, 12611.5] yaw 180.0
+- ClutterCutter6x6 at [12326.5, 140.0, 12614.5] yaw 180.0
+- ClutterCutter6x6 at [12326.5, 140.0, 12608.5] yaw 180.0
+- ClutterCutter6x6 at [12320.5, 140.0, 12614.5] yaw 180.0
+- ClutterCutter6x6 at [12320.5, 140.0, 12608.5] yaw 180.0
+- Land_SKY_City_AptBlockBrick_Intact at [12307.0, 140.05, 12611.5] yaw 180.0
+- ClutterCutter6x6 at [12313.0, 140.0, 12614.5] yaw 180.0
+- ClutterCutter6x6 at [12313.0, 140.0, 12608.5] yaw 180.0
+- ClutterCutter6x6 at [12307.0, 140.0, 12614.5] yaw 180.0
+- ClutterCutter6x6 at [12307.0, 140.0, 12608.5] yaw 180.0
+- ClutterCutter6x6 at [12301.0, 140.0, 12614.5] yaw 180.0
+- ClutterCutter6x6 at [12301.0, 140.0, 12608.5] yaw 180.0
+- Land_SKY_City_Kiosk_Damaged at [12295.7, 140.05, 12616.0] yaw 90.0
+- ClutterCutter6x6 at [12295.7, 140.0, 12616.0] yaw 90.0
+- Land_SKY_City_RowhouseRender_Damaged at [12300.5, 140.05, 12600.4] yaw 90.0
+- ClutterCutter6x6 at [12297.5, 140.0, 12602.2] yaw 90.0
+- ClutterCutter6x6 at [12303.5, 140.0, 12602.2] yaw 90.0
+- ClutterCutter6x6 at [12297.5, 140.0, 12598.6] yaw 90.0
+- ClutterCutter6x6 at [12303.5, 140.0, 12598.6] yaw 90.0
+- Land_SKY_City_Cafe_Ruined at [12322.5, 140.05, 12558.0] yaw 270.0
+- ClutterCutter6x6 at [12327.0, 140.0, 12555.0] yaw 270.0
+- ClutterCutter6x6 at [12322.0, 140.0, 12555.0] yaw 270.0
+- ClutterCutter6x6 at [12327.0, 140.0, 12561.0] yaw 270.0
+- ClutterCutter6x6 at [12322.0, 140.0, 12561.0] yaw 270.0
+- Land_SKY_City_Cafe_Ruined at [12322.5, 140.05, 12571.5] yaw 270.0
+- ClutterCutter6x6 at [12327.0, 140.0, 12568.5] yaw 270.0
+- ClutterCutter6x6 at [12322.0, 140.0, 12568.5] yaw 270.0
+- ClutterCutter6x6 at [12327.0, 140.0, 12574.5] yaw 270.0
+- ClutterCutter6x6 at [12322.0, 140.0, 12574.5] yaw 270.0
+- Land_SKY_City_Cafe_Ruined at [12322.5, 140.05, 12585.0] yaw 270.0
+- ClutterCutter6x6 at [12327.0, 140.0, 12582.0] yaw 270.0
+- ClutterCutter6x6 at [12322.0, 140.0, 12582.0] yaw 270.0
+- ClutterCutter6x6 at [12327.0, 140.0, 12588.0] yaw 270.0
+- ClutterCutter6x6 at [12322.0, 140.0, 12588.0] yaw 270.0
+- Land_SKY_City_Cafe_Intact at [12322.5, 140.05, 12598.5] yaw 270.0
+- ClutterCutter6x6 at [12327.0, 140.0, 12595.5] yaw 270.0
+- ClutterCutter6x6 at [12322.0, 140.0, 12595.5] yaw 270.0
+- ClutterCutter6x6 at [12327.0, 140.0, 12601.5] yaw 270.0
+- ClutterCutter6x6 at [12322.0, 140.0, 12601.5] yaw 270.0
+- Land_SKY_City_School_Intact at [12168.0, 140.05, 12609.5] yaw 180.0
+- ClutterCutter6x6 at [12180.0, 140.0, 12614.8333] yaw 180.0
+- ClutterCutter6x6 at [12180.0, 140.0, 12609.5] yaw 180.0
+- ClutterCutter6x6 at [12180.0, 140.0, 12604.1667] yaw 180.0
+- ClutterCutter6x6 at [12174.0, 140.0, 12614.8333] yaw 180.0
+- ClutterCutter6x6 at [12174.0, 140.0, 12609.5] yaw 180.0
+- ClutterCutter6x6 at [12174.0, 140.0, 12604.1667] yaw 180.0
+- ClutterCutter6x6 at [12168.0, 140.0, 12614.8333] yaw 180.0
+- ClutterCutter6x6 at [12168.0, 140.0, 12609.5] yaw 180.0
+- ClutterCutter6x6 at [12168.0, 140.0, 12604.1667] yaw 180.0
+- ClutterCutter6x6 at [12162.0, 140.0, 12614.8333] yaw 180.0
+- ClutterCutter6x6 at [12162.0, 140.0, 12609.5] yaw 180.0
+- ClutterCutter6x6 at [12162.0, 140.0, 12604.1667] yaw 180.0
+- ClutterCutter6x6 at [12156.0, 140.0, 12614.8333] yaw 180.0
+- ClutterCutter6x6 at [12156.0, 140.0, 12609.5] yaw 180.0
+- ClutterCutter6x6 at [12156.0, 140.0, 12604.1667] yaw 180.0
+- Land_SKY_City_CornerPharmacy_Damaged at [12156.5, 140.05, 12588.5] yaw 0.0
+- ClutterCutter6x6 at [12153.5, 140.0, 12585.5] yaw 0.0
+- ClutterCutter6x6 at [12153.5, 140.0, 12591.5] yaw 0.0
+- ClutterCutter6x6 at [12159.5, 140.0, 12585.5] yaw 0.0
+- ClutterCutter6x6 at [12159.5, 140.0, 12591.5] yaw 0.0
+- Land_SKY_City_Rowhouse_Intact at [12168.1, 140.05, 12588.5] yaw 0.0
+- ClutterCutter6x6 at [12166.3, 140.0, 12585.5] yaw 0.0
+- ClutterCutter6x6 at [12166.3, 140.0, 12591.5] yaw 0.0
+- ClutterCutter6x6 at [12169.9, 140.0, 12585.5] yaw 0.0
+- ClutterCutter6x6 at [12169.9, 140.0, 12591.5] yaw 0.0
+- Land_SKY_City_VillaBrick_Damaged at [12178.7, 140.05, 12587.5] yaw 0.0
+- ClutterCutter6x6 at [12176.2, 140.0, 12585.0] yaw 0.0
+- ClutterCutter6x6 at [12176.2, 140.0, 12590.0] yaw 0.0
+- ClutterCutter6x6 at [12181.2, 140.0, 12585.0] yaw 0.0
+- ClutterCutter6x6 at [12181.2, 140.0, 12590.0] yaw 0.0
+- Land_SKY_City_Shed_Intact at [12152.0, 140.05, 12599.5] yaw 90.0
+- ClutterCutter6x6 at [12152.0, 140.0, 12599.5] yaw 90.0
+- Land_SKY_City_ShedBrick_Intact at [12184.0, 140.05, 12594.5] yaw 270.0
+- ClutterCutter6x6 at [12184.0, 140.0, 12594.5] yaw 270.0
+- Land_SKY_Veg_Weeds at [12159.762, 140.0, 12598.3115] yaw 180.0
+- Land_SKY_Veg_Weeds at [12156.2931, 140.0, 12598.708] yaw 0.0
+- Land_SKY_Veg_Weeds at [12166.3827, 140.0, 12599.371] yaw 270.0
+- Land_SKY_Veg_Bush at [12170.9267, 140.0, 12598.2826] yaw 90.0
+- Land_SKY_Veg_Weeds at [12179.3465, 140.0, 12599.2445] yaw 180.0
+- Land_SKY_City_Church_Intact at [12216.0, 140.05, 12594.5] yaw 0.0
+- ClutterCutter6x6 at [12211.3333, 140.0, 12585.5] yaw 0.0
+- ClutterCutter6x6 at [12211.3333, 140.0, 12591.5] yaw 0.0
+- ClutterCutter6x6 at [12211.3333, 140.0, 12597.5] yaw 0.0
+- ClutterCutter6x6 at [12211.3333, 140.0, 12603.5] yaw 0.0
+- ClutterCutter6x6 at [12216.0, 140.0, 12585.5] yaw 0.0
+- ClutterCutter6x6 at [12216.0, 140.0, 12591.5] yaw 0.0
+- ClutterCutter6x6 at [12216.0, 140.0, 12597.5] yaw 0.0
+- ClutterCutter6x6 at [12216.0, 140.0, 12603.5] yaw 0.0
+- ClutterCutter6x6 at [12220.6667, 140.0, 12585.5] yaw 0.0
+- ClutterCutter6x6 at [12220.6667, 140.0, 12591.5] yaw 0.0
+- ClutterCutter6x6 at [12220.6667, 140.0, 12597.5] yaw 0.0
+- ClutterCutter6x6 at [12220.6667, 140.0, 12603.5] yaw 0.0
+- Land_SKY_City_Rowhouse_Intact at [12202.1, 140.05, 12588.5] yaw 0.0
+- ClutterCutter6x6 at [12200.3, 140.0, 12585.5] yaw 0.0
+- ClutterCutter6x6 at [12200.3, 140.0, 12591.5] yaw 0.0
+- ClutterCutter6x6 at [12203.9, 140.0, 12585.5] yaw 0.0
+- ClutterCutter6x6 at [12203.9, 140.0, 12591.5] yaw 0.0
+- Land_SKY_City_Rowhouse_Intact at [12228.3, 140.05, 12588.5] yaw 0.0
+- ClutterCutter6x6 at [12226.5, 140.0, 12585.5] yaw 0.0
+- ClutterCutter6x6 at [12226.5, 140.0, 12591.5] yaw 0.0
+- ClutterCutter6x6 at [12230.1, 140.0, 12585.5] yaw 0.0
+- ClutterCutter6x6 at [12230.1, 140.0, 12591.5] yaw 0.0
+- Land_SKY_City_CafeBrick_Intact at [12227.5, 140.05, 12610.5] yaw 180.0
+- ClutterCutter6x6 at [12230.5, 140.0, 12615.0] yaw 180.0
+- ClutterCutter6x6 at [12230.5, 140.0, 12610.0] yaw 180.0
+- ClutterCutter6x6 at [12224.5, 140.0, 12615.0] yaw 180.0
+- ClutterCutter6x6 at [12224.5, 140.0, 12610.0] yaw 180.0
+- Land_SKY_City_VillaBrick_Intact at [12214.5, 140.05, 12612.5] yaw 180.0
+- ClutterCutter6x6 at [12217.0, 140.0, 12615.0] yaw 180.0
+- ClutterCutter6x6 at [12217.0, 140.0, 12610.0] yaw 180.0
+- ClutterCutter6x6 at [12212.0, 140.0, 12615.0] yaw 180.0
+- ClutterCutter6x6 at [12212.0, 140.0, 12610.0] yaw 180.0
+- Land_SKY_City_Rowhouse_Ruined at [12203.9, 140.05, 12611.5] yaw 180.0
+- ClutterCutter6x6 at [12205.7, 140.0, 12614.5] yaw 180.0
+- ClutterCutter6x6 at [12205.7, 140.0, 12608.5] yaw 180.0
+- ClutterCutter6x6 at [12202.1, 140.0, 12614.5] yaw 180.0
+- ClutterCutter6x6 at [12202.1, 140.0, 12608.5] yaw 180.0
+- Land_SKY_City_Shed_Intact at [12200.0, 140.05, 12603.5] yaw 90.0
+- ClutterCutter6x6 at [12200.0, 140.0, 12603.5] yaw 90.0
+- Land_SKY_City_ShedBrick_Ruined at [12200.0, 140.05, 12597.5] yaw 90.0
+- ClutterCutter6x6 at [12200.0, 140.0, 12597.5] yaw 90.0
+- Land_SKY_City_Shed_Intact at [12232.0, 140.05, 12596.5] yaw 270.0
+- ClutterCutter6x6 at [12232.0, 140.0, 12596.5] yaw 270.0
+- Land_SKY_Veg_Birch at [12204.5791, 140.0, 12598.2804] yaw 270.0
+- Land_SKY_Veg_Birch at [12227.2295, 140.0, 12597.5343] yaw 270.0
+- Land_SKY_Veg_Weeds at [12226.6781, 140.0, 12603.4474] yaw 0.0
+- Land_SKY_ParkingLot_B at [12258.5, 140.05, 12588.5] yaw 0.0
+- ClutterCutter6x6 at [12249.5, 140.0, 12585.5] yaw 0.0
+- ClutterCutter6x6 at [12249.5, 140.0, 12591.5] yaw 0.0
+- ClutterCutter6x6 at [12255.5, 140.0, 12585.5] yaw 0.0
+- ClutterCutter6x6 at [12255.5, 140.0, 12591.5] yaw 0.0
+- ClutterCutter6x6 at [12261.5, 140.0, 12585.5] yaw 0.0
+- ClutterCutter6x6 at [12261.5, 140.0, 12591.5] yaw 0.0
+- ClutterCutter6x6 at [12267.5, 140.0, 12585.5] yaw 0.0
+- ClutterCutter6x6 at [12267.5, 140.0, 12591.5] yaw 0.0
+- Land_SKY_City_Kiosk_Ruined at [12273.5, 140.05, 12583.7] yaw 0.0
+- ClutterCutter6x6 at [12273.5, 140.0, 12583.7] yaw 0.0
+- Land_SKY_City_CornerShop_Intact at [12275.5, 140.05, 12611.5] yaw 180.0
+- ClutterCutter6x6 at [12278.5, 140.0, 12614.5] yaw 180.0
+- ClutterCutter6x6 at [12278.5, 140.0, 12608.5] yaw 180.0
+- ClutterCutter6x6 at [12272.5, 140.0, 12614.5] yaw 180.0
+- ClutterCutter6x6 at [12272.5, 140.0, 12608.5] yaw 180.0
+- Land_SKY_City_ShopRow_Intact at [12263.5, 140.05, 12610.5] yaw 180.0
+- ClutterCutter6x6 at [12265.75, 140.0, 12615.1667] yaw 180.0
+- ClutterCutter6x6 at [12265.75, 140.0, 12610.5] yaw 180.0
+- ClutterCutter6x6 at [12265.75, 140.0, 12605.8333] yaw 180.0
+- ClutterCutter6x6 at [12261.25, 140.0, 12615.1667] yaw 180.0
+- ClutterCutter6x6 at [12261.25, 140.0, 12610.5] yaw 180.0
+- ClutterCutter6x6 at [12261.25, 140.0, 12605.8333] yaw 180.0
+- Land_SKY_City_RowhouseRender_Intact at [12255.4, 140.05, 12611.5] yaw 180.0
+- ClutterCutter6x6 at [12257.2, 140.0, 12614.5] yaw 180.0
+- ClutterCutter6x6 at [12257.2, 140.0, 12608.5] yaw 180.0
+- ClutterCutter6x6 at [12253.6, 140.0, 12614.5] yaw 180.0
+- ClutterCutter6x6 at [12253.6, 140.0, 12608.5] yaw 180.0
+- Land_SKY_City_Cafe_Intact at [12274.5, 140.05, 12592.0] yaw 270.0
+- ClutterCutter6x6 at [12279.0, 140.0, 12589.0] yaw 270.0
+- ClutterCutter6x6 at [12274.0, 140.0, 12589.0] yaw 270.0
+- ClutterCutter6x6 at [12279.0, 140.0, 12595.0] yaw 270.0
+- ClutterCutter6x6 at [12274.0, 140.0, 12595.0] yaw 270.0
+- Land_SKY_Veg_Weeds at [12249.5933, 140.0, 12610.6354] yaw 270.0
+- Land_SKY_Veg_Weeds at [12249.7512, 140.0, 12600.6665] yaw 180.0
+- Land_SKY_Veg_Bush at [12259.6587, 140.0, 12598.7723] yaw 0.0
