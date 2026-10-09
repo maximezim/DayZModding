@@ -23,6 +23,7 @@ class SKY_Const
 	static const string LOG_TAG = "[SKY] ";
 	//! Per-player minimum interval between elevator/keycard requests (ms).
 	static const int PLAYER_REQUEST_INTERVAL_MS = 1500;
+	static const int ELEVATOR_CALL_PER_PLAYER_MS = 20000;	//!< D94: one car fetch per player per 20 s (> a ride)
 	static const int ELEVATOR_MAX_STOPS = 64;			// synced car level range 0..63 (Core33 has 35 stops)
 	//! Per-player minimum interval between logged keycard denials (ms).
 	static const int DENIAL_LOG_INTERVAL_MS = 5000;
@@ -85,6 +86,8 @@ class SKY_Life
 	static const int SEARCH_MAX_SPOTS = 4096;
 	static const int SEARCH_RARE_PER_HOUR = 3;		//!< server-wide cap per rare class per hour (full audit L4)
 	static const int SEARCH_RARE_WINDOW_MS = 3600000;
+	static const int SEARCH_ITEMS_PER_HOUR = 120;		//!< D94: server-wide successful finds per hour (+ per player below)
+	static const int SEARCH_ITEMS_PER_PLAYER = 4;
 	//! Highest search_N memory point read (matches build_city.SEARCH_MAX).
 	static const int SEARCH_POINTS = 8;
 	//! Chance (0..1) to cut a hand on trash without gloves.
@@ -98,7 +101,9 @@ class SKY_Life
 	static const float ALCOHOL_WASTED = 60.0;		//!< level 3: vomiting
 	static const float ALCOHOL_MAX = 200.0;
 	static const float ALCOHOL_DECAY = 0.05;		//!< ml/s (40 ml clears in about 13 min)
-	static const float ALCOHOL_HEAL = 0.04;			//!< health/s while tipsy
+	static const float ALCOHOL_HEAL = 0.04;			//!< health/s while tipsy...
+	static const float ALCOHOL_HEAL_PER_ML = 0.5;	//!< ...up to this much health per ml of ethanol drunk (D94: no endless
+	static const float ALCOHOL_HEAL_MAX = 20.0;		//!< heal from sipping; budget capped)
 	static const float ALCOHOL_SHOCK = 0.5;			//!< shock regen/s while tipsy or drunk
 	static const int ALCOHOL_VOMIT_MS = 90000;		//!< min interval between vomits
 

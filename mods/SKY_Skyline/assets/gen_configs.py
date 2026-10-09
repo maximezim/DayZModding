@@ -650,6 +650,8 @@ def city_lit_script():
             body = "\n\toverride protected typename SkyLightType()\n\t{\n\t\treturn %s;\n\t}\n" % light
         if A.get("light") == "hyper":                            # the hall is lit by all four points
             body += "\n\toverride protected int SkyLightCount()\n\t{\n\t\treturn 4;\n\t}\n"
+            # D94 perf audit: the director lights buildings at night only, except these (generator lights by day too)
+            body += "\n\toverride bool SkyLitByDay()\n\t{\n\t\treturn true;\n\t}\n"
         amb = S.CITY_AMBIENCE.get(c["archetype"])                # D65 hum / D68 muzak (client director, SKY_Ambience.c)
         if amb:
             off = ', "0 %g 0"' % amb[2] if amb[2] else ""

@@ -24,6 +24,7 @@ class Land_SKY_TowerA_Core extends House
 	protected int m_SkyTargetLevel;
 	protected int m_SkyNextUseMs;
 	protected ref SKY_RateLimiter m_SkyPlayerLimiter;
+	protected ref SKY_RateLimiter m_SkyCallLimiter;		//!< D94: fetching the car, per identity
 
 	// config cache (both sides)
 	protected ref array<float> m_SkyStops;
@@ -297,6 +298,14 @@ class Land_SKY_TowerA_Core extends House
 			if (SkyOccupants(m_SkyCarLevel).Count() > 0)
 			{
 				SkyNotify(player, "Elevator in use");
+				return;
+			}
+			// D94 security audit L5: one player may not keep the car away from everyone else (fetch per identity)
+			if (!m_SkyCallLimiter)
+				m_SkyCallLimiter = new SKY_RateLimiter(SKY_Const.ELEVATOR_CALL_PER_PLAYER_MS);
+			if (!m_SkyCallLimiter.Allow(player.GetIdentity().GetId(), now))
+			{
+				SkyNotify(player, "Please wait...");
 				return;
 			}
 		}

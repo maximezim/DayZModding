@@ -151,6 +151,11 @@ class Land_SKY_City_HypermarketB_Intact extends SKY_LitBuilding
 		return 4;
 	}
 
+	override bool SkyLitByDay()
+	{
+		return true;
+	}
+
 	void Land_SKY_City_HypermarketB_Intact()
 	{
 		SKY_Ambience.Register(this, "SKY_Hum_SoundSet", 25.0);
@@ -172,6 +177,11 @@ class Land_SKY_City_Hypermarket_Intact extends SKY_LitBuilding
 	override protected int SkyLightCount()
 	{
 		return 4;
+	}
+
+	override bool SkyLitByDay()
+	{
+		return true;
 	}
 
 	void Land_SKY_City_Hypermarket_Intact()

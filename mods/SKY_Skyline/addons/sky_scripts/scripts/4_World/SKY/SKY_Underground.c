@@ -192,8 +192,9 @@ class SKY_Underground
 		if (s_Pieces.Count() == 0)
 			return;
 		Integrate(WeatherTarget(), SKY_Under.TICK_MS * 0.001);
-		ApplyPhase();
-		if (m_Level <= 0)
+		if (!g_Game.IsMultiplayer())
+			ApplyPhase();								// D94 perf audit M: in MP each client animates (StartClient);
+		if (m_Level <= 0)								// a server push would be extra traffic and fight it
 			return;
 		float water = SKY_Under.WALKWAY + SKY_Under.WATER_BASE + m_Level * SKY_Under.WATER_RISE;	// model z of the surface
 		int now = g_Game.GetTime();

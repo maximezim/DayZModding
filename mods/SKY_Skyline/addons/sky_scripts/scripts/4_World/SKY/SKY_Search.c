@@ -124,6 +124,8 @@ class SKY_SearchService
 	//! Table name of a target ("" = not searchable). Client and server; cached per type.
 	static string TableOf(Object obj)
 	{
+		if (!obj.IsBuilding() && !obj.IsInherited(House))
+			return "";									// D94 perf audit L: no type string for items / players under the cursor
 		string type = obj.GetType();
 		string table;
 		if (s_TypeTable.Find(type, table))
@@ -235,17 +237,20 @@ class SKY_SearchService
 		m_Spots.Set(key, now);
 
 		bool found = Math.RandomFloat01() < table.m_HitChance;
+		if (found && !ItemBudget(now))
+			found = false;											// D94 security audit M3: server-wide hourly budget
 		if (found)
 		{
 			int n = Math.RandomIntInclusive(1, table.m_MaxItems);
 			// D68: below the terrain (metro kiosk) never trace to a surface - the item could land on the street
 			// above; keep the spot height instead (ECE_KEEPHEIGHT / ECE_NOSURFACEALIGN, ce/centraleconomy.c:26-27).
 			bool below = spot[1] < g_Game.SurfaceY(spot[0], spot[2]) - 0.5;		// game.c:1162
-			int flags = ECE_PLACE_ON_SURFACE;
+			// D94 security audit M3: outside the CE, so persist only once a player takes the item (centraleconomy.c:32)
+			int flags = ECE_PLACE_ON_SURFACE | ECE_DYNAMIC_PERSISTENCY;
 			float lift = 0.3;
 			if (below)
 			{
-				flags = ECE_CREATEPHYSICS | ECE_KEEPHEIGHT | ECE_NOSURFACEALIGN;
+				flags = ECE_CREATEPHYSICS | ECE_KEEPHEIGHT | ECE_NOSURFACEALIGN | ECE_DYNAMIC_PERSISTENCY;
 				lift = 0.05;
 			}
 			for (int k = 0; k < n; k++)
@@ -279,6 +284,28 @@ class SKY_SearchService
 		vector hitDir;
 		int hitComp;
 		return !DayZPhysics.RaycastRV(from, to, hitPos, hitDir, hitComp, null, null, player, false, false, ObjIntersectGeom);
+	}
+
+	protected int m_HourItems;										//!< successful finds in the current hour window
+	protected ref array<Man> m_BudgetPlayers = new array<Man>();
+
+	//! D94 security audit M3: at most SEARCH_ITEMS_PER_HOUR + SEARCH_ITEMS_PER_PLAYER x online finds per hour
+	//! server-wide (search loot is outside the CE; hundreds of spots x 1 search / 10 s per player would flood it).
+	protected bool ItemBudget(int now)
+	{
+		if (now - m_RareWindow > SKY_Life.SEARCH_RARE_WINDOW_MS)		// same hourly window as the rare cap
+		{
+			m_RareWindow = now;
+			m_RareCount.Clear();
+			m_HourItems = 0;
+		}
+		g_Game.GetPlayers(m_BudgetPlayers);
+		int cap = SKY_Life.SEARCH_ITEMS_PER_HOUR + SKY_Life.SEARCH_ITEMS_PER_PLAYER * m_BudgetPlayers.Count();
+		m_BudgetPlayers.Clear();
+		if (m_HourItems >= cap)
+			return false;
+		m_HourItems++;
+		return true;
 	}
 
 	//! Full audit L4: a random entry; a rare class over its hourly cap is re-rolled (3 tries) or skipped.

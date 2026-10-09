@@ -266,6 +266,9 @@ elseif (Test-Path -LiteralPath (Join-DzPath $modDir 'assets' 'check_assets.py'))
     # hour-long concealment / slit scans over the whole city run in assets\Build-SkyAssets.ps1.
     $ruin = Join-DzPath $modDir 'assets' 'blender' 'test_ruin_cuts.py'
     if (Test-Path -LiteralPath $ruin) { Invoke-DzCheck 'test_ruin_cuts' $Python @($ruin) }
+    # D94: committed P3Ds byte-identical to a fresh export (a generator changed without a re-export = stale model)
+    $sync = Join-DzPath $modDir 'assets' 'check_p3d_sync.py'
+    if (Test-Path -LiteralPath $sync) { Invoke-DzCheck 'p3d sync' $Python @($sync) }
     $slits = Join-DzPath $modDir 'assets' 'blender' 'test_slits.py'
     if (Test-Path -LiteralPath $slits) { Invoke-DzCheck 'test_slits --selftest' $Python @($slits, '--selftest') }
 } else { Add-Step 'static checks' 'SKIP' 'mod has no assets\check_assets.py' }

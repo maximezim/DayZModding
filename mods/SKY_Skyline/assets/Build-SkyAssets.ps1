@@ -67,7 +67,10 @@ if ($Models) {
     $addons = Join-Path $mod 'addons'
     Run-Gen 'build_towera.py' @('--out', $addons)
     Run-Gen 'test_towera.py' @()
-    foreach ($gen in 'build_kit.py', 'build_props.py', 'build_floors.py', 'build_city.py') {
+    # D94 assessment: every builder (landmarks, street props, underground, creatures and vehicles were missing, so a
+    # -Models run left their P3Ds as committed). All ten are deterministic: a re-export is byte-identical.
+    foreach ($gen in 'build_kit.py', 'build_props.py', 'build_floors.py', 'build_city.py', 'build_landmarks.py',
+                     'build_streetprops.py', 'build_underground.py', 'build_creatures.py', 'build_vehicles.py') {
         if (Test-Path (Join-Path $mod "assets\blender\$gen")) { Run-Gen $gen @('--out', $addons) }
     }
     Run-Gen 'test_kit.py' @()

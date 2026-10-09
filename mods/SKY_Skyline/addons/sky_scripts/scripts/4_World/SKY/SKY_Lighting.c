@@ -117,6 +117,9 @@ class SKY_LightDirector
 	static void Tick()
 	{
 		vector cam = g_Game.GetCurrentCameraPosition();
+		// D94 perf audit M: by day the lights are invisible (SetVisibleDuringDaylight false) but would still run their
+		// per-frame update - only buildings lit by day (hypermarket generators) stay lit (world.IsNight: roadflare.c:205)
+		bool night = g_Game.GetWorld() && g_Game.GetWorld().IsNight();
 		float on2 = SKY_Const.LIGHTS_ON_RANGE * SKY_Const.LIGHTS_ON_RANGE;
 		float off2 = SKY_Const.LIGHTS_OFF_RANGE * SKY_Const.LIGHTS_OFF_RANGE;
 		int lit = 0;
@@ -131,6 +134,8 @@ class SKY_LightDirector
 				continue;
 			}
 			float d = vector.DistanceSq(b.GetPosition(), cam);
+			if (!night && !b.SkyLitByDay())
+				d = off2 + 1;									// out of range by day
 			if (b.SkyIsLit())
 			{
 				if (d > off2)
@@ -227,6 +232,12 @@ class SKY_LitBuilding extends House
 	bool SkyIsLit()
 	{
 		return m_SkyLightsDone;
+	}
+
+	//! Lit in daylight too (hypermarket emergency lighting); the rest light up at night only.
+	bool SkyLitByDay()
+	{
+		return false;
 	}
 
 	//! Director only (client).

@@ -129,7 +129,7 @@ class SKY_SiteSurvey
 
 		if (req.exportRadius > 0 && GetCEApi())
 		{
-			GetCEApi().ExportProxyData(centre, req.exportRadius);
+			GetCEApi().ExportProxyData(centre, Math.Min(req.exportRadius, 2000.0));	// D94 security info: clamped
 			res.proxyExport = "storage/export/mapgrouppos.xml (mission storage folder)";
 		}
 

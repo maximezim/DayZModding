@@ -144,7 +144,7 @@ class SKY_CreatureLife
 			bool stranger = false;
 			foreach (Man m : m_Players)
 			{
-				if (m && m.IsAlive() && vector.DistanceSq(m.GetPosition(), kp) <= r2 && m.GetIdentity() && m.GetIdentity().GetId() != k.SkyOwner())
+				if (m && vector.DistanceSq(m.GetPosition(), kp) <= r2 && m.IsAlive() && m.GetIdentity() && m.GetIdentity().GetId() != k.SkyOwner())	// D94 perf L: distance first
 				{
 					stranger = true;
 					break;

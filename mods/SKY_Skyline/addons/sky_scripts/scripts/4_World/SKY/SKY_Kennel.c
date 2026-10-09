@@ -22,11 +22,11 @@ class SKY_Kennel extends DeployableContainer_Base
 	protected int m_SkyLastSeen;		//!< server: SKY_Time.NowUtc() when the owner was last online (persisted)
 	protected int m_SkyNextBark;		//!< server: earliest next bark (ms)
 	protected bool m_SkyGuarding;		//!< synced
-	static int s_SkyCount;				//!< kennels in this process (re-review perf L: ItemBase checks skip when 0)
+	static int s_SkyGuardCount;			//!< guarding kennels in this process: ItemBase checks skip when 0 (D94 perf
+	protected bool m_SkyCounted;		//!< audit M: the CE always seeds kennels, so counting all of them never gated)
 
 	void SKY_Kennel()
 	{
-		s_SkyCount++;
 		m_HalfExtents = Vector(0.55, 0.5, 0.95);
 		RegisterNetSyncVariableBool("m_SkyGuarding");
 		if (g_Game.IsServer())
@@ -35,8 +35,27 @@ class SKY_Kennel extends DeployableContainer_Base
 
 	void ~SKY_Kennel()
 	{
-		s_SkyCount--;
+		if (m_SkyCounted)
+			s_SkyGuardCount--;
 		SKY_CreatureLife.UnregisterKennel(this);
+	}
+
+	//! Keeps s_SkyGuardCount in step with m_SkyGuarding (server: SkySetGuarding; client: the synced bool).
+	protected void SkyRecount()
+	{
+		if (m_SkyGuarding == m_SkyCounted)
+			return;
+		m_SkyCounted = m_SkyGuarding;
+		if (m_SkyCounted)
+			s_SkyGuardCount++;
+		else
+			s_SkyGuardCount--;
+	}
+
+	override void OnVariablesSynchronized()
+	{
+		super.OnVariablesSynchronized();
+		SkyRecount();
 	}
 
 	override void OnPlacementComplete(Man player, vector position = "0 0 0", vector orientation = "0 0 0")
@@ -61,7 +80,7 @@ class SKY_Kennel extends DeployableContainer_Base
 	override string CanBePlacedFailMessage(Man player, vector position)
 	{
 		if (SkyNearDoor(position))
-			return "Too close to a door or gate";
+			return "Kennels go outdoors, clear of doors and gates";
 		return super.CanBePlacedFailMessage(player, position);
 	}
 
@@ -102,6 +121,15 @@ class SKY_Kennel extends DeployableContainer_Base
 			Building b = Building.Cast(o);
 			if (!b)
 				continue;
+			// D94 security audit M2: indoors (stair landings, corridors, elevator cabs - SKY elevator doors are
+			// animations, not Doors) a guarded kennel would seal what lies beyond: kennels are outdoor only
+			vector mm[2];
+			if (b.GetCollisionBox(mm))							// model-space box (object.c:376)
+			{
+				vector lp = b.WorldToModel(position);
+				if (lp[0] > mm[0][0] && lp[0] < mm[1][0] && lp[1] > mm[0][1] - 0.5 && lp[1] < mm[1][1] && lp[2] > mm[0][2] && lp[2] < mm[1][2])
+					return true;
+			}
 			int n = b.GetDoorCount();
 			for (int i = 0; i < n; i++)
 			{
@@ -148,6 +176,7 @@ class SKY_Kennel extends DeployableContainer_Base
 		if (guarding == m_SkyGuarding)
 			return;
 		m_SkyGuarding = guarding;
+		SkyRecount();
 		SetSynchDirty();
 	}
 
@@ -271,7 +300,7 @@ modded class ItemBase
 {
 	bool SkyInGuardedKennel()
 	{
-		if (SKY_Kennel.s_SkyCount <= 0)		// no kennel loaded: inventory checks cost one compare
+		if (SKY_Kennel.s_SkyGuardCount <= 0)	// no kennel guarding: inventory checks cost one compare
 			return false;
 		SKY_Kennel k = SKY_Kennel.Cast(GetHierarchyRoot());
 		return k && k != this && k.SkyIsGuarding();
@@ -320,5 +349,30 @@ modded class ItemBase
 		if (SkyInGuardedKennel() || (other && other.SkyInGuardedKennel()))
 			return false;
 		return super.CanBeCombined(other_item, reservation_check, stack_max_limit);
+	}
+}
+//! D94 security audit M1: vanilla actions that target an item (load a magazine from an ammo pile, craft, drain a
+//! liquid) only refuse items in another player's hierarchy (actionbase.c:873-887), so a modified client could still
+//! take things out of a guarded kennel by targeting them. Refuse any action whose target or held item sits inside a
+//! guarding kennel; the kennel itself stays a valid target. Server and client run the same Can.
+modded class ActionBase
+{
+	override bool Can(PlayerBase player, ActionTarget target, ItemBase item, int condition_mask)
+	{
+		if (SKY_Kennel.s_SkyGuardCount > 0)
+		{
+			if (item && item.SkyInGuardedKennel())
+				return false;
+			if (target)
+			{
+				ItemBase ti = ItemBase.Cast(target.GetObject());
+				if (ti && ti.SkyInGuardedKennel())
+					return false;
+				ItemBase tp = ItemBase.Cast(target.GetParent());
+				if (tp && tp.SkyInGuardedKennel())
+					return false;
+			}
+		}
+		return super.Can(player, target, item, condition_mask);
 	}
 }

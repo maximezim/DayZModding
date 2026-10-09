@@ -47,7 +47,8 @@ def types_xml():
         out += '    <type name="%s">\n' % name
         out += "        <nominal>%d</nominal>\n        <lifetime>%d</lifetime>\n        <restock>0</restock>\n" % (k["nominal"], k["lifetime"])
         out += "        <min>%d</min>\n        <quantmin>-1</quantmin>\n        <quantmax>-1</quantmax>\n        <cost>100</cost>\n" % k["min"]
-        out += '        <flags count_in_cargo="0" count_in_hoarder="0" count_in_map="1" count_in_player="1" crafted="0" deloot="0"/>\n'
+        # D94 security audit L1: stashed cards count too - a T3 hidden in a tent must not let the CE spawn another
+        out += '        <flags count_in_cargo="1" count_in_hoarder="1" count_in_map="1" count_in_player="1" crafted="0" deloot="0"/>\n'
         out += '        <category name="tools"/>\n'
         out += "".join('        <usage name="%s"/>\n' % u for u in k["usages"])
         out += "".join('        <value name="%s"/>\n' % v for v in k["values"])

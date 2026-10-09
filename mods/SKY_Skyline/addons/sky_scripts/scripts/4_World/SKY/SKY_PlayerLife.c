@@ -17,6 +17,7 @@
 modded class PlayerBase
 {
 	protected float m_SkyAlcohol;		//!< server: ml of ethanol
+	protected float m_SkyHealLeft;		//!< server: health the alcohol may still restore (D94)
 	protected int m_SkyDrunk;			//!< synced level 0..3
 	protected int m_SkyNextVomit;		//!< server: earliest next vomit (ms)
 	protected int m_SkyDrunkShown;		//!< client: level currently applied to the PPE
@@ -59,6 +60,7 @@ modded class PlayerBase
 		if (ml <= 0)
 			return;
 		m_SkyAlcohol = Math.Min(m_SkyAlcohol + ml, SKY_Life.ALCOHOL_MAX);
+		m_SkyHealLeft = Math.Min(m_SkyHealLeft + ml * SKY_Life.ALCOHOL_HEAL_PER_ML, SKY_Life.ALCOHOL_HEAL_MAX);
 		SkyUpdateDrunkLevel();
 	}
 
@@ -73,8 +75,12 @@ modded class PlayerBase
 	{
 		m_SkyAlcohol = Math.Max(0, m_SkyAlcohol - SKY_Life.ALCOHOL_DECAY * dt);
 		SkyUpdateDrunkLevel();
-		if (m_SkyDrunk == 1)
-			AddHealth("GlobalHealth", "Health", SKY_Life.ALCOHOL_HEAL * dt);
+		if (m_SkyDrunk == 1 && m_SkyHealLeft > 0)					// D94 security L4: heal bounded by what was drunk
+		{
+			float h = Math.Min(SKY_Life.ALCOHOL_HEAL * dt, m_SkyHealLeft);
+			m_SkyHealLeft -= h;
+			AddHealth("GlobalHealth", "Health", h);
+		}
 		if (m_SkyDrunk == 1 || m_SkyDrunk == 2)
 			AddHealth("", "Shock", SKY_Life.ALCOHOL_SHOCK * dt);
 		if (m_SkyDrunk >= 3)
