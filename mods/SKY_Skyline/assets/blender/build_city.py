@@ -4131,14 +4131,28 @@ def wedge_slots(bx, P, lo=0.15, hi=0.6, run=1.0, height=0.5):
                 if oh - ol < run:
                     continue
                 g0, g1_ = (a[2 * ax + 1], b[2 * ax]) if g1 > 0 else (b[2 * ax + 1], a[2 * ax])
+                pocket = False
                 if zh - zl < height:
-                    # D93 prone pocket: low sides, but a box right over the gap below chest height (a body slides in
-                    # lying down and cannot stand up)
-                    if zh - zl < 0.1 or not any(
-                            c is not a and c is not b and c[4] >= zh - 0.05 and c[4] < zl + 0.9
-                            and c[2 * ax] <= g0 + 0.01 and c[2 * ax + 1] >= g1_ - 0.01
-                            and c[2 * o] < oh - run / 2 and c[2 * o + 1] > ol + run / 2 for c in bx):
+                    # D93 prone pocket: low sides, but boxes over the gap below 1.4 m (a body slides in lying down or
+                    # crouched and cannot stand up). Sec review: covers may be partial (>= 0.2 m of the gap width, or
+                    # all of a narrower gap), split into several boxes (their spans along the run are merged), angled
+                    # (bounding box), and dip up to 5 cm below the side tops.
+                    if zh - zl < 0.1:
                         continue
+                    need = min(0.2, g1_ - g0) - 0.01
+                    cov = sorted((max(ol, c[2 * o]), min(oh, c[2 * o + 1])) for c in bx
+                                 if c is not a and c is not b and zh - 0.05 <= c[4] < zl + 1.4
+                                 and min(g1_, c[2 * ax + 1]) - max(g0, c[2 * ax]) >= need
+                                 and c[2 * o] < oh and c[2 * o + 1] > ol)
+                    covered, cur = 0.0, ol
+                    for (c0, c1) in cov:                                         # union length along the run
+                        c0 = max(c0, cur)
+                        if c1 > c0:
+                            covered += c1 - c0
+                            cur = c1
+                    if covered < run:
+                        continue
+                    pocket = True
                 # something to stand on under the gap - a floor level or (D90) a plinth / deck / stage top - at most
                 # 0.1 m above zl and less than 0.45 m below it (one box on a low plinth beside a floor box: D90 sec L)
                 sup = [z for z in levels if z <= zl + 0.1] + [
@@ -4149,7 +4163,8 @@ def wedge_slots(bx, P, lo=0.15, hi=0.6, run=1.0, height=0.5):
                 # D89 (sec review L): what fills the gap is cut out of the run; a thin post no longer hides a long slot
                 fill = sorted((max(ol, c[2 * o]), min(oh, c[2 * o + 1])) for c in bx
                               if c is not a and c is not b and c[2 * ax] < g1_ - 0.01 and c[2 * ax + 1] > g0 + 0.01
-                              and c[2 * o] < oh and c[2 * o + 1] > ol and c[4] < zh and c[5] > zl)
+                              and c[2 * o] < oh and c[2 * o + 1] > ol and c[4] < zh - (0.05 if pocket else 0.0)
+                              and c[5] > zl)                                    # a pocket's own cover is not fill
                 best, cur = (0.0, ol, oh), ol
                 for (f0, f1) in fill + [(oh, oh)]:
                     if f0 - cur > best[0]:

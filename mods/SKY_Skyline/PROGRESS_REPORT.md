@@ -1,6 +1,6 @@
 # SKY_Skyline progress report
 
-## Status at a glance (after D92, 2026-10-09)
+## Status at a glance (after D93, 2026-10-09)
 
 **Overall: about 62 % of a releasable v1.0.** About 92 % of the content is authored and every offline gate
 passes. But nothing has been packed, signed or run in DayZ yet. In-game verification is 0 % and carries the
@@ -8,7 +8,7 @@ most weight of what remains.
 
 | Area | Weight | Done | Why |
 |---|---|---|---|
-| Design and spec (23 ideas, city catalog, decisions D1-D92) | 10 % | 100 % | every idea has a design or a documented block |
+| Design and spec (23 ideas, city catalog, decisions D1-D93) | 10 % | 100 % | every idea has a design or a documented block |
 | Content authored (models, scripts, configs, economy, layouts) | 30 % | 92 % | 21 of 23 ideas built; horses and drivable vehicles blocked on Workbench skills; the underground needs a custom terrain |
 | Offline quality gates (tests, budgets, generators, script xref, reviews) | 10 % | 100 % | test_city 191, test_kit 279 (with hull and wiring checks), check_assets 289 / 0 over, layout 0 failed, texture references 85 / 0 missing, concealment gate over kit + city 0 open findings, slit gate PASS (depth-checked, city blocking), ruin cut gate PASS, wedge-slot gate PASS (city incl. roofs and raised floors, and kit props), far-LOD gates (facade cover, window panes, see-through rays) PASS, one-way glass rule (every model, any orientation) PASS, wedge check next to sloped / round parts PASS, convex Geometry PASS, perf + security reviews on every batch, full-mod audit + re-review (D88: every finding fixed or accepted with a reason) |
 | Asset quality to ASSET_QUALITY_GUIDE section 8 | 15 % | 81 % | street kit (three passes), street surfaces, car parks and hulks, the interior room kit, venues and underground passed close-up passes; wood, fabric, paver, concrete, brick, stucco, panel, limestone and trim maps have real depth (D77, D80, D82, D83 soldier course and sill); grime macro on the wall materials (D84); rooms vary per flat and in clinics / schools / hospitals (D84, D85); grime differs per building; baked AO on 8 hero and street props (D85-D87, second UV set); venue rooms vary (D86); shop windows and lived-in facades (D87); Res 1.5 exterior LOD on every city building (D88); switches, sockets, skirting and radiators on the walls, roof clutter and water tanks (D89); wear on interior walls (D92); far LODs fixed (whole facades), Res 1.75 on the 52 largest, no one-way window panes (D90) |
@@ -50,7 +50,7 @@ on billboards / traffic lights were dropped (D81). Still open:
 - Done in D90: far LOD fix and Res 1.75, broken-window one-way panes removed, wedge check on raised floors, smoke
   detectors.
 - Done in D91: one-way glass rule everywhere, wedge check next to sloped / round parts, convex collision gate.
-- **Wedge check limit**: a pocket open at a single body height (prone under an overhang) is not flagged.
+- Done in D93: prone / crouch pockets under overhangs are checked too; no wedge-check gap left that we know of.
 - **Merged furniture (D43)**: deferred until FPS is measured.
 - **Placement survey on the real site** (D88, security M4): a release gate.
 - Elevator hum / ding sounds (manifest: planned).
@@ -509,3 +509,10 @@ collision now follows a convex outline. Reviews: `reviews/d91_gates.md`.
 Interior walls are no longer spotless: scuff marks near the floor beside doors, hand marks next to light switches, and in
 damaged or ruined buildings water stains under the ceiling and mould in the corners. They share a texture with the
 outside weathering, so no building draws anything extra. Reviews: `reviews/d92_gates.md`.
+
+## 44. Last stuck-spot case, and the first test session plan (D93)
+
+The check for places where a player gets stuck now also finds low gaps with something above them (a player who crawls
+in cannot stand up again); no model has one. The plan for the first Windows test session now starts with the rows
+from the last five batches that matter most: the broken-window fix, the far views, the kennel and search security
+fixes, the lights and hordes performance fixes, and the new decal texture.

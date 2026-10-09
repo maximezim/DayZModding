@@ -117,7 +117,7 @@ P14 alarm noise reach, P15 horde caps, P16 drunk thresholds, P17 search cooldown
 P18 wet hydrant = vanilla well behaviour on a spawned object, P19 jam density (are vehicles really blocked?),
 P20 siren sound config (range, loudness). All are in the PENDING_VERIFICATION.md table with their fix.
 
-## Status (after D92)
+## Status (after D93)
 
 Every phase from D61 to D87 is built and passes the offline gates (`reviews/d61_gates.md` ...
 `reviews/d87_gates.md`, `reviews/d89_gates.md`, `reviews/d90_gates.md`, `reviews/d91_gates.md`, `reviews/d92_gates.md`). D88 was a full quality review (`reviews/d88_full_review.md`): full-mod security and perf
@@ -136,5 +136,5 @@ the wedge check to raised floors.
 D91 extended the one-way glass rule and the wedge check to every model and added a convex-collision gate.
 
 **Next cloud batches** (worth less than T1): the offline gates are now broad; the remaining value is in-game (T1). If
-more cloud work is wanted: a concealment / slit scan of the far LODs, prone-height pockets. D92 added the interior wall
-wear.
+more cloud work is wanted: a concealment / slit scan of the far LODs. D92 added the interior wall wear, D93 the prone
+pocket check and the T1 plan (`TEST_SESSION.md` §2b).

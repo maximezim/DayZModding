@@ -618,6 +618,11 @@ def wedge_selftest():
     slab = (-0.2, 2.6, 0.0, 4.0, 0.6, 0.9)
     check(hits(low_a, low_b, slab) == 1, "wedge selftest: prone pocket under a slab not found")
     check(hits(low_a, low_b) == 0, "wedge selftest: open low gap flagged (step over it)")
+    for nm, covs in (("narrow cover (0.3 of 0.4 m)", [(1.0, 1.3, 0.0, 4.0, 0.6, 0.9)]),               # sec review D93
+                     ("split cover", [(-0.2, 2.6, 0.0, 2.0, 0.6, 0.9), (-0.2, 2.6, 2.0, 4.0, 0.6, 0.9)]),
+                     ("cover dipping 3 cm", [(-0.2, 2.6, 0.0, 4.0, 0.27, 0.6)]),
+                     ("cover at 1.2 m", [(-0.2, 2.6, 0.0, 4.0, 1.2, 1.5)])):
+        check(hits(low_a, low_b, *covs) == 1, "wedge selftest: pocket with %s not found" % nm)
     plinth = (1.4, 2.4, 0.0, 4.0, 0.0, 0.3)                                     # floor box beside a box on a 0.3 m plinth
     check(hits((0.0, 1.0, 0.0, 4.0, 0.0, 1.6), at(0.3, 1.4, 2.4, 0, 4), plinth) == 1,
           "wedge selftest: slot beside a box on a low plinth not found")
