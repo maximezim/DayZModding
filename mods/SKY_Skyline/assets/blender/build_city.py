@@ -1385,9 +1385,9 @@ def partitions(L, P, walls, z0, top, band):
 
 
 def _wall_decal(lod, axis, c, face, a0, a1, z0, z1, band, fit=False, tile=4.0):
-    """One decal_grime quad on a partition face (Res0, 6 mm proud). fit: the band's U spans the quad (bands that
+    """One decal_grime quad on a partition face (Res0, 4 mm proud: 4 mm under the switch plates). fit: the band's U spans the quad (bands that
     fade at the sides), else it tiles every `tile` m along the wall."""
-    f = c + face * (PT / 2 + 0.006)
+    f = c + face * (PT / 2 + 0.004)                                          # sec review L: 4 mm under the 8 mm plates
     if axis == "x":
         pts, nrm, ax = [(a0, f, z0), (a1, f, z0), (a1, f, z1), (a0, f, z1)], (0, face, 0), 0
     else:
@@ -1417,6 +1417,14 @@ def wall_wear(L, P, walls, z0, top):
                 if hi - lo > 0.15:
                     return lo, hi
             return None
+        done = {1: [], -1: []}                                          # scuff spans per face: no stacked layers (perf L)
+
+        def free(face, x0, x1):
+            pieces = [(x0, x1)]
+            for d0, d1 in done[face]:                                       # subtract every scuff already there
+                pieces = [q for (p0, p1) in pieces for q in ((p0, min(p1, d0)), (max(p0, d1), p1)) if q[1] - q[0] > 1e-6]
+            best = max(pieces, key=lambda q: q[1] - q[0], default=None)
+            return best if best and best[1] - best[0] > 0.15 else None
         for oi, (o0, o1) in enumerate(ops):
             if not worn and h01(P.name, "wear", z0, wi, oi) > 0.6:
                 continue
@@ -1424,7 +1432,9 @@ def wall_wear(L, P, walls, z0, top):
             right = h01(P.name, "swr", z0, wi, oi) < 0.5
             for (x0, x1) in ((o0 - tw - 0.9, o0 - tw), (o1 + tw, o1 + tw + 0.9)):    # scuffs both sides of the door
                 r = clip(x0, x1)
+                r = r and free(s, *r)
                 if r:
+                    done[s].append(r)
                     _wall_decal(r0, axis, c, s, r[0], r[1], z0 + 0.08, z0 + 0.42, "scuff")
             hx = (o1 + tw, o1 + tw + 0.3) if right else (o0 - tw - 0.3, o0 - tw)      # hand smudge, latch side
             r = clip(*hx)
@@ -2821,7 +2831,7 @@ def window_streak(L, P, sd, w0, w1, s0, key):
     """Dirt streak under a window sill (more on damaged / ruined buildings)."""
     if h01(P.name, "wst", sd.key, *key) < S.WEATHER["window_streaks"][P.state] and s0 > 1.2:
         ln = min(s0 - 0.3, 0.9 + 0.9 * h01(P.name, "wsl", sd.key, *key))
-        v0, v1 = 0.25 + 0.004, 0.5 - 0.004                                        # band "streak", fitted to the quad
+        v0, v1 = DT.grime_v("streak")                                            # band "streak", fitted to the quad (D92 layout)
         sd.quad(L["res0"], w0 - 0.05, w1 + 0.05, s0 - ln, s0 - 0.07, -0.007, mat="decal_grime",
                 uv=UVRect(sd.uvax(), 2, (w0 - 0.05, s0 - ln), (w1 + 0.05, s0 - 0.07), (0.0, v0, 1.0, v1)))
 

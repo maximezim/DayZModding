@@ -828,6 +828,14 @@ collision and looks.
 | OW-03 | Shoot the foot of jersey barriers (kit, viaduct, bridge checkpoint) at 0-0.3 m (P64) | Hits land on the barrier surface; no visible air hits | | |
 | OW-04 | In the flooded sewer end, look at the water from below the surface level (crouch at the end wall) | The water surface is dark from both sides | | |
 
+## 56. Lived-in interior walls (D92)
+
+| ID | Steps | Expected | Diag | Dedicated |
+|---|---|---|---|---|
+| WW-01 | Walk through intact flats, offices and the clinic (P65) | Scuffs above the skirting by some doors, hand marks beside switches; subtle, no flicker | | |
+| WW-02 | Walk through damaged and ruined buildings | Water stains under ceilings, mould in corners; no stain over a doorway | | |
+| WW-03 | Look at facades from the street (regression) | Rising damp, run-off, sill streaks and moss look as before (the sheet layout changed) | | |
+
 ### Sign-off
 
 | Gate | Diag | Dedicated | Tester / date |
@@ -914,4 +922,5 @@ collision and looks.
 | Wall dressing and roof clutter §53 | | | |
 | Far LODs, broken windows, ceilings §54 | | | |
 | One-way glass, wedges, convex barriers §55 | | | |
+| Lived-in interior walls §56 | | | |
 | FPS protocol (`FPS_PROTOCOL.md` §4 thresholds) | | | |

@@ -1,6 +1,6 @@
 # SKY_Skyline progress report
 
-## Status at a glance (after D91, 2026-10-08)
+## Status at a glance (after D92, 2026-10-09)
 
 **Overall: about 62 % of a releasable v1.0.** About 92 % of the content is authored and every offline gate
 passes. But nothing has been packed, signed or run in DayZ yet. In-game verification is 0 % and carries the
@@ -8,12 +8,12 @@ most weight of what remains.
 
 | Area | Weight | Done | Why |
 |---|---|---|---|
-| Design and spec (23 ideas, city catalog, decisions D1-D91) | 10 % | 100 % | every idea has a design or a documented block |
+| Design and spec (23 ideas, city catalog, decisions D1-D92) | 10 % | 100 % | every idea has a design or a documented block |
 | Content authored (models, scripts, configs, economy, layouts) | 30 % | 92 % | 21 of 23 ideas built; horses and drivable vehicles blocked on Workbench skills; the underground needs a custom terrain |
 | Offline quality gates (tests, budgets, generators, script xref, reviews) | 10 % | 100 % | test_city 191, test_kit 279 (with hull and wiring checks), check_assets 289 / 0 over, layout 0 failed, texture references 85 / 0 missing, concealment gate over kit + city 0 open findings, slit gate PASS (depth-checked, city blocking), ruin cut gate PASS, wedge-slot gate PASS (city incl. roofs and raised floors, and kit props), far-LOD gates (facade cover, window panes, see-through rays) PASS, one-way glass rule (every model, any orientation) PASS, wedge check next to sloped / round parts PASS, convex Geometry PASS, perf + security reviews on every batch, full-mod audit + re-review (D88: every finding fixed or accepted with a reason) |
-| Asset quality to ASSET_QUALITY_GUIDE section 8 | 15 % | 81 % | street kit (three passes), street surfaces, car parks and hulks, the interior room kit, venues and underground passed close-up passes; wood, fabric, paver, concrete, brick, stucco, panel, limestone and trim maps have real depth (D77, D80, D82, D83 soldier course and sill); grime macro on the wall materials (D84); rooms vary per flat and in clinics / schools / hospitals (D84, D85); grime differs per building; baked AO on 8 hero and street props (D85-D87, second UV set); venue rooms vary (D86); shop windows and lived-in facades (D87); Res 1.5 exterior LOD on every city building (D88); switches, sockets, skirting and radiators on the walls, roof clutter and water tanks (D89); far LODs fixed (whole facades), Res 1.75 on the 52 largest, no one-way window panes (D90) |
+| Asset quality to ASSET_QUALITY_GUIDE section 8 | 15 % | 81 % | street kit (three passes), street surfaces, car parks and hulks, the interior room kit, venues and underground passed close-up passes; wood, fabric, paver, concrete, brick, stucco, panel, limestone and trim maps have real depth (D77, D80, D82, D83 soldier course and sill); grime macro on the wall materials (D84); rooms vary per flat and in clinics / schools / hospitals (D84, D85); grime differs per building; baked AO on 8 hero and street props (D85-D87, second UV set); venue rooms vary (D86); shop windows and lived-in facades (D87); Res 1.5 exterior LOD on every city building (D88); switches, sockets, skirting and radiators on the walls, roof clutter and water tanks (D89); wear on interior walls (D92); far LODs fixed (whole facades), Res 1.75 on the 52 largest, no one-way window panes (D90) |
 | Pack, sign, PAA on Windows (full mod) | 10 % | 10 % | toolchain verified with the empty template only (SETUP_REPORT); the 18 SKY packages were never packed |
-| In-game verification (TESTING sign-off, P-parameters) | 20 % | 0 % | 0 of 82 sign-off rows, 0 of 64 `P` assumptions, `CITY_TESTED` empty |
+| In-game verification (TESTING sign-off, P-parameters) | 20 % | 0 % | 0 of 83 sign-off rows, 0 of 65 `P` assumptions, `CITY_TESTED` empty |
 | Release prep (real site / terrain, FPS numbers, server-owner docs) | 5 % | 20 % | layouts and terrain generator ready; no surveyed site, no Terrain Builder import, no FPS run, no perf probe |
 
 Weighted: 10 + 27.6 + 10 + 12.15 + 1 + 0 + 1 = **61.75 %** (about 62 %).
@@ -31,7 +31,7 @@ Weighted: 10 + 27.6 + 10 + 12.15 + 1 + 0 + 1 = **61.75 %** (about 62 %).
 ### Not done / blocked
 1. **First in-game session**: packing, signing, PAA conversion, a dedicated + diag run, logs.
    `TEST_SESSION.md` is the script. It needs the Windows machine; the cloud sessions cannot run DayZ.
-2. **64 engine assumptions** (PENDING_VERIFICATION P1-P64) and **82 sign-off rows** (TESTING): each has a
+2. **65 engine assumptions** (PENDING_VERIFICATION P1-P65) and **83 sign-off rows** (TESTING): each has a
    one-line fix ready.
 3. **Blocked on skills outside the procedural pipeline**:
    - horses (idea 11);
@@ -503,3 +503,9 @@ town hall, the water surface in a flooded sewer), all fixed. The check for place
 looks next to round and sloped parts (columns, ramps, stairs, car bodies), in every direction, at four body heights.
 A new check that every collision part is convex (the game requires it) found the concrete road barriers; their
 collision now follows a convex outline. Reviews: `reviews/d91_gates.md`.
+
+## 43. Lived-in walls (D92)
+
+Interior walls are no longer spotless: scuff marks near the floor beside doors, hand marks next to light switches, and in
+damaged or ruined buildings water stains under the ceiling and mould in the corners. They share a texture with the
+outside weathering, so no building draws anything extra. Reviews: `reviews/d92_gates.md`.

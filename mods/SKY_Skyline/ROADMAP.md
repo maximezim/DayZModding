@@ -117,12 +117,12 @@ P14 alarm noise reach, P15 horde caps, P16 drunk thresholds, P17 search cooldown
 P18 wet hydrant = vanilla well behaviour on a spawned object, P19 jam density (are vehicles really blocked?),
 P20 siren sound config (range, loudness). All are in the PENDING_VERIFICATION.md table with their fix.
 
-## Status (after D91)
+## Status (after D92)
 
 Every phase from D61 to D87 is built and passes the offline gates (`reviews/d61_gates.md` ...
-`reviews/d87_gates.md`, `reviews/d89_gates.md`, `reviews/d90_gates.md`, `reviews/d91_gates.md`). D88 was a full quality review (`reviews/d88_full_review.md`): full-mod security and perf
+`reviews/d87_gates.md`, `reviews/d89_gates.md`, `reviews/d90_gates.md`, `reviews/d91_gates.md`, `reviews/d92_gates.md`). D88 was a full quality review (`reviews/d88_full_review.md`): full-mod security and perf
 audits, their fixes, and a re-review of the fixes. Nothing has run in DayZ: no TESTING sign-off row is filled and every
-`P` parameter (P1-P64) is still an assumption. About 62 % of a releasable v1.0 (PROGRESS_REPORT "Status at a
+`P` parameter (P1-P65) is still an assumption. About 62 % of a releasable v1.0 (PROGRESS_REPORT "Status at a
 glance"). The next step that unblocks the most is **T1**, the first test session on the Windows machine.
 
 **Release gates added by D88**: run `SKY_SiteSurvey` on the chosen terrain site before shipping any layout (security
@@ -136,5 +136,5 @@ the wedge check to raised floors.
 D91 extended the one-way glass rule and the wedge check to every model and added a convex-collision gate.
 
 **Next cloud batches** (worth less than T1): the offline gates are now broad; the remaining value is in-game (T1). If
-more cloud work is wanted: a concealment / slit scan of the far LODs, prone-height pockets, and a texture pass on the
-plain interior paint (wall stains, scuffs near doors).
+more cloud work is wanted: a concealment / slit scan of the far LODs, prone-height pockets. D92 added the interior wall
+wear.

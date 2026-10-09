@@ -1523,6 +1523,9 @@ def grime(size, out):
     a = np.clip((sp - 0.48) * 4.0, 0, 1) * np.clip((cl - 0.35) * 2.5, 0, 1) * (1 - t) ** 0.8 * side * 0.85
     rgb = np.stack([0.10 + 0.04 * sp, 0.12 + 0.05 * sp, 0.08 + 0.03 * sp], -1)
     rgba[o + 3 * bh:o + 4 * bh] = np.concatenate([rgb, a[..., None]], -1)
+    for k in range(4, 8):                                       # perf L: 4 clear rows at each wear band edge (mip bleed)
+        rgba[k * bh:k * bh + 4, :, 3] = 0
+        rgba[(k + 1) * bh - 4:(k + 1) * bh, :, 3] = 0
     Image.fromarray(np.clip(rgba * 255, 0, 255).astype(np.uint8), "RGBA").save(os.path.join(out, "sky_decal_grime_ca.png"))
 
 
