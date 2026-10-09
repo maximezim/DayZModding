@@ -4128,9 +4128,17 @@ def wedge_slots(bx, P, lo=0.15, hi=0.6, run=1.0, height=0.5):
                     continue
                 ol, oh = max(a[2 * o], b[2 * o]), min(a[2 * o + 1], b[2 * o + 1])
                 zl, zh = max(a[4], b[4]), min(a[5], b[5])
-                if oh - ol < run or zh - zl < height:
+                if oh - ol < run:
                     continue
                 g0, g1_ = (a[2 * ax + 1], b[2 * ax]) if g1 > 0 else (b[2 * ax + 1], a[2 * ax])
+                if zh - zl < height:
+                    # D93 prone pocket: low sides, but a box right over the gap below chest height (a body slides in
+                    # lying down and cannot stand up)
+                    if zh - zl < 0.1 or not any(
+                            c is not a and c is not b and c[4] >= zh - 0.05 and c[4] < zl + 0.9
+                            and c[2 * ax] <= g0 + 0.01 and c[2 * ax + 1] >= g1_ - 0.01
+                            and c[2 * o] < oh - run / 2 and c[2 * o + 1] > ol + run / 2 for c in bx):
+                        continue
                 # something to stand on under the gap - a floor level or (D90) a plinth / deck / stage top - at most
                 # 0.1 m above zl and less than 0.45 m below it (one box on a low plinth beside a floor box: D90 sec L)
                 sup = [z for z in levels if z <= zl + 0.1] + [

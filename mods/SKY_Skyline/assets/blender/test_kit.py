@@ -191,7 +191,7 @@ def wedge_voxel(lod, cell=0.05, lo=0.15, hi=0.6, run=1.0, heights=(0.2, 0.4, 0.9
         for ang in angles:
             ca, sa = math.cos(math.radians(ang)), math.sin(math.radians(ang))
             pts = np.stack([cx + ca * U.ravel() - sa * V.ravel(), cy + sa * U.ravel() + ca * V.ravel(), np.zeros(U.size)], 1)
-            per = {}
+            per, occs = {}, {}
             for z in hz:
                 pts[:, 2] = z
                 occ = np.zeros(len(pts), bool)
@@ -205,11 +205,17 @@ def wedge_voxel(lod, cell=0.05, lo=0.15, hi=0.6, run=1.0, heights=(0.2, 0.4, 0.9
                 if not occ.any():
                     continue
                 occ = occ.reshape(U.shape)
+                occs[z] = occ
                 per[z] = _gap_mask(occ, cell, lo, hi) | _gap_mask(occ.T, cell, lo, hi).T
             for za in per:
                 for zb in per:
                     if zb - za >= 0.5 - 1e-6:
                         best = max(best, _longest_run(per[za] & per[zb]))
+            # D93 prone pocket: a gap at the lowest height with solid right above it at chest height (a body slides
+            # in lying down and cannot stand up) - cinema legroom is open above, so it stays out
+            z0_, z2_ = min(hz), sorted(hz)[2] if len(hz) > 2 else max(hz)
+            if z0_ in per and z2_ in occs:
+                best = max(best, _longest_run(per[z0_] & occs[z2_]))
             if best * cell >= run:
                 break
         if best * cell >= run:
@@ -229,6 +235,15 @@ def voxel_selftest():
         L.prism(0.0, 0.3 + gap + (a if n == 6 else r), r, 0.0, 2.0, n=n)
         got = len(wedge_voxel(L))
         check(got == want, "voxel selftest: n=%d gap %.2f -> %d slots (want %d)" % (n, gap, got, want))
+    for gap, cover, want in ((0.35, True, 1), (0.35, False, 0), (0.8, True, 0)):   # D93: prone pocket under an overhang
+        L = Lod("geo", LOD_GEOMETRY)
+        L.box(-3.0, 3.0, 0.0, 0.3, 0.0, 2.0)                                    # wall
+        a = 1.2 * math.cos(math.pi / 6)
+        L.prism(0.0, 0.3 + gap + a, 1.2, 0.0, 0.3, n=6)                         # a low hexagonal plinth (0.3 m)
+        if cover:
+            L.box(-1.5, 1.5, 0.0, 0.3 + gap + 2 * a, 0.7, 1.0)                  # a slab over plinth and gap (0.7-1.0)
+        got = len(wedge_voxel(L))
+        check(got == want, "voxel selftest: pocket gap %.2f cover %s -> %d slots (want %d)" % (gap, cover, got, want))
     for gap, want in ((0.3, 1), (0.45, 1), (0.9, 0)):                       # two 45-degree square columns (sec review H)
         L = Lod("geo", LOD_GEOMETRY)
         r = 1.5

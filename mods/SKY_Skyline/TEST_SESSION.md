@@ -1,4 +1,4 @@
-# First joint test session (D60)
+# First joint test session (D60, updated D93)
 
 Goal for tonight: first pack and first run of SKY_Skyline in DayZ. The order below gets the most
 answers per hour, and every step says what to send back. Run everything from the repo root in
@@ -11,7 +11,7 @@ PowerShell.
 3. Textures (PAA files are generated, not committed): `mods\SKY_Skyline\assets\Build-SkyAssets.ps1`.
    It writes PNGs, converts them with ImageToPAA (including the new 4096 `sky_hq_facade`), then checks every
    `dz\` path on P:. Expected: it ends with `SKY assets ready`. **Send me** any missing `dz\` path it names
-   (P3 / P4).
+   (P3 / P4), and whether `sky_decal_grime_ca` (1024 x 2048 since D92, the only non-square sheet) converted (P65).
 4. Static checks, which need no game: `tools\tests\Invoke-ModValidation.ps1 -ModName SKY_Skyline -DryRun`.
    It prints every command. The geometry tests now run in plain Python, so Blender is not needed.
 
@@ -41,11 +41,23 @@ tools\tests\Invoke-ModValidation.ps1 -ModName SKY_Skyline -Layout mods\SKY_Skyli
 For each row, note PASS/FAIL in TESTING.md, or just tell me the ID and what you saw.
 A screenshot is worth more than a description.
 
+### 2b. Since D88: the checks that matter most (20 min, same diag run)
+
+| Order | Rows | Why |
+|---|---|---|
+| 1 | §54 FL-03 (stand behind a broken window, a friend outside) and FL-01 / FL-02 (walk away from big blocks to 600 m) | the one-way broken-window panes are gone and the far LODs were rebuilt: confirm both in game (P58, P63) |
+| 2 | §52 RV-04 (kennel at a doorway / base gate) and RV-05 (rare search cap) | security fixes of the full review (P59, P60) |
+| 3 | §52 RV-01 (lights at night, walk the centre) and RV-07 (alarm alone / with 4+ players) | the perf fixes: light director and horde scaling (P56, P61) |
+| 4 | §55 OW-01 (factory roof glazing) and OW-03 (shoot the foot of a jersey barrier) | one-way glass and the convex barrier collision (P64) |
+| 5 | §56 WW-01 / WW-03 and §53 WD-01 / WD-02 | wall wear, switches, roof clutter; the facade weathering after the sheet change (P62, P65) |
+
 ## 3. Parameters to read off in game
 
 P1 door swing, P2 elevator slide, P3 penetration, P4 env map, P5 armor class, P7 emissive
-strength, P9 yaw sign, P10 script lights, P12 clutter cutter size. Each has a one-line fix in
-`AFTER_TESTING.md`. Tell me the observation and I make the change and re-export in plain Python.
+strength, P9 yaw sign, P10 script lights, P12 clutter cutter size. Since D88: P56 light director range, P58 / P63 far
+LODs and dark windows at range, P59 kennel door rule, P62 / P65 wall dressing and the 1024 x 2048 decal sheet, P64
+barrier hits. Each has a one-line fix in `PENDING_VERIFICATION.md` (P1-P12 also in `AFTER_TESTING.md`). Tell me the
+observation and I make the change and re-export in plain Python.
 
 ## 4. If there is time
 
@@ -72,4 +84,5 @@ P19 jams, P20/P23/P32 sound ranges, P21 kennel guard, P22 rat bites.
 ## What I need back, in one message
 
 `summary.md`, the RPT and script log of the diag run, TESTING IDs with FAIL plus a screenshot,
-and the P1/P2/P9 observations.
+and the P1/P2/P9 observations, plus FL-03 (can you see the friend through the broken window?) and P65 (did the sheet
+convert).

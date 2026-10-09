@@ -614,6 +614,10 @@ def wedge_selftest():
     stage = (-1.0, 3.5, -1.0, 5.0, 0.0, 0.6)
     check(hits(D, at(0.6, 1.4, 2.4, 0, 4), stage) == 1, "wedge selftest: slot on a stage not found")
     check(hits(D, at(0.6, 1.4, 2.4, 0, 4)) == 0, "wedge selftest: floating pair (nothing under the gap) flagged")
+    low_a, low_b = (0.0, 1.0, 0.0, 4.0, 0.0, 0.3), (1.4, 2.4, 0.0, 4.0, 0.0, 0.3)   # D93: 0.4 m gap between low boxes
+    slab = (-0.2, 2.6, 0.0, 4.0, 0.6, 0.9)
+    check(hits(low_a, low_b, slab) == 1, "wedge selftest: prone pocket under a slab not found")
+    check(hits(low_a, low_b) == 0, "wedge selftest: open low gap flagged (step over it)")
     plinth = (1.4, 2.4, 0.0, 4.0, 0.0, 0.3)                                     # floor box beside a box on a 0.3 m plinth
     check(hits((0.0, 1.0, 0.0, 4.0, 0.0, 1.6), at(0.3, 1.4, 2.4, 0, 4), plinth) == 1,
           "wedge selftest: slot beside a box on a low plinth not found")
