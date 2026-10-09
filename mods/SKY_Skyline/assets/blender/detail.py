@@ -707,15 +707,27 @@ def obstruction_light(L, x, y, z):
 
 
 # ------------------------------------------------------------------ weathering (D60)
-_GRIME = ["damp", "runoff", "streak", "moss"]
+_GRIME = ["damp", "runoff", "streak", "moss", "scuff", "smudge", "stain", "mould"]   # D92: 8 bands (sky_decal_grime_ca)
+
+
+def grime_v(band):
+    """(v0, v1) of a decal_grime band in Blender's v-up convention (image row 0 = v 1), 2 px padding."""
+    k = _GRIME.index(band)
+    n = len(_GRIME)
+    return 1.0 - (k + 1) / n + 0.002, 1.0 - k / n - 0.002
+
+
+def grime_rect(band, u0=0.0, u1=1.0):
+    """UVRect target (u0, v0, u1, v1) of a decal_grime band."""
+    v0, v1 = grime_v(band)
+    return (u0, v0, u1, v1)
 
 
 def grime(L, sd, a0, a1, z0, z1, depth, band, tile=4.0, inward=False, lods=("res0",)):
     """Weathering overlay (decal_grime, alpha-blended, Res0) on one facade side: the band's
     height over z0..z1, tiling every `tile` m along the side. depth as Side (< 0 = outside)."""
     from skygeo import UVRect
-    k = _GRIME.index(band)
-    v0, v1 = 1.0 - (k + 1) / 4.0 + 0.004, 1.0 - k / 4.0 - 0.004
+    v0, v1 = grime_v(band)
     uv = UVRect(0 if sd.axis == "x" else 1, 2, (a0, z0), (a1, z1), (a0 / tile, v0, a1 / tile, v1))
     for lod in lods:
         sd.quad(L[lod], a0, a1, z0, z1, depth, inward=inward, mat="decal_grime", uv=uv)

@@ -1140,7 +1140,9 @@ ROOF_VARIANTS["crown"] = KIT["Roof_Crown"]["cls"]
 # Weathering overlay (alpha-blended, like decal_dirt) and vegetation (alpha-tested) for the city.
 MATERIALS.update({
     "decal_grime": {"rvmat": rvmat("sky_decal_grime"), "co": tex("sky_decal_grime_ca"),
-                    "bands": {"damp": (0.0, 0.25), "runoff": (0.25, 0.5), "streak": (0.5, 0.75), "moss": (0.75, 1.0)}},
+                    "bands": {"damp": (0.0, 0.125), "runoff": (0.125, 0.25), "streak": (0.25, 0.375), "moss": (0.375, 0.5),
+                              "scuff": (0.5, 0.625), "smudge": (0.625, 0.75), "stain": (0.75, 0.875),
+                              "mould": (0.875, 1.0)}},                     # D92: 1024 x 2048, 8 bands (image rows, top first)
     "vegetation": {"rvmat": rvmat("sky_vegetation"), "co": tex("sky_vegetation_ca")},
 })
 # 4 x 4 cells of sky_vegetation_ca (gen_textures.VEG_CELLS, row-major from the top-left)

@@ -875,7 +875,7 @@ def lot(name, hw, hd, rows, metro=False):
         sx_ = -hw + 2.0 + (2 * hw - 4.0) * h01(name, "oil", i)
         sy_ = -hd + 2.0 + (2 * hd - 4.0) * h01(name, "oily", i)
         L["res0"].hquad(sx_ - 0.6, sx_ + 0.6, sy_ - 0.9, sy_ + 0.9, 0.011, mat="decal_grime",
-                        uv=UVRect(0, 1, (sx_ - 0.6, sy_ - 0.9), (sx_ + 0.6, sy_ + 0.9), (0.0, 0.754, 1.0, 0.996)))
+                        uv=UVRect(0, 1, (sx_ - 0.6, sy_ - 0.9), (sx_ + 0.6, sy_ + 0.9), DT.grime_rect("damp")))
     weeds(L, name, -hw + 0.5, hw - 0.5, -hd + 0.5, hd - 0.5, int(hw * hd / 12), cells=("grass", "dry_grass", "weeds"))
     # barrier booth at the entrance (front left)
     for k in ("res0", "res1", "geo", "fire", "view"):
@@ -1020,7 +1020,7 @@ def build_hydrant(wet):
                        (math.cos(a), math.sin(a), 0), "rust", RUST)
     if wet:                                                                      # wet stain + drip (it still has pressure)
         L["res0"].hquad(-0.5, 0.5, -0.8, 0.2, 0.052, mat="decal_grime",
-                        uv=UVRect(0, 1, (-0.5, -0.8), (0.5, 0.2), (0.0, 0.754, 1.0, 0.996)))
+                        uv=UVRect(0, 1, (-0.5, -0.8), (0.5, 0.2), DT.grime_rect("damp")))
     L["res3"].prism(0.0, 0.0, 0.13, 0.0, 0.84, n=4, mat="fair", uv=red)
     L["mem"].lod.point("water", (0.0, -0.6, 0.0))
     return finish(L, 300.0)
@@ -1097,7 +1097,7 @@ def build_viaduct_straight():
         L[k].box(-3.5, 3.5, -0.8, 0.8, VIA_H - 1.6, VIA_H - 0.9, **kw)          # pier cap
         L[k].box(-0.9, 0.9, -0.9, 0.9, -SKIRT, VIA_H - 1.6, **kw)               # pier
     L["res0"].box(-0.95, 0.95, -0.95, 0.95, 0.0, 1.2, mat="decal_grime",
-                  uv=UVRect(0, 2, (-0.95, 0.0), (0.95, 1.2), (0.0, 0.754, 1.0, 0.996)), skip=("-z", "+z"))
+                  uv=UVRect(0, 2, (-0.95, 0.0), (0.95, 1.2), DT.grime_rect("damp")), skip=("-z", "+z"))
     for k in ("res0", "res1"):                                                    # lamp post (dead)
         L[k].prism(4.6, 0.0, 0.08, VIA_H + 0.85, VIA_H + 8.0, n=8 if k == "res0" else 4, mat="metal", uv=DT.UV_PAINT)
     L["res0"].box(2.6, 4.6, -0.12, 0.12, VIA_H + 7.9, VIA_H + 8.0, mat="metal", uv=DT.UV_PAINT)
@@ -1105,7 +1105,7 @@ def build_viaduct_straight():
     for i in range(3):                                                           # weeds in the gutter, runoff stains
         L["res0"].quad([(-5.0, -hd + 2 + 4 * i, VIA_H - 0.9), (-5.0, -hd + 3.5 + 4 * i, VIA_H - 0.9),
                         (-5.0, -hd + 3.5 + 4 * i, VIA_H - 0.1), (-5.0, -hd + 2 + 4 * i, VIA_H - 0.1)], (-1, 0, 0), "decal_grime",
-                       UVRect(1, 2, (-hd + 2 + 4 * i, VIA_H - 0.9), (-hd + 3.5 + 4 * i, VIA_H - 0.1), (0.0, 0.504, 1.0, 0.746)))
+                       UVRect(1, 2, (-hd + 2 + 4 * i, VIA_H - 0.9), (-hd + 3.5 + 4 * i, VIA_H - 0.1), DT.grime_rect("runoff")))
     C.plant_tuft(U(L), -4.3, 2.0, VIA_H, 0.8, 0.5, "dry_grass", (name, "g"))
     viaduct_detail(L, name, hd)
     L["res3"].box(-5.0, 5.0, -hd, hd, VIA_H - 0.9, VIA_H + 0.85, mat="concrete", uv=UV_CONC)
@@ -1139,7 +1139,7 @@ def viaduct_detail(L, name, hd):
             q = [(x + sx * 0.005, y - 0.25, VIA_H - 3.0), (x + sx * 0.005, y + 0.25, VIA_H - 3.0),
                  (x + sx * 0.005, y + 0.25, VIA_H - 0.95), (x + sx * 0.005, y - 0.25, VIA_H - 0.95)]
             L["res0"].quad(q if sx > 0 else q[::-1], (sx, 0, 0), "decal_grime",
-                           UVRect(1, 2, (y - 0.25, VIA_H - 3.0), (y + 0.25, VIA_H - 0.95), (0.0, 0.504, 1.0, 0.746)))
+                           UVRect(1, 2, (y - 0.25, VIA_H - 3.0), (y + 0.25, VIA_H - 0.95), DT.grime_rect("runoff")))
 
 
 def build_viaduct_ramp():
@@ -1170,7 +1170,7 @@ def build_viaduct_ramp():
             za_top = 1.0 + (VIA_H) * (ya - y0) / (y1 - y0)
             L["res0"].quad([(outer + sx * 0.005, ya, 0.0), (outer + sx * 0.005, ya + 5.0, 0.0),
                             (outer + sx * 0.005, ya + 5.0, za_top * 0.6), (outer + sx * 0.005, ya, za_top * 0.6)],
-                           (sx, 0, 0), "decal_grime", UVRect(1, 2, (ya, 0.0), (ya + 5.0, za_top * 0.6), (0.0, 0.004, 1.0, 0.246)))
+                           (sx, 0, 0), "decal_grime", UVRect(1, 2, (ya, 0.0), (ya + 5.0, za_top * 0.6), DT.grime_rect("moss")))
     mark = S.MATERIALS["roadmark"]["bands"]["dashed"]
     for k in ("res0", "res1"):
         L[k].quad([(-0.08, y0, 0.065), (0.08, y0, 0.065), (0.08, y1, VIA_H + 0.015), (-0.08, y1, VIA_H + 0.015)], (0, 0, 1),
@@ -1301,7 +1301,7 @@ def build_bridge():
             kw = kw_for(k, "concrete", UV_CONC, "concrete") if k != "shadow" else {}
             L[k].box(x - 1.5, x + 1.5, -hw + 0.5, hw - 0.5, -14.0, -1.2, **kw)
         L["res0"].box(x - 1.55, x + 1.55, -hw + 0.45, hw - 0.45, -14.0, -9.0, mat="decal_grime",
-                      uv=UVRect(0, 2, (x - 1.55, -14.0), (x + 1.55, -9.0), (0.0, 0.754, 1.0, 0.996)), skip=("-z", "+z"))
+                      uv=UVRect(0, 2, (x - 1.55, -14.0), (x + 1.55, -9.0), DT.grime_rect("damp")), skip=("-z", "+z"))
     for x in (-hl, hl):
         for k in ("res0", "res1", "res2", "geo", "fire", "view"):
             L[k].box(x - 1.0 if x < 0 else x - 1.0, x + 1.0, -hw - 0.5, hw + 0.5, -10.0, -1.2, **kw_for(k, "concrete", UV_CONC, "concrete"))

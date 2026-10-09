@@ -2,6 +2,7 @@
 
     blender -b --factory-startup -P preview_city.py -- --out <dir> [--tex <png dir>] [--only Rowhouse,Police]
         [--shot states|street|interior|roof] [--night] [--lod res1x]   (--lod: render that LOD instead of Res0, D90)
+        [--state Damaged]   (interior / roof shots of another ruin state, D92)
 
 states   one image per archetype: intact / damaged / ruined side by side, front 3/4 view
 street   all archetypes (one state each, seeded mix) along a street, as a city block would read
@@ -105,7 +106,8 @@ def main():
             names.append(("City_%s_%s" % (a, st), k))
         jobs = [("street", names)]
     else:
-        jobs = [(a, [("City_%s_Intact" % a, 0)]) for a in only]
+        st = argv[argv.index("--state") + 1] if "--state" in argv else "Intact"            # D92: interior of any state
+        jobs = [(a if st == "Intact" else "%s_%s" % (a, st), [("City_%s_%s" % (a, st), 0)]) for a in only]
     for title, items in jobs:
         bpy.ops.wm.read_factory_settings(use_empty=True)
         optional_arma_toolbox()

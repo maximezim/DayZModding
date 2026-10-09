@@ -1446,15 +1446,20 @@ def turf(size, out):
 
 
 def grime(size, out):
-    """Facade weathering overlay sheet (alpha-blended like decal_dirt, 1024): 4 horizontal bands,
-    each tileable along U so one quad can span a whole facade:
-      V 0.00-0.25 rising damp: dark wet band at the bottom with moss specks, ragged top edge
-      V 0.25-0.50 run-off: grime from the top edge, vertical streaks fading downwards
-      V 0.50-0.75 window streaks: narrow streaks (quad under a sill)
-      V 0.75-1.00 moss / lichen patches (plinths, copings, roof edges)"""
+    """Weathering overlay sheet (alpha-blended like decal_dirt, 1024 x 2048 since D92): 8 horizontal bands of 256 px,
+    each tileable along U so one quad can span a whole facade (image rows, top first):
+      band 0 rising damp: dark wet band at the bottom with moss specks, ragged top edge
+      band 1 run-off: grime from the top edge, vertical streaks fading downwards
+      band 2 window streaks: narrow streaks (quad under a sill)
+      band 3 moss / lichen patches (plinths, copings, roof edges)
+      D92 interior wear (same sheet: no new section in any building):
+      band 4 scuff: shoe / furniture rub marks low on walls, densest at the bottom
+      band 5 smudge: hand marks (fit to the quad: fades at the sides) beside door frames and switches
+      band 6 stain: water stain from the top, brown tide-mark edge (below ceilings in damaged buildings)
+      band 7 mould: dark speckled patches, densest at the top (fit to the quad: corners)"""
     size = min(size, 1024)
     bh = size // 4
-    rgba = np.zeros((size, size, 4), np.float32)
+    rgba = np.zeros((2 * size, size, 4), np.float32)
     x = np.linspace(0, 1, size, dtype=np.float32)
     t = np.linspace(0, 1, bh, dtype=np.float32)[:, None]                     # 0 top -> 1 bottom of band
     n = tfbm(size, 501, octaves=5, base=8)
@@ -1481,7 +1486,43 @@ def grime(size, out):
     p = tfbm(size, 531, octaves=5, base=12)[3 * bh:]
     a = np.clip((p - 0.5) * 3.5, 0, 1) * 0.85
     rgb = np.stack([0.28 + 0.1 * p, 0.34 + 0.1 * p, 0.17 + 0.05 * p], -1)
-    rgba[3 * bh:] = np.concatenate([rgb, a[..., None]], -1)
+    rgba[3 * bh:4 * bh] = np.concatenate([rgb, a[..., None]], -1)
+    o = 4 * bh                                                                  # D92 interior wear bands
+    n2 = tfbm(size, 541, octaves=5, base=8)[:bh]
+    # scuff: horizontal rub streaks (noise blurred 60 px along U with wrap - tileable - and 5 px along V),
+    # densest near the bottom (t -> 1)
+    rs = np.random.default_rng(543).random((bh, size)).astype(np.float32)
+    k = 60
+    cs = np.cumsum(np.concatenate([rs[:, -k:], rs], 1), 1)
+    rs = (cs[:, k:] - cs[:, :-k]) / k
+    rs = (rs[:-4] + rs[1:-3] + rs[2:-2] + rs[3:-1] + rs[4:]) / 5.0
+    rs = np.concatenate([rs[:1], rs[:1], rs, rs[-1:], rs[-1:]], 0)
+    rs = (rs - rs.min()) / max(1e-6, rs.max() - rs.min())
+    hor = tfbm(size, 547, octaves=3, base=8)[:bh]
+    a = np.clip((rs - 0.55) * 4.0, 0, 1) * np.clip((t - 0.3) * 1.8, 0, 1) * (0.4 + 0.5 * hor)
+    rgb = np.stack([0.20 + 0.05 * n2, 0.19 + 0.05 * n2, 0.18 + 0.05 * n2], -1)
+    rgba[o:o + bh] = np.concatenate([rgb, np.clip(a, 0, 0.45)[..., None]], -1)
+    # smudge: soft greasy blotches, fade to every edge of the quad
+    side = np.clip(np.minimum(x, 1 - x) / 0.3, 0, 1)[None, :] * np.clip(np.minimum(t, 1 - t) / 0.25, 0, 1)
+    b = tfbm(size, 551, octaves=4, base=6)[:bh]
+    a = np.clip((b - 0.4) * 2.0, 0, 1) * side * 0.45
+    rgb = np.stack([0.26 + 0.05 * b, 0.24 + 0.05 * b, 0.21 + 0.04 * b], -1)
+    rgba[o + bh:o + 2 * bh] = np.concatenate([rgb, a[..., None]], -1)
+    # stain: water from the top, ragged lower edge with a darker tide mark
+    edge2 = np.repeat((0.6 * tnoise(size, 12, 557, aspect=12) + 0.4 * tnoise(size, 48, 559, aspect=48))[:1, :], bh, 0)
+    lim = 0.35 + 0.5 * edge2
+    inside = np.clip((lim - t) * 6.0, 0, 1)
+    tide = np.exp(-((t - lim) / 0.025) ** 2)
+    a = np.clip(0.28 * inside + 0.45 * tide, 0, 0.6) * (0.75 + 0.3 * n2)
+    rgb = np.stack([0.42 + 0.05 * n2 - 0.12 * tide, 0.33 + 0.04 * n2 - 0.1 * tide, 0.20 + 0.03 * n2 - 0.06 * tide], -1)
+    rgba[o + 2 * bh:o + 3 * bh] = np.concatenate([rgb, a[..., None]], -1)
+    # mould: speckled clusters, densest at the top, fading at the sides
+    sp = tfbm(size, 563, octaves=5, base=24)[:bh]
+    cl = tfbm(size, 569, octaves=3, base=4)[:bh]
+    side = np.clip(np.minimum(x, 1 - x) / 0.25, 0, 1)[None, :]
+    a = np.clip((sp - 0.48) * 4.0, 0, 1) * np.clip((cl - 0.35) * 2.5, 0, 1) * (1 - t) ** 0.8 * side * 0.85
+    rgb = np.stack([0.10 + 0.04 * sp, 0.12 + 0.05 * sp, 0.08 + 0.03 * sp], -1)
+    rgba[o + 3 * bh:o + 4 * bh] = np.concatenate([rgb, a[..., None]], -1)
     Image.fromarray(np.clip(rgba * 255, 0, 255).astype(np.uint8), "RGBA").save(os.path.join(out, "sky_decal_grime_ca.png"))
 
 

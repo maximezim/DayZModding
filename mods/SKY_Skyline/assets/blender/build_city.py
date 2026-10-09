@@ -1381,6 +1381,68 @@ def partitions(L, P, walls, z0, top, band):
     DT.door_trims(Lz, walls, PT / 2)
     DT.skirting(Lz, walls, PT / 2)
     wall_fittings(Lz, P, walls, z0)
+    wall_wear(L, P, walls, z0, top)
+
+
+def _wall_decal(lod, axis, c, face, a0, a1, z0, z1, band, fit=False, tile=4.0):
+    """One decal_grime quad on a partition face (Res0, 6 mm proud). fit: the band's U spans the quad (bands that
+    fade at the sides), else it tiles every `tile` m along the wall."""
+    f = c + face * (PT / 2 + 0.006)
+    if axis == "x":
+        pts, nrm, ax = [(a0, f, z0), (a1, f, z0), (a1, f, z1), (a0, f, z1)], (0, face, 0), 0
+    else:
+        pts, nrm, ax = [(f, a0, z0), (f, a1, z0), (f, a1, z1), (f, a0, z1)], (face, 0, 0), 1
+    rect = DT.grime_rect(band) if fit else DT.grime_rect(band, a0 / tile, a1 / tile)
+    lod.quad(pts, nrm, mat="decal_grime", uv=UVRect(ax, 2, (a0, z0), (a1, z1), rect))
+
+
+def wall_wear(L, P, walls, z0, top):
+    """D92 lived-in walls (decal_grime wear bands, Res0, no new section): scuffs low beside doorways and a hand
+    smudge on the latch side (60 % of doorways intact, all in damaged / ruined); damaged / ruined walls also get
+    water stains under the ceiling and mould at a wall end. Kept inside the free spans of each wall."""
+    r0 = L["res0"]
+    tw = DT.D["trim_w"]
+    worn = P.state > 0
+    for wi, (axis, c, a0, a1, ops) in enumerate(walls):
+        cuts = sorted(ops)
+        spans, cur = [], a0
+        for o0, o1 in cuts:
+            spans.append((cur, o0 - tw))
+            cur = o1 + tw
+        spans.append((cur, a1))
+
+        def clip(x0, x1):
+            for s0, s1 in spans:
+                lo, hi = max(x0, s0 + 0.05), min(x1, s1 - 0.05)
+                if hi - lo > 0.15:
+                    return lo, hi
+            return None
+        for oi, (o0, o1) in enumerate(ops):
+            if not worn and h01(P.name, "wear", z0, wi, oi) > 0.6:
+                continue
+            s = 1 if h01(P.name, "sw", z0, wi, oi) < 0.5 else -1                  # the switch face (wall_fittings)
+            right = h01(P.name, "swr", z0, wi, oi) < 0.5
+            for (x0, x1) in ((o0 - tw - 0.9, o0 - tw), (o1 + tw, o1 + tw + 0.9)):    # scuffs both sides of the door
+                r = clip(x0, x1)
+                if r:
+                    _wall_decal(r0, axis, c, s, r[0], r[1], z0 + 0.08, z0 + 0.42, "scuff")
+            hx = (o1 + tw, o1 + tw + 0.3) if right else (o0 - tw - 0.3, o0 - tw)      # hand smudge, latch side
+            r = clip(*hx)
+            if r:
+                _wall_decal(r0, axis, c, s, r[0], r[1], z0 + 0.85, z0 + 1.55, "smudge", fit=True)
+        if not worn:
+            continue
+        for si, (s0, s1) in enumerate(spans):
+            if s1 - s0 < 1.0:
+                continue
+            face = 1 if h01(P.name, "stf", z0, wi, si) < 0.5 else -1
+            if h01(P.name, "stain", z0, wi, si) < 0.45 + 0.25 * (P.state == 2):     # water stain under the ceiling
+                w = min(s1 - s0 - 0.1, 1.0 + 1.5 * h01(P.name, "stw", z0, wi, si))
+                x = s0 + 0.05 + (s1 - s0 - 0.1 - w) * h01(P.name, "stx", z0, wi, si)
+                _wall_decal(r0, axis, c, face, x, x + w, top - 1.0, top - 0.02, "stain")
+            if h01(P.name, "mould", z0, wi, si) < 0.25 + 0.25 * (P.state == 2):     # mould at the span's end
+                end = s1 - 0.65 if h01(P.name, "mde", z0, wi, si) < 0.5 else s0 + 0.05
+                _wall_decal(r0, axis, c, -face, end, end + 0.6, top - 0.9, top - 0.02, "mould", fit=True)
 
 
 def wall_fittings(L, P, walls, key):
@@ -2608,8 +2670,7 @@ def roof_signs(L, P, skin):
 def grime_uv(sd, a0, a1, z0, z1, band, tile=4.0):
     """UVRect onto one band of decal_grime: tiles every `tile` m along the side, the band's
     height stretched over z0..z1 (bottom of the quad = bottom of the band)."""
-    k = ["damp", "runoff", "streak", "moss"].index(band)
-    v0, v1 = 1.0 - (k + 1) / 4.0 + 0.004, 1.0 - k / 4.0 - 0.004
+    v0, v1 = DT.grime_v(band)                                                # D92: shared 8-band layout
     return UVRect(sd.uvax(), 2, (a0, z0), (a1, z1), (a0 / tile, v0, a1 / tile, v1))
 
 
