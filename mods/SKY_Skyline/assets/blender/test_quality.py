@@ -34,11 +34,13 @@ SMEAR_EXT = 0.06       # m: extent of the face along the collapsed direction tha
 SMEAR_MIN = 0.1        # UV per metre along the stretched direction: under this a texture is a streak (a 4 cm trim with
                        # steel at 3 m per tile along it is a normal tiling, not a smear - D96)
 ZF_MAX_LAYERS = 3      # zfix layers (x 4 mm) a part may be pushed out before it reads as a step
-ZF_MAX_LAYERS_DEBRIS = 10   # loose debris chunks (< 0.8 m) piled at random: 4 cm on a rubble lump does not read
+ZF_MAX_LAYERS_DEBRIS = 10   # loose debris chunks (< 1 m) piled at random: 4 cm on a rubble lump does not read
+ZF_MAX_LAYERS_FAR = 6  # Res1 and farther (drawn from ~10-25 m on): 24 mm does not read
 DEBRIS = {"rubble", "brick", "concrete", "rust", "trash"}
 VERTEX_LIMIT = 60000   # render vertices per LOD (engine hard limit 65,535; margin for the binarizer's own splits)
 GHOST_DIST = 0.2       # m: a collision face this far from every render face is not seen (glass sits up to 14 cm in a wall)
-GHOST_AREA = 0.5       # m2 of unseen collision surface per component (the user asked about "big collisions")
+GHOST_AREA = 1.0       # m2 of unseen collision surface per component (a person-size patch: "big collisions"; jagged ruin
+                       # wall tops leave 0.5-1 m2 slivers where the render and collision cuts differ)
 GHOST_WALL = 2.0       # m2 a wall (>= 2 m tall) may keep unseen: one broken window keeps its collision pane (vanilla)
 GHOST_FRAC = 0.02      # and more than this share of the component (a sliver along a 110 m2 curtain wall is not a wall)
 GHOST_LOW = 1.25       # m: a component this low whose top is seen is a rail / desk / bench: one box over bars or legs
@@ -283,9 +285,11 @@ def scan(name, checks):
     import zfix
     zfix.resolve_lods(lods)                      # what export_p3d writes (D96)
     deep = []
+    near = min((l.distance for l in lods if l.lod == LOD_RES), default=0.0)
     for l in lods:
+        cap = ZF_MAX_LAYERS if l.lod != LOD_RES or l.distance <= near else ZF_MAX_LAYERS_FAR
         worst = [(lay, size, mat) for lay, size, mat in getattr(l, "zfix_layer_map", {}).values()
-                 if lay > (ZF_MAX_LAYERS_DEBRIS if mat in DEBRIS and size < 0.8 else ZF_MAX_LAYERS)]
+                 if lay > (max(cap, ZF_MAX_LAYERS_DEBRIS) if mat in DEBRIS and size < 1.0 else cap)]
         if worst:
             deep.append((l.name, max(worst)))
     res = [l for l in lods if l.lod == LOD_RES]

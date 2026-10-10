@@ -86,8 +86,8 @@ def weeds(L, name, x0, x1, y0, y1, n, z=0.0, cells=("grass", "weeds", "dry_grass
 def ring_bars(lod, cx, y, cz, r, n, rad, mat, uv, a0=0.0):
     """Polygonal ring of square bars in the X-Z plane (wheel rims)."""
     pts = [(cx + r * math.cos(a0 + 2 * math.pi * i / n), y, cz + r * math.sin(a0 + 2 * math.pi * i / n)) for i in range(n)]
-    for a, b in zip(pts, pts[1:] + pts[:1]):
-        bar(lod, a, b, rad, mat, uv)
+    for i, (a, b) in enumerate(zip(pts, pts[1:] + pts[:1])):
+        bar(lod, a, b, rad - 0.007 * (i % 2), mat, uv)                     # D96: alternate 7 mm (joints z-fought)
 
 
 # ================================================================== funfair (idea 1)
@@ -170,8 +170,8 @@ def build_ferris_wheel():
     L["res3"].box(-7.0, 7.0, -1.8, 1.8, 0.0, 0.6, mat="concrete", uv=UV_CONC, skip=("-z",))
     for k_seg in range(8):
         a0, a1 = 2 * math.pi * k_seg / 8, 2 * math.pi * (k_seg + 1) / 8
-        bar(L["res3"], (R * math.cos(a0), 0.0, za + R * math.sin(a0)), (R * math.cos(a1), 0.0, za + R * math.sin(a1)), 0.35,
-            "fair", white)
+        bar(L["res3"], (R * math.cos(a0), 0.0, za + R * math.sin(a0)), (R * math.cos(a1), 0.0, za + R * math.sin(a1)),
+            0.35 - 0.007 * (k_seg % 2), "fair", white)
     for sx in (-1, 1):
         bar(L["res3"], (sx * 6.8, 0.0, 0.5), (0.0, 0.0, za), 0.3, "fair", white)
     # Chernobyl touch: a birch through the platform edge, weeds round the feet

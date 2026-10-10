@@ -110,6 +110,7 @@ class RLod:
         return r is not None and z1 > r[4] + 1e-6 and x0 < r[1] and r[0] < x1 and y0 < r[3] and r[2] < y1
 
     def box(self, x0, x1, y0, y1, z0, z1, **kw):
+        wall = kw.pop("wall", False)                       # facade piece: cut like the wall's collision, never "fell"
         if not self._affected(x0, x1, y0, y1, z1):
             return self.lod.box(x0, x1, y0, y1, z0, z1, **kw)
         zc = self.ruin.region[4]
@@ -120,7 +121,7 @@ class RLod:
                 continue
             if z0 >= zc - 1e-6 and z1 - z0 <= 0.45:          # floors, sills, copings: fell
                 continue
-            if z0 >= zc - 1e-6 and z1 - z0 <= 1.25:
+            if z0 >= zc - 1e-6 and z1 - z0 <= 1.25 and not wall:
                 continue                                       # D96: rails, desks, beds over the hole fell whole (a cut
                                                                # rail / desk left a collision box with nothing drawn on it)
             cut = self.ruin.cut(cx, cy)
@@ -945,6 +946,8 @@ def wall_piece(L, sd, a0, a1, z0, z1, mat, uv, pen, inner, keys=("res0", "res1",
         kw = kw_for(k, mat, uv, pen)
         if k.startswith("res"):
             kw["skip"] = (sd.in_key,)
+        if isinstance(L[k], RLod):
+            kw["wall"] = True
         sd.box(L[k], a0, a1, z0, z1, 0.0, WT, **kw)
     if inner:
         for k in ("res0", "res1"):
@@ -1003,7 +1006,7 @@ def window(L, P, sd, a0, a1, s0, s1, skin, key, rec, residential, frame_uv):
             dd = 0.022 * (i % 2)                                   # D96: overlapping boards alternate in depth (no z-fight;
                                                                    # -0.052 clears the damp decal at -0.045)
             for k in ("res0", "res1"):
-                sd.box(L[k], a0 - 0.08, a1 + 0.08, z + tilt, z + 0.18 + tilt, -0.03 - dd, -dd, mat="wood", uv=UV_OAK)
+                sd.box(L[k], a0 - 0.08, a1 + 0.08, z + tilt, z + 0.18 + tilt, -0.035 - dd, -0.005 - dd, mat="wood", uv=UV_OAK)
             sd.box(L["fire"], a0 - 0.08, a1 + 0.08, z, z + 0.18, -0.03, 0.0, mat="pen_wood")
         # D90: the gaps between the boards show the room in Res0 / Res1; the hollow far LODs get a dark backing
         L["res1"].quad(sd.rect(a0, a1, s0, s1, WT - 0.02), sd.out, "glassvoid", UV_GLASS)
@@ -3559,10 +3562,10 @@ def build_veg(name):
             segs = max(2, int(round((ztop + 0.3) / seg)))
             rings = []
             for i in range(segs + 1):
-                z = -0.3 + (ztop + 0.3) * i / segs
+                z = -0.28 + (ztop + 0.28) * i / segs                           # (base off the pad underside at -0.3)
                 rr = r * (1.0 - 0.45 * (z + 0.3) / (top + 0.3)) * (1.12 if i == 0 else 1.0)
                 rings.append([(rr * math.cos(2 * math.pi * j / n), rr * math.sin(2 * math.pi * j / n), z) for j in range(n)])
-            U[k].loft(rings, mat="vegetation", uv=BarkUV(S.veg_uv("bark"), r, n, -0.3, (ztop + 0.3) / segs))
+            U[k].loft(rings, mat="vegetation", uv=BarkUV(S.veg_uv("bark"), r, n, -0.28, (ztop + 0.28) / segs))
         for k in ("geo", "fire", "shadow"):
             kw = {"mat": "pen_wood"} if k == "fire" else {}
             U[k].prism(0.0, 0.0, r, -0.3, th * 0.8, n=6 if k != "shadow" else 4, **kw)
