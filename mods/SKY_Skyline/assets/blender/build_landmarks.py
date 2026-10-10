@@ -261,8 +261,14 @@ def build_carousel():
                           (math.cos((a0 + a1) / 2), math.sin((a0 + a1) / 2), 0), "fair", fair_uv("white"), double=True)
     L["res0"].prism(0.0, 0.0, 0.9, 8.8, 9.3, n=12, mat="fair", uv=fair_uv("red"))
     L["res0"].prism(0.0, 0.0, 0.1, 9.3, 10.2, n=6, mat="metal", uv=DT.UV_STEEL)
-    for k in ("geo", "fire", "view"):
-        L[k].prism(0.0, 0.0, 5.6, 7.0, 8.8, n=8, **({"mat": "pen_metal"} if k == "fire" else {}))
+    for j in range(8):                                                           # D96: collision is the cone shell, 8
+        a0, a1 = 2 * math.pi * j / 8, 2 * math.pi * (j + 1) / 8                   # thin sector slabs (a 5.6 m cylinder hid
+        top = [(5.6 * math.cos(a0), 5.6 * math.sin(a0), 7.0), (5.6 * math.cos(a1), 5.6 * math.sin(a1), 7.0),   # 150 m2 of air)
+               (0.8 * math.cos(a1), 0.8 * math.sin(a1), 8.8), (0.8 * math.cos(a0), 0.8 * math.sin(a0), 8.8)]
+        slab = top + [(x_, y_, z_ - 0.12) for x_, y_, z_ in top]
+        for k in ("geo", "fire", "view"):
+            L[k].solid(slab, [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)],
+                       **({"mat": "pen_metal"} if k == "fire" else {}))
     L["res3"].prism(0.0, 0.0, 5.6, 6.4, 8.8, n=6, mat="fair", uv=fair_uv("red"))
     L["res3"].prism(0.0, 0.0, 4.5, 0.0, 0.4, n=6, mat="fair", uv=fair_uv("blue"))
     for i in range(n):                                                           # swings
@@ -288,7 +294,11 @@ def build_carousel():
         for k in ("res0", "res1"):
             bar(L[k], (p0[0], p0[1], 1.0), (p1[0], p1[1], 1.0), 0.03, "fair", fair_uv("white"))
         L["res0"].prism(p0[0], p0[1], 0.04, 0.0, 1.05, n=6, mat="fair", uv=fair_uv("white"))
-        bar(L["geo"], (p0[0], p0[1], 0.5), (p1[0], p1[1], 0.5), 0.5)
+        nx, ny = (p1[1] - p0[1]), -(p1[0] - p0[0])                               # D96: a 8 cm sheet under the top rail
+        nl = math.hypot(nx, ny) or 1.0                                           # (a 1 m thick bar was a wide collar)
+        nx, ny = 0.04 * nx / nl, 0.04 * ny / nl
+        sheet = [(p[0] + s * nx, p[1] + s * ny, z_) for p in (p0, p1) for s in (-1, 1) for z_ in (0.0, 1.03)]
+        L["geo"].solid(sheet, [(0, 1, 3, 2), (4, 5, 7, 6), (0, 2, 6, 4), (1, 3, 7, 5), (0, 1, 5, 4), (2, 3, 7, 6)])
     for k in ("res0", "res1", "geo", "fire", "view"):                            # control booth
         L[k].box(5.2, 6.4, -6.6, -5.4, 0.0, 2.3, **kw_for(k, "fair", fair_uv("yellow"), "wood"))
     L["res0"].box(5.15, 6.45, -6.65, -5.35, 2.3, 2.45, mat="fair", uv=fair_uv("red"))
