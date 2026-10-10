@@ -1235,7 +1235,8 @@ def build_tunnel(portal=False):
         for i in range(int((y1 - y0) / 2.0)):                                    # wall tiles band + stains (inside)
             ya = y0 + i * 2.0
             L["res0"].quad([(xt, ya, 0.3), (xt, ya + 2.0, 0.3), (xt, ya + 2.0, 2.4), (xt, ya, 2.4)], (-sx, 0, 0), "tile", UV_TILE)
-    box_all(L, ALL + ("shadow",), (-6.6, 6.6, y0, y1, zr0, zr1), "concrete", UV_CONC)               # roof slab
+    ys = y0 + 0.3 if portal else y0                                             # D96: the portal headwall is the first 30 cm
+    box_all(L, ALL + ("shadow",), (-6.6, 6.6, ys, y1, zr0, zr1), "concrete", UV_CONC)               # roof slab
     for k in ("res0", "res1"):
         L[k].hquad(-6.0, 6.0, y0, y1, zr0 - 0.006, mat="concrete", uv=UV_CONC, up=False)
     for sx in (-1, 1):                                                           # dead strip lights
@@ -1262,15 +1263,15 @@ def build_tunnel(portal=False):
     L["road"].hquad(-6.6, 6.6, y0, y1, zr1, mat="road_ext", uv=UV_TILE)
     if portal:
         for k in ALL + ("shadow",):                                              # headwall over the mouth at -Y
-            L[k].box(-6.7, 6.7, y0 - 0.3, y0, zr0 - 0.05, zr1 + 1.0,         # D96: a facing in front of the slab (inside it, it
-                     **(kw_for(k, "stone", DT.stone_uv("granite"), "concrete") if k != "shadow" else {}))   # z-fought 3 planes)
+            L[k].box(-6.7, 6.7, y0, y0 + 0.3, zr0 - 0.05, zr1 + 1.0,         # D96: the slab starts behind it (inside the
+                     **(kw_for(k, "stone", DT.stone_uv("granite"), "concrete") if k != "shadow" else {}))   # slab it z-fought)
         for i in range(8):                                                       # hazard chevrons over the mouth
             xa = -6.0 + i * 1.5
-            L["res0"].quad([(xa, y0 - 0.305, zr0 + 0.05), (xa + 0.75, y0 - 0.305, zr0 + 0.05), (xa + 0.75, y0 - 0.305, zr0 + 0.45),
-                            (xa, y0 - 0.305, zr0 + 0.45)], (0, -1, 0), "fair", fair_uv("yellow" if i % 2 else "white"))
-        C.sign2_quad(L["res0"], [(-3.0, y0 - 0.308, zr1 + 0.2), (3.0, y0 - 0.308, zr1 + 0.2), (3.0, y0 - 0.308, zr1 + 0.8),
-                                 (-3.0, y0 - 0.308, zr1 + 0.8)], (0, -1, 0), "danger", (0, 2), (-3.0, zr1 + 0.2), (3.0, zr1 + 0.8))
-        rail(L, -6.6, 6.6, y0 + 0.8, y0 + 0.86, zr1, h=1.0)
+            L["res0"].quad([(xa, y0 - 0.005, zr0 + 0.05), (xa + 0.75, y0 - 0.005, zr0 + 0.05), (xa + 0.75, y0 - 0.005, zr0 + 0.45),
+                            (xa, y0 - 0.005, zr0 + 0.45)], (0, -1, 0), "fair", fair_uv("yellow" if i % 2 else "white"))
+        C.sign2_quad(L["res0"], [(-3.0, y0 - 0.008, zr1 + 0.2), (3.0, y0 - 0.008, zr1 + 0.2), (3.0, y0 - 0.008, zr1 + 0.8),
+                                 (-3.0, y0 - 0.008, zr1 + 0.8)], (0, -1, 0), "danger", (0, 2), (-3.0, zr1 + 0.2), (3.0, zr1 + 0.8))
+        # (D96: no deck rail - the headwall rises 1 m above the deck; a rail 0.5 m behind it left a wedge slot)
     L["res3"].box(-12.0, 12.0, y0, y1, 0.0, zr1, mat="turf", uv=UV_TURF, skip=("-z",))
     L["mem"].lod.point("center", (0.0, 0.0, 0.0))
     return finish(L, 600000.0)
