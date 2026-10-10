@@ -1210,14 +1210,14 @@ def build_tunnel(portal=False):
         L["road"].hquad(xa, xb, y0, y1, 0.25, mat="road_ext", uv=UV_TILE)
     for sx in (-1, 1):                                                           # walls
         xa, xb = (6.0, 6.6) if sx > 0 else (-6.6, -6.0)
-        box_all(L, ALL + ("shadow",), (xa, xb, y0, y1, -SKIRT, zr1), "concrete", UV_CONC)
+        box_all(L, ALL + ("shadow",), (xa, xb, y0, y1, -SKIRT, zr0), "concrete", UV_CONC)   # D96: up to the slab, not
+        xt = xa - 0.006 if sx > 0 else xb + 0.006                                # through it; tiles 6 mm off the wall
         for i in range(int((y1 - y0) / 2.0)):                                    # wall tiles band + stains (inside)
             ya = y0 + i * 2.0
-            L["res0"].quad([(xa if sx > 0 else xb, ya, 0.3), (xa if sx > 0 else xb, ya + 2.0, 0.3),
-                            (xa if sx > 0 else xb, ya + 2.0, 2.4), (xa if sx > 0 else xb, ya, 2.4)], (-sx, 0, 0), "tile", UV_TILE)
+            L["res0"].quad([(xt, ya, 0.3), (xt, ya + 2.0, 0.3), (xt, ya + 2.0, 2.4), (xt, ya, 2.4)], (-sx, 0, 0), "tile", UV_TILE)
     box_all(L, ALL + ("shadow",), (-6.6, 6.6, y0, y1, zr0, zr1), "concrete", UV_CONC)               # roof slab
     for k in ("res0", "res1"):
-        L[k].hquad(-6.0, 6.0, y0, y1, zr0 - 0.002, mat="concrete", uv=UV_CONC, up=False)
+        L[k].hquad(-6.0, 6.0, y0, y1, zr0 - 0.006, mat="concrete", uv=UV_CONC, up=False)
     for sx in (-1, 1):                                                           # dead strip lights
         for i in range(int((y1 - y0) / 3.0)):
             ya = y0 + 0.5 + i * 3.0
@@ -1242,13 +1242,14 @@ def build_tunnel(portal=False):
     L["road"].hquad(-6.6, 6.6, y0, y1, zr1, mat="road_ext", uv=UV_TILE)
     if portal:
         for k in ALL + ("shadow",):                                              # headwall over the mouth at -Y
-            L[k].box(-6.6, 6.6, y0 - 0.0, y0 + 0.8, zr0, zr1 + 1.0, **(kw_for(k, "stone", DT.stone_uv("granite"), "concrete") if k != "shadow" else {}))
+            L[k].box(-6.7, 6.7, y0 - 0.3, y0, zr0 - 0.05, zr1 + 1.0,         # D96: a facing in front of the slab (inside it, it
+                     **(kw_for(k, "stone", DT.stone_uv("granite"), "concrete") if k != "shadow" else {}))   # z-fought 3 planes)
         for i in range(8):                                                       # hazard chevrons over the mouth
             xa = -6.0 + i * 1.5
-            L["res0"].quad([(xa, y0 - 0.002, zr0 + 0.05), (xa + 0.75, y0 - 0.002, zr0 + 0.05), (xa + 0.75, y0 - 0.002, zr0 + 0.45),
-                            (xa, y0 - 0.002, zr0 + 0.45)], (0, -1, 0), "fair", fair_uv("yellow" if i % 2 else "white"))
-        C.sign2_quad(L["res0"], [(-3.0, y0 - 0.003, zr1 + 0.2), (3.0, y0 - 0.003, zr1 + 0.2), (3.0, y0 - 0.003, zr1 + 0.8),
-                                 (-3.0, y0 - 0.003, zr1 + 0.8)], (0, -1, 0), "danger", (0, 2), (-3.0, zr1 + 0.2), (3.0, zr1 + 0.8))
+            L["res0"].quad([(xa, y0 - 0.305, zr0 + 0.05), (xa + 0.75, y0 - 0.305, zr0 + 0.05), (xa + 0.75, y0 - 0.305, zr0 + 0.45),
+                            (xa, y0 - 0.305, zr0 + 0.45)], (0, -1, 0), "fair", fair_uv("yellow" if i % 2 else "white"))
+        C.sign2_quad(L["res0"], [(-3.0, y0 - 0.308, zr1 + 0.2), (3.0, y0 - 0.308, zr1 + 0.2), (3.0, y0 - 0.308, zr1 + 0.8),
+                                 (-3.0, y0 - 0.308, zr1 + 0.8)], (0, -1, 0), "danger", (0, 2), (-3.0, zr1 + 0.2), (3.0, zr1 + 0.8))
         rail(L, -6.6, 6.6, y0 + 0.8, y0 + 0.86, zr1, h=1.0)
     L["res3"].box(-12.0, 12.0, y0, y1, 0.0, zr1, mat="turf", uv=UV_TURF, skip=("-z",))
     L["mem"].lod.point("center", (0.0, 0.0, 0.0))
@@ -1283,7 +1284,8 @@ def build_bridge():
     for sy in (-hw + 0.15, hw - 0.15):
         for z in (0.2, 6.2):
             for k in ("res0", "res1", "res2"):
-                bar(L[k], (-hl, sy, z), (hl, sy, z), 0.25 if k != "res2" else 0.35, "rust", green)
+                bar(L[k], (-hl + 0.03, sy, z), (hl - 0.03, sy, z), 0.25 if k != "res2" else 0.35, "rust", green)  # D96: ends
+                                                                         # off the deck end face
         bar(L["geo"], (-hl, sy, 6.2), (hl, sy, 6.2), 0.25)
         bar(L["fire"], (-hl, sy, 6.2), (hl, sy, 6.2), 0.25, "pen_metal")
         for i in range(17):
@@ -1294,7 +1296,7 @@ def build_bridge():
                 L[k].box(x - 0.15, x + 0.15, sy - 0.15, sy + 0.15, 0.2, 6.2, **({"mat": "pen_metal"} if k == "fire" else {}))
             if i < 16:
                 a, b = ((x, 0.2), (x + 6.0, 6.2)) if i % 2 == 0 else ((x, 6.2), (x + 6.0, 0.2))
-                bar(L["res0"], (a[0], sy, a[1]), (b[0], sy, b[1]), 0.12, "rust", green)
+                bar(L["res0"], (a[0], sy, a[1]), (b[0], sy, b[1]), 0.12 if i % 2 == 0 else 0.113, "rust", green)  # D96
                 if i % 2 == 0:
                     bar(L["res1"], (a[0], sy, a[1]), (b[0], sy, b[1]), 0.15, "rust", green)
         rail(L, -hl, hl, sy - 0.5 * (1 if sy > 0 else -1) - 0.03, sy - 0.5 * (1 if sy > 0 else -1) + 0.03, 0.2, h=1.1)
@@ -1360,11 +1362,21 @@ def build_bridge():
         for lx in (-0.25, 0.25):
             bar(L["res0"], (x + lx, -hw + 0.6, 0.2), (x + lx, -2.0, 6.3), 0.03, "metal", DT.UV_STEEL)
         L["road"].ramp(x - 0.3, x + 0.3, -hw + 0.6, -2.0, 0.2, 6.3, mat="road_ext", uv=UV_TILE)
-        for k in ("geo",):
-            L[k].wedge(x - 0.3, x + 0.3, -hw + 0.6, -2.0, 0.0, 0.2, 6.3)
+        # D96: a steel ship ladder - treads between the rails, collision a thin slab under them (a wedge down to the
+        # ground left a 6 m invisible wall under the nest)
+        ya, yb, za, zb = -hw + 0.6, -2.0, 0.2, 6.3
+        n_t = int((zb - za) / 0.25)
+        for i in range(1, n_t):
+            f = i / n_t
+            ty, tz = ya + (yb - ya) * f, za + (zb - za) * f
+            L["res0"].box(x - 0.27, x + 0.27, ty - 0.07, ty + 0.07, tz - 0.03, tz, mat="metal", uv=DT.UV_STEEL)
+        slab = [(xx, yy, zz) for xx in (x - 0.3, x + 0.3) for (yy, zz) in ((ya, za), (yb, zb), (yb, zb - 0.2), (ya, za - 0.2))]
+        L["geo"].solid(slab, [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)])
     L["res3"].box(-hl, hl, -hw, hw, -1.2, 0.2, mat="concrete", uv=UV_CONC)
     for sy in (-hw + 0.15, hw - 0.15):
-        L["res3"].box(-hl, hl, sy - 0.2, sy + 0.2, 0.2, 6.2, mat="rust", uv=green, skip=("-z",))
+        for j in range(8):                                                       # D96: 8 bands (one band over 6 m streaked)
+            L["res3"].box(-hl, hl, sy - 0.2, sy + 0.2, 0.2 + j * 0.75, 0.95 + j * 0.75, mat="rust", uv=green,
+                          skip=("-z", "+z") if j < 7 else ("-z",))
     L["mem"].lod.point("center", (0.0, 0.0, 0.0))
     return finish(L, 3000000.0)
 

@@ -740,25 +740,43 @@ def desk(L, x, y, z, rot=False):
 
 
 def shelf_unit(L, x0, x1, y0, y1, z, h=1.9, goods=True):
-    """Steel shelving with 4 shelves; goods boxes on the shelves (Res0)."""
-    for (a, b) in ((x0, x0 + 0.04), (x1 - 0.04, x1)):
-        L["res0"].box(a, b, y0, y1, z, z + h, mat="metal", uv=DT.UV_PAINT, skip=("-z",))
+    """Steel shelving / pallet racking with 4 shelves; goods boxes on the shelves (Res0). D96: built along its longer
+    side (a rack running along Y had 14 m solid side boards and an open top), a steel back panel down the middle (you
+    saw through to the next aisle, not the collision) and a deck on top of tall racks."""
+    rg = getattr(L["geo"], "ruin", None)                                    # in a ruin's collapse zone the rack is
+    if rg is not None and rg.region is not None and rg.inside((x0 + x1) / 2, (y0 + y1) / 2) and z + h > rg.region[4]:
+        h = rg.region[4] - z - 0.01                                          # cut at the collapse floor, all parts
+        if h < 0.6:                                                          # alike (shelves fell, collision stayed)
+            return
+    along_x = (x1 - x0) >= (y1 - y0)
+    a0, a1, b0, b1 = (x0, x1, y0, y1) if along_x else (y0, y1, x0, x1)
+
+    def bx(lod, p0, p1, q0, q1, za, zb, **kw):
+        if along_x:
+            lod.box(p0, p1, q0, q1, za, zb, **kw)
+        else:
+            lod.box(q0, q1, p0, p1, za, zb, **kw)
+    for (a, b) in ((a0, a0 + 0.04), (a1 - 0.04, a1)):
+        bx(L["res0"], a, b, b0, b1, z, z + h, mat="metal", uv=DT.UV_PAINT, skip=("-z",))
     gap = (h - 0.2) / 3.5
-    ym = (y0 + y1) / 2                                                       # D96: steel back panel down the middle (you
-    L["res0"].box(x0 + 0.04, x1 - 0.04, ym - 0.008, ym + 0.008, z + 0.18, z + h, mat="metal", uv=DT.UV_STEEL)  # saw
-    for k in range(4):                                                       # through to the next aisle, not the collision)
+    bm = (b0 + b1) / 2
+    bx(L["res0"], a0 + 0.04, a1 - 0.04, bm - 0.008, bm + 0.008, z + 0.18, z + h, mat="metal", uv=DT.UV_STEEL)
+    if 0.45 + 3 * gap < h - 0.06:                                            # top deck clears the top shelf's goods
+        bx(L["res0"], a0 + 0.04, a1 - 0.04, b0, b1, z + h - 0.03, z + h - 0.001, mat="metal", uv=DT.UV_PAINT)
+    for k in range(4):
         zz = z + 0.15 + k * gap
-        L["res0"].box(x0, x1, y0, y1, zz, zz + 0.03, mat="metal", uv=DT.UV_PAINT)
+        bx(L["res0"], a0, a1, b0, b1, zz, zz + 0.03, mat="metal", uv=DT.UV_PAINT)
         if goods:
-            n = max(1, int((x1 - x0) / 0.45))
+            n = max(1, int((a1 - a0) / 0.45))
             gh = min(0.27, gap - 0.08) if k < 3 else 0.27                      # D96: goods clear the shelf above
             for i in range(n):
                 if h01("goods", round(x0, 2), round(y0, 2), k, i) < 0.75:
-                    gx = x0 + 0.08 + i * (x1 - x0 - 0.16) / n
-                    gy = 0.05 + 0.03 * h01("goodsy", round(x0, 2), round(y0, 2), k, i)   # not all flush at the front
-                    L["res0"].box(gx, gx + (x1 - x0 - 0.2) / n, y0 + gy, y1 - gy, zz + 0.03, zz + 0.03 + gh * (0.8 + 0.2 * h01("goodsh", round(x0, 2), k, i)),
-                                  mat="textile" if (i + k) % 3 == 0 else "wood",
-                                  uv=DT.UVTrim(S.MATERIALS["textile"]["bands"]["rug_a"], 0.6, 0.3) if (i + k) % 3 == 0 else UV_LAMINATE)
+                    ga = a0 + 0.08 + i * (a1 - a0 - 0.16) / n
+                    gb = 0.05 + 0.03 * h01("goodsy", round(x0, 2), round(y0, 2), k, i)   # not all flush at the front
+                    bx(L["res0"], ga, ga + (a1 - a0 - 0.2) / n, b0 + gb, b1 - gb, zz + 0.03,
+                       zz + 0.03 + gh * (0.8 + 0.2 * h01("goodsh", round(x0, 2), k, i)),
+                       mat="textile" if (i + k) % 3 == 0 else "wood",
+                       uv=DT.UVTrim(S.MATERIALS["textile"]["bands"]["rug_a"], 0.6, 0.3) if (i + k) % 3 == 0 else UV_LAMINATE)
     L["res1"].box(x0, x1, y0, y1, z, z + h, mat="metal", uv=DT.UV_PAINT, skip=("-z",))
     L["geo"].box(x0, x1, y0, y1, z, z + h)
     L["fire"].box(x0, x1, y0, y1, z, z + h, mat="pen_metal")
@@ -940,6 +958,12 @@ def window(L, P, sd, a0, a1, s0, s1, skin, key, rec, residential, frame_uv):
     state = P.ruin.window(sd.key, *key)
     if state == "broken" and P.state == 2 and getattr(P, "win_openings", None) is not None:
         P.win_openings.append((a0, a1, s0, s1))
+    elif state == "broken":                                                 # kept pane: recorded for test_quality
+        q = sd.rect(a0, a1, s0, s1, 0.0) + sd.rect(a0, a1, s0, s1, WT)
+        g = getattr(L["geo"], "lod", L["geo"])
+        if not hasattr(g, "kept_panes"):
+            g.kept_panes = []
+        g.kept_panes.append(tuple(min(p[i] for p in q) for i in range(3)) + tuple(max(p[i] for p in q) for i in range(3)))
     r0 = L["res0"]
     ax = sd.uvax()
     if state != "broken" or P.state < 2:                                   # frame survives damage
@@ -1015,7 +1039,8 @@ def facade(L, P, key, lvl):
     mat, uv = wall(P, skin)
     pen = {"brick": "masonry", "metal": "metal"}.get(SK["mat"], "concrete")
     residential = A["group"] in ("residential", "mixed") and use not in ("shop",)
-    inner = ("paint", DT.paint_uv("white")) if use not in ("warehouse",) else None
+    # D96: warehouses show their cladding inside (None left the wall one-sided: seen through from inside)
+    inner = ("paint", DT.paint_uv("white")) if use not in ("warehouse",) else (mat, uv)
     frame_uv = DT.UV_PAINT
     shop = lvl == 0 and A.get("ground") == "shopfront" and key in A.get("shop_sides", ())
     blank = key in A.get("blank", ())
@@ -1160,10 +1185,11 @@ def facade(L, P, key, lvl):
             openings.append((d0, d1, z0, z0 + ST["door"][1]))
             # door surround + canopy
             for k in ("res0", "res1"):
-                sd.box(L[k], d0 - 0.18, d0, z0, s0d + 0.45, -0.05, 0.0, mat="stone", uv=DT.stone_uv("limestone"),
-                       skip=(sd.in_key,))
-                sd.box(L[k], d1, d1 + 0.18, z0, s0d + 0.45, -0.05, 0.0, mat="stone", uv=DT.stone_uv("limestone"),
-                       skip=(sd.in_key,))
+                # D96: 2 cm into the opening and proud of the plinth (both ended on one plane at the door edge)
+                sd.box(L[k], d0 - 0.18, d0 + 0.02, z0, s0d + 0.45, -0.065, 0.0, mat="stone", uv=DT.stone_uv("limestone"),
+                       skip=(sd.in_key, "-z"))
+                sd.box(L[k], d1 - 0.02, d1 + 0.18, z0, s0d + 0.45, -0.065, 0.0, mat="stone", uv=DT.stone_uv("limestone"),
+                       skip=(sd.in_key, "-z"))
                 sd.box(L[k], d0 - 0.4, d1 + 0.4, s0d + 0.45, s0d + 0.55, -0.9, 0.0, mat="metal", uv=DT.UV_PAINT)
             continue
         res = ("res0", "res1")
@@ -1197,11 +1223,11 @@ def facade(L, P, key, lvl):
             cell = ("shutter_sage", "shutter_brown", "shutter_blue")[int(h01(P.name, "shut") * 3)]
             ax = sd.uvax()
             for (a, b) in ((w0 - 0.55, w0 - 0.03), (w1 + 0.03, w1 + 0.55)):
-                sd.box(r0, a, b, s0, s1, -0.045, -0.01, mat="facadekit",
+                sd.box(r0, a, b, s0, s1, -0.052, -0.012, mat="facadekit",          # proud of the damp decal (-0.045)
                        uv=UVRect(ax, 2, (a, s0), (b, s1), S.facadekit_uv(cell)))
                 for zz in (s0 + 0.22, s1 - 0.22):                          # strap hinges
                     hx = (w0 - 0.05, w0 - 0.25) if a < w0 else (w1 + 0.25, w1 + 0.05)
-                    sd.box(r0, min(hx), max(hx), zz - 0.02, zz + 0.02, -0.052, -0.044, mat="metal", uv=DT.UV_STEEL)
+                    sd.box(r0, min(hx), max(hx), zz - 0.02, zz + 0.02, -0.059, -0.051, mat="metal", uv=DT.UV_STEEL)
         if (residential or use in RADIATOR_USES) and st == "glass" and P.state == 0:          # radiator (D89: + offices / public)
             sd.box(r0, c - 0.5, c + 0.5, z0 + 0.15, z0 + 0.7, WT + 0.03, WT + 0.11, mat="paint", uv=DT.paint_uv("white"),
                    skip=(sd.out_key, "-z"))
@@ -1473,9 +1499,10 @@ def front_door(L, P):
     shopfront = P.A.get("ground") == "shopfront" and "S" in P.A.get("shop_sides", ())
     for k in () if shopfront else ("res0", "res1"):                     # D96: the shop glazing frames its door already
         sd = FSide(P, "S")
-        sd.box(L[k], d0 - 0.06, d0, 0.0, dh + 0.06, 0.0, WT, mat="metal", uv=DT.UV_PAINT, skip=("-z",))
-        sd.box(L[k], d1, d1 + 0.06, 0.0, dh + 0.06, 0.0, WT, mat="metal", uv=DT.UV_PAINT, skip=("-z",))
-        sd.box(L[k], d0, d1, dh, dh + 0.06, 0.0, WT, mat="metal", uv=DT.UV_PAINT)
+        # D96: 1 cm into the opening and 2 cm proud of both wall faces (flush, every face z-fought the wall)
+        sd.box(L[k], d0 - 0.05, d0 + 0.01, 0.0, dh + 0.05, -0.02, WT + 0.02, mat="metal", uv=DT.UV_PAINT, skip=("-z",))
+        sd.box(L[k], d1 - 0.01, d1 + 0.05, 0.0, dh + 0.05, -0.02, WT + 0.02, mat="metal", uv=DT.UV_PAINT, skip=("-z",))
+        sd.box(L[k], d0 + 0.01, d1 - 0.01, dh - 0.01, dh + 0.05, -0.02, WT + 0.02, mat="metal", uv=DT.UV_PAINT)
     if P.state == 2:
         return
     name = "door_front"
@@ -1491,7 +1518,8 @@ def front_door(L, P):
         L[k].lod.box(*leaf, sel=[name], **kw)
     L["res0"].lod.box(d1 - 0.18, d1 - 0.1, y - 0.06, y - 0.025, 1.0, 1.1, mat="metal", uv=DT.UV_STEEL, sel=[name])   # handle
     # D96 stone threshold step outside (render only, 6 cm: feet do not visibly sink) - not on a ruin
-    L["res0"].lod.box(d0 - 0.12, d1 + 0.12, -P.hd - 0.32, -P.hd + 0.02, 0.0, 0.03, mat="stone", uv=DT.stone_uv("granite"))
+    L["res0"].lod.box(d0 - 0.12, d1 + 0.12, -P.hd - 0.32, -P.hd - 0.065, 0.0, 0.03, mat="stone", uv=DT.stone_uv("granite"),
+                      skip=("-z", "+y"))                                     # D96: stops short of the door surround
     m = L["mem"].lod
     m.point(name + "_axis", (d0 + 0.01, y, 0.0))
     m.point(name + "_axis", (d0 + 0.01, y, dh))
@@ -2433,10 +2461,12 @@ def forecourt(L, P):
                 piece(L, (tx + cxo - 0.2, tx + cxo + 0.2, ty - 0.2, ty + 0.2, 0.0, 0.45), "metal", DT.UV_ALU, pen="metal",
                       res1=False)
             if P.state < 2:                                                     # parasol (no collision)
-                L["res0"].prism(tx, ty, 0.03, 0.75, 2.3, n=6, mat="metal", uv=DT.UV_STEEL)
+                L["res0"].prism(tx, ty, 0.03, 0.75, 2.6, n=6, mat="metal", uv=DT.UV_STEEL)
                 fab = "blue" if int(tx) % 2 else "beige"
-                L["res0"].prism(tx, ty, 1.2, 2.3, 2.38, n=8, mat="fabric", uv=UV_FAB[fab])
-                L["res1"].prism(tx, ty, 1.2, 2.3, 2.38, n=6, mat="fabric", uv=UV_FAB[fab])
+                for k, n in (("res0", 12), ("res1", 6)):                         # D96: conical canopy, 1.05 m (flat 1.2 m
+                    rings = [[(tx + rr * math.cos(2 * math.pi * j / n + 0.2), ty + rr * math.sin(2 * math.pi * j / n + 0.2), zz)
+                              for j in range(n)] for rr, zz in ((1.05, 2.25), (0.55, 2.47), (0.05, 2.6))]
+                    L[k].loft(rings, mat="fabric", uv=UV_FAB[fab])               # discs of neighbours overlapped)
 
 
 def disc_x(lod, cx, y, cz, r, t, mat, uv, n=16):
@@ -3223,8 +3253,9 @@ def build_rubble_lot(v):
         L["res0"].lod.box(x, x + ln, y, y + 0.2, 0.0, 0.2, mat="wood", uv=UVBand(S.MATERIALS["rust"]["bands"]["burnt"], 1.0))
     for i in range(8):
         x = -hw + 1.0 + (LOT - 2.0) * h01(name, "rebar", i)
-        L["res0"].lod.box(x, x + 0.02, hw - 0.95, hw - 0.65, 0.3, 1.6 + h01(name, "rh", i), mat="rust",
-                          uv=UVBand(S.MATERIALS["rust"]["bands"]["rust"], 1.0))
+        for yb in (hw - 0.88, hw - 0.72):                                     # D96: round bars (a 30 cm slab sat in
+            L["res0"].lod.prism(x, yb, 0.012, 0.3, 1.6 + h01(name, "rh", i), n=6, mat="rust",   # the wall faces)
+                                uv=UVBand(S.MATERIALS["rust"]["bands"]["rust"], 1.0))
     for axis, c, a0, a1 in frags:                                             # far LOD: jagged remains
         if axis == "x":
             L["res3"].box(a0, a1, c - 0.15, c + 0.15, 0.0, 4.0, mat=mat, uv=uv, skip=("-z",))
@@ -3442,9 +3473,7 @@ def build_metro(v):
     L = city_lods(Ruin(name, 0))
     hw, hd = 2.0, 3.0
     _pad(L, hw, hd, "stone", DT.stone_uv("granite"))
-    for k in ("res0", "res1"):                                                  # chequer-plate cover over the well
-        L[k].hquad(-1.6, 1.6, -2.6, 2.6, 0.012, mat="metal", uv=DT.UV_STEEL)
-    for k in ("res0", "res1", "geo", "fire"):
+    for k in ("res0", "res1", "geo", "fire"):                                   # chequer-plate cover over the well
         L[k].box(-1.6, 1.6, -2.6, 2.6, 0.0, 0.01, **kw_for(k, "metal", DT.UV_STEEL, "metal"))
     v0, v1 = S.SIGN_BAND["metro"]
     if v == "A":

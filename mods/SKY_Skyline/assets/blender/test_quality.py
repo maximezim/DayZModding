@@ -204,13 +204,27 @@ def ghosts(geo, res, step=0.15, h=0.1):
         return useen[inv.ravel()]
     seen = seen_at(pts)
     ext = np.array([min(np.ptp([geo.verts[i] for i in geo.groups[n]], 0)) for n in names])
-    half = np.minimum(0.5, ext[comp] / 2)[:, None]
-    full = np.minimum(0.5, ext[comp] * 0.95)[:, None]
+    half = np.minimum(0.6, ext[comp] / 2)[:, None]
+    full = np.minimum(0.6, ext[comp] * 0.95)[:, None]
     for t in (0.15, 0.3, None, "full"):           # a thick solid round thin glass / trim / a shelf back / boards on its
         rest = ~seen                              # far face is seen (D96): drawn inside or on the other side of the solid
         if rest.any():
             d = half[rest] if t is None else full[rest] if t == "full" else np.minimum(t, half[rest])
             seen[rest] = seen_at(pts[rest] - nrm[rest] * d)
+    for b in getattr(geo, "kept_panes", ()):      # a broken window of a damaged building keeps its pane (vanilla);
+        lo_, hi_ = np.array(b[:3]) - 0.05, np.array(b[3:]) + 0.05     # the generator records each one (D96)
+        seen |= np.all((pts > lo_) & (pts < hi_), axis=1)
+    rest = np.nonzero(~seen)[0]
+    if len(rest):                                 # a joint against the next collision piece (a wall cut into cells) is
+        q = pts[rest] + nrm[rest] * 0.02          # inside the wall: nobody sees it (D96)
+        lo = np.array([np.min([geo.verts[i] for i in geo.groups[n]], 0) for n in names]) - 0.005
+        hi = np.array([np.max([geo.verts[i] for i in geo.groups[n]], 0) for n in names]) + 0.005
+        inner = np.zeros(len(rest), bool)
+        for ci in range(len(names)):
+            m = (comp[rest] != ci) & ~inner
+            if m.any():
+                inner[m] = np.all((q[m] > lo[ci]) & (q[m] < hi[ci]), axis=1)
+        seen[rest[inner]] = True
     miss = ~seen
     zlo = np.array([min(geo.verts[i][2] for i in geo.groups[n]) for n in names])
     zhi = np.array([max(geo.verts[i][2] for i in geo.groups[n]) for n in names])

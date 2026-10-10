@@ -87,8 +87,8 @@ def zfight(lod, eps=ZF_EPS, min_area=ZF_AREA):
     for k, (idx, mat, uv) in enumerate(lod.faces):
         p = np.asarray([lod.verts[i] for i in idx], float)
         n = newell(p)
-        if n is None:
-            info.append(None)
+        if n is None or (n[2] < -0.9 and p[:, 2].max() < 0.05 and p[:, 2].min() > -0.05):
+            info.append(None)                    # D96: a bottom resting on the ground is never seen
             continue
         info.append((n, float(n @ p.mean(0)), p, mat, uv))
         groups.setdefault(tuple(np.round(n * 200).astype(int)), []).append(k)
