@@ -717,7 +717,8 @@ def build_stand():
     for i in range(n):
         y0 = -hd + 0.5 + i * 0.9
         zt = 0.45 * (i + 1)
-        box_all(L, ("res0", "res1", "res2", "geo", "view", "fire"), (-hw + 1.2, hw - 1.2, y0, hd - 0.3, 0.0, zt), "concrete", UV_CONC)
+        ye = hd - 0.3 if i == n - 1 else y0 + 0.9                               # D96: one step each (nested boxes shared faces)
+        box_all(L, ("res0", "res1", "res2", "geo", "view", "fire"), (-hw + 1.2, hw - 1.2, y0, ye, 0.0, zt), "concrete", UV_CONC)
         L["road"].hquad(-hw + 1.2, hw - 1.2, y0, y0 + 0.9, zt, mat="road_ext", uv=UV_TILE)
         # D70 mid LOD: runs of up to 6 existing seats merged into one seat-pan block; a run breaks at every missing
         # seat (same hash as Res0) and Res1 has no backrests, so the far LOD never draws cover the near LOD lacks
@@ -756,8 +757,8 @@ def build_stand():
         a0, a1 = (-hw, -hw + 1.2) if sx < 0 else (hw - 1.2, hw)
         for k in ("geo", "fire"):
             L[k].wedge(a0, a1, -hd + 0.5, hd - 0.3, -0.2, 0.0, 0.45 * n, **({"mat": "pen_concrete"} if k == "fire" else {}))
-        for k in ("res0", "res1"):
-            L[k].ramp(a0, a1, -hd + 0.5, hd - 0.3, 0.0, 0.45 * n, mat="concrete", uv=UV_CONC)
+        for k in ("res0", "res1"):                                               # D96: drawn as the solid (sides too)
+            L[k].wedge(a0, a1, -hd + 0.5, hd - 0.3, -0.2, 0.0, 0.45 * n, mat="concrete", uv=UV_CONC)
         L["road"].ramp(a0, a1, -hd + 0.5, hd - 0.3, 0.0, 0.45 * n, mat="road_ext", uv=UV_TILE)
     box_all(L, ALL + ("shadow",), (-hw, hw, hd - 0.3, hd, 0.0, 5.6), "concrete", UV_CONC)        # back wall
     for i in range(5):                                                           # columns + roof
@@ -807,11 +808,18 @@ def build_floodlight():
         r0, r1 = 0.7 - 0.45 * z0 / zt, 0.7 - 0.45 * z1 / zt
         for (a, b) in (((-1, -1), (1, -1)), ((1, -1), (1, 1)), ((1, 1), (-1, 1)), ((-1, 1), (-1, -1))):
             bar(L["res0"], (a[0] * r0, a[1] * r0, z0), (b[0] * r1, b[1] * r1, z1), 0.02, "metal", DT.UV_PAINT)
-    for k in ("geo", "fire", "view", "shadow", "res2"):
+    for k in ("res2",):
         verts = [(-0.7, -0.7, 0.0), (0.7, -0.7, 0.0), (0.7, 0.7, 0.0), (-0.7, 0.7, 0.0),
                  (-0.25, -0.25, zt), (0.25, -0.25, zt), (0.25, 0.25, zt), (-0.25, 0.25, zt)]
         L[k].solid(verts, [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)],
-                   **(kw_for(k, "metal", DT.UV_PAINT, "metal") if k != "shadow" else {}))
+                   **kw_for(k, "metal", DT.UV_PAINT, "metal"))
+    for sx in (-1, 1):                                                           # D96: collision = the 4 legs (a solid
+        for sy in (-1, 1):                                                       # frustum filled the open lattice)
+            leg = [(cx + dx, cy + dy, z_) for (cx, cy, z_) in ((sx * 0.7, sy * 0.7, 0.0), (sx * 0.25, sy * 0.25, zt))
+                   for dx in (-0.06, 0.06) for dy in (-0.06, 0.06)]
+            for k in ("geo", "fire", "view", "shadow"):
+                L[k].solid(leg, [(0, 1, 3, 2), (4, 5, 7, 6), (0, 1, 5, 4), (2, 3, 7, 6), (0, 2, 6, 4), (1, 3, 7, 5)],
+                           **({"mat": "pen_metal"} if k == "fire" else {}))
     for k in ("res0", "res1", "res2", "geo", "fire"):                            # head frame, angled to the pitch
         L[k].box(-1.8, 1.8, -0.2, 0.2, zt, zt + 2.4, **kw_for(k, "metal", DT.UV_PAINT, "metal"))
     for i in range(4):
@@ -1154,10 +1162,10 @@ def viaduct_detail(L, name, hd):
         for y in (-3.0, 3.0):
             x = sx * 5.0
             bar(L["res0"], (x - sx * 0.1, y, VIA_H - 0.3), (x + sx * 0.35, y, VIA_H - 0.45), 0.05, "metal", DT.UV_STEEL)
-            q = [(x + sx * 0.005, y - 0.25, VIA_H - 3.0), (x + sx * 0.005, y + 0.25, VIA_H - 3.0),
-                 (x + sx * 0.005, y + 0.25, VIA_H - 0.95), (x + sx * 0.005, y - 0.25, VIA_H - 0.95)]
+            q = [(x + sx * 0.005, y - 0.5, VIA_H - 3.0), (x + sx * 0.005, y + 0.5, VIA_H - 3.0),       # D96: 1 m wide
+                 (x + sx * 0.005, y + 0.5, VIA_H - 0.95), (x + sx * 0.005, y - 0.5, VIA_H - 0.95)]       # (0.5 m: 33x stretch)
             L["res0"].quad(q if sx > 0 else q[::-1], (sx, 0, 0), "decal_grime",
-                           UVRect(1, 2, (y - 0.25, VIA_H - 3.0), (y + 0.25, VIA_H - 0.95), DT.grime_rect("runoff")))
+                           UVRect(1, 2, (y - 0.5, VIA_H - 3.0), (y + 0.5, VIA_H - 0.95), DT.grime_rect("runoff")))
 
 
 def build_viaduct_ramp():
@@ -1193,6 +1201,8 @@ def build_viaduct_ramp():
     for k in ("res0", "res1"):
         L[k].quad([(-0.08, y0, 0.065), (0.08, y0, 0.065), (0.08, y1, VIA_H + 0.015), (-0.08, y1, VIA_H + 0.015)], (0, 0, 1),
                   "roadmark", UVRect(1, 0, (y0, -0.08), (y1, 0.08), (0.0, 1 - mark[1], (y1 - y0) / 6.0, 1 - mark[0])))
+    for k in ("res0", "res1", "res2"):                                           # D96: abutment face at the high end
+        L[k].quad([(-5.0, y1, -SKIRT), (5.0, y1, -SKIRT), (5.0, y1, VIA_H), (-5.0, y1, VIA_H)], (0, 1, 0), "concrete", UV_CONC)
     L["res3"].ramp(-5.4, 5.4, y0, y1, 0.0, VIA_H + 1.0, mat="concrete", uv=UV_CONC)
     for i in range(6):
         C.plant_tuft(U(L), (-4.6 if i % 2 else 4.6), y0 + 3 + i * 7.5, 0.05 + VIA_H * (3 + i * 7.5) / (y1 - y0), 0.7, 0.5,

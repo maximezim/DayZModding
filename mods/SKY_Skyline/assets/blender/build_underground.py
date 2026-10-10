@@ -449,14 +449,15 @@ TRACK_X = 4.6
 
 
 def tracks(L, y0, y1, zf, xs=(-TRACK_X, TRACK_X)):
+    ya, yb = y0 + 0.003, y1 - 0.003           # D96: ends 3 mm in (on the module plane they z-fought the ledge ends)
     for xc in xs:
-        L["res0"].box(xc - 1.3, xc + 1.3, y0, y1, zf, zf + 0.12, mat="rubble", uv=UV_RUBBLE)          # ballast
+        L["res0"].box(xc - 1.3, xc + 1.3, ya, yb, zf, zf + 0.12, mat="rubble", uv=UV_RUBBLE)          # ballast
         for i in range(int((y1 - y0) / 0.6)):
             yy = y0 + 0.3 + 0.6 * i
             L["res0"].box(xc - 1.15, xc + 1.15, yy - 0.12, yy + 0.12, zf + 0.12, zf + 0.22, mat="concrete", uv=UV_REVEAL)
         for rx in (xc - 0.72, xc + 0.72):
-            L["res0"].box(rx - 0.035, rx + 0.035, y0, y1, zf + 0.22, zf + 0.36, mat="metal", uv=DT.UV_STEEL)
-        L["res1"].box(xc - 1.3, xc + 1.3, y0, y1, zf, zf + 0.3, mat="rubble", uv=UV_RUBBLE)
+            L["res0"].box(rx - 0.035, rx + 0.035, ya, yb, zf + 0.22, zf + 0.36, mat="metal", uv=DT.UV_STEEL)
+        L["res1"].box(xc - 1.3, xc + 1.3, ya, yb, zf, zf + 0.3, mat="rubble", uv=UV_RUBBLE)
     for k in ("geo", "fire"):
         for xc in xs:
             L[k].lod.box(xc - 1.3, xc + 1.3, y0, y1, zf, zf + 0.3, **({"mat": "pen_concrete"} if k == "fire" else {}))

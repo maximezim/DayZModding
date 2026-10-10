@@ -16,7 +16,6 @@ Geometry LOD:
             or an oversized collision box (the player bumps into air).
 Exit 1 on any failure. The vertex rule is measured on what the exporter writes (proxy parts included, D96).
 """
-import math
 import os
 import sys
 import time

@@ -773,7 +773,7 @@ def shelf_unit(L, x0, x1, y0, y1, z, h=1.9, goods=True):
                 if h01("goods", round(x0, 2), round(y0, 2), k, i) < 0.75:
                     ga = a0 + 0.08 + i * (a1 - a0 - 0.16) / n
                     gb = 0.05 + 0.03 * h01("goodsy", round(x0, 2), round(y0, 2), k, i)   # not all flush at the front
-                    bx(L["res0"], ga, ga + (a1 - a0 - 0.2) / n, b0 + gb, b1 - gb, zz + 0.03,
+                    bx(L["res0"], ga, ga + (a1 - a0 - 0.16) / n - 0.03, b0 + gb, b1 - gb, zz + 0.03,   # 3 cm apart (D96)
                        zz + 0.03 + gh * (0.8 + 0.2 * h01("goodsh", round(x0, 2), k, i)),
                        mat="textile" if (i + k) % 3 == 0 else "wood",
                        uv=DT.UVTrim(S.MATERIALS["textile"]["bands"]["rug_a"], 0.6, 0.3) if (i + k) % 3 == 0 else UV_LAMINATE)
@@ -1000,7 +1000,8 @@ def window(L, P, sd, a0, a1, s0, s1, skin, key, rec, residential, frame_uv):
         for i in range(n):
             z = s0 + 0.08 + (i * (s1 - s0 - 0.25) / (n - 1) if n > 1 else (s1 - s0 - 0.34) / 2)
             tilt = 0.04 * (h01(P.name, "board", sd.key, key, i) - 0.5)
-            dd = 0.016 * (i % 2)                                   # D96: overlapping boards alternate in depth (no z-fight)
+            dd = 0.022 * (i % 2)                                   # D96: overlapping boards alternate in depth (no z-fight;
+                                                                   # -0.052 clears the damp decal at -0.045)
             for k in ("res0", "res1"):
                 sd.box(L[k], a0 - 0.08, a1 + 0.08, z + tilt, z + 0.18 + tilt, -0.03 - dd, -dd, mat="wood", uv=UV_OAK)
             sd.box(L["fire"], a0 - 0.08, a1 + 0.08, z, z + 0.18, -0.03, 0.0, mat="pen_wood")
@@ -1499,10 +1500,10 @@ def front_door(L, P):
     shopfront = P.A.get("ground") == "shopfront" and "S" in P.A.get("shop_sides", ())
     for k in () if shopfront else ("res0", "res1"):                     # D96: the shop glazing frames its door already
         sd = FSide(P, "S")
-        # D96: 1 cm into the opening and 2 cm proud of both wall faces (flush, every face z-fought the wall)
-        sd.box(L[k], d0 - 0.05, d0 + 0.01, 0.0, dh + 0.05, -0.02, WT + 0.02, mat="metal", uv=DT.UV_PAINT, skip=("-z",))
-        sd.box(L[k], d1 - 0.01, d1 + 0.05, 0.0, dh + 0.05, -0.02, WT + 0.02, mat="metal", uv=DT.UV_PAINT, skip=("-z",))
-        sd.box(L[k], d0 + 0.01, d1 - 0.01, dh - 0.01, dh + 0.05, -0.02, WT + 0.02, mat="metal", uv=DT.UV_PAINT)
+        # D96: 1 cm into the opening, 3 cm proud outside (past the decals) and 2 cm inside (flush, every face z-fought the wall)
+        sd.box(L[k], d0 - 0.05, d0 + 0.01, 0.0, dh + 0.05, -0.03, WT + 0.02, mat="metal", uv=DT.UV_PAINT, skip=("-z",))
+        sd.box(L[k], d1 - 0.01, d1 + 0.05, 0.0, dh + 0.05, -0.03, WT + 0.02, mat="metal", uv=DT.UV_PAINT, skip=("-z",))
+        sd.box(L[k], d0 + 0.01, d1 - 0.01, dh - 0.01, dh + 0.05, -0.03, WT + 0.02, mat="metal", uv=DT.UV_PAINT)
     if P.state == 2:
         return
     name = "door_front"
@@ -2553,13 +2554,13 @@ def bell_tower(L, P):
             L["res0"].quad(pts, nrm, "glassfar", UV_GLASS, double=True)          # D91: opaque both ways
             L["res1"].quad(pts, nrm, "glassfar", UV_GLASS, double=True)
     clock(L, 0.0, ty0 - 0.06, zt - 6.0, 0.8)
-    green = UVBand(S.MATERIALS["rust"]["bands"]["green"], 1.0)
     s = tx - 0.1
     spire = [(-s, ty0 + 0.1, zt + 0.35), (s, ty0 + 0.1, zt + 0.35), (s, ty1 - 0.1, zt + 0.35), (-s, ty1 - 0.1, zt + 0.35),
              (0.0, (ty0 + ty1) / 2, zt + 7.5)]
     sf = [(0, 1, 2, 3), (0, 1, 4), (1, 2, 4), (2, 3, 4), (3, 0, 4)]
     for k in ("res0", "res1", "res2", "res3", "geo", "view", "fire", "shadow"):
-        L[k].solid(spire, sf, **kw_for(k, "rust", green, "metal"))
+        L[k].solid(spire, sf, **kw_for(k, "roofslate", UVWorld(2.5), "metal"))   # D96: slate spire (the green paint band
+                                                                                  # stretched up 7 m)
     yc = (ty0 + ty1) / 2
     L["res0"].box(-0.04, 0.04, yc - 0.04, yc + 0.04, zt + 7.4, zt + 8.6, mat="metal", uv=DT.UV_STEEL)     # cross
     L["res0"].box(-0.35, 0.35, yc - 0.04, yc + 0.04, zt + 8.1, zt + 8.18, mat="metal", uv=DT.UV_STEEL)

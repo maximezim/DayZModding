@@ -245,6 +245,19 @@ class Lod:
                             q = [(a, y0, zz), (b, y0, zz), (b, y1, zz), (a, y1, zz)]
                         self._add_face(q, out, mat, uv, sel)
                     continue
+            if key in ("-x", "+x", "-y", "+y") and isinstance(uv, UVBand):
+                # D96: a tall face with a band texture (roller shutter, 4.5 m) is cut into horizontal strips so the band
+                # is not stretched over the whole height (same test as test_quality smear)
+                h = z1 - z0
+                w = (y1 - y0) if key in ("-x", "+x") else (x1 - x0)
+                s0, s1 = 1.0 / uv.scale, (uv.v1 - uv.v0) / h
+                if s1 < BAND_MIN and s1 / s0 < 0.03 and h <= 4.0 * w:
+                    n = min(64, int(math.ceil(h * max(BAND_MIN, 0.03 * s0) * 1.5 / (uv.v1 - uv.v0))))
+                    for i in range(n):
+                        za, zb = z0 + i * h / n, z0 + (i + 1) * h / n
+                        q = [(p[0], p[1], za if p[2] == z0 else zb) for p in pts]
+                        self._add_face(q, out, mat, uv, sel)
+                    continue
             self._add_face(pts, out, mat, uv, sel)
 
     def wedge(self, x0, x1, y_low, y_high, z_base, z_low, z_high, mat=None, uv=None, sel=(), component=None):
