@@ -377,8 +377,12 @@ def main():
     fails = []
     if jobs > 1:
         import multiprocessing as mp
-        with mp.get_context("fork").Pool(jobs) as pool:
-            results = list(pool.imap_unordered(_scan, [(n, checks) for n in names]))
+        results = []
+        with mp.get_context("fork").Pool(jobs, maxtasksperchild=1) as pool:     # fresh worker per model (memory)
+            for r in pool.imap_unordered(_scan, [(n, checks) for n in names]):
+                results.append(r)
+                if "--report" in argv:
+                    print("  done %d/%d %s (%.0fs) %d" % (len(results), len(names), r[0], r[3], len(r[1])), flush=True)
     else:
         results = [scan(n, checks) for n in names]
     by = {}
