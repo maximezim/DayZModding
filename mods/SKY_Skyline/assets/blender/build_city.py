@@ -119,15 +119,17 @@ class RLod:
             if not self.ruin.inside(cx, cy):
                 self.lod.box(a, b, c, d, z0, z1, **kw)
                 continue
-            if z0 >= zc - 1e-6 and z1 - z0 <= 0.45:          # floors, sills, copings: fell
-                continue
             thin = min(x1 - x0, y1 - y0)
             wall = wall or any(abs(thin - t) < 0.011 for t in (WT, PT))   # wall / partition collision pieces too
+            # D96: a wall piece is only ever cut (the Geometry wall is split into rows around its openings; a 0.4 m row
+            # between a door head and a shop window "fell" as a sill while the one-box render pier over it stayed)
+            if z0 >= zc - 1e-6 and z1 - z0 <= 0.45 and not wall:   # floors, sills, copings: fell
+                continue
             if z0 >= zc - 1e-6 and z1 - z0 <= 1.25 and not wall:
                 continue                                       # D96: rails, desks, beds over the hole fell whole (a cut
                                                                # rail / desk left a collision box with nothing drawn on it)
             cut = self.ruin.cut(cx, cy)
-            if z0 >= zc - 1e-6 and min(z1, cut) - z0 < 0.25:  # D72: no sliver of furniture floating over the hole
+            if z0 >= zc - 1e-6 and min(z1, cut) - z0 < 0.25 and not wall:   # D72: no sliver of furniture over the hole
                 continue
             if z0 < cut:
                 self.lod.box(a, b, c, d, z0, min(z1, cut), **kw)

@@ -282,7 +282,9 @@ WIN-06 "Too many vertices"). Every generator follows these; `assets/blender/test
   outside through their cladding).
 - **Ruins stay consistent.** In the collapse zone, loose low parts (rails, desks, beds, shelves) fall whole;
   facade pieces (`wall_piece`, `wall=True`) and collision are cut at the same jagged height; a broken
-  window of a ruin opens its collision too; racks are cut at the collapse floor.
+  window of a ruin opens its collision too; racks are cut at the collapse floor. Wall and partition pieces
+  (wall-thick or `wall=True`) are only ever cut, never dropped as a sill or a sliver: the Geometry wall is
+  split into rows around its openings while the render pier over them is one box.
 - **Long thin and wide band faces.** `UVBand` runs U along the longest edge of a thin upright or diagonal
   (downpipes, braces), and `Lod.box` cuts a wide band face into strips (slab tops, roller shutters) so a
   band is never stretched under 0.1 UV per metre; atlas cells repeat per ring on lofted trunks (`BarkUV`).

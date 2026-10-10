@@ -76,6 +76,7 @@ overhang making a wedge slot) - fixed, all gates PASS. What it found and what ch
 | Racks / shelving: one collision box over open shelves; racks along Y built with 14 m solid side boards | `shelf_unit` along either axis, steel back panel, top deck, goods 3 cm apart; cut at a ruin's collapse floor |
 | Ruins: broken windows kept a collision pane (church lancets 10-20 m2 per wall, curtain bays 3 x 2.6 m) | a broken window of a ruin opens its collision (curtain bays: broken in any state); a boarded window whose boards fell with the collapse opens too |
 | Ruins: rails / desks / beds cut to stubs, render parts fell, collision stayed | low loose parts fall whole; facade pieces (`wall=True`) keep the jagged cut like the wall collision |
+| Ruined cafes (concealment): the Geometry wall is split into rows around its openings; a 0.4 m row between a door head and a shop window "fell" as a sill while the one-box render pier over it stayed (0.4 m of pier with no collision) | wall / partition pieces are only ever cut in a ruin: never "fell" as a sill, never dropped as a sliver |
 | Damaged buildings: broken panes | kept (vanilla), recorded by `window()` in `geo.kept_panes`, accepted by the gate |
 | Bridge ladder: collision wedge down to the ground under the nest (6 m invisible wall), no rungs | steel ship ladder, treads every 25 cm, thin slab collision (P73) |
 | Carousel: 5.6 m collision cylinder round a cone canopy; fence = 1 m thick bar | 8 sector slabs on the cone; 8 cm sheet under the rail (P73) |
