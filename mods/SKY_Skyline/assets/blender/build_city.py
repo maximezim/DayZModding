@@ -1036,7 +1036,7 @@ def window(L, P, sd, a0, a1, s0, s1, skin, key, rec, residential, frame_uv):
             state = "broken"                     # D96: its boards fell with the collapse; the opening is open
     if state == "broken" and P.state == 2 and getattr(P, "win_openings", None) is not None:
         P.win_openings.append((a0, a1, s0, s1))
-    elif state == "broken":                                                 # kept pane: recorded for test_quality
+    elif state in ("broken", "boarded"):                                    # kept pane: recorded for test_quality
         q = sd.rect(a0, a1, s0, s1, 0.0) + sd.rect(a0, a1, s0, s1, WT)
         g = getattr(L["geo"], "lod", L["geo"])
         if not hasattr(g, "kept_panes"):
@@ -1210,8 +1210,8 @@ def facade(L, P, key, lvl):
         if skin == "curtain":
             spand = 0.9
             for (a, b) in ((b0, b0 + 0.08), (b1 - 0.08, b1)):                           # mullions
-                for k in ("res0", "res1"):
-                    sd.box(L[k], a, b, z0, top, -0.06, 0.1, mat="metal", uv=DT.UV_ALU, skip=("-z", "+z"))
+                for k in ("res0", "res1"):                     # full wall depth (D96: an opened bay showed a 20 cm
+                    sd.box(L[k], a, b, z0, top, -0.06, WT, mat="metal", uv=DT.UV_ALU, skip=("-z", "+z"))   # bare reveal)
             # D96: Fire on the mullions (beside an open bay a drawn mullion without Fire was a slit); one 16 cm box per
             # bay boundary, the side's last edge closed by the last bay (perf M2: two 8 cm boxes per boundary)
             for (a, b) in ((b0 - 0.08, b0 + 0.08),) + (((b1 - 0.08, b1 + 0.08),) if i == len(bays) - 1 else ()):
@@ -4109,6 +4109,8 @@ def cinema_hall(L, P, r, z, top, lit):
             L[k].wedge(a0, a1, ty0, ty0 + n * depth, z - 0.25, z, ztop, **({"mat": "pen_concrete"} if k == "fire" else {}))
         for k in ("res0", "res1"):
             L[k].ramp(a0, a1, ty0, ty0 + n * depth, z + 0.004, ztop + 0.004, mat="carpet", uv=UV_CARPET)
+            L[k].wedge(a0, a1, ty0, ty0 + n * depth, z - 0.25, z, ztop, mat="concrete", uv=UV_REVEAL)   # D96: sides drawn
+                                                                                  # (seen through a ruin's open windows)
         L["road"].ramp(a0, a1, ty0, ty0 + n * depth, z, ztop, mat="road_int", uv=UV_TILE)
     cross = (x0, x1, ty0 + n * depth, y1)
     for k in ("res0", "res1", "geo", "view", "fire"):
@@ -4328,7 +4330,7 @@ def escalators(L, P, l):
                 c = (a0 + a1) / 2
                 gv = [(c - 0.01, y0, za + 0.15), (c - 0.01, y1, zb + 0.15), (c - 0.01, y1, zb + 1.0), (c - 0.01, y0, za + 1.0),
                       (c + 0.01, y0, za + 0.15), (c + 0.01, y1, zb + 0.15), (c + 0.01, y1, zb + 1.0), (c + 0.01, y0, za + 1.0)]
-                for kk in ("geo", "fire"):
+                for kk in ("geo", "fire") if P.state < 2 else ():               # ruin: the glass is gone (D96)
                     L[kk].solid(gv, faces, **({"mat": "pen_glass"} if kk == "fire" else {}))
                 if P.state < 2:
                     L["res0"].quad([gv[0], gv[1], gv[2], gv[3]], (1, 0, 0), "glass", UV_GLASS, double=True)
