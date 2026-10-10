@@ -41,8 +41,6 @@ VERTEX_LIMIT = 60000   # render vertices per LOD (engine hard limit 65,535; marg
 GHOST_DIST = 0.2       # m: a collision face this far from every render face is not seen (glass sits up to 14 cm in a wall)
 GHOST_AREA = 1.0       # m2 of unseen collision surface per component (a person-size patch: "big collisions"; jagged ruin
                        # wall tops leave 0.5-1 m2 slivers where the render and collision cuts differ)
-GHOST_WALL = 2.0       # m2 a wall (>= 2 m tall) may keep unseen: one broken window keeps its collision pane (vanilla)
-GHOST_FRAC = 0.02      # and more than this share of the component (a sliver along a 110 m2 curtain wall is not a wall)
 GHOST_LOW = 1.25       # m: a component this low whose top is seen is a rail / desk / bench: one box over bars or legs
 NO_TEX = {"lamp", "lamp_cool"}
 ACCEPTED = {}          # (model, check) -> reason
@@ -205,6 +203,7 @@ def ghosts(geo, res, step=0.15, h=0.1):
         return useen[inv.ravel()]
     seen = seen_at(pts)
     seen[~seen] = seen_at(pts[~seen] + nrm[~seen] * 0.12)   # render just outside a smaller collision (octagon in a 16-gon)
+    direct = seen.copy()                          # seen without probing through the solid (for the low-part rule)
     ext = np.array([min(np.ptp([geo.verts[i] for i in geo.groups[n]], 0)) for n in names])
     half = np.minimum(0.6, ext[comp] / 2)[:, None]
     full = np.minimum(0.6, ext[comp] * 0.95)[:, None]
@@ -218,32 +217,53 @@ def ghosts(geo, res, step=0.15, h=0.1):
         seen |= np.all((pts > lo_) & (pts < hi_), axis=1)
     rest = np.nonzero(~seen)[0]
     if len(rest):                                 # a joint against the next collision piece (a wall cut into cells) is
-        q = pts[rest] + nrm[rest] * 0.02          # inside the wall: nobody sees it (D96)
+        q = pts[rest] + nrm[rest] * 0.02          # inside the wall: nobody sees it (D96). Inside = within every face
+        planes = {}                               # plane of the other convex component (sec M3b: a bounding box of a
+        for fidx, _m, _uv in geo.faces:           # sloped slab hid the collision near it)
+            ci = comp_of.get(fidx[0])
+            if ci is None:
+                continue
+            pp = np.asarray([geo.verts[i] for i in fidx], float)
+            n_ = newell(pp)
+            if n_ is None:
+                continue
+            cen = np.mean([geo.verts[i] for i in geo.groups[names[ci]]], 0)
+            if n_ @ (pp.mean(0) - cen) < 0:
+                n_ = -n_
+            planes.setdefault(ci, []).append((n_, float(n_ @ pp[0])))
         lo = np.array([np.min([geo.verts[i] for i in geo.groups[n]], 0) for n in names]) - 0.005
         hi = np.array([np.max([geo.verts[i] for i in geo.groups[n]], 0) for n in names]) + 0.005
         inner = np.zeros(len(rest), bool)
         for ci in range(len(names)):
             m = (comp[rest] != ci) & ~inner
             if m.any():
-                inner[m] = np.all((q[m] > lo[ci]) & (q[m] < hi[ci]), axis=1)
+                m[m] = np.all((q[m] > lo[ci]) & (q[m] < hi[ci]), axis=1)
+            if m.any() and ci in planes:
+                ns = np.array([n_ for n_, _d in planes[ci]])
+                ds = np.array([d for _n, d in planes[ci]])
+                inner[m] = np.all(q[m] @ ns.T - ds <= 0.005, axis=1)
         seen[rest[inner]] = True
     miss = ~seen
     zlo = np.array([min(geo.verts[i][2] for i in geo.groups[n]) for n in names])
     zhi = np.array([max(geo.verts[i][2] for i in geo.groups[n]) for n in names])
     top = (nrm[:, 2] > 0.9) & (pts[:, 2] >= zhi[comp] - 0.02)
     top_n = np.bincount(comp[top], minlength=len(names))
-    top_seen = np.bincount(comp[top & seen], minlength=len(names))
+    top_seen = np.bincount(comp[top & direct], minlength=len(names))
+    side = (np.abs(nrm[:, 2]) < 0.5) & (pts[:, 2] >= zlo[comp] + 0.25)   # above the floor's own neighbourhood
+    side_n = np.bincount(comp[side], minlength=len(names))
+    side_seen = np.bincount(comp[side & direct], minlength=len(names))
     tot = np.bincount(comp, minlength=len(names))
     bad = np.bincount(comp[miss], minlength=len(names))
     out = []
     for ci, name in enumerate(names):
         if tot[ci] == 0:
             continue
-        if zhi[ci] - zlo[ci] <= GHOST_LOW and top_n[ci] and top_seen[ci] >= 0.5 * top_n[ci]:
-            continue                             # rail over bars, desk over legs: you see what stops you (D96)
+        if (zhi[ci] - zlo[ci] <= GHOST_LOW and top_n[ci] and top_seen[ci] >= 0.5 * top_n[ci]
+                and side_n[ci] and side_seen[ci] >= 0.1 * side_n[ci]):
+            continue                             # rail over bars, desk over legs: you see what stops you (D96); some of
+                                                 # its sides must be drawn too (sec M3a: an invisible knee-high block)
         unseen = area_c[ci] * bad[ci] / tot[ci]
-        lim = GHOST_WALL if zhi[ci] - zlo[ci] >= 2.0 else GHOST_AREA
-        if unseen > lim and unseen > GHOST_FRAC * area_c[ci]:
+        if unseen > GHOST_AREA:                  # (sec M3c: no wall / fraction allowance - kept panes are recorded)
             c = pts[miss & (comp == ci)].mean(0)
             out.append((name, round(float(unseen), 2), tuple(np.round(c, 2))))
     return out
@@ -386,6 +406,19 @@ def selftest():
     r3.box(4, 6, 0, 0.08, 2.44, 2.5, mat="metal")
     gh3 = ghosts(g3, r3)
     chk([c for c, *_ in gh3] == ["Component02"], "a rail over bars is not a ghost, a 2.5 m wall with only a top is")
+    g4 = Lod("geo", LOD_GEOMETRY)
+    g4.box(0, 2, 0, 2, 0, 0.5)                                                  # invisible knee-high block
+    r4 = Lod("res0", LOD_RES)
+    r4.box(-3, 5, -3, 5, -0.2, 0.0, mat="concrete")                             # on a drawn floor
+    chk([c for c, *_ in ghosts(g4, r4)] == ["Component01"], "an invisible 0.5 m block on a drawn floor is a ghost")
+    g5 = Lod("geo", LOD_GEOMETRY)
+    g5.solid([(0, 0, 0), (0, 4, 4), (0, 4, 3.8), (0, 0, -0.2), (0.6, 0, 0), (0.6, 4, 4), (0.6, 4, 3.8), (0.6, 0, -0.2)],
+             [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)])  # sloped slab
+    g5.box(0.0, 0.6, 3.0, 4.0, 0.0, 1.5)                                         # undrawn box under its high end
+    r5 = Lod("res0", LOD_RES)
+    r5.solid([(0, 0, 0), (0, 4, 4), (0, 4, 3.8), (0, 0, -0.2), (0.6, 0, 0), (0.6, 4, 4), (0.6, 4, 3.8), (0.6, 0, -0.2)],
+             [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)], mat="metal")
+    chk([c for c, *_ in ghosts(g5, r5)] == ["Component02"], "a box inside a sloped slab's bounding box is still a ghost")
     print("QUALITY SELFTEST:", "PASS" if ok else "FAILED")
     return ok
 

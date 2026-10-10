@@ -609,7 +609,7 @@ def build_landfill():
                 p0 = (s0, c, zz) if axis == "x" else (c, s0, zz)
                 p1 = (s1, c, zz) if axis == "x" else (c, s1, zz)
                 bar(L["res0"], p0, p1, 0.006, "metal", DT.UV_STEEL)          # a collision you could not see)
-            g = (s0, s1, c - 0.03, c + 0.03) if axis == "x" else (c - 0.03, c + 0.03, s0, s1)
+            g = (s0, s1, c - 0.08, c + 0.08) if axis == "x" else (c - 0.08, c + 0.08, s0, s1)   # 16 cm (vehicles, sec L6)
             L["geo"].box(*g, 0.0, 2.2)                                           # wire fence blocks walking, not bullets
     for gx in gate:                                                              # gate posts + sign
         box_all(L, ALL, (gx - 0.15, gx + 0.15, -hd + 0.05, -hd + 0.35, 0.0, 3.0), "metal", DT.UV_PAINT, "metal")
@@ -1393,11 +1393,12 @@ def build_bridge():
             L["res0"].box(x - 0.27, x + 0.27, ty - 0.07, ty + 0.07, tz - 0.03, tz, mat="metal", uv=DT.UV_STEEL)
         slab = [(xx, yy, zz) for xx in (x - 0.3, x + 0.3) for (yy, zz) in ((ya, za), (yb, zb), (yb, zb - 0.2), (ya, za - 0.2))]
         L["geo"].solid(slab, [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)])
+        yb0 = ya + (yb - ya) * 0.5 / (zb - za)                                    # sec L1: closed foot (no acute slot
+        L["geo"].box(x - 0.3, x + 0.3, ya, yb0, 0.0, za + 0.5)                    # between the slab and the deck)
+        L["res0"].box(x - 0.3, x + 0.3, ya, yb0, 0.0, za + 0.5, mat="metal", uv=DT.UV_STEEL)
     L["res3"].box(-hl, hl, -hw, hw, -1.2, 0.2, mat="concrete", uv=UV_CONC)
     for sy in (-hw + 0.15, hw - 0.15):
-        for j in range(8):                                                       # D96: 8 bands (one band over 6 m streaked)
-            L["res3"].box(-hl, hl, sy - 0.2, sy + 0.2, 0.2 + j * 0.75, 0.95 + j * 0.75, mat="rust", uv=green,
-                          skip=("-z", "+z") if j < 7 else ("-z",))
+        L["res3"].box(-hl, hl, sy - 0.2, sy + 0.2, 0.2, 6.2, mat="rust", uv=green, skip=("-z",))   # silhouette LOD
     L["mem"].lod.point("center", (0.0, 0.0, 0.0))
     return finish(L, 3000000.0)
 

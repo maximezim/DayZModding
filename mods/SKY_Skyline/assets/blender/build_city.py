@@ -174,6 +174,15 @@ class RLod:
         if self._centroid_ok(verts):
             self.lod.solid(verts, faces, mat, uv, sel, component)
 
+    def loft(self, rings, **kw):
+        """D96 sec L3: centroid rule (cushions, mattresses, trunks floated over collapse holes)."""
+        if self._centroid_ok([p for r in rings for p in r]):
+            self.lod.loft(rings, **kw)
+
+    def ramp(self, x0, x1, y0, y1, z0, z1, **kw):
+        if self._centroid_ok([((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2)]):
+            self.lod.ramp(x0, x1, y0, y1, z0, z1, **kw)
+
     def wedge(self, x0, x1, y_low, y_high, z_base, z_low, z_high, **kw):
         """D96: same centre rule as solids (a wedge passed through whole: an escalator's collision outlived its
         cladding in a collapse)."""
@@ -196,8 +205,8 @@ class RLod:
         edges and the cut-cell lines, so the part outside a collapse stays and the part over it falls per cell
         (kept whole by its centre, a 10 m cornice floated over the broken wall)."""
         cuts = {a0, a1} | {v for v in (lo, hi) if a0 < v < a1}
-        k = math.floor(a0 / CUT_CELL) + 1
-        while k * CUT_CELL < a1:
+        k = math.floor(max(a0, lo) / CUT_CELL) + 1                   # cell lines only over the region (perf L1)
+        while k * CUT_CELL < min(a1, hi):
             cuts.add(k * CUT_CELL)
             k += 1
         cs = sorted(cuts)
@@ -214,22 +223,37 @@ class RLod:
                 for j in range(math.floor(max(y0, r[2]) / C), math.floor((min(y1, r[3]) - 1e-6) / C) + 1)]
         return zc <= min(cuts)
 
+    def _shared(self, key, mid, lo, hi, decide):
+        """D96 sec M4: one keep / drop decision per (key, cut cell) for every LOD of a piece whose render and
+        collision profiles differ (roof slopes: eaves); the first LOD asked (collision, see pitched_roof) decides."""
+        if key is None:
+            return decide()
+        ck = (key, math.floor(mid / CUT_CELL), lo <= mid <= hi)
+        cache = self.ruin.__dict__.setdefault("keep_cache", {})
+        if ck not in cache:
+            cache[ck] = decide()
+        return cache[ck]
+
     def extrude_x(self, profile, x0, x1, **kw):
+        key = kw.pop("ruin_key", None)
         u = [p[0] for p in profile]
         pz = self._pc(profile)[1]
         r = self.ruin.region
         runs = self._runs(x0, x1, r[0], r[1]) if r is not None else [(x0, x1)]
         for a, b in runs:
-            if b - a > 1e-4 and self._keep(a, b, min(u), max(u), pz):
+            if b - a > 1e-4 and self._shared(key, (a + b) / 2, r[0] if r else 0, r[1] if r else 0,
+                                             lambda: self._keep(a, b, min(u), max(u), pz)):
                 self.lod.extrude_x(profile, a, b, **kw)
 
     def extrude_y(self, profile, y0, y1, **kw):
+        key = kw.pop("ruin_key", None)
         u = [p[0] for p in profile]
         pz = self._pc(profile)[1]
         r = self.ruin.region
         runs = self._runs(y0, y1, r[2], r[3]) if r is not None else [(y0, y1)]
         for a, b in runs:
-            if b - a > 1e-4 and self._keep(min(u), max(u), a, b, pz):
+            if b - a > 1e-4 and self._shared(key, (a + b) / 2, r[2] if r else 0, r[3] if r else 0,
+                                             lambda: self._keep(min(u), max(u), a, b, pz)):
                 self.lod.extrude_y(profile, a, b, **kw)
 
 
@@ -805,6 +829,8 @@ def shelf_unit(L, x0, x1, y0, y1, z, h=1.9, goods=True):
     gap = (h - 0.2) / 3.5
     bm = (b0 + b1) / 2
     bx(L["res0"], a0 + 0.04, a1 - 0.04, bm - 0.008, bm + 0.008, z + 0.18, z + h, mat="metal", uv=DT.UV_STEEL)
+    bx(L["res0"], a0 + 0.04, a1 - 0.04, b0 + 0.02, b1 - 0.02, z, z + 0.15, mat="metal", uv=DT.UV_PAINT, skip=("-z", "+z"))
+    # (D96 sec L7: kick plate - a 15 cm see-through slit under the bottom shelf over solid collision)
     if 0.45 + 3 * gap < h - 0.06:                                            # top deck clears the top shelf's goods
         bx(L["res0"], a0 + 0.04, a1 - 0.04, b0, b1, z + h - 0.03, z + h - 0.001, mat="metal", uv=DT.UV_PAINT)
     for k in range(4):
@@ -1005,7 +1031,8 @@ def window(L, P, sd, a0, a1, s0, s1, skin, key, rec, residential, frame_uv):
     rg = P.ruin.region
     if state == "boarded" and P.state == 2 and rg is not None and s1 > rg[4]:
         q = sd.rect(a0, a1, s0, s1, 0.0)
-        if P.ruin.inside(sum(p[0] for p in q) / 4, sum(p[1] for p in q) / 4):
+        qx, qy = [p[0] for p in q], [p[1] for p in q]
+        if min(qx) < rg[1] + 0.05 and rg[0] - 0.05 < max(qx) and min(qy) < rg[3] + 0.05 and rg[2] - 0.05 < max(qy):
             state = "broken"                     # D96: its boards fell with the collapse; the opening is open
     if state == "broken" and P.state == 2 and getattr(P, "win_openings", None) is not None:
         P.win_openings.append((a0, a1, s0, s1))
@@ -1053,7 +1080,7 @@ def window(L, P, sd, a0, a1, s0, s1, skin, key, rec, residential, frame_uv):
             tilt = 0.04 * (h01(P.name, "board", sd.key, key, i) - 0.5)
             dd = 0.022 * (i % 2)                                   # D96: overlapping boards alternate in depth (no z-fight;
                                                                    # -0.052 clears the damp decal at -0.045)
-            for k in ("res0", "res1"):
+            for k in ("res0", "res1") if (i % max(1, n // 4) == 0 or n <= 4) else ("res0",):   # Res1: <= ~4 boards (perf M4)
                 sd.box(L[k], a0 - 0.08, a1 + 0.08, z + tilt, z + 0.18 + tilt, -0.035 - dd, -0.005 - dd, mat="wood", uv=UV_OAK)
             sd.box(L["fire"], a0 - 0.08, a1 + 0.08, z, z + 0.18, -0.03, 0.0, mat="pen_wood")
         # D90: the gaps between the boards show the room in Res0 / Res1; the hollow far LODs get a dark backing
@@ -1169,12 +1196,13 @@ def facade(L, P, key, lvl):
             sd.box(L["res0"], w0 - 0.1, w1 + 0.1, z0 + dh, z0 + dh + 0.4, -0.25, 0.0, mat="metal", uv=DT.UV_PAINT)
             continue
         if skin == "open":
-            # parking deck: columns + 1.0 m spandrel (vehicle barrier), open above
+            # parking deck: columns + 1.0 m spandrel (vehicle barrier), open above; D96 sec H1: inner faces drawn
+            # (one-sided pieces let a player behind them see out unseen)
             col, spn = 0.4, z0 + 1.0
-            wall_piece(L, sd, b0, b0 + col, z0, top, mat, uv, pen, None)
-            wall_piece(L, sd, b1 - col, b1, z0, top, mat, uv, pen, None)
-            wall_piece(L, sd, b0 + col, b1 - col, z0, spn, mat, uv, pen, None)
-            wall_piece(L, sd, b0 + col, b1 - col, top - 0.45, top, mat, uv, pen, None)      # downstand beam
+            wall_piece(L, sd, b0, b0 + col, z0, top, mat, uv, pen, (mat, uv))
+            wall_piece(L, sd, b1 - col, b1, z0, top, mat, uv, pen, (mat, uv))
+            wall_piece(L, sd, b0 + col, b1 - col, z0, spn, mat, uv, pen, (mat, uv))
+            wall_piece(L, sd, b0 + col, b1 - col, top - 0.45, top, mat, uv, pen, (mat, uv))      # downstand beam
             openings.append((b0 + col, b1 - col, spn, top - 0.45))
             for zz in (spn + 0.25, spn + 0.6):                                      # steel guard rails
                 sd.box(L["res0"], b0 + col, b1 - col, zz, zz + 0.06, 0.05, 0.12, mat="metal", uv=DT.UV_PAINT)
@@ -1184,8 +1212,10 @@ def facade(L, P, key, lvl):
             for (a, b) in ((b0, b0 + 0.08), (b1 - 0.08, b1)):                           # mullions
                 for k in ("res0", "res1"):
                     sd.box(L[k], a, b, z0, top, -0.06, 0.1, mat="metal", uv=DT.UV_ALU, skip=("-z", "+z"))
-                sd.box(L["fire"], a, b, z0, top, -0.06, 0.1, mat="pen_metal")   # D96: beside an open bay a drawn
-                                                                                  # mullion without Fire was a slit
+            # D96: Fire on the mullions (beside an open bay a drawn mullion without Fire was a slit); one 16 cm box per
+            # bay boundary, the side's last edge closed by the last bay (perf M2: two 8 cm boxes per boundary)
+            for (a, b) in ((b0 - 0.08, b0 + 0.08),) + (((b1 - 0.08, b1 + 0.08),) if i == len(bays) - 1 else ()):
+                sd.box(L["fire"], max(a, sd.a0), min(b, sd.a1), z0, top, -0.06, 0.1, mat="pen_metal")
             wall_piece(L, sd, b0 + 0.08, b1 - 0.08, top - spand + SLAB, top, "metal", DT.UV_PAINT, "metal", inner)
             if door_here:
                 window(L, P, sd, b0 + 0.08, P.door[0], 0.0, top - spand + SLAB, skin, bkey + ("l",), rec, False, DT.UV_ALU)
@@ -1474,6 +1504,8 @@ def slabs(L, P):
         for (x0, x1, y0, y1) in rects_minus(-hw, hw, -hd, hd, holes):
             for k in ("res0", "res1", "res2", "geo", "view", "fire"):
                 kw = kw_for(k, "concrete", UV_REVEAL, "concrete")
+                if k == "res2" and P.state < 2:                  # perf M1: behind opaque far glass nobody sees a floor;
+                    kw["skip"] = ("-z",) if l == n else ("+z", "-z")   # the roof keeps its top (ruins keep all: open corner)
                 L[k].box(x0, x1, y0, y1, z - SLAB, z, **kw)
             if l < n:
                 L["road"].hquad(max(x0, P.ix0), min(x1, P.ix1), max(y0, P.iy0), min(y1, P.iy1), z, mat="road_int", uv=UV_TILE)
@@ -2390,13 +2422,16 @@ def cells_bars(L, P, l):
 
 
 def rail(L, x0, x1, y0, y1, z, h=1.05, glass=False):
-    """Guard rail / balustrade: one collision box, steel top rail, glass infill or bars (Res0)."""
-    for k in ("geo", "fire"):
-        L[k].box(x0, x1, y0, y1, z, z + h, **({"mat": "pen_metal"} if k == "fire" else {}))
+    """Guard rail / balustrade: one Geometry box (fall protection), steel top rail, glass infill or bars (Res0).
+    D96 sec M2: Fire only on what is drawn (top rail, bars, glass as pen_glass) - a solid Fire box made the open bars
+    and the glass bullet-proof."""
+    L["geo"].box(x0, x1, y0, y1, z, z + h)
+    L["fire"].box(x0, x1, y0, y1, z + h - 0.06, z + h, mat="pen_metal")
     for k in ("res0", "res1"):
         L[k].box(x0, x1, y0, y1, z + h - 0.06, z + h, mat="metal", uv=DT.UV_STEEL)
     along_x = (x1 - x0) >= (y1 - y0)
     if glass:
+        L["fire"].box(x0, x1, y0, y1, z + 0.05, z + h - 0.06, mat="pen_glass")
         c = (y0 + y1) / 2 if along_x else (x0 + x1) / 2
         pts = ([(x0, c, z + 0.05), (x1, c, z + 0.05), (x1, c, z + h - 0.06), (x0, c, z + h - 0.06)] if along_x else
                [(c, y0, z + 0.05), (c, y1, z + 0.05), (c, y1, z + h - 0.06), (c, y0, z + h - 0.06)])
@@ -2404,6 +2439,8 @@ def rail(L, x0, x1, y0, y1, z, h=1.05, glass=False):
     else:
         L["res0"].box(x0, x1, y0, y1, z + 0.1, z + 0.16, mat="metal", uv=DT.UV_STEEL)
         L["res0"].box(x0, x1, y0, y1, z + 0.52, z + 0.57, mat="metal", uv=DT.UV_STEEL, skip=("-x", "+x") if along_x else ("-y", "+y"))
+        for (za, zb) in ((z + 0.1, z + 0.16), (z + 0.52, z + 0.57)):
+            L["fire"].box(x0, x1, y0, y1, za, zb, mat="pen_metal")
         n = int(((x1 - x0) if along_x else (y1 - y0)) / 1.2)
         for i in range(n + 1):
             a = (x0 if along_x else y0) + i * (((x1 - x0) if along_x else (y1 - y0)) / max(1, n))
@@ -2737,7 +2774,7 @@ def pitched_roof(L, P, mat_uv):
         return top - 0.05 + (hs + ov - abs(v)) * math.tan(math.radians(pitch))
     for s in (-1, 1):                                                       # the two slopes
         for a, b in zip(us, us[1:]):
-            for k in ("res0", "res1", "res2", "geo", "view", "fire", "shadow"):
+            for k in ("geo", "view", "fire", "shadow", "res0", "res1", "res2"):  # collision first: it decides the ruin cut
                 vis = k.startswith("res")
                 # eaves overhang is visual: collision stays inside the footprint (test_city)
                 y_e = s * (hs + ov) if vis else s * hs
@@ -2747,6 +2784,8 @@ def pitched_roof(L, P, mat_uv):
                 if b2 - a2 < 0.05:
                     continue
                 kw = {"mat": cover, "uv": ruv} if vis else kw_for(k, cover, ruv, "metal")
+                if isinstance(L[k], RLod):
+                    kw["ruin_key"] = ("roof", s)
                 ext(L[k], prof, a2, b2, **kw)
     for su in (-1, 1):                                                      # gable walls
         u0, u1 = sorted((su * hl, su * (hl - WT)))
@@ -4265,7 +4304,7 @@ def escalators(L, P, l):
     for (k, x0, x1, y0, y1) in P.escalators:
         if k == l:
             za, zb = P.levels[k][2], P.levels[k + 1][2]
-            if rg is not None and P.ruin.inside((x0 + x1) / 2, (y0 + y1) / 2) and zb > rg[4]:
+            if rg is not None and x0 < rg[1] and rg[0] < x1 and y0 < rg[3] and rg[2] < y1 and zb > rg[4]:
                 continue                         # D96: in the collapse it falls whole (the wedge outlived its treads)
             for kk in ("geo", "fire", "view"):
                 kw = {"mat": "pen_metal"} if kk == "fire" else {}
@@ -4320,8 +4359,7 @@ def skylight(L, P):
             L["res0"].quad(q, (0, 0, 1), "glass", UV_GLASS, double=True)
             L["res1"].quad(q, (0, 0, 1), "glass", UV_GLASS, double=True)
         L["res2"].quad(q, (0, 0, 1), "glassfar", UV_GLASS)
-        if P.state == 2:                                                         # ruin: only a few panes left
-            L["res0"].quad(q, (0, 0, 1), "metal", DT.UV_STEEL) if h01(P.name, "sky", a[0]) < 0.2 else None
+        # (D96 sec M1: the ruin's leftover one-sided panes went - seen from the roof only, no collision: a fall trap)
     for (yy, nrm) in ((y0, -1), (y1, 1)):                                        # gable ends
         for (a, b) in zip(pts, pts[1:]):
             tri = [(a[0], yy, top + 0.2), (b[0], yy, top + 0.2), (b[0], yy, b[1]), (a[0], yy, a[1])]

@@ -227,7 +227,8 @@ class Lod:
         for key, (pts, out) in quads.items():
             if key in skip:
                 continue
-            if key in ("-z", "+z") and isinstance(uv, UVBand):
+            near = self.lod == LOD_RES and self.distance <= 1.0              # Res0 / Res1 only (perf M1: Res2 is seen
+            if near and key in ("-z", "+z") and isinstance(uv, UVBand):        # from afar)
                 # D96: a wide top / bottom with a band texture is cut into band-wide strips across its short side
                 # (one face stretched the band over up to 40 m)
                 bm = 0.98 * (uv.v1 - uv.v0) * uv.scale
@@ -245,7 +246,7 @@ class Lod:
                             q = [(a, y0, zz), (b, y0, zz), (b, y1, zz), (a, y1, zz)]
                         self._add_face(q, out, mat, uv, sel)
                     continue
-            if key in ("-x", "+x", "-y", "+y") and isinstance(uv, UVBand):
+            if near and key in ("-x", "+x", "-y", "+y") and isinstance(uv, UVBand):
                 # D96: a tall face with a band texture (roller shutter, 4.5 m) is cut into horizontal strips so the band
                 # is not stretched over the whole height (same test as test_quality smear)
                 h = z1 - z0
@@ -442,21 +443,39 @@ def _column_spans(openings, a, b, z0, z1):
         spans.append((cur, z1))
     return spans
 
+def _wall_rects(a0, a1, z0, z1, openings):
+    """Solid (a, z) rectangles of a wall around its openings: by columns (one per opening edge) or by rows (sill band,
+    piers, head band), whichever needs fewer boxes (D96 perf M3: a run of k windows is 3k + 1 columns but k + 3 rows;
+    a ruin opening every broken window doubled the Geometry components)."""
+    xs = sorted({a0, a1} | {o[0] for o in openings} | {o[1] for o in openings})
+    cols = [(a, b, c0, c1) for a, b in zip(xs, xs[1:]) for c0, c1 in _column_spans(openings, a, b, z0, z1)]
+    zs = sorted({z0, z1} | {min(max(o[2], z0), z1) for o in openings} | {min(max(o[3], z0), z1) for o in openings})
+    rows = []
+    for c0, c1 in zip(zs, zs[1:]):
+        if c1 - c0 < 1e-6:
+            continue
+        holes = sorted((o[0], o[1]) for o in openings if o[2] <= c0 + 1e-6 and o[3] >= c1 - 1e-6)
+        cur = a0
+        for h0, h1 in holes:
+            if h0 > cur + 1e-6:
+                rows.append((cur, min(h0, a1), c0, c1))
+            cur = max(cur, h1)
+        if cur < a1 - 1e-6:
+            rows.append((cur, a1, c0, c1))
+    return rows if len(rows) < len(cols) else cols
+
+
 def wall_x(lod, x0, x1, y0, y1, z0, z1, openings=(), **kw):
     """Wall running along X (thickness y0..y1) with rectangular openings
     [(ox0, ox1, oz0, oz1), ...]; emitted as convex boxes."""
-    xs = sorted({x0, x1} | {o[0] for o in openings} | {o[1] for o in openings})
-    for a, b in zip(xs, xs[1:]):
-        for c0, c1 in _column_spans(openings, a, b, z0, z1):
-            lod.box(a, b, y0, y1, c0, c1, **kw)
+    for a, b, c0, c1 in _wall_rects(x0, x1, z0, z1, openings):
+        lod.box(a, b, y0, y1, c0, c1, **kw)
 
 
 def wall_y(lod, x0, x1, y0, y1, z0, z1, openings=(), **kw):
     """Wall running along Y (thickness x0..x1); openings [(oy0, oy1, oz0, oz1)]."""
-    ys = sorted({y0, y1} | {o[0] for o in openings} | {o[1] for o in openings})
-    for a, b in zip(ys, ys[1:]):
-        for c0, c1 in _column_spans(openings, a, b, z0, z1):
-            lod.box(x0, x1, a, b, c0, c1, **kw)
+    for a, b, c0, c1 in _wall_rects(y0, y1, z0, z1, openings):
+        lod.box(x0, x1, a, b, c0, c1, **kw)
 
 
 def slab_with_hole(lod, half_w, half_d, hole, z0, z1, **kw):
