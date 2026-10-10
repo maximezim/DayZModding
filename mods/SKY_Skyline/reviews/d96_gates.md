@@ -103,3 +103,22 @@ Cafe terrace: conical parasols (the flat discs overlapped and flickered), door f
 
 ![Ruined church](img/d96b_church_ruined_interior.png)
 Ruined church: boarded lancets boarded tight; broken lancets are open (walk / shoot through).
+
+## Review of the follow-up (perf-engineer, security-auditor)
+
+| Finding | Action |
+|---|---|
+| sec H1: ParkingGarage open-skin columns / spandrels / beams one-sided (see out, not in) - the warehouse defect, missed here | inner faces drawn |
+| sec M1: ruined skylight kept one-sided panes with no collision (one-way pane, fall trap) | panes gone in ruins |
+| sec M2: rails had a solid Fire box over open bars and glass (bullet-proof glass) | Fire on the top rail and bars only, glass as `pen_glass` |
+| sec M3: gate rules could hide an invisible knee-high block, the AABB joint test let sloped parts mask collision, the wall / fraction allowance could hide a forgotten pane | low-part rule needs a directly seen top and drawn sides above 25 cm; joint test against the convex faces; wall / fraction allowance removed (kept panes are recorded); two new self-tests |
+| sec M4: roof runs in ruins decided per LOD (render eaves vs collision) | one decision per roof segment and cell, made by the collision profile, shared by every LOD |
+| sec L1 ladder foot slot, L3 lofts / ramps bypassing the ruin layer, L4 escalators / L5 boarded windows straddling the region, L6 6 cm landfill fence, L7 rack slit | foot block, `RLod.loft` / `ramp`, overlap tests, 16 cm fence, kick plate |
+| sec L2 wall inferred from thickness | kept (explicit `wall=True` covers facades; the thickness rule catches the wall builder's collision) - noted |
+| sec info: Bank vault walls have windows | before a keycard vault door is added, make those walls blank (ROADMAP) |
+| perf M1: strip split in Res2 on interior slabs | strips only in Res0 / Res1; Res2 floors without top / bottom faces (intact and damaged) |
+| perf M2: 432 Fire mullion components on OfficeTall | one 16 cm box per bay boundary |
+| perf M3: ruin Geometry doubled (columns around each opened window) | walls decomposed by rows or columns, whichever is fewer boxes |
+| perf M4: 12 boards in Res1 / res1x | <= 4 in Res1 (Res0 keeps all; Fire per board kept: the gaps are real) |
+| perf L1 ruin cell cuts along the whole facade, L3 bridge Res3 bands | cell lines only over the region; one Res3 box |
+| perf L4: check_assets counts shared proxy sections twice, no Fire-component budget | tooling follow-up (ROADMAP) |
