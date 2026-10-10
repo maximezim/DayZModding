@@ -120,6 +120,9 @@ class RLod:
                 continue
             if z0 >= zc - 1e-6 and z1 - z0 <= 0.45:          # floors, sills, copings: fell
                 continue
+            if z0 >= zc - 1e-6 and z1 - z0 <= 1.25:
+                continue                                       # D96: rails, desks, beds over the hole fell whole (a cut
+                                                               # rail / desk left a collision box with nothing drawn on it)
             cut = self.ruin.cut(cx, cy)
             if z0 >= zc - 1e-6 and min(z1, cut) - z0 < 0.25:  # D72: no sliver of furniture floating over the hole
                 continue
@@ -962,7 +965,8 @@ def window(L, P, sd, a0, a1, s0, s1, skin, key, rec, residential, frame_uv):
         L["res1"].quad(sd.rect(a0, a1, s0, s1, rec), sd.out, "glass", UV_GLASS)
         sd.box(L["fire"], a0, a1, s0, s1, rec - 0.01, rec + 0.01, mat="pen_glass")
     elif state == "boarded":
-        n = max(1, min(4, int((s1 - s0 - 0.04) / 0.2)))                 # D96: a transom gets 1 board, not 4 stacked
+        n = max(1, min(12, int((s1 - s0 - 0.04) / 0.24)))                # D96: a transom gets 1 board; tall bays are
+                                                                         # boarded tight (4 boards left 0.6 m gaps over the collision)
         for i in range(n):
             z = s0 + 0.08 + (i * (s1 - s0 - 0.25) / (n - 1) if n > 1 else (s1 - s0 - 0.34) / 2)
             tilt = 0.04 * (h01(P.name, "board", sd.key, key, i) - 0.5)
@@ -973,8 +977,9 @@ def window(L, P, sd, a0, a1, s0, s1, skin, key, rec, residential, frame_uv):
         # D90: the gaps between the boards show the room in Res0 / Res1; the hollow far LODs get a dark backing
         L["res1"].quad(sd.rect(a0, a1, s0, s1, WT - 0.02), sd.out, "glassvoid", UV_GLASS)
     if state == "broken":                                                   # soot plume over the opening
-        r0.quad(sd.rect(a0 - 0.3, a1 + 0.3, s1 - 0.1, s1 + 1.1, DECAL_D["soot"]), sd.out, "decal_dirt",
-                UVRect(ax, 2, (a0 - 0.3, s1 - 0.1), (a1 + 0.3, s1 + 1.1), (0, 1, 1, 0)))
+        sp = 0.02 if skin == "curtain" else 0.3                            # D96: curtain bays are 16 cm apart: plumes
+        r0.quad(sd.rect(a0 - sp, a1 + sp, s1 - 0.1, s1 + 1.1, DECAL_D["soot"]), sd.out, "decal_dirt",   # chained 6 deep
+                UVRect(ax, 2, (a0 - sp, s1 - 0.1), (a1 + sp, s1 + 1.1), (0, 1, 1, 0)))
         # dark void only for the far LODs (no interior there): `glassvoid` lives in Res1 until exterior_lod copies it
         # as glassfar, then build() strips it. D90 sec: in Res0 it was an opaque one-sided pane in a broken (open)
         # window - outside saw dark, inside saw out and shot through: one-way concealment
@@ -1103,7 +1108,12 @@ def facade(L, P, key, lvl):
                        DT.UV_ALU)
                 openings.append((P.door[0], P.door[1], z0, z0 + ST["door"][1]))
             else:
-                window(L, P, sd, b0 + 0.08, b1 - 0.08, z0, top - spand + SLAB, skin, bkey, rec, False, DT.UV_ALU)
+                st_w = window(L, P, sd, b0 + 0.08, b1 - 0.08, z0, top - spand + SLAB, skin, bkey, rec, False, DT.UV_ALU)
+                q = sd.rect(b0, b1, z0, top, 0.0)
+                cx, cy = sum(p[0] for p in q) / 4, sum(p[1] for p in q) / 4
+                fell = P.ruin.region is not None and P.ruin.inside(cx, cy) and z0 >= P.ruin.region[4] - 1e-6
+                if st_w == "broken" or fell:                                        # D96: no glass / boards fell,
+                    openings.append((b0 + 0.08, b1 - 0.08, z0, top - spand + SLAB))  # nothing drawn: no invisible pane
             continue
         if skin == "metal":
             # ribbed cladding + clerestory strip window
@@ -2301,6 +2311,7 @@ def rail(L, x0, x1, y0, y1, z, h=1.05, glass=False):
         L["res0"].quad(pts, (0, 1, 0) if along_x else (1, 0, 0), "glass", UV_GLASS, double=True)
     else:
         L["res0"].box(x0, x1, y0, y1, z + 0.1, z + 0.16, mat="metal", uv=DT.UV_STEEL)
+        L["res0"].box(x0, x1, y0, y1, z + 0.52, z + 0.57, mat="metal", uv=DT.UV_STEEL, skip=("-x", "+x") if along_x else ("-y", "+y"))
         n = int(((x1 - x0) if along_x else (y1 - y0)) / 1.2)
         for i in range(n + 1):
             a = (x0 if along_x else y0) + i * (((x1 - x0) if along_x else (y1 - y0)) / max(1, n))

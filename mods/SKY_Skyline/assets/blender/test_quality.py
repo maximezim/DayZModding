@@ -32,12 +32,17 @@ from skygeo import LOD_GEOMETRY, LOD_RES  # noqa: E402
 
 SMEAR_RATIO = 0.03     # smallest / largest UV scale of a face
 SMEAR_EXT = 0.06       # m: extent of the face along the collapsed direction that makes a visible streak
+SMEAR_MIN = 0.1        # UV per metre along the stretched direction: under this a texture is a streak (a 4 cm trim with
+                       # steel at 3 m per tile along it is a normal tiling, not a smear - D96)
 ZF_MAX_LAYERS = 3      # zfix layers (x 4 mm) a part may be pushed out before it reads as a step
 ZF_MAX_LAYERS_DEBRIS = 10   # loose debris chunks (< 0.8 m) piled at random: 4 cm on a rubble lump does not read
 DEBRIS = {"rubble", "brick", "concrete", "rust", "trash"}
 VERTEX_LIMIT = 60000   # render vertices per LOD (engine hard limit 65,535; margin for the binarizer's own splits)
 GHOST_DIST = 0.2       # m: a collision face this far from every render face is not seen (glass sits up to 14 cm in a wall)
 GHOST_AREA = 0.5       # m2 of unseen collision surface per component (the user asked about "big collisions")
+GHOST_WALL = 2.0       # m2 a wall (>= 2 m tall) may keep unseen: one broken window keeps its collision pane (vanilla)
+GHOST_FRAC = 0.02      # and more than this share of the component (a sliver along a 110 m2 curtain wall is not a wall)
+GHOST_LOW = 1.25       # m: a component this low whose top is seen is a rail / desk / bench: one box over bars or legs
 NO_TEX = {"lamp", "lamp_cool"}
 ACCEPTED = {}          # (model, check) -> reason
 
@@ -78,7 +83,7 @@ def smear(lod):
         s = sv[1]
         if s[0] < 1e-9:
             continue
-        if s[1] / s[0] < SMEAR_RATIO:
+        if s[1] / s[0] < SMEAR_RATIO and s[1] < SMEAR_MIN:
             d = sv[2][1]                                  # direction (in face 2D) with the smallest UV change
             ext = float(np.ptp(q @ d))
             if ext > SMEAR_EXT:
@@ -201,14 +206,22 @@ def ghosts(geo, res, step=0.15, h=0.1):
         if rest.any():
             seen[rest] = seen_at(pts[rest] - nrm[rest] * t)
     miss = ~seen
+    zlo = np.array([min(geo.verts[i][2] for i in geo.groups[n]) for n in names])
+    zhi = np.array([max(geo.verts[i][2] for i in geo.groups[n]) for n in names])
+    top = (nrm[:, 2] > 0.9) & (pts[:, 2] >= zhi[comp] - 0.02)
+    top_n = np.bincount(comp[top], minlength=len(names))
+    top_seen = np.bincount(comp[top & seen], minlength=len(names))
     tot = np.bincount(comp, minlength=len(names))
     bad = np.bincount(comp[miss], minlength=len(names))
     out = []
     for ci, name in enumerate(names):
         if tot[ci] == 0:
             continue
+        if zhi[ci] - zlo[ci] <= GHOST_LOW and top_n[ci] and top_seen[ci] >= 0.5 * top_n[ci]:
+            continue                             # rail over bars, desk over legs: you see what stops you (D96)
         unseen = area_c[ci] * bad[ci] / tot[ci]
-        if unseen > GHOST_AREA:
+        lim = GHOST_WALL if zhi[ci] - zlo[ci] >= 2.0 else GHOST_AREA
+        if unseen > lim and unseen > GHOST_FRAC * area_c[ci]:
             c = pts[miss & (comp == ci)].mean(0)
             out.append((name, round(float(unseen), 2), tuple(np.round(c, 2))))
     return out
@@ -338,6 +351,14 @@ def selftest():
     r2 = Lod("res0", LOD_RES)
     r2.box(-0.05, 1.05, -0.05, 1.05, -0.05, 1.05, mat="paint")                  # render 5 cm proud: still seen
     chk(not ghosts(g2, r2), "a collision box 5 cm inside its render box is not a ghost")
+    g3 = Lod("geo", LOD_GEOMETRY)
+    g3.box(0, 2, 0, 0.08, 0, 1.05)                                              # guard rail
+    g3.box(4, 6, 0, 0.08, 0, 2.5)                                               # wall, only its top drawn
+    r3 = Lod("res0", LOD_RES)
+    r3.box(0, 2, 0, 0.08, 0.99, 1.05, mat="metal")
+    r3.box(4, 6, 0, 0.08, 2.44, 2.5, mat="metal")
+    gh3 = ghosts(g3, r3)
+    chk([c for c, *_ in gh3] == ["Component02"], "a rail over bars is not a ghost, a 2.5 m wall with only a top is")
     print("QUALITY SELFTEST:", "PASS" if ok else "FAILED")
     return ok
 
