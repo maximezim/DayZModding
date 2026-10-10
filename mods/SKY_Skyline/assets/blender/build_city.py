@@ -172,6 +172,12 @@ class RLod:
         if self._centroid_ok(verts):
             self.lod.solid(verts, faces, mat, uv, sel, component)
 
+    def wedge(self, x0, x1, y_low, y_high, z_base, z_low, z_high, **kw):
+        """D96: same centre rule as solids (a wedge passed through whole: an escalator's collision outlived its
+        cladding in a collapse)."""
+        if self._centroid_ok([((x0 + x1) / 2, (y_low + y_high) / 2, (z_low + z_high) / 2)]):
+            self.lod.wedge(x0, x1, y_low, y_high, z_base, z_low, z_high, **kw)
+
     def prism(self, cx, cy, r, z0, z1, n=8, mat=None, uv=None, sel=(), component=None, rot=0.0):
         if self._centroid_ok([(cx, cy, (z0 + z1) / 2)]):
             self.lod.prism(cx, cy, r, z0, z1, n, mat, uv, sel, component, rot)
@@ -4246,9 +4252,12 @@ def escalators(L, P, l):
     """Static escalator banks (stopped = stairs) rising from level l through the slab hole of l+1:
     stepped Res0 treads on a steel truss, glass balustrades with black handrails, smooth Roadway
     and Geometry wedge; rails round the hole on the upper deck."""
+    rg = P.ruin.region
     for (k, x0, x1, y0, y1) in P.escalators:
         if k == l:
             za, zb = P.levels[k][2], P.levels[k + 1][2]
+            if rg is not None and P.ruin.inside((x0 + x1) / 2, (y0 + y1) / 2) and zb > rg[4]:
+                continue                         # D96: in the collapse it falls whole (the wedge outlived its treads)
             for kk in ("geo", "fire", "view"):
                 kw = {"mat": "pen_metal"} if kk == "fire" else {}
                 L[kk].wedge(x0, x1, y0, y1, za - 0.3, za, zb, **kw)
