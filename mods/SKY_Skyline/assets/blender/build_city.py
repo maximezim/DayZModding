@@ -761,7 +761,8 @@ def kitchen_run(L, x0, x1, y0, y1, z):
     piece(L, (x0, x1, y0, y1, z, z + 0.88), "wood", UV_LAMINATE)
     L["res0"].box(x0 - 0.02, x1 + 0.02, y0 - 0.02, y1 + 0.02, z + 0.88, z + 0.92, mat="stone", uv=DT.stone_uv("granite"))
     for k in ("geo", "fire"):                                    # D96: the worktop collides too (conceal gate)
-        L[k].box(x0 - 0.02, x1 + 0.02, y0 - 0.02, y1 + 0.02, z + 0.88, z + 0.92, **({"mat": "pen_wood"} if k == "fire" else {}))
+        L[k].box(x0, x1, y0, y1, z + 0.88, z + 0.92, **({"mat": "pen_wood"} if k == "fire" else {}))   # (footprint:
+                                                                 # a 2 cm overhang narrowed a gap into a wedge slot)
     cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
     L["res0"].box(cx - 0.3, cx + 0.3, cy - 0.2, cy + 0.2, z + 0.921, z + 0.93, mat="metal", uv=DT.UV_STEEL)
 
