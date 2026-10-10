@@ -524,6 +524,7 @@ def trash_mound(L, x, y, rx, ry, h, key, placed=None):
         L["road"].quad([base[k], base[(k + 1) % n], top[(k + 1) % n], top[k]], (0, 0, 1), "road_ext", UV_TILE)
     for k in range(1, n - 1):
         L["road"].quad([top[0], top[k], top[k + 1]], (0, 0, 1), "road_ext", UV_TILE)
+    junk = []                                                                    # D96: no two pieces in one spot
     for i in range(10):                                                          # junk sticking out (Res0)
         a = 2 * math.pi * h01("tj", key, i)
         d = 0.3 + 0.6 * h01("tjd", key, i)
@@ -532,6 +533,11 @@ def trash_mound(L, x, y, rx, ry, h, key, placed=None):
             d = min(d, 0.6)                                                      # mound (no side slit at its edge, D79)
         jx, jy = x + rx * d * math.cos(a), y + ry * d * math.sin(a)
         jz = h * (1.0 - d) * 0.9
+        hr = (0.3, 0.35, 0.3, 0.6)[kind]
+        fp = (jx - hr, jx + hr, jy - hr, jy + hr)
+        if any(fp[0] < q[1] and q[0] < fp[1] and fp[2] < q[3] and q[2] < fp[3] for q in junk):
+            continue                                                             # (two barrels in one spot z-fought)
+        junk.append(fp)
         if kind in (0, 2):
             ry_ = 0.3 if kind == 0 else 0.3 * math.sin(math.pi / 3)            # hexagonal barrel: narrower in y
             jb = (jx - 0.3, jx + 0.3, jy - ry_, jy + ry_, jz, jz + (0.8 if kind == 0 else 0.85))
@@ -577,7 +583,7 @@ def build_landfill():
         L[k].box(-18.6, -12.6, 13.4, 18.6, 0.0, 4.2, **(kw_for(k, "metal", DT.UV_PAINT, "metal") if k != "shadow" else {}))
     L["res0"].box(-17.6, -13.6, 13.37, 13.4, 0.0, 3.4, mat="rust", uv=RUST_GREY)
     L["res0"].box(-18.7, -12.5, 13.3, 18.7, 4.2, 4.4, mat="metal", uv=DT.UV_STEEL)
-    # perimeter fence: concrete posts every 3 m, 4 wires; gate gap in the front with the sign
+    # perimeter fence: concrete posts every 3 m, 9 wires; gate gap in the front with the sign
     gate = (-3.0, 3.0)
     for (axis, c, a0, a1) in (("x", -hd + 0.2, -hw + 0.2, hw - 0.2), ("x", hd - 0.2, -hw + 0.2, hw - 0.2),
                               ("y", -hw + 0.2, -hd + 0.2, hd - 0.2), ("y", hw - 0.2, -hd + 0.2, hd - 0.2)):
@@ -589,10 +595,10 @@ def build_landfill():
                 px, py = (a, c) if axis == "x" else (c, a)
                 for k in ("res0", "res1", "geo", "fire"):
                     L[k].box(px - 0.08, px + 0.08, py - 0.08, py + 0.08, 0.0, 2.2, **kw_for(k, "concrete", UV_CONC, "concrete"))
-            for zz in (0.5, 1.0, 1.5, 2.0):
+            for zz in [0.15 + 0.25 * j for j in range(9)]:                   # D96: 9 strands (4 left 0.5 m gaps over
                 p0 = (s0, c, zz) if axis == "x" else (c, s0, zz)
                 p1 = (s1, c, zz) if axis == "x" else (c, s1, zz)
-                bar(L["res0"], p0, p1, 0.006, "metal", DT.UV_STEEL)
+                bar(L["res0"], p0, p1, 0.006, "metal", DT.UV_STEEL)          # a collision you could not see)
             g = (s0, s1, c - 0.03, c + 0.03) if axis == "x" else (c - 0.03, c + 0.03, s0, s1)
             L["geo"].box(*g, 0.0, 2.2)                                           # wire fence blocks walking, not bullets
     for gx in gate:                                                              # gate posts + sign

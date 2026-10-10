@@ -43,6 +43,9 @@ class UVWorld:
         return [(p[a] / self.scale + self.offset[0], p[b] / self.scale + self.offset[1]) for p in pts]
 
 
+BAND_MIN = 0.1     # UV per metre: a band stretched thinner than this streaks (test_quality SMEAR_MIN)
+
+
 class UVBand:
     """Trim-sheet band: vertical faces stretch their height over V band (v0, v1);
     U runs along the face every `scale` metres. Horizontal faces (D96): U along their longer side, V across the
@@ -69,6 +72,21 @@ class UVBand:
         cs = [p[across] for p in pts]
         c0, c1 = min(cs), max(cs)
         h = (c1 - c0) or 1.0
+        if (self.v1 - self.v0) / h < BAND_MIN:
+            # D96: a long thin upright or diagonal (downpipe, rod, sloped member): U runs along its length (longest
+            # edge), the band goes across its width (stretching the band over 6-25 m streaked it)
+            q = [(p[along], p[across]) for p in pts]
+            e = max(((q[(i + 1) % len(q)][0] - q[i][0], q[(i + 1) % len(q)][1] - q[i][1]) for i in range(len(q))),
+                    key=lambda v: v[0] * v[0] + v[1] * v[1])
+            el = math.hypot(*e) or 1.0
+            d = (e[0] / el, e[1] / el)
+            t = [a * d[0] + b * d[1] for a, b in q]
+            s = [-a * d[1] + b * d[0] for a, b in q]
+            L, W = max(t) - min(t), max(s) - min(s)
+            if L > 4.0 * W:
+                s0 = min(s)
+                return [(ti / self.scale, 1.0 - (self.v1 - (si - s0) / (W or 1.0) * (self.v1 - self.v0)))
+                        for ti, si in zip(t, s)]
         # Image rows grow downwards while Blender V grows upwards -> 1 - v.
         return [(p[along] / self.scale, 1.0 - (self.v1 - (p[across] - c0) / h * (self.v1 - self.v0))) for p in pts]
 
@@ -94,8 +112,16 @@ class UVRect:
 
     def __call__(self, pts, normal):
         u0, v0, u1, v1 = self.uv
-        return [(u0 + (p[self.ua] - self.lo[0]) / (self.hi[0] - self.lo[0]) * (u1 - u0),
-                 v0 + (p[self.va] - self.lo[1]) / (self.hi[1] - self.lo[1]) * (v1 - v0)) for p in pts]
+        ua, va = self.ua, self.va
+        w = 3 - ua - va                                   # D96: a box side square to the mapped plane takes the third
+        if abs(normal[ua]) > 0.7:                         # axis for its collapsed coordinate (was a constant: streaks)
+            ua = w
+        elif abs(normal[va]) > 0.7:
+            va = w
+        lo_u = self.lo[0] if ua == self.ua else min(p[ua] for p in pts)
+        lo_v = self.lo[1] if va == self.va else min(p[va] for p in pts)
+        return [(u0 + (p[ua] - lo_u) / (self.hi[0] - self.lo[0]) * (u1 - u0),
+                 v0 + (p[va] - lo_v) / (self.hi[1] - self.lo[1]) * (v1 - v0)) for p in pts]
 
 
 def _sub(a, b):
@@ -199,8 +225,27 @@ class Lod:
                 self.groups.setdefault(s, set()).update(range(base, base + 8))
             return
         for key, (pts, out) in quads.items():
-            if key not in skip:
-                self._add_face(pts, out, mat, uv, sel)
+            if key in skip:
+                continue
+            if key in ("-z", "+z") and isinstance(uv, UVBand):
+                # D96: a wide top / bottom with a band texture is cut into band-wide strips across its short side
+                # (one face stretched the band over up to 40 m)
+                bm = 0.98 * (uv.v1 - uv.v0) * uv.scale
+                ex, ey = x1 - x0, y1 - y0
+                short = min(ex, ey)
+                n = int(math.ceil(short / bm - 1e-6)) if bm > 0 else 1
+                if (uv.v1 - uv.v0) / short < BAND_MIN and 1 < n <= 400:          # only where it would streak
+                    zz = pts[0][2]
+                    for i in range(n):
+                        if ex >= ey:
+                            a, b = y0 + i * ey / n, y0 + (i + 1) * ey / n
+                            q = [(x0, a, zz), (x1, a, zz), (x1, b, zz), (x0, b, zz)]
+                        else:
+                            a, b = x0 + i * ex / n, x0 + (i + 1) * ex / n
+                            q = [(a, y0, zz), (b, y0, zz), (b, y1, zz), (a, y1, zz)]
+                        self._add_face(q, out, mat, uv, sel)
+                    continue
+            self._add_face(pts, out, mat, uv, sel)
 
     def wedge(self, x0, x1, y_low, y_high, z_base, z_low, z_high, mat=None, uv=None, sel=(), component=None):
         """Stair ramp solid running along Y from (y_low, z_low) to (y_high, z_high),

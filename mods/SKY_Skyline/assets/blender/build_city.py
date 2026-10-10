@@ -744,7 +744,9 @@ def shelf_unit(L, x0, x1, y0, y1, z, h=1.9, goods=True):
     for (a, b) in ((x0, x0 + 0.04), (x1 - 0.04, x1)):
         L["res0"].box(a, b, y0, y1, z, z + h, mat="metal", uv=DT.UV_PAINT, skip=("-z",))
     gap = (h - 0.2) / 3.5
-    for k in range(4):
+    ym = (y0 + y1) / 2                                                       # D96: steel back panel down the middle (you
+    L["res0"].box(x0 + 0.04, x1 - 0.04, ym - 0.008, ym + 0.008, z + 0.18, z + h, mat="metal", uv=DT.UV_STEEL)  # saw
+    for k in range(4):                                                       # through to the next aisle, not the collision)
         zz = z + 0.15 + k * gap
         L["res0"].box(x0, x1, y0, y1, zz, zz + 0.03, mat="metal", uv=DT.UV_PAINT)
         if goods:
@@ -932,8 +934,12 @@ def wall_piece(L, sd, a0, a1, z0, z1, mat, uv, pen, inner, keys=("res0", "res1",
 
 
 def window(L, P, sd, a0, a1, s0, s1, skin, key, rec, residential, frame_uv):
-    """Window in an opening a0..a1 x s0..s1: glass / broken / boarded per the ruin layer."""
+    """Window in an opening a0..a1 x s0..s1: glass / broken / boarded per the ruin layer. A broken window of a
+    ruin (nothing left in it) opens the Geometry wall too (D96: tall church lancets left 10-20 m2 of invisible panes
+    per wall); a damaged building keeps the collision of its broken panes (vanilla)."""
     state = P.ruin.window(sd.key, *key)
+    if state == "broken" and P.state == 2 and getattr(P, "win_openings", None) is not None:
+        P.win_openings.append((a0, a1, s0, s1))
     r0 = L["res0"]
     ax = sd.uvax()
     if state != "broken" or P.state < 2:                                   # frame survives damage
@@ -1018,6 +1024,7 @@ def facade(L, P, key, lvl):
         n = len(bays) + 1
         bays = [(sd.a0 + i * (sd.a1 - sd.a0) / n, sd.a0 + (i + 1) * (sd.a1 - sd.a0) / n) for i in range(n)]
     openings = []
+    P.win_openings = openings                    # D96: broken windows of a ruin open the collision (window())
     rec = SK["recess"]
     run = []                                     # consecutive regular window bays: merged View/Fire
 
@@ -1112,7 +1119,7 @@ def facade(L, P, key, lvl):
                 q = sd.rect(b0, b1, z0, top, 0.0)
                 cx, cy = sum(p[0] for p in q) / 4, sum(p[1] for p in q) / 4
                 fell = P.ruin.region is not None and P.ruin.inside(cx, cy) and z0 >= P.ruin.region[4] - 1e-6
-                if st_w == "broken" or fell:                                        # D96: no glass / boards fell,
+                if (st_w == "broken" and P.state < 2) or fell:                      # D96: no glass / boards fell,
                     openings.append((b0 + 0.08, b1 - 0.08, z0, top - spand + SLAB))  # nothing drawn: no invisible pane
             continue
         if skin == "metal":
@@ -1463,7 +1470,8 @@ def front_door(L, P):
     d0, d1 = P.door
     y = -P.hd + WT / 2
     dh = ST["door"][1]
-    for k in ("res0", "res1"):
+    shopfront = P.A.get("ground") == "shopfront" and "S" in P.A.get("shop_sides", ())
+    for k in () if shopfront else ("res0", "res1"):                     # D96: the shop glazing frames its door already
         sd = FSide(P, "S")
         sd.box(L[k], d0 - 0.06, d0, 0.0, dh + 0.06, 0.0, WT, mat="metal", uv=DT.UV_PAINT, skip=("-z",))
         sd.box(L[k], d1, d1 + 0.06, 0.0, dh + 0.06, 0.0, WT, mat="metal", uv=DT.UV_PAINT, skip=("-z",))
@@ -2549,6 +2557,42 @@ def sawtooth(L, P, par):
         L["res3"].extrude_x(prof, P.ix0, P.ix1, mat="rust", uv=zuv)
 
 
+class BarkUV:
+    """D96: bark atlas cell repeated every ring of a lofted trunk (one cell over 7 m streaked): V over each ring,
+    U over the face's share of the circumference, offset per face so neighbours do not repeat the same strip."""
+    SEG = 1.2
+
+    def __init__(self, cell, r, n, z0, seg):
+        self.c, self.r, self.n, self.z0, self.seg = cell, r, n, z0, seg
+
+    def __call__(self, pts, normal):
+        u0, v0, u1, v1 = self.c
+        zs = [p[2] for p in pts]
+        zb = self.z0 + math.floor((min(zs) - self.z0) / self.seg + 1e-6) * self.seg
+        cx, cy = sum(p[0] for p in pts) / len(pts), sum(p[1] for p in pts) / len(pts)
+        if abs(normal[2]) > 0.9:                                      # end caps: planar
+            return [(u0 + (p[0] / (2 * self.r) + 0.5) * (u1 - u0), v0 + (p[1] / (2 * self.r) + 0.5) * (v1 - v0)) for p in pts]
+        tx, ty = -cy, cx                                              # horizontal tangent of the face
+        tl = math.hypot(tx, ty) or 1.0
+        t = [(p[0] * tx + p[1] * ty) / tl for p in pts]
+        share = math.pi / self.n                                      # face width / trunk diameter
+        k = int(round(math.atan2(cy, cx) / (2 * math.pi / self.n))) % self.n
+        off = (k * 0.37) % max(1e-6, 1.0 - share)
+        tm = min(t)
+        return [(u0 + (off + (ti - tm) / (2 * self.r)) * (u1 - u0),
+                 v0 + min(1.0, (p[2] - zb) / self.seg) * (v1 - v0)) for ti, p in zip(t, pts)]
+
+
+class BarkLocal:
+    """BarkUV for a trunk standing at (x, y) instead of the origin."""
+
+    def __init__(self, bark, x, y):
+        self.b, self.x, self.y = bark, x, y
+
+    def __call__(self, pts, normal):
+        return self.b([(p[0] - self.x, p[1] - self.y, p[2]) for p in pts], normal)
+
+
 class UVSlope:
     """D96: roof covering at world scale along the slope (rooftile / roofslate sheets tile in U and V): U along the
     ridge, V down the slope (distance from the ridge line), `sheet` metres per UV unit."""
@@ -2559,6 +2603,10 @@ class UVSlope:
         self.sheet = sheet
 
     def __call__(self, pts, normal):
+        if abs(normal[self.ia]) > 0.7:                       # gable edge of the sheet: U up its thickness (was constant)
+            return [(p[2] / self.sheet, p[self.ic] * self.k / self.sheet) for p in pts]
+        if abs(normal[2]) > 0.95 or abs(normal[self.ic]) > 0.95:   # ridge strip / eave and ridge edges: plain planar
+            return [(p[self.ia] / self.sheet, (p[self.ic] if abs(normal[2]) > 0.95 else p[2]) / self.sheet) for p in pts]
         return [(p[self.ia] / self.sheet, abs(p[self.ic]) * self.k / self.sheet) for p in pts]
 
 
@@ -2945,9 +2993,11 @@ def plant_tuft(L, x, y, z, w, h, cell, key, lods=("res0",)):
 
 def sapling(L, x, y, z, h, key):
     """Young birch growing out of rubble / a cracked roof (ruins): thin trunk + crown cards."""
-    for k, n in (("res0", 6), ("res1", 4)):
-        L[k].prism(x, y, 0.05, z, z + h * 0.7, n=n, mat="vegetation", uv=UVRect(0, 2, (x - 0.05, z), (x + 0.05, z + h * 0.7),
-                   S.veg_uv("bark")))
+    for k, n in (("res0", 6), ("res1", 4)):                                  # D96: tapered, bark cell every ~1 m
+        segs = max(1, int(round(h * 0.7 / 1.0)))
+        rings = [[(x + rr * math.cos(2 * math.pi * j / n), y + rr * math.sin(2 * math.pi * j / n), zz) for j in range(n)]
+                 for zz, rr in ((z + h * 0.7 * i / segs, 0.05 * (1.0 - 0.5 * i / segs)) for i in range(segs + 1))]
+        L[k].loft(rings, mat="vegetation", uv=BarkLocal(BarkUV(S.veg_uv("bark"), 0.05, n, z, h * 0.7 / segs), x, y))
     plant_tuft(L, x, y, z + h * 0.35, h * 0.7, h * 0.65, "birch_crown", key + ("crown",), lods=("res0", "res1"))
 
 
@@ -3473,10 +3523,16 @@ def build_veg(name):
     elif name in ("Veg_Birch", "Veg_TreeDead"):
         birch = name == "Veg_Birch"
         th, r = (9.0, 0.13) if birch else (6.0, 0.16)
-        bark = UVRect(0, 2, (-r, 0.0), (r, th), S.veg_uv("bark"))
-        for k, n in (("res0", 8), ("res1", 5), ("res2", 4), ("res3", 3)):
-            U[k].prism(0.0, 0.0, r, -0.3, th * ((0.8 if birch else 0.85) if k != "res3" else 0.5), n=n,
-                       mat="vegetation", uv=bark)                              # dead birch: same bark, one section
+        top = th * (0.8 if birch else 0.85)
+        for k, n, seg in (("res0", 10, BarkUV.SEG), ("res1", 6, BarkUV.SEG), ("res2", 4, 2.0), ("res3", 3, 2.0)):
+            ztop = top if k != "res3" else th * 0.5                          # D96: tapered trunk, bark cell per ring
+            segs = max(2, int(round((ztop + 0.3) / seg)))
+            rings = []
+            for i in range(segs + 1):
+                z = -0.3 + (ztop + 0.3) * i / segs
+                rr = r * (1.0 - 0.45 * (z + 0.3) / (top + 0.3)) * (1.12 if i == 0 else 1.0)
+                rings.append([(rr * math.cos(2 * math.pi * j / n), rr * math.sin(2 * math.pi * j / n), z) for j in range(n)])
+            U[k].loft(rings, mat="vegetation", uv=BarkUV(S.veg_uv("bark"), r, n, -0.3, (ztop + 0.3) / segs))
         for k in ("geo", "fire", "shadow"):
             kw = {"mat": "pen_wood"} if k == "fire" else {}
             U[k].prism(0.0, 0.0, r, -0.3, th * 0.8, n=6 if k != "shadow" else 4, **kw)

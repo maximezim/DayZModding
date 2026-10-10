@@ -85,7 +85,9 @@ def smear(lod):
             continue
         if s[1] / s[0] < SMEAR_RATIO and s[1] < SMEAR_MIN:
             d = sv[2][1]                                  # direction (in face 2D) with the smallest UV change
-            ext = float(np.ptp(q @ d))
+            dp = np.array([-d[1], d[0]])
+            area = 0.5 * abs(sum(q[i - 1][0] * q[i][1] - q[i][0] * q[i - 1][1] for i in range(len(q))))
+            ext = float(area / max(1e-9, np.ptp(q @ dp)))  # mean chord along d (a sheared strip is thin, not tall)
             if ext > SMEAR_EXT:
                 out.append((ext, mat, tuple(np.round(p.mean(0), 2))))
     return out
@@ -201,10 +203,14 @@ def ghosts(geo, res, step=0.15, h=0.1):
             useen |= np.isin(_keys(uix + o), rkeys)
         return useen[inv.ravel()]
     seen = seen_at(pts)
-    for t in (0.15, 0.3):                         # a thick solid round thin glass / trim is seen, just thick (D96)
-        rest = ~seen
+    ext = np.array([min(np.ptp([geo.verts[i] for i in geo.groups[n]], 0)) for n in names])
+    half = np.minimum(0.5, ext[comp] / 2)[:, None]
+    full = np.minimum(0.5, ext[comp] * 0.95)[:, None]
+    for t in (0.15, 0.3, None, "full"):           # a thick solid round thin glass / trim / a shelf back / boards on its
+        rest = ~seen                              # far face is seen (D96): drawn inside or on the other side of the solid
         if rest.any():
-            seen[rest] = seen_at(pts[rest] - nrm[rest] * t)
+            d = half[rest] if t is None else full[rest] if t == "full" else np.minimum(t, half[rest])
+            seen[rest] = seen_at(pts[rest] - nrm[rest] * d)
     miss = ~seen
     zlo = np.array([min(geo.verts[i][2] for i in geo.groups[n]) for n in names])
     zhi = np.array([max(geo.verts[i][2] for i in geo.groups[n]) for n in names])
