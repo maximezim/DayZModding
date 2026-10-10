@@ -3430,8 +3430,8 @@ def build_watertower():
             L["shadow"].box(x - 0.15, x + 0.15, y - 0.15, y + 0.15, 0.3, zt)
             L["res3"].box(x - 0.15, x + 0.15, y - 0.15, y + 0.15, 0.0, zt, mat="metal", uv=paint, skip=("-z", "+z"))
     for z in (5.0, 9.5):                                                         # ring beams + X bracing
-        for (a0, a1, b0, b1) in ((-lg, lg, -lg - 0.1, -lg + 0.1), (-lg, lg, lg - 0.1, lg + 0.1),
-                                 (-lg - 0.1, -lg + 0.1, -lg, lg), (lg - 0.1, lg + 0.1, -lg, lg)):
+        for (a0, a1, b0, b1) in ((-lg - 0.1, lg + 0.1, -lg - 0.1, -lg + 0.1), (-lg - 0.1, lg + 0.1, lg - 0.1, lg + 0.1),
+                                 (-lg - 0.1, -lg + 0.1, -lg + 0.1, lg - 0.1), (lg - 0.1, lg + 0.1, -lg + 0.1, lg - 0.1)):   # D96: abut
             for k in ("res0", "res1", "res2", "geo", "fire"):
                 L[k].box(a0, a1, b0, b1, z, z + 0.2, **kw_for(k, "metal", paint, "metal"))
     for (za, zb) in ((0.3, 5.0), (5.2, 9.5), (9.7, zt)):
@@ -4221,9 +4221,12 @@ def escalators(L, P, l):
                 zt = za + (i + 1) * (zb - za) / n
                 L["res0"].box(x0 + 0.12, x1 - 0.12, ya, yb, zt - 0.3, zt, mat="metal", uv=DT.UV_STEEL, skip=("-x", "+x"))
             L["res1"].ramp(x0 + 0.12, x1 - 0.12, y0, y1, za, zb, mat="metal", uv=DT.UV_STEEL)
+            for kk in ("res0", "res1"):                                          # D96: end panel under the upper landing
+                L[kk].quad([(x0 + 0.12, y1, za), (x1 - 0.12, y1, za), (x1 - 0.12, y1, zb - 0.3), (x0 + 0.12, y1, zb - 0.3)],
+                           (0, 1, 0), "metal", DT.UV_PAINT)
             for (a0, a1) in ((x0, x0 + 0.12), (x1 - 0.12, x1)):                 # truss sides + balustrades
-                verts = [(a0, y0, za - 0.4), (a0, y1, zb - 0.4), (a0, y1, zb + 0.15), (a0, y0, za + 0.15),
-                         (a1, y0, za - 0.4), (a1, y1, zb - 0.4), (a1, y1, zb + 0.15), (a1, y0, za + 0.15)]
+                verts = [(a0, y0, za), (a0, y1, za), (a0, y1, zb + 0.15), (a0, y0, za + 0.15),   # D96: clad down to
+                         (a1, y0, za), (a1, y1, za), (a1, y1, zb + 0.15), (a1, y0, za + 0.15)]   # the floor
                 faces = [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)]
                 for kk in ("res0", "res1", "res2"):
                     L[kk].solid(verts, faces, mat="metal", uv=DT.UV_PAINT)
@@ -4266,14 +4269,24 @@ def skylight(L, P):
     for (yy, nrm) in ((y0, -1), (y1, 1)):                                        # gable ends
         for (a, b) in zip(pts, pts[1:]):
             tri = [(a[0], yy, top + 0.2), (b[0], yy, top + 0.2), (b[0], yy, b[1]), (a[0], yy, a[1])]
+            tri = [q for i, q in enumerate(tri) if q != tri[i - 1]]           # D96: no doubled corner (end triangles)
             if P.state < 2:
                 L["res0"].quad(tri, (0, nrm, 0), "glass", UV_GLASS, double=True)
     for k in ("res0", "res1", "res2", "geo", "fire", "view"):                   # kerb round the opening
         for (a0, a1, b0, b1) in ((x0 - 0.3, x1 + 0.3, y0 - 0.3, y0), (x0 - 0.3, x1 + 0.3, y1, y1 + 0.3),
                                  (x0 - 0.3, x0, y0, y1), (x1, x1 + 0.3, y0, y1)):
             L[k].box(a0, a1, b0, b1, top, top + 0.2, **kw_for(k, "concrete", UV_REVEAL, "concrete"))
-    for k in ("geo", "fire"):
-        L[k].box(x0, x1, y0, y1, top + 0.15, top + 0.2, **({"mat": "pen_glass"} if k == "fire" else {}))
+    # D96: collision follows the vault (a flat plate under it let you walk through the glass onto an invisible floor)
+    hexa = [(0, 1, 3, 2), (4, 5, 7, 6), (0, 1, 5, 4), (2, 3, 7, 6), (0, 2, 6, 4), (1, 3, 7, 5)]
+    for (a, b) in zip(pts, pts[1:]):
+        slab = [(p[0], yy, p[1] - dz) for p in (a, b) for yy in (y0, y1) for dz in (0.0, 0.06)]
+        slab = [slab[0], slab[2], slab[4], slab[6], slab[1], slab[3], slab[5], slab[7]]
+        for k in ("geo", "fire"):
+            L[k].solid(slab, hexa, **({"mat": "pen_glass"} if k == "fire" else {}))
+        for yy in (y0, y1):                                                      # gable ends
+            g = [(p[0], yy + dy, zz) for p in (a, b) for dy in (-0.03, 0.03) for zz in (top + 0.2, max(p[1], top + 0.26))]
+            for k in ("geo", "fire"):
+                L[k].solid(g, hexa, **({"mat": "pen_glass"} if k == "fire" else {}))
     L["res3"].box(x0, x1, y0, y1, top, top + 0.2 + rise, mat="glassfar", uv=UV_GLASS, skip=("-z",))
 
 

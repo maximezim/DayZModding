@@ -204,6 +204,7 @@ def ghosts(geo, res, step=0.15, h=0.1):
             useen |= np.isin(_keys(uix + o), rkeys)
         return useen[inv.ravel()]
     seen = seen_at(pts)
+    seen[~seen] = seen_at(pts[~seen] + nrm[~seen] * 0.12)   # render just outside a smaller collision (octagon in a 16-gon)
     ext = np.array([min(np.ptp([geo.verts[i] for i in geo.groups[n]], 0)) for n in names])
     half = np.minimum(0.6, ext[comp] / 2)[:, None]
     full = np.minimum(0.6, ext[comp] * 0.95)[:, None]
@@ -306,7 +307,10 @@ def scan(name, checks):
         fails.append(("zfight", "%s %s: z-fight layering pushed a %.2f m %s part out %d layers (%.0f mm) - fix the overlap "
                       "in the generator" % (name, ln, size, mat, lay, lay * zfix.DELTA * 1000)))
     if "smear" in checks:
+        far = max((l.distance for l in res), default=0.0) if len(res) >= 3 else None
         for l in res:
+            if l.distance == far:
+                continue                         # the farthest LOD is a silhouette (>= ~100 m): no close-up streaks
             h = smear(l)
             if h:
                 h.sort(reverse=True)
