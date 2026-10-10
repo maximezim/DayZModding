@@ -121,6 +121,8 @@ class RLod:
                 continue
             if z0 >= zc - 1e-6 and z1 - z0 <= 0.45:          # floors, sills, copings: fell
                 continue
+            thin = min(x1 - x0, y1 - y0)
+            wall = wall or any(abs(thin - t) < 0.011 for t in (WT, PT))   # wall / partition collision pieces too
             if z0 >= zc - 1e-6 and z1 - z0 <= 1.25 and not wall:
                 continue                                       # D96: rails, desks, beds over the hole fell whole (a cut
                                                                # rail / desk left a collision box with nothing drawn on it)
@@ -758,6 +760,8 @@ def kitchen_run(L, x0, x1, y0, y1, z):
     """Counter with worktop, sink and upper cabinets (wall side = the thin side touching the wall)."""
     piece(L, (x0, x1, y0, y1, z, z + 0.88), "wood", UV_LAMINATE)
     L["res0"].box(x0 - 0.02, x1 + 0.02, y0 - 0.02, y1 + 0.02, z + 0.88, z + 0.92, mat="stone", uv=DT.stone_uv("granite"))
+    for k in ("geo", "fire"):                                    # D96: the worktop collides too (conceal gate)
+        L[k].box(x0 - 0.02, x1 + 0.02, y0 - 0.02, y1 + 0.02, z + 0.88, z + 0.92, **({"mat": "pen_wood"} if k == "fire" else {}))
     cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
     L["res0"].box(cx - 0.3, cx + 0.3, cy - 0.2, cy + 0.2, z + 0.921, z + 0.93, mat="metal", uv=DT.UV_STEEL)
 
@@ -1179,6 +1183,8 @@ def facade(L, P, key, lvl):
             for (a, b) in ((b0, b0 + 0.08), (b1 - 0.08, b1)):                           # mullions
                 for k in ("res0", "res1"):
                     sd.box(L[k], a, b, z0, top, -0.06, 0.1, mat="metal", uv=DT.UV_ALU, skip=("-z", "+z"))
+                sd.box(L["fire"], a, b, z0, top, -0.06, 0.1, mat="pen_metal")   # D96: beside an open bay a drawn
+                                                                                  # mullion without Fire was a slit
             wall_piece(L, sd, b0 + 0.08, b1 - 0.08, top - spand + SLAB, top, "metal", DT.UV_PAINT, "metal", inner)
             if door_here:
                 window(L, P, sd, b0 + 0.08, P.door[0], 0.0, top - spand + SLAB, skin, bkey + ("l",), rec, False, DT.UV_ALU)
@@ -1939,7 +1945,9 @@ def furnish(L, P, l, r, kind, z, top):
         for row_y in (cy - 1.3, cy + 0.3):
             shelf_unit(L, x0 + 1.0, cx - 0.4, row_y - 0.25, row_y + 0.25, z, h=1.6)
         kitchen_run(L, x1 - 2.4, x1 - 0.4, y0 + 1.2, y0 + 1.8, z)                     # counter
-        L["res0"].box(x1 - 1.6, x1 - 1.2, y0 + 1.35, y0 + 1.65, z + 0.92, z + 1.15, mat="metal", uv=DT.UV_PAINT)  # till
+        for k in ("res0", "geo", "fire"):                                                       # till (collides, D96)
+            L[k].box(x1 - 1.6, x1 - 1.2, y0 + 1.35, y0 + 1.65, z + 0.92, z + 1.15,
+                     **({"mat": "metal", "uv": DT.UV_PAINT} if k == "res0" else {"mat": "pen_metal"} if k == "fire" else {}))
         rack = None
         if P.A.get("catalog", P.arch) == "PostOffice":
             racks = [(a, b, y1 - 0.45, y1 - 0.05) for (a, b) in ((cx + 0.2, min(cx + 2.0, x1 - 0.4)), (cx - 2.0, cx - 0.2),
