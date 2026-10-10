@@ -1009,6 +1009,14 @@ proxy parts). Before / after renders: `reviews/d96_gates.md`.
 | QP-09 | Texture close-up: plaster (4 colours), concrete panels, limestone (church), painted metal (8 colours on poles, bins, wrecks), weeds / ivy / burdock cards | No vertical barcode streaks, no cartoon blobs, no colour bleeding between metal bands; vegetation reads as leaves (P71) | screenshots | | |
 | QP-10 | Fair_FerrisWheel: shoot through a high gondola's open sides | Bullets pass where the cabin is open and stop on its walls / roof (D96: hollow collision for every cabin, was a solid block) | | | |
 | QP-11 | FPS_PROTOCOL.md §1 on the district template, before (D95 PBOs) and after (D96) | Client FPS drop from the extra detail noted; server FPS unchanged. A drop over 10 % at 1600 m view distance -> report it (D96 trade-off) | FPS numbers | | |
+| QP-12 | Walk inside a Warehouse / WarehouseLarge / WarehouseSmall (all states) and look at the outer walls | Cladding drawn inside (D96: the walls were one-sided, you saw outside through them); racks have a steel back panel and a top deck, goods on every shelf | screenshot | | |
+| QP-13 | Ruined buildings: walk and shoot through broken windows (Church lancets, OfficeTall curtain bays, shop windows); damaged buildings: try the same | Ruins: a broken window is open (walk / climb / shoot through). Damaged: the broken pane still stops you (vanilla), bullets pass. Boarded windows: tight boards, no gaps you can see through | | | |
+| QP-14 | Ruined buildings, collapse corner: rails, desks, beds, racks in the collapse zone | Gone whole (no knee-high invisible stubs); walls end at a jagged top with no invisible pane above or below a window | | | |
+| QP-15 | Bridge_Long: climb a sniper-nest ladder; walk under it | Steel ship ladder with treads, climbable to the nest; you can walk under it (was a hidden 6 m wall) - P73 | | | |
+| QP-16 | Fair_Carousel: walk round the fence, jump at the canopy edge from the platform rail; Stadium_Floodlight: shoot through the lattice | Fence stops you at the rail (8 cm, not a 1 m collar); canopy collision follows the cone; bullets pass between the floodlight legs - P73 | | | |
+| QP-17 | Tunnel_Portal, Stadium_Stand, Viaduct_Ramp (high end), Metro_Tunnel joints, Bridge truss nodes from 2-20 m | No flicker on the headwall, chevrons, steps, track ends or truss joints; the ramp's high end shows a concrete face | | | |
+| QP-18 | Trees and saplings (Veg_Birch, Veg_TreeDead, ruin saplings), cafe parasols, Church spire | Tapered trunks with bark repeating every ~1.2 m (no 7 m stretch), conical parasols that do not overlap, slate spire | screenshot | | |
+| QP-19 | Downpipes, lightning rods, roller shutters, mall / hypermarket floors near doors, roof gables | No streaked textures (bands run along thin parts, wide faces cut into strips) | | | |
 
 ## Windows session log (2026-10-09)
 

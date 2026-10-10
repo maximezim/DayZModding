@@ -270,4 +270,20 @@ WIN-06 "Too many vertices"). Every generator follows these; `assets/blender/test
 - **Review renders** use `--pbr` (normal, macro and specular maps, physical sky, writer smoothing)
   at eye height (`--shot close`, `corner`; `preview_kit.py --low`), before and after, in
   `reviews/img/`.
+- **Every collision surface is visible** (`test_quality` ghost check): a Geometry face must have a
+  render face within 20 cm, inside the solid, or on its far face. Collision follows what is drawn:
+  a lattice mast collides with its legs, a canopy with its shell, a fence with an 8 cm sheet under its
+  top rail, a ladder with a thin slab under its treads (not a wedge down to the ground), racks have a
+  back panel, a wire fence has strands every 25 cm. Accepted by rule, not by model: low rails / desks /
+  benches (<= 1.25 m) whose top is drawn; joints between two collision pieces inside a wall; the pane of
+  a broken window in a *damaged* building (vanilla; recorded by `window()` in `geo.kept_panes`);
+  slivers under 1 m2 (2 m2 on a wall), or under 2 % of a large wall.
+- **Both sides of a wall are drawn.** A facade piece always has an interior face (warehouses showed
+  outside through their cladding).
+- **Ruins stay consistent.** In the collapse zone, loose low parts (rails, desks, beds, shelves) fall whole;
+  facade pieces (`wall_piece`, `wall=True`) and collision are cut at the same jagged height; a broken
+  window of a ruin opens its collision too; racks are cut at the collapse floor.
+- **Long thin and wide band faces.** `UVBand` runs U along the longest edge of a thin upright or diagonal
+  (downpipes, braces), and `Lod.box` cuts a wide band face into strips (slab tops, roller shutters) so a
+  band is never stretched under 0.1 UV per metre; atlas cells repeat per ring on lofted trunks (`BarkUV`).
 

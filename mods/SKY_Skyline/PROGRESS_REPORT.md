@@ -542,3 +542,11 @@ metal, leaves) without the stripes and blobs that read as cartoon up close. Perf
 allowed; the hard engine limits are still respected and checked. Before / after pictures: `reviews/d96_gates.md`.
 What to look at in the next test session: `TESTING.md` section 59.
 
+A second check went through every model for collisions you cannot see and textures that stretch. It found real bugs:
+warehouse walls you could see through from inside, broken shop and church windows in ruins that you still could not
+walk or shoot through (now open), store racks with nothing behind the shelves, a bridge ladder sitting on a hidden
+6 m wall, a carousel whose fence and roof collided far outside what is drawn, a floodlight mast that blocked bullets
+like a solid pole. All are fixed, and the check (`test_quality.py`) now runs on every model. Small visual fixes came
+with it: tapered birch trunks with real bark, conical cafe parasols, steel ship ladder, slate church spire, a 9-strand
+landfill fence, round rebar, no flicker on doors, shutters, tunnel faces or bridge joints.
+

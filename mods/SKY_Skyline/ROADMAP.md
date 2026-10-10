@@ -170,4 +170,7 @@ textures) are fixed and gated (`test_quality.py`); WIN-06 is fixed with proxy pa
 city building (roofs, windows, shutters, doors, cornices, quoins), furniture, wrecks and textures. **Next**: rebuild the
 PBOs and run TESTING §59 (QP-01 first: proxy parts). Still box-like, next in line: Wreck_GarbageTruck / Wreck_CityBus
 bodies, interior doors (openings have no leaves), balconies on the panel blocks, Tower A lobby furniture.
+D96 follow-up: the full quality gate runs on all 288 models (ghost collision, z-fight, smear, vertex limit); the fixes
+it forced (warehouse inner cladding, ruin windows, racks, ladder, carousel, floodlight, tunnel, stand, trunks) are in
+`reviews/d96_gates.md`. TESTING §59 QP-12..QP-19 cover them in game.
 
