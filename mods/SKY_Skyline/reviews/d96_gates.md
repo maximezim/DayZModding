@@ -18,10 +18,12 @@ the performance constraints relaxed. Decision D96, test rows TESTING §59, param
 | Gate | Command | Result |
 |---|---|---|
 | Quality (new) | `python assets/blender/test_quality.py --jobs 3` | baseline before the pass: 1,128 failures (670 z-fight, 438 smear, 20 vertex limit); self-test 9 cases PASS; final run: see the follow-up below |
-| Asset budgets | `python assets/check_assets.py` | see follow-up |
+| Asset budgets | `python assets/check_assets.py` | 289 checked, 0 fail; 54 over the old budgets (hypotheses, not gating: the detail the user asked for, budgets relaxed by D96) |
 | Texture references | `python assets/textures/test_texture_refs.py` | PASS (91 referenced, 0 missing) |
 | Generated files | `--check` on gen_configs / gen_manifest | up to date (3 new rvmats) |
-| Concealment / slits / city / kit / sync | `test_conceal.py --city`, `test_slits.py --city`, `test_city.py`, `test_kit.py`, `check_p3d_sync.py` | running after this commit; results in the follow-up section |
+| Concealment / slits | `test_conceal.py --city --jobs 3`, `test_slits.py --city` | PASS (273 models each; the Ferris-wheel slit acceptance unchanged) |
+| City / kit / Tower A / ruin cuts | `test_city.py`, `test_kit.py`, `test_towera.py`, `test_ruin_cuts.py` | PASS (191 buildings, 279 assets, 81 core components, 120 ruined models) |
+| Export | full rebuild of all 10 builders, `check_p3d_sync.py` | PASS (397 models byte-identical) |
 
 ## Review
 
@@ -63,8 +65,10 @@ Street props: chipped painted metal instead of rust stripes, round poles, lofted
 
 The first commit gated the source of CT-13 (z-fight, smear, vertex limit). The collision check ("big collisions",
 "gaps") was then run on every model, one process per model (the Hospital / Mall builds need ~6 GB each, the pool
-version was OOM-killed). Runs: **1,282 findings** (835 ghost collision, 274 smear, 173 z-fight) -> 466 -> 50 -> see the
-final line below. What it found and what changed (all at the source unless marked *gate*):
+version was OOM-killed). Runs: **1,282 findings** (835 ghost collision, 274 smear, 173 z-fight) -> 466 -> 50 -> 1 ->
+**0 on all 288 models** (the last re-run covers every city model after the final city fixes). The conceal and slit
+gates then caught four more (counter worktop + till, window heads in ruins, a curtain mullion slit, a 2 cm worktop
+overhang making a wedge slot) - fixed, all gates PASS. What it found and what changed (all at the source unless marked *gate*):
 
 | Finding | Fix |
 |---|---|
