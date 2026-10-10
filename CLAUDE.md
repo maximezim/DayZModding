@@ -111,6 +111,10 @@ Logs: `server\profiles\{diag-server,diag-client,dedicated}\` (`script_*.log`, `*
 - Bound every collection; remove `CallLater`/`ScriptInvoker` registrations on entity deletion.
 - Minimise net sync: few `RegisterNetSyncVariable*`, `SetSynchDirty()` only on real change, targeted RPCs with small payloads (ids, not objects/strings).
 - Assets: full LOD chain, power-of-two textures sized to on-screen size, correct suffixes (`_co _ca _nohq _smdi _as`).
+- Asset quality comes before triangle / section budgets (user directive, D96): budgets may be raised for detail
+  (record why in DECISIONS.md). Engine limits stay hard: <= 65,535 render vertices per LOD (the exporter splits into
+  proxy parts), opaque far LODs. `assets/blender/test_quality.py` (z-fighting, smeared UVs, vertex limit, collision
+  without a surface) must pass; review eye-height `--pbr` renders before / after (ASSET_QUALITY_GUIDE section 11).
 
 ## Subagents (`.claude/agents/`)
 

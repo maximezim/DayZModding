@@ -6,13 +6,18 @@ quality bar) and the mod's own `DECISIONS.md` / `PENDING_VERIFICATION.md`.
 
 **Priorities, in order, when they conflict:**
 1. **Security** - never shippable with an exploit (the client is hostile).
-2. **Performance** - inside the budgets, measured, server FPS first.
-3. **Building quality and mapping** - the reason players come: believable, coherent, well-placed
-   architecture and city layout. This is the main creative priority: spend effort here first.
+2. **Visual quality of assets and mapping** - the reason players come: believable, detailed,
+   coherent architecture and city layout, judged close up at eye height. No box-only "Minecraft"
+   shapes, no flickering or smeared textures, no gaps, no invisible walls (user directive
+   2026-10-09, D96).
+3. **Performance** - inside the engine's hard limits (65,535 render vertices per LOD, LOD chain,
+   opaque far LODs) and the measured FPS protocol. Triangle and section budgets are targets that may
+   be raised for quality: record the raise and its reason in DECISIONS.md; server FPS stays first.
 4. Feature count - fewer features done well beat many half-features.
 
-Security and performance are gates (pass/fail); building quality and mapping are where the
-quality effort goes.
+Security is a gate (pass/fail); the engine limits and the visual defect gates (`test_quality.py`:
+z-fighting, smeared UVs, vertex limit, collision without a surface) are gates too. Budgets are not:
+spend detail where the player looks (eye height, within 30 m).
 
 ---
 

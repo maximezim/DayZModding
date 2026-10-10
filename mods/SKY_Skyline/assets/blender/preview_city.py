@@ -44,6 +44,9 @@ def place(name, x, y, cache, cut_front=None):
     res0.faces = keep
     obj = build_object(res0, KIT_MATS, cache)
     obj.location = (x, y, 0.0)
+    if PBR:
+        import preview_pbr as PB
+        PB.smooth(obj)
     if PT.NIGHT:
         mem = [l for l in lods if l.name == "mem"][0]
         for n in ("light_1", "light_4"):
@@ -61,6 +64,7 @@ def place(name, x, y, cache, cut_front=None):
 
 cut_front_z = 1e9
 LOD_NAME = "res0"
+PBR = False                 # D96 --pbr: normal / macro / specular maps, physical sky, smoothing like the writer
 
 
 def ground_street(width):
@@ -82,7 +86,7 @@ def ground_street(width):
 
 
 def main():
-    global cut_front_z, LOD_NAME
+    global cut_front_z, LOD_NAME, PBR
     argv = sys.argv[sys.argv.index("--") + 1:]
     out = argv[argv.index("--out") + 1]
     tex = argv[argv.index("--tex") + 1] if "--tex" in argv else None
@@ -91,6 +95,7 @@ def main():
     PT.NIGHT = "--night" in argv
     LOD_NAME = argv[argv.index("--lod") + 1] if "--lod" in argv else "res0"
     PT.DAYZ = "--dayz" in argv
+    PBR = "--pbr" in argv
     os.makedirs(out, exist_ok=True)
     jobs = []
     if shot == "lots":
@@ -157,6 +162,10 @@ def main():
                             m.blend_method = "CLIP"
         PT.scene_setup()
         ground_street(x)
+        if PBR:
+            import preview_pbr as PB
+            PB.materials(tex, S.MATERIALS)
+            PB.scene(samples=int(argv[argv.index("--samples") + 1]) if "--samples" in argv else 64)
         hmax = max(sum(fh for _u, fh in A["levels"]) for _c, A in spans)
         if shot == "interior":
             cx, A = spans[0]
@@ -164,6 +173,15 @@ def main():
         elif shot == "roof":
             cx, A = spans[0]
             PT.camera((cx - A["w"] * 0.6, -A["d"] * 0.9 - 4.0, hmax + 9.0), (cx, 0.0, hmax), 22)
+        elif shot == "close":                                   # D96: what a player sees - eye height, 8 m out
+            cx, A = spans[0]
+            PT.camera((cx - A["w"] * 0.32, -A["d"] / 2 - 7.5, 1.7), (cx + A["w"] * 0.05, -A["d"] / 2, 3.0), 24)
+            bpy.context.scene.render.resolution_x, bpy.context.scene.render.resolution_y = 1400, 900
+        elif shot == "corner":                                  # D96: 3/4 view of one building from across the street
+            cx, A = spans[0]
+            h = sum(fh for _u, fh in A["levels"])
+            PT.camera((cx - A["w"] * 0.9, -A["d"] / 2 - max(14.0, h * 0.9), 2.2), (cx, -A["d"] / 2 + 1.0, h * 0.42), 26)
+            bpy.context.scene.render.resolution_x, bpy.context.scene.render.resolution_y = 1400, 900
         elif shot == "street":
             PT.camera((-8.0, -30.0, 14.0), (x * 0.45, 0.0, hmax * 0.35), 24)
             bpy.context.scene.render.resolution_x, bpy.context.scene.render.resolution_y = 1600, 800

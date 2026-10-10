@@ -244,7 +244,10 @@ MATERIALS.update({
                   "bands": {"solid": (0.0, 0.25), "dashed": (0.25, 0.5), "crosswalk": (0.5, 1.0)}},
     "asphalt":   {"rvmat": rvmat("sky_asphalt"), "co": tex("sky_asphalt_co")},
     "rust":      {"rvmat": rvmat("sky_rust"), "co": tex("sky_rust_co"),
-                  "bands": {"green": (0.0, 0.25), "grey": (0.25, 0.5), "rust": (0.5, 0.75), "burnt": (0.75, 1.0)}},
+                  # D96: 8 bands (1024 x 2048): the four D59 bands + car / prop paints, all chipped with rust
+                  "bands": {"green": (0.0, 0.125), "grey": (0.125, 0.25), "rust": (0.25, 0.375), "burnt": (0.375, 0.5),
+                            "beige": (0.5, 0.625), "terracotta": (0.625, 0.75), "white": (0.75, 0.875),
+                            "slate": (0.875, 1.0)}},
     "foliage":   {"rvmat": rvmat("sky_foliage"), "co": tex("sky_foliage_ca")},
     "atlas":     {"rvmat": rvmat("sky_atlas"), "co": tex("sky_atlas_co")},
     "billboard": {"rvmat": rvmat("sky_billboard"), "co": tex("sky_billboard_a_co")},
@@ -490,6 +493,21 @@ MATERIALS.update({
     "lamp_cool": {"rvmat": rvmat("sky_lamp_cool"), "co": "#(argb,8,8,3)color(0.92,0.96,1,1,CO)"},
 })
 EMISSIVE_LAMP_COOL = (0.85, 0.92, 1.0)
+# D96 quality pass: roof coverings mapped along the slope at world scale (sheets tile in U and V), and the door /
+# shutter atlas (4 x 2 cells, gen_textures_d96.FACADEKIT)
+MATERIALS.update({
+    "rooftile":  {"rvmat": rvmat("sky_rooftile"), "co": tex("sky_rooftile_co"), "sheet_m": 4.0},
+    "roofslate": {"rvmat": rvmat("sky_roofslate"), "co": tex("sky_roofslate_co"), "sheet_m": 4.0},
+    "facadekit": {"rvmat": rvmat("sky_facadekit"), "co": tex("sky_facadekit_co")},
+})
+FACADEKIT = {"door_green": (0, 0), "door_oak": (1, 0), "door_steel": (2, 0), "door_boards": (3, 0),
+             "shutter_sage": (0, 1), "shutter_brown": (1, 1), "shutter_blue": (2, 1), "door_shop": (3, 1)}
+
+
+def facadekit_uv(cell):
+    """(u0, v0, u1, v1) of one facade kit cell (image rows top first: V = 1 - row)."""
+    c, r = FACADEKIT[cell]
+    return (c / 4.0, 1.0 - (r + 1) / 2.0, (c + 1) / 4.0, 1.0 - r / 2.0)
 ATLAS.update({"art_a": (3, 2), "art_b": (0, 3), "art_c": (1, 3), "art_d": (2, 3), "wayfinding": (3, 3)})
 WAYFINDING = ["L", "1", "2", "3", "4", "5", "R", "EXIT"]          # 4 x 2 sub-cells of atlas cell "wayfinding"
 

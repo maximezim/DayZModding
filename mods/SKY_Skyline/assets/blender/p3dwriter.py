@@ -12,9 +12,9 @@ Object Builder / Addon Builder read the result like any MLOD file (B10, D60).
 Layout per LOD (Arma Toolbox conventions, kept identical):
   'P3DM' 0x1C 0x100, nVerts, nNormals (= face corners), nFaces, 0
   vertices   x, z, y, flags 0                  (Blender Z-up -> P3D Y-up)
-  normals    -n per face corner                 (flat faces)
+  normals    -n per face corner                 (flat faces; D96: smooth across soft edges of one solid in Res LODs)
   faces      n, n x (vertex, vertex-as-normal, u, 1-v), triangle padding, flags 0, texture, rvmat
-  'TAGG'     named selections (vertex bytes, face bytes), #SharpEdges# (every edge: flat shading),
+  'TAGG'     named selections (vertex bytes, face bytes), #SharpEdges# (every edge but the soft ones, D96),
              #Mass# (Geometry), #Property# (64 + 64 chars), #UVSet# 0 (+ #UVSet# 1 when lod.uv1 is set, D85),
              #EndOfFile#
   resolution (float)
@@ -84,6 +84,89 @@ def _faces(lod, with_index=False):
     return (out, orig) if with_index else out
 
 
+SMOOTH_DEG = 35.0             # D96: Resolution LODs - an edge between two faces of one solid closer than this is smooth
+_SMOOTH_COS = math.cos(math.radians(SMOOTH_DEG))
+
+
+def _area(pts):
+    nx = ny = nz = 0.0
+    for i, a in enumerate(pts):
+        b = pts[(i + 1) % len(pts)]
+        nx += (a[1] - b[1]) * (a[2] + b[2])
+        ny += (a[2] - b[2]) * (a[0] + b[0])
+        nz += (a[0] - b[0]) * (a[1] + b[1])
+    return 0.5 * math.sqrt(nx * nx + ny * ny + nz * nz)
+
+
+def shading(lod, faces):
+    """(corner normals per face, sharp edge list). Graphical LODs (D96): faces that share an edge (shared points = one
+    solid: prisms, pipes, profiles) and meet at less than SMOOTH_DEG are smooth - their corner normals are the
+    area-weighted mean of the faces round that point within the angle, the edge is left out of #SharpEdges# so the
+    binarizer smooths it the same way. Boxes (90 deg) and 45 deg chamfers stay hard; separate parts never blend.
+    Other LODs: flat normals, every edge sharp (unchanged)."""
+    fn = [_newell([lod.verts[i] for i in f[0]]) for f in faces]
+    edges = {}
+    for k, f in enumerate(faces):
+        idx = f[0]
+        for i in range(len(idx)):
+            edges.setdefault(tuple(sorted((idx[i], idx[(i + 1) % len(idx)]))), []).append(k)
+    if lod.lod != "-1.0":
+        return [[n] * len(f[0]) for n, f in zip(fn, faces)], sorted(edges)
+    smooth = set()
+    for e, ks in edges.items():
+        if len(ks) == 2:
+            a, b = fn[ks[0]], fn[ks[1]]
+            if a[0] * b[0] + a[1] * b[1] + a[2] * b[2] > _SMOOTH_COS:
+                smooth.add(e)
+    if not smooth:
+        return [[n] * len(f[0]) for n, f in zip(fn, faces)], sorted(edges)
+    area = [_area([lod.verts[i] for i in f[0]]) for f in faces]
+    at = {}
+    for k, f in enumerate(faces):
+        for v in f[0]:
+            at.setdefault(v, []).append(k)
+    linked = {}                                   # faces joined by a smooth edge (only those may blend)
+    for (a, b) in smooth:
+        ka, kb = edges[(a, b)]
+        linked.setdefault(ka, set()).add(kb)
+        linked.setdefault(kb, set()).add(ka)
+    out = []
+    for k, f in enumerate(faces):
+        if k not in linked:
+            out.append([fn[k]] * len(f[0]))
+            continue
+        cn = []
+        for v in f[0]:
+            # the smooth fan round v that contains face k
+            fan, todo = {k}, [k]
+            while todo:
+                q = todo.pop()
+                for g in linked.get(q, ()):
+                    if g not in fan and v in faces[g][0]:
+                        fan.add(g)
+                        todo.append(g)
+            sx = sum(fn[g][0] * area[g] for g in fan)
+            sy = sum(fn[g][1] * area[g] for g in fan)
+            sz = sum(fn[g][2] * area[g] for g in fan)
+            ln = math.sqrt(sx * sx + sy * sy + sz * sz)
+            cn.append((sx / ln, sy / ln, sz / ln) if ln > 1e-12 else fn[k])
+        out.append(cn)
+    return out, sorted(e for e in edges if e not in smooth)
+
+
+def render_vertex_count(lod):
+    """Vertices the binarizer keeps for a graphical LOD: one per distinct (point, normal, UV) - the number the engine
+    limits to 65,535 per LOD ("Too many vertices", TESTING WIN-06)."""
+    faces = _faces(lod)
+    norms, _sharp = shading(lod, faces)
+    s = set()
+    for (idx, _m, uv), ns in zip(faces, norms):
+        uvs = uv if uv else [(0.0, 0.0)] * len(idx)
+        for vi, n, t in zip(idx, ns, uvs):
+            s.add((vi, round(n[0], 3), round(n[1], 3), round(n[2], 3), round(t[0], 5), round(t[1], 5)))
+    return len(s)
+
+
 def lod_bytes(lod, materials):
     faces, orig = _faces(lod, True)
     mat_keys = []
@@ -99,13 +182,17 @@ def lod_bytes(lod, materials):
     b += b"P3DM" + struct.pack("<III", 0x1C, 0x100, nverts) + struct.pack("<III", ncorners, len(faces), 0)
     for (x, y, z) in lod.verts:
         b += struct.pack("<fffI", x, z, y, 0)
-    for idx, _m, _uv in faces:
-        n = _newell([lod.verts[i] for i in idx])
-        for _ in idx:
+    norms, sharp = shading(lod, faces)
+    for ns in norms:
+        for n in ns:
             b += struct.pack("<fff", -n[0], -n[1], -n[2])
+    proxy_verts = set()
+    for g, vs in lod.groups.items():
+        if g.startswith("proxy:"):
+            proxy_verts |= vs
     for idx, mat, uv in faces:
-        # a face without a material takes material slot 0, as in the Blender mesh
-        key = mat if mat else (mat_keys[0] if mat_keys else None)
+        # a face without a material takes material slot 0, as in the Blender mesh; a proxy triangle (D96) none
+        key = mat if mat else (mat_keys[0] if mat_keys and not set(idx) <= proxy_verts else None)
         tex, rvmat = "", ""
         if key:
             info = materials[key]
@@ -132,10 +219,8 @@ def lod_bytes(lod, materials):
             if fs <= vs:
                 fb[i] = 1
         b += _tagg(name, bytes(vb) + bytes(fb))
-    edges = sorted(set(tuple(sorted((f[0][i], f[0][(i + 1) % len(f[0])]))) for f in faces for i in range(len(f[0]))))
-    edges = list(set(edges))
-    if edges:
-        b += _tagg("#SharpEdges#", b"".join(struct.pack("<II", a, c) for a, c in edges))
+    if sharp:
+        b += _tagg("#SharpEdges#", b"".join(struct.pack("<II", a, c) for a, c in sharp))
     key = _lod_key(lod)
     if abs(key) == GEOMETRY:
         per = lod.mass / nverts if nverts else 0.0

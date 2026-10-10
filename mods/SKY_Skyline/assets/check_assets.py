@@ -40,6 +40,17 @@ def main():
         lods = p3d_inspect.parse(os.path.join(ROOT, e["p3d"]))
         by = {l["name"]: l for l in lods}
         res = sorted((l for l in lods if l["name"].startswith("Resolution")), key=lambda l: l["resolution"])
+        # D96 (perf review M): proxy parts render with their LOD - count their triangles and sections in it
+        import glob
+        stem = os.path.splitext(os.path.join(ROOT, e["p3d"]))[0]
+        for part in sorted(glob.glob(glob.escape(stem) + "_res*p*.p3d")):
+            lname = os.path.basename(part)[len(os.path.basename(stem)) + 1:-4].rsplit("p", 1)[0]
+            pl = [l for l in p3d_inspect.parse(part) if l["name"].startswith("Resolution")]
+            tgt = {"res0": 0.0, "res1": 1.0, "res1x": 1.5, "res1y": 1.75}.get(lname)
+            for l in res:
+                if pl and tgt is not None and abs(l["resolution"] - tgt) < 1e-3:
+                    l["triangles"] += pl[0]["triangles"]
+                    l["sections"] = (l.get("sections") or 1) + (pl[0].get("sections") or 1)
         b = e.get("budget", {})
         errs, over = [], []
         is_item = e["p3d"].startswith("addons/sky_items")

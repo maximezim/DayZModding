@@ -117,14 +117,16 @@ def facade(L, z0, z1, entrances=(), transom=None):
             while a <= span + 1e-6:
                 inside = any(e[0] + 1e-3 < a < e[1] - 1e-3 for e in ent)
                 b_start = max([e[2] for e in ent if e[0] - 1e-3 <= a <= e[1] + 1e-3] or [z0]) if inside else z0
-                if not inside or b_start < z1:
+                corner = axis == "y" and abs(abs(a) - span) < 1e-6   # D96: the S / N corner mullion already stands there
+                if (not inside or b_start < z1) and not corner:
                     sbox(L[lod_key], a - S.MULLION_W / 2, a + S.MULLION_W / 2, b_start, z1,
                          plane - sgn * (CT + 0.02), plane + sgn * 0.04, mat="metal", uv=UV_ALU)
                 a += step
-        if transom is not None:
+        if transom is not None:                             # D96: 1 cm shallower than the mullions (no shared face)
+            t_end = span - (CT + 0.01 if axis == "y" else 0.0)      # W / E transoms butt into the S / N ones
             for lod_key in ("res0", "res1"):
-                sbox(L[lod_key], -span, span, transom - 0.05, transom + 0.05,
-                     plane - sgn * (CT + 0.02), plane + sgn * 0.04, mat="metal", uv=UV_ALU)
+                sbox(L[lod_key], -t_end, t_end, transom - 0.05, transom + 0.05,
+                     plane - sgn * (CT + 0.01), plane + sgn * 0.03, mat="metal", uv=UV_ALU)
         # Res3: one opaque-looking glass quad per side (single sided).
         L["res3"].quad(rect(-span, span, z0, z1), out, "glassfar", UV_GLASS)
 

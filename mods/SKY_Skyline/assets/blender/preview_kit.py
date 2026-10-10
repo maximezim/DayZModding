@@ -1,6 +1,6 @@
 """Render a review contact sheet of kit assets (Res0) - no game needed.
 
-    blender -b --factory-startup -P preview_kit.py -- --out <png> [--only A,B] [--tex <png dir>] [--cols 6]
+    blender -b --factory-startup -P preview_kit.py -- --out <png> [--only A,B] [--tex <png dir>] [--cols 6] [--pbr]
 
 Builds every requested skyspec.KIT asset with build_kit (and later batch
 generators registered in KIT_BUILDERS), lays them out on a grid with labels
@@ -49,6 +49,9 @@ def main():
         res0 = [l for l in fn() if l.name == "res0"][0]
         obj = build_object(res0, mats, cache)
         obj.location = ((i % cols) * cell, -(i // cols) * cell, 0.0)
+        if "--pbr" in argv:                                              # D96: smoothing like the P3D writer
+            import preview_pbr as PB
+            PB.smooth(obj)
         txt = bpy.data.curves.new(n, "FONT")
         txt.body = n
         txt.size = cell * 0.06
@@ -76,9 +79,19 @@ def main():
                 bsdf.inputs["Emission Color"].default_value = (1, 0.9, 0.7, 1)
                 bsdf.inputs["Emission Strength"].default_value = 5
     PT.scene_setup()
+    if "--pbr" in argv:                                                  # D96: full material maps, physical sky
+        import preview_pbr as PB
+        allm = dict(S.MATERIALS)
+        for fn_, mats_ in KIT_BUILDERS.values():
+            allm.update({k: v for k, v in mats_.items() if isinstance(v, dict)})
+        PB.materials(tex, allm)
+        PB.scene(samples=int(argv[argv.index("--samples") + 1]) if "--samples" in argv else 48)
     rows = math.ceil(len(names) / cols)
     w, h = (cols - 1) * cell, (rows - 1) * cell
-    PT.camera((w / 2 - cell * 0.4, -h - cell * 1.6, cell * 1.7 + rows * cell * 0.45), (w / 2, -h / 2, 1.5), 24)
+    if "--low" in argv:                                                  # D96: eye-level 3/4 view (close-up review)
+        PT.camera((w / 2 - cell * 0.75, -h - cell * 0.95, 1.9), (w / 2, -h / 2, 0.7), 30)
+    else:
+        PT.camera((w / 2 - cell * 0.4, -h - cell * 1.6, cell * 1.7 + rows * cell * 0.45), (w / 2, -h / 2, 1.5), 24)
     bpy.context.scene.render.resolution_x, bpy.context.scene.render.resolution_y = 1400, 900
     PT.render(out)
     print("RENDERED", out)

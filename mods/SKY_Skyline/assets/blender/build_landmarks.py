@@ -179,7 +179,10 @@ def build_ferris_wheel():
     for l in birch:
         tgt = L[l.name].lod
         base = len(tgt.verts)
+        off = tgt._prim
         tgt.verts.extend([(x + 3.4, y - 3.6, z) for (x, y, z) in l.verts])
+        tgt.vprim.extend([p + off if p > 0 else p for p in l.vprim])
+        tgt._prim += max(l.vprim + [0])
         for idx, mat, uv in l.faces:
             tgt.faces.append((tuple(base + i for i in idx), mat, uv))
     weeds(L, name, -hw + 0.4, hw - 0.4, -hd + 0.4, hd - 0.4, 18)
@@ -217,14 +220,13 @@ def gondola(L, px, pz, name, i):
     L["res2"].box(cx - w, cx + w, -d, d, zf, zf + 2.0, mat="fair", uv=yellow)
     for k in ("geo", "fire"):
         kw = {"mat": "pen_metal"} if k == "fire" else {}
-        if zf < 2.0:                                     # boardable cabin: floor + four low walls, not a solid block
-            L[k].box(cx - w, cx + w, -d, d, zf, zf + 0.08, **kw)                  # (sec D79 M3: no crawl pocket)
-            L[k].box(cx - w + 0.05, cx + w - 0.05, -0.2, 0.2, zf + 0.08, zf + 0.5, **kw)   # bench collides, wall to wall
-            for (a0, a1, b0, b1) in ((cx - w, cx + w, -d, -d + 0.05), (cx - w, cx + w, d - 0.05, d),
-                                     (cx - w, cx - w + 0.05, -d + 0.05, d - 0.05), (cx + w - 0.05, cx + w, -d + 0.05, d - 0.05)):
-                L[k].box(a0, a1, b0, b1, zf + 0.08, zf + 0.95, **kw)
-        else:
-            L[k].box(cx - w, cx + w, -d, d, zf, zf + 0.95, **kw)
+        # every cabin: floor + four low walls + bench (D96: the high cabins were one solid block across their open
+        # interior - collision with nothing drawn, test_quality ghost); boardable ones: sec D79 M3, no crawl pocket
+        L[k].box(cx - w, cx + w, -d, d, zf, zf + 0.08, **kw)
+        L[k].box(cx - w + 0.05, cx + w - 0.05, -0.2, 0.2, zf + 0.08, zf + 0.5, **kw)   # bench collides, wall to wall
+        for (a0, a1, b0, b1) in ((cx - w, cx + w, -d, -d + 0.05), (cx - w, cx + w, d - 0.05, d),
+                                 (cx - w, cx - w + 0.05, -d + 0.05, d - 0.05), (cx + w - 0.05, cx + w, -d + 0.05, d - 0.05)):
+            L[k].box(a0, a1, b0, b1, zf + 0.08, zf + 0.95, **kw)
     for k in ("geo", "fire", "view"):                                            # roof collides (D79: a head fit inside it
         L[k].solid(roof, [(0, 1, 2, 3), (0, 1, 4), (1, 2, 4), (2, 3, 4), (3, 0, 4)],  # when standing on a low cabin)
                    **({"mat": "pen_metal"} if k == "fire" else {}))

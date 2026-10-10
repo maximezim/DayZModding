@@ -34,6 +34,9 @@ ST = S.CITY_STYLE
 WT = ST["wall_t"]
 PT = ST["part_t"]
 SLAB = S.SLAB_T
+# D96: every facade decal family has its own depth off the wall, >= 4 mm apart (zfix.DELTA): overlapping decals of
+# different families never share a plane (z-fight, TESTING CT-13); same-family decals are placed so they do not overlap
+DECAL_D = {"runoff": -0.006, "streak": -0.010, "soot": -0.014, "cracks": -0.018, "graffiti": -0.022}
 UV_CONC = UVBand(S.MATERIALS["concrete"]["bands"]["panel"], 3.0)
 UV_REVEAL = UVBand(S.MATERIALS["concrete"]["bands"]["reveal"], 3.0)
 UV_RUBBLE = UVWorld(S.MATERIALS["rubble"]["sheet_m"])
@@ -608,11 +611,37 @@ def piece(L, box, mat, uv, pen="wood", collide=True, res1=True, view=False):
             L["view"].box(*box)
 
 
+def cushion(lod, x0, x1, y0, y1, z0, z1, mat, uv, n=12, p=3.0):
+    """D96: upholstered block with rounded edges and softly tapered ends (loft of superellipse sections along its
+    longer side, smoothed by the writer) - cushions, mattresses, pillows, upholstered arms and backs."""
+    along_x = (x1 - x0) >= (y1 - y0)
+    a0, a1, b0, b1 = (x0, x1, y0, y1) if along_x else (y0, y1, x0, x1)
+    r = min(0.04, (a1 - a0) / 4)
+    zc, hz = (z0 + z1) / 2, (z1 - z0) / 2
+    bc, hb = (b0 + b1) / 2, (b1 - b0) / 2
+    rings = []
+    for (a, f) in ((a0, 0.82), (a0 + r, 1.0), (a1 - r, 1.0), (a1, 0.82)):
+        ring = []
+        for k in range(n):
+            t = 2 * math.pi * k / n
+            c, s_ = math.cos(t), math.sin(t)
+            bb = bc + f * hb * math.copysign(abs(c) ** (2 / p), c)
+            zz = zc + f * hz * math.copysign(abs(s_) ** (2 / p), s_)
+            ring.append((a, bb, zz) if along_x else (bb, a, zz))
+        rings.append(ring)
+    lod.loft(rings, mat=mat, uv=uv)
+
+
 def bed(L, x0, x1, y0, y1, z, fabric="blue"):
-    piece(L, (x0, x1, y0, y1, z, z + 0.35), "wood", UV_WALNUT)
-    L["res0"].box(x0 + 0.05, x1 - 0.05, y0 + 0.05, y1 - 0.05, z + 0.35, z + 0.55, mat="fabric", uv=UV_FAB[fabric])
+    piece(L, (x0, x1, y0, y1, z, z + 0.35), "wood", UV_WALNUT, collide=False)
+    L["geo"].box(x0, x1, y0, y1, z, z + 0.56)              # D96 sec H2: collision to the mattress top - mattress + pillow
+    L["fire"].box(x0, x1, y0, y1, z, z + 0.56, mat="pen_wood")   # leave <= 0.11 m render-only (no prone head pocket)
+    cushion(L["res0"], x0 + 0.04, x1 - 0.04, y0 + 0.04, y1 - 0.04, z + 0.33, z + 0.56, "fabric", UV_FAB[fabric])   # mattress
     hy = (y1 - 0.08, y1) if (y1 - y0) > (x1 - x0) else (y0, y0 + 0.08)
     L["res0"].box(x0, x1, hy[0], hy[1], z + 0.35, z + 1.0, mat="wood", uv=UV_WALNUT)
+    if (y1 - y0) > (x1 - x0):                                                 # D96: pillow at the headboard
+        py0, py1 = (y1 - 0.5, y1 - 0.12) if hy[0] > y0 + 0.1 else (y0 + 0.12, y0 + 0.5)
+        cushion(L["res0"], x0 + 0.12, x1 - 0.12, py0, py1, z + 0.55, z + 0.67, "fabric", UV_FAB["beige"])
 
 
 def wardrobe(L, x0, x1, y0, y1, z):
@@ -628,14 +657,15 @@ def sofa(L, x0, x1, y0, y1, z, back, fabric="grey"):
     L["geo"].box(x0, x1, y0, y1, z, z + 0.5)            # one collision part, at the cushion top (sec review L)
     L["fire"].box(x0, x1, y0, y1, z, z + 0.5, mat="pen_wood")
     by = (y1 - 0.18, y1) if back == "+y" else (y0, y0 + 0.18)
-    L["res0"].box(x0, x1, by[0], by[1], z + 0.42, z + 0.85, mat="fabric", uv=fuv)
+    cushion(L["res0"], x0 + 0.02, x1 - 0.02, by[0], by[1], z + 0.38, z + 0.86, "fabric", fuv)        # D96 rounded back
     for (a, b) in ((x0, x0 + 0.16), (x1 - 0.16, x1)):
-        L["res0"].box(a, b, y0, y1, z + 0.42, z + 0.62, mat="fabric", uv=fuv)
+        cushion(L["res0"], a, b, y0, y1, z + 0.38, z + 0.63, "fabric", fuv)                           # arms
     n = 3 if x1 - x0 > 1.6 else 2
     cw = (x1 - x0 - 0.32) / n
-    for i in range(n):                                                         # seat cushions with a gap line
+    sy = (y0 + 0.04, y1 - 0.2) if back == "+y" else (y0 + 0.2, y1 - 0.04)
+    for i in range(n):                                                         # seat cushions, plump, with a gap line
         a = x0 + 0.16 + i * cw
-        L["res0"].box(a + 0.01, a + cw - 0.01, y0 + 0.05, y1 - 0.2, z + 0.42, z + 0.5, mat="fabric", uv=fuv)
+        cushion(L["res0"], a + 0.01, a + cw - 0.01, sy[0], sy[1], z + 0.4, z + 0.52, "fabric", fuv)
 
 
 def tv_unit(L, x0, x1, y0, y1, z, wall):
@@ -693,8 +723,7 @@ def kitchen_run(L, x0, x1, y0, y1, z):
 def table(L, x0, x1, y0, y1, z, h=0.75):
     L["res0"].box(x0, x1, y0, y1, z + h - 0.04, z + h, mat="wood", uv=UV_OAK)
     for (lx, ly) in ((x0 + 0.05, y0 + 0.05), (x1 - 0.05, y0 + 0.05), (x0 + 0.05, y1 - 0.05), (x1 - 0.05, y1 - 0.05)):
-        L["res0"].box(lx - 0.03, lx + 0.03, ly - 0.03, ly + 0.03, z, z + h - 0.04, mat="metal", uv=DT.UV_PAINT,
-                      skip=("-z", "+z"))
+        L["res0"].prism(lx, ly, 0.03, z, z + h - 0.04, n=12, mat="metal", uv=DT.UV_PAINT)       # D96: round legs
     L["res1"].box(x0, x1, y0, y1, z + h - 0.04, z + h, mat="wood", uv=UV_OAK)
     L["geo"].box(x0, x1, y0, y1, z, z + h)
     L["fire"].box(x0, x1, y0, y1, z + h - 0.04, z + h, mat="pen_wood")
@@ -711,17 +740,20 @@ def shelf_unit(L, x0, x1, y0, y1, z, h=1.9, goods=True):
     """Steel shelving with 4 shelves; goods boxes on the shelves (Res0)."""
     for (a, b) in ((x0, x0 + 0.04), (x1 - 0.04, x1)):
         L["res0"].box(a, b, y0, y1, z, z + h, mat="metal", uv=DT.UV_PAINT, skip=("-z",))
+    gap = (h - 0.2) / 3.5
     for k in range(4):
-        zz = z + 0.15 + k * (h - 0.2) / 3.5
+        zz = z + 0.15 + k * gap
         L["res0"].box(x0, x1, y0, y1, zz, zz + 0.03, mat="metal", uv=DT.UV_PAINT)
         if goods:
             n = max(1, int((x1 - x0) / 0.45))
+            gh = min(0.27, gap - 0.08) if k < 3 else 0.27                      # D96: goods clear the shelf above
             for i in range(n):
                 if h01("goods", round(x0, 2), round(y0, 2), k, i) < 0.75:
                     gx = x0 + 0.08 + i * (x1 - x0 - 0.16) / n
-                    L["res0"].box(gx, gx + (x1 - x0 - 0.2) / n, y0 + 0.05, y1 - 0.05, zz + 0.03, zz + 0.3,
+                    gy = 0.05 + 0.03 * h01("goodsy", round(x0, 2), round(y0, 2), k, i)   # not all flush at the front
+                    L["res0"].box(gx, gx + (x1 - x0 - 0.2) / n, y0 + gy, y1 - gy, zz + 0.03, zz + 0.03 + gh * (0.8 + 0.2 * h01("goodsh", round(x0, 2), k, i)),
                                   mat="textile" if (i + k) % 3 == 0 else "wood",
-                                  uv=DT.band_fit("textile", "rug_a", gx, gx + 0.4, y0, y1) if (i + k) % 3 == 0 else UV_LAMINATE)
+                                  uv=DT.UVTrim(S.MATERIALS["textile"]["bands"]["rug_a"], 0.6, 0.3) if (i + k) % 3 == 0 else UV_LAMINATE)
     L["res1"].box(x0, x1, y0, y1, z, z + h, mat="metal", uv=DT.UV_PAINT, skip=("-z",))
     L["geo"].box(x0, x1, y0, y1, z, z + h)
     L["fire"].box(x0, x1, y0, y1, z, z + h, mat="pen_metal")
@@ -781,7 +813,8 @@ def rubble_pile(L, x, y, z, rx, ry, h, key, collide=True):
         d = 1.0 + 0.4 * h01("chunkd", key, i)                         # D82: round the foot, not half inside the mound
         cx, cy = x + math.cos(a) * rx * d, y + math.sin(a) * ry * d
         s = 0.12 + 0.25 * h01("chunks", key, i)
-        L["res0"].box(cx - s, cx + s, cy - s * 0.7, cy + s * 0.7, z, z + min(s * 0.8, 0.18),   # <= 18 cm: no head fits (D82)
+        L["res0"].box(cx - s, cx + s, cy - s * 0.7, cy + s * 0.7, z, z + min(s * 0.8, 0.18 - 0.013 * i),   # <= 18 cm (D82);
+                      # D96: every chunk its own height, so neighbouring tops never share a plane (z-fight)
                       mat="brick" if i % 2 else "concrete", uv=UV_REVEAL if i % 2 == 0 else UVWorld(2.0))
 
 
@@ -830,6 +863,16 @@ class FSide:
 
     def uvax(self):
         return 0 if self.axis == "x" else 1
+
+
+def side_profile(lod, sd, a0, a1, prof, **kw):
+    """D96: extrude a convex (depth, z) profile along facade side sd from a0 to a1 (depth < 0 = proud of the wall):
+    cornices, sills, string courses and plinths with real mouldings instead of plain boxes."""
+    pts = [(sd.d(d), z) for d, z in prof]
+    if sd.axis == "x":
+        lod.extrude_x(pts, a0, a1, **kw)
+    else:
+        lod.extrude_y(pts, a0, a1, **kw)
 
 
 def skin_uv(P, skin):
@@ -892,7 +935,7 @@ def window(L, P, sd, a0, a1, s0, s1, skin, key, rec, residential, frame_uv):
     ax = sd.uvax()
     if state != "broken" or P.state < 2:                                   # frame survives damage
         fw = 0.06
-        fkw = {"mat": "metal", "uv": frame_uv}
+        fkw = {"mat": "paint", "uv": DT.paint_uv("white")} if residential else {"mat": "metal", "uv": frame_uv}
         sd.box(r0, a0, a0 + fw, s0, s1, rec - 0.03, rec + 0.03, skip=("-z", "+z"), **fkw)
         sd.box(r0, a1 - fw, a1, s0, s1, rec - 0.03, rec + 0.03, skip=("-z", "+z"), **fkw)
         sd.box(r0, a0 + fw, a1 - fw, s1 - fw, s1, rec - 0.03, rec + 0.03, **fkw)
@@ -900,22 +943,37 @@ def window(L, P, sd, a0, a1, s0, s1, skin, key, rec, residential, frame_uv):
         if a1 - a0 > 1.15 and state == "glass":
             m = (a0 + a1) / 2
             sd.box(r0, m - 0.03, m + 0.03, s0 + fw, s1 - fw, rec - 0.03, rec + 0.03, skip=("-z", "+z"), **fkw)
+        if state == "glass" and (s1 - s0) > 0.9 and (a1 - a0) > 0.5:      # D96: sashes + glazing bars (Res0)
+            sw = 0.045
+            mids = [(a0 + a1) / 2] if a1 - a0 > 0.75 else []
+            cols = [a0 + fw] + [c for m in mids for c in (m - 0.03, m + 0.03)] + [a1 - fw]
+            zt = s0 + 0.7 * (s1 - s0)                                          # transom: top light over the casements
+            for ca, cb in zip(cols[0::2], cols[1::2]):
+                for (za, zb) in ((s0 + fw, zt - 0.025), (zt + 0.025, s1 - fw)):
+                    if zb - za < 0.2:
+                        continue
+                    sd.box(r0, ca, ca + sw, za, zb, rec - 0.02, rec + 0.01, skip=("-z", "+z"), **fkw)
+                    sd.box(r0, cb - sw, cb, za, zb, rec - 0.02, rec + 0.01, skip=("-z", "+z"), **fkw)
+                    sd.box(r0, ca + sw, cb - sw, zb - sw, zb, rec - 0.02, rec + 0.01, **fkw)
+                    sd.box(r0, ca + sw, cb - sw, za, za + sw, rec - 0.02, rec + 0.01, **fkw)
+            sd.box(r0, a0 + fw, a1 - fw, zt - 0.025, zt + 0.025, rec - 0.03, rec + 0.03, **fkw)     # transom bar
     if state == "glass":
         L["res0"].quad(sd.rect(a0, a1, s0, s1, rec), sd.out, "glass", UV_GLASS, double=True)
         L["res1"].quad(sd.rect(a0, a1, s0, s1, rec), sd.out, "glass", UV_GLASS)
         sd.box(L["fire"], a0, a1, s0, s1, rec - 0.01, rec + 0.01, mat="pen_glass")
     elif state == "boarded":
-        n = 4
+        n = max(1, min(4, int((s1 - s0 - 0.04) / 0.2)))                 # D96: a transom gets 1 board, not 4 stacked
         for i in range(n):
-            z = s0 + 0.08 + i * (s1 - s0 - 0.25) / (n - 1)
+            z = s0 + 0.08 + (i * (s1 - s0 - 0.25) / (n - 1) if n > 1 else (s1 - s0 - 0.34) / 2)
             tilt = 0.04 * (h01(P.name, "board", sd.key, key, i) - 0.5)
+            dd = 0.016 * (i % 2)                                   # D96: overlapping boards alternate in depth (no z-fight)
             for k in ("res0", "res1"):
-                sd.box(L[k], a0 - 0.08, a1 + 0.08, z + tilt, z + 0.18 + tilt, -0.03, 0.0, mat="wood", uv=UV_OAK)
+                sd.box(L[k], a0 - 0.08, a1 + 0.08, z + tilt, z + 0.18 + tilt, -0.03 - dd, -dd, mat="wood", uv=UV_OAK)
             sd.box(L["fire"], a0 - 0.08, a1 + 0.08, z, z + 0.18, -0.03, 0.0, mat="pen_wood")
         # D90: the gaps between the boards show the room in Res0 / Res1; the hollow far LODs get a dark backing
         L["res1"].quad(sd.rect(a0, a1, s0, s1, WT - 0.02), sd.out, "glassvoid", UV_GLASS)
     if state == "broken":                                                   # soot plume over the opening
-        r0.quad(sd.rect(a0 - 0.3, a1 + 0.3, s1 - 0.1, s1 + 1.1, -0.006), sd.out, "decal_dirt",
+        r0.quad(sd.rect(a0 - 0.3, a1 + 0.3, s1 - 0.1, s1 + 1.1, DECAL_D["soot"]), sd.out, "decal_dirt",
                 UVRect(ax, 2, (a0 - 0.3, s1 - 0.1), (a1 + 0.3, s1 + 1.1), (0, 1, 1, 0)))
         # dark void only for the far LODs (no interior there): `glassvoid` lives in Res1 until exterior_lod copies it
         # as glassfar, then build() strips it. D90 sec: in Res0 it was an opaque one-sided pane in a broken (open)
@@ -1100,16 +1158,33 @@ def facade(L, P, key, lvl):
         st = window(L, P, sd, w0, w1, s0, s1, skin, bkey, rec, residential, frame_uv)
         window_streak(L, P, sd, w0, w1, s0, bkey)
         r0 = L["res0"]
-        sd.box(r0, w0 - 0.05, w1 + 0.05, s0 - 0.06, s0 + 0.01, -0.06, rec, mat="stone", uv=DT.stone_uv("limestone"),
-               skip=(sd.in_key,))
+        lim = DT.stone_uv("limestone")
+        # D96 stone sill: weathered (sloped) top, 7 cm nose, horns into the wall either side; drip groove underneath
+        side_profile(r0, sd, w0 - 0.06, w1 + 0.06, [(rec, s0 + 0.012), (-0.07, s0 - 0.008), (-0.07, s0 - 0.055),
+                                                    (rec, s0 - 0.055)], mat="stone", uv=lim)
         if SK.get("soldier"):
             sd.quad(r0, w0 - 0.1, w1 + 0.1, s1, s1 + 0.22, -0.004, mat="brick", uv=DT._brick_uv("soldier"))
+        elif SK["mat"] == "render":
+            # D96 moulded architrave round the opening (stucco band, chamfered), keystone over the head
+            ab = 0.09
+            for (a, b) in ((w0 - ab, w0), (w1, w1 + ab)):
+                side_profile(r0, sd, a, b, [(0.0, s0), (-0.022, s0), (-0.022, s1), (0.0, s1)], mat="stone", uv=lim)
+            side_profile(r0, sd, w0 - ab, w1 + ab, [(0.0, s1), (-0.022, s1), (-0.03, s1 + ab - 0.02), (-0.03, s1 + ab),
+                                                    (0.0, s1 + ab)], mat="stone", uv=lim)
+            c_ = (w0 + w1) / 2
+            side_profile(r0, sd, c_ - 0.09, c_ + 0.09, [(0.0, s1 - 0.02), (-0.045, s1 - 0.02), (-0.045, s1 + ab + 0.07),
+                                                         (0.0, s1 + ab + 0.07)], mat="stone", uv=lim)
         else:
-            sd.box(r0, w0 - 0.08, w1 + 0.08, s1, s1 + 0.12, -0.03, 0.0, mat="stone", uv=DT.stone_uv("limestone"),
-                   skip=(sd.in_key,))
-        if SK.get("shutters") and st != "broken":
+            sd.box(r0, w0 - 0.08, w1 + 0.08, s1, s1 + 0.12, -0.03, 0.0, mat="stone", uv=lim, skip=(sd.in_key,))
+        if SK.get("shutters") and st != "broken":                           # D96 louvred shutters (facade kit)
+            cell = ("shutter_sage", "shutter_brown", "shutter_blue")[int(h01(P.name, "shut") * 3)]
+            ax = sd.uvax()
             for (a, b) in ((w0 - 0.55, w0 - 0.03), (w1 + 0.03, w1 + 0.55)):
-                sd.box(r0, a, b, s0, s1, -0.04, -0.005, mat="paint", uv=DT.paint_uv("sage"))
+                sd.box(r0, a, b, s0, s1, -0.045, -0.01, mat="facadekit",
+                       uv=UVRect(ax, 2, (a, s0), (b, s1), S.facadekit_uv(cell)))
+                for zz in (s0 + 0.22, s1 - 0.22):                          # strap hinges
+                    hx = (w0 - 0.05, w0 - 0.25) if a < w0 else (w1 + 0.25, w1 + 0.05)
+                    sd.box(r0, min(hx), max(hx), zz - 0.02, zz + 0.02, -0.052, -0.044, mat="metal", uv=DT.UV_STEEL)
         if (residential or use in RADIATOR_USES) and st == "glass" and P.state == 0:          # radiator (D89: + offices / public)
             sd.box(r0, c - 0.5, c + 0.5, z0 + 0.15, z0 + 0.7, WT + 0.03, WT + 0.11, mat="paint", uv=DT.paint_uv("white"),
                    skip=(sd.out_key, "-z"))
@@ -1181,9 +1256,13 @@ def facade_level_extras(L, P, sd, lvl, openings):
             uv=UV_GLASS if (skin == "curtain" or shop) else wuv)
     if mat in ("brick", "render", "stone", "concpanel") and lvl > 0:                        # string course
         sc = ST["string_course"]
-        for k in ("res0", "res1"):
-            sd.box(L[k], sd.a0 - (sc if sd.axis == "x" else 0), sd.a1 + (sc if sd.axis == "x" else 0),
-                   z0 - SLAB - 0.02, z0 + 0.04, -sc, 0.0, mat="stone", uv=DT.stone_uv("limestone"), skip=(sd.in_key,))
+        e = sc if sd.axis == "x" else 0
+        za, zb = z0 - SLAB - 0.02, z0 + 0.04
+        # D96: weathered top and a bed chamfer (Res0); a plain band in Res1
+        side_profile(L["res0"], sd, sd.a0 - e, sd.a1 + e, [(0.0, za - 0.03), (-sc + 0.03, za), (-sc, za + 0.03),
+                                                          (-sc, zb - 0.02), (-sc + 0.02, zb), (0.0, zb + 0.015)],
+                     mat="stone", uv=DT.stone_uv("limestone"))
+        sd.box(L["res1"], sd.a0 - e, sd.a1 + e, za, zb, -sc, 0.0, mat="stone", uv=DT.stone_uv("limestone"), skip=(sd.in_key,))
     if lvl == 0 and skin not in ("metal", "curtain", "open") and not shop and not sd.key.startswith("i"):   # plinth
         for k in ("res0", "res1"):
             segs, cur = [], sd.a0
@@ -1192,8 +1271,37 @@ def facade_level_extras(L, P, sd, lvl, openings):
                 cur = o1
             segs.append((cur, sd.a1))
             for a, b in segs:
-                sd.box(L[k], a, b, z0, z0 + ST["plinth"], -0.04, 0.0, mat="stone", uv=DT.stone_uv("granite"),
-                       skip=(sd.in_key, "-z"))
+                if k == "res0":                                          # D96: chamfered top (water runs off)
+                    side_profile(L[k], sd, a, b, [(0.0, z0), (-0.04, z0), (-0.04, z0 + ST["plinth"] - 0.035),
+                                                  (-0.005, z0 + ST["plinth"]), (0.0, z0 + ST["plinth"])],
+                                 mat="stone", uv=DT.stone_uv("granite"))
+                else:
+                    sd.box(L[k], a, b, z0, z0 + ST["plinth"], -0.04, 0.0, mat="stone", uv=DT.stone_uv("granite"),
+                           skip=(sd.in_key, "-z"))
+    quoins(L, P, sd, lvl)
+
+
+def quoins(L, P, sd, lvl):
+    """D96: dressed stone quoins on the outer corners of rendered and stone buildings (alternating long / short
+    blocks, 2.5 cm proud, chamfered joints by the texture), Res0. Called once per side and level (all levels)."""
+    if sd.key.startswith("i") or sd.key in P.A.get("blank", ()):
+        return
+    skin = P.A["skin"][0]
+    if S.CITY_SKINS[skin]["mat"] not in ("render", "stone"):
+        return
+    use, fh, z0 = P.levels[lvl]
+    lim = DT.stone_uv("limestone")
+    zz, i = z0 + (ST["plinth"] if lvl == 0 else 0.0), 0
+    while zz + 0.3 <= z0 + fh + 1e-6:
+        ln = 0.42 if (i + (lvl * 7)) % 2 == 0 else 0.26
+        a0, a1 = sd.a0, sd.a1
+        if sd.axis == "y":                     # W / E sides butt into the S / N walls: reach the corner, swap long / short
+            ln = 0.68 - ln
+            a0, a1 = a0 - WT - 0.025, a1 + WT + 0.025
+        for a, b in ((a0, a0 + ln), (a1 - ln, a1)):
+            sd.box(L["res0"], a, b, zz + 0.012, zz + 0.3, -0.025, 0.0, mat="stone", uv=lim, skip=(sd.in_key,))
+        zz += 0.312
+        i += 1
 
 
 def inner_skirting(L, P, sd, lvl, openings):
@@ -1326,10 +1434,10 @@ def stairs(L, P):
         L["road"].ramp(xa[0], xa[1], yA0, yA1, z0, zm, mat="road_int", uv=UV_TILE)
         L["road"].ramp(xb[0], xb[1], yA1, yA0, zm, zt, mat="road_int", uv=UV_TILE)
         for (xr, ya_, yb_, za_, zb_) in ((xa[1] - 0.06, yA0, yA1, z0, zm), (xb[0] + 0.06, yA1, yA0, zm, zt)):  # handrails
-            ring = [(-0.025, -0.025), (0.025, -0.025), (0.025, 0.025), (-0.025, 0.025)]
-            verts = [(xr + a, ya_, za_ + 0.95 + b) for a, b in ring] + [(xr + a, yb_, zb_ + 0.95 + b) for a, b in ring]
-            L["res0"].solid(verts, [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)],
-                            mat="metal", uv=DT.UV_STEEL)
+            tube(L["res0"], (xr, ya_, za_ + 0.95), (xr, yb_, zb_ + 0.95), 0.022, "metal", DT.UV_STEEL)    # D96: round
+            for t in (0.15, 0.5, 0.85):                                                           # posts
+                yp, zp = ya_ + t * (yb_ - ya_), za_ + t * (zb_ - za_)
+                tube(L["res0"], (xr, yp, zp), (xr, yp, zp + 0.95), 0.014, "metal", DT.UV_STEEL, n=8)
         L["res0"].box(cx - 0.2, cx + 0.2, y1 - 0.07, y1, zt - 0.45, zt - 0.35, mat="lamp", skip=("+y",))   # bulkhead light
     # top level: guard over the open flight-A well
     _u, _fh, ztop = P.levels[-1]
@@ -1355,11 +1463,17 @@ def front_door(L, P):
     name = "door_front"
     leaf = (d0 + 0.01, d1 - 0.01, y - 0.025, y + 0.025, 0.0, dh - 0.01)
     wood = P.A["group"] == "residential"
-    vis = {"mat": "wood", "uv": UV_WALNUT} if wood else {"mat": "metal", "uv": DT.UV_PAINT}
+    # D96: panelled / glazed / steel leaf from the facade kit (the texture carries panels, mouldings, ironmongery)
+    g = P.A["group"]
+    cell = (("door_green", "door_oak", "door_boards")[int(h01(P.name, "door") * 3)] if g == "residential" else
+            "door_oak" if g in ("mixed", "civic") else "door_shop" if g == "commercial" else "door_steel")
+    vis = {"mat": "facadekit", "uv": UVRect(0, 2, (d0, 0.0), (d1, dh), S.facadekit_uv(cell))}
     for k in ("res0", "res1", "geo", "view", "fire", "shadow"):
         kw = dict(vis) if k.startswith("res") else ({"mat": "pen_wood" if wood else "pen_metal"} if k == "fire" else {})
         L[k].lod.box(*leaf, sel=[name], **kw)
     L["res0"].lod.box(d1 - 0.18, d1 - 0.1, y - 0.06, y - 0.025, 1.0, 1.1, mat="metal", uv=DT.UV_STEEL, sel=[name])   # handle
+    # D96 stone threshold step outside (render only, 6 cm: feet do not visibly sink) - not on a ruin
+    L["res0"].lod.box(d0 - 0.12, d1 + 0.12, -P.hd - 0.32, -P.hd + 0.02, 0.0, 0.03, mat="stone", uv=DT.stone_uv("granite"))
     m = L["mem"].lod
     m.point(name + "_axis", (d0 + 0.01, y, 0.0))
     m.point(name + "_axis", (d0 + 0.01, y, dh))
@@ -2424,68 +2538,128 @@ def sawtooth(L, P, par):
         L["res3"].extrude_x(prof, P.ix0, P.ix1, mat="rust", uv=zuv)
 
 
+class UVSlope:
+    """D96: roof covering at world scale along the slope (rooftile / roofslate sheets tile in U and V): U along the
+    ridge, V down the slope (distance from the ridge line), `sheet` metres per UV unit."""
+
+    def __init__(self, along, pitch_deg, sheet=4.0):
+        self.ia, self.ic = (0, 1) if along == "x" else (1, 0)
+        self.k = 1.0 / math.cos(math.radians(pitch_deg))
+        self.sheet = sheet
+
+    def __call__(self, pts, normal):
+        return [(p[self.ia] / self.sheet, abs(p[self.ic]) * self.k / self.sheet) for p in pts]
+
+
+def roof_cover(P):
+    """Clay pantiles or slate (church / steep roofs, and a quarter of the rest, seeded per building type)."""
+    if P.A.get("pitch", 32) >= 40 or h01(P.arch, "roofmat") < 0.25:
+        return "roofslate"
+    return "rooftile"
+
+
 def pitched_roof(L, P, mat_uv):
-    """Gable roof along X (eaves overhang 0.3 m), cut into ~2.5 m segments so a ruin's collapse
-    removes only the roof over the collapsed corner; brick gable ends; zinc sheet (rust grey)."""
-    if P.A.get("ridge") == "y":
-        return pitched_roof_y(L, P, mat_uv)
-    hw, hd, top = P.hw, P.hd, P.top
-    ov, th = 0.3, 0.16
-    rise = (hd + ov) * math.tan(math.radians(32))
-    zuv = UVBand(S.MATERIALS["rust"]["bands"]["grey"], 1.0)
-    n = max(1, int(round(2 * (hw + ov) / 2.5)))
-    xs = [-hw - ov + i * 2 * (hw + ov) / n for i in range(n + 1)]
-    for s in (-1, 1):                                                       # front (-Y) / back (+Y) slopes
-        for a, b in zip(xs, xs[1:]):
+    """Gable roof (D96 rebuild of the D59 zinc roof). Ridge along X (houses) or Y (church nave: P.A ridge "y").
+    Collision (Geometry / View / Fire / Shadow) is unchanged: a slab per ~2.5 m segment inside the footprint so a
+    ruin's collapse removes only the roof over the collapsed corner. The graphical LODs get the real roof: clay
+    pantiles or slate mapped along the slope, 0.35 m eaves, and in Res0 a round ridge cap, fascia boards, half-round
+    gutters with downpipes, barge boards on the gables and a capped chimney with two pots."""
+    along = "y" if P.A.get("ridge") == "y" else "x"
+    T = (lambda u, v, z: (u, v, z)) if along == "x" else (lambda u, v, z: (v, u, z))
+    hl, hs = (P.hw, P.hd) if along == "x" else (P.hd, P.hw)          # half length along the ridge, half span
+    top = P.top
+    ov, th = 0.35, 0.16
+    pitch = P.A.get("pitch", 32 if along == "x" else 45)
+    rise = (hs + ov) * math.tan(math.radians(pitch))
+    cover = roof_cover(P)
+    ruv = UVSlope(along, pitch)
+    n = max(1, int(round(2 * (hl + ov) / 2.5)))
+    us = [-hl - ov + i * 2 * (hl + ov) / n for i in range(n + 1)]
+
+    def ext(lod, prof, a, b, **kw):
+        if along == "x":
+            lod.extrude_x(prof, a, b, **kw)
+        else:
+            lod.extrude_y(prof, a, b, **kw)
+
+    def box(lod, u0, u1, v0, v1, z0, z1, **kw):
+        x0, y0, _ = T(u0, v0, 0)
+        x1, y1, _ = T(u1, v1, 0)
+        lod.box(min(x0, x1), max(x0, x1), min(y0, y1), max(y0, y1), z0, z1, **kw)
+
+    def slope_z(v):                                              # underside of the covering above plan offset v
+        return top - 0.05 + (hs + ov - abs(v)) * math.tan(math.radians(pitch))
+    for s in (-1, 1):                                                       # the two slopes
+        for a, b in zip(us, us[1:]):
             for k in ("res0", "res1", "res2", "geo", "view", "fire", "shadow"):
                 vis = k.startswith("res")
                 # eaves overhang is visual: collision stays inside the footprint (test_city)
-                y_e = s * (hd + ov) if vis else s * hd
-                z_e = top - 0.05 if vis else top - 0.05 + rise * ov / (hd + ov)
+                y_e = s * (hs + ov) if vis else s * hs
+                z_e = top - 0.05 if vis else top - 0.05 + rise * ov / (hs + ov)
                 prof = [(y_e, z_e), (0.0, top + rise - 0.05), (0.0, top + rise + th), (y_e, z_e + th + 0.05)]
-                a2, b2 = (a, b) if vis else (max(a, -hw), min(b, hw))
+                a2, b2 = (a, b) if vis else (max(a, -hl), min(b, hl))
                 if b2 - a2 < 0.05:
                     continue
-                kw = kw_for(k, "rust", zuv, "metal")
-                L[k].extrude_x(prof, a2, b2, **kw)
-    for sx in (-1, 1):                                                      # gable walls
-        x0, x1 = sorted((sx * hw, sx * (hw - WT)))
+                kw = {"mat": cover, "uv": ruv} if vis else kw_for(k, cover, ruv, "metal")
+                ext(L[k], prof, a2, b2, **kw)
+    for su in (-1, 1):                                                      # gable walls
+        u0, u1 = sorted((su * hl, su * (hl - WT)))
         for k in ("res0", "res1", "res2", "geo", "view", "fire"):
             kw = kw_for(k, mat_uv[0], mat_uv[1], "masonry")
-            L[k].extrude_x([(-hd, top), (hd, top), (0.0, top + rise * hd / (hd + ov))], x0, x1, **kw)
-    L["res3"].extrude_x([(-hd - ov, top), (hd + ov, top), (0.0, top + rise)], -hw - ov, hw + ov, mat="rust", uv=zuv)
-    cx = hw * 0.45                                                          # chimney through the back slope
+            ext(L[k], [(-hs, top), (hs, top), (0.0, top + rise * hs / (hs + ov))], u0, u1, **kw)
+    ext(L["res3"], [(-hs - ov, top), (hs + ov, top), (0.0, top + rise)], -hl - ov, hl + ov, mat=cover, uv=ruv)
+    zr = top + rise + th - 0.05                                             # ridge line (top of the covering)
+    # ridge cap: half-round tiles (smooth: 10-sided), in Res0 and Res1
+    cap = [(0.13 * math.cos(math.pi * i / 10), zr - 0.03 + 0.12 * math.sin(math.pi * i / 10)) for i in range(11)]
     for k in ("res0", "res1"):
-        L[k].box(cx - 0.3, cx + 0.3, hd * 0.3, hd * 0.3 + 0.5, top, top + rise + 0.9, mat="brick", uv=DT._brick_uv("bond"),
-                 skip=("-z",))
-    return rise
-
-
-def pitched_roof_y(L, P, mat_uv):
-    """Gable roof along Y (church nave): slopes to -X / +X, gables on the front and the back."""
-    hw, hd, top = P.hw, P.hd, P.top
-    ov, th = 0.3, 0.16
-    rise = (hw + ov) * math.tan(math.radians(P.A.get("pitch", 45)))
-    zuv = UVBand(S.MATERIALS["rust"]["bands"]["grey"], 1.0)
-    n = max(1, int(round(2 * (hd + ov) / 2.5)))
-    ys = [-hd - ov + i * 2 * (hd + ov) / n for i in range(n + 1)]
+        ext(L[k], cap, -hl - ov, hl + ov, mat=cover, uv=ruv)
+    r0 = L["res0"]
+    fas = DT.paint_uv("white") if h01(P.arch, "fascia") < 0.5 else DT.paint_uv("terracotta")
     for s in (-1, 1):
-        for a, b in zip(ys, ys[1:]):
-            for k in ("res0", "res1", "res2", "geo", "view", "fire", "shadow"):
-                vis = k.startswith("res")
-                x_e = s * (hw + ov) if vis else s * hw
-                z_e = top - 0.05 if vis else top - 0.05 + rise * ov / (hw + ov)
-                prof = [(x_e, z_e), (0.0, top + rise - 0.05), (0.0, top + rise + th), (x_e, z_e + th + 0.05)]
-                a2, b2 = (a, b) if vis else (max(a, -hd), min(b, hd))
-                if b2 - a2 < 0.05:
-                    continue
-                L[k].extrude_y(prof, a2, b2, **kw_for(k, "rust", zuv, "metal"))
-    for sy in (-1, 1):                                                       # gable walls
-        y0, y1 = sorted((sy * hd, sy * (hd - WT)))
-        for k in ("res0", "res1", "res2", "geo", "view", "fire"):
-            L[k].extrude_y([(-hw, top), (hw, top), (0.0, top + rise * hw / (hw + ov))], y0, y1,
-                           **kw_for(k, mat_uv[0], mat_uv[1], "masonry"))
-    L["res3"].extrude_y([(-hw - ov, top), (hw + ov, top), (0.0, top + rise)], -hd - ov, hd + ov, mat="rust", uv=zuv)
+        ve = s * (hs + ov)
+        ze = top - 0.05                                                     # eaves line (lower edge of the covering)
+        # fascia board under the covering edge
+        box(r0, -hl - ov, hl + ov, ve - (0.035 if s > 0 else 0.0), ve + (0.0 if s > 0 else 0.035), ze - 0.2, ze + 0.12,
+            mat="paint", uv=fas)
+        # half-round gutter (smooth) on brackets, falling to the downpipes at both ends
+        gc = ve + s * 0.09
+        prof = [(gc + 0.075 * math.cos(math.pi + math.pi * i / 8), ze - 0.06 + 0.075 * math.sin(math.pi + math.pi * i / 8))
+                for i in range(9)]
+        ext(r0, prof, -hl - ov + 0.05, hl + ov - 0.05, mat="metal", uv=DT.UV_STEEL)
+        for j in range(int((2 * (hl + ov)) / 0.9) + 1):                    # brackets
+            u = -hl - ov + 0.2 + j * 0.9
+            if u > hl + ov - 0.15:
+                break
+            box(r0, u - 0.015, u + 0.015, min(ve, gc + s * 0.08), max(ve, gc + s * 0.08), ze - 0.14, ze - 0.12,
+                mat="metal", uv=DT.UV_STEEL)
+        if P.state < 2 or s < 0:
+            for su in (-1, 1):                                              # downpipes at the corners
+                u = su * (hl - 0.18)
+                x, y, _ = T(u, s * (hs + 0.07), 0)
+                r0.prism(x, y, 0.045, 0.12, ze - 0.1, n=12, mat="metal", uv=DT.UV_STEEL)
+                x2, y2, _ = T(u, gc, 0)
+                xm, ym = (x + x2) / 2, (y + y2) / 2                          # swan neck under the gutter outlet
+                r0.prism(xm, ym, 0.045, ze - 0.25, ze - 0.05, n=12, mat="metal", uv=DT.UV_STEEL)
+                r0.prism(x, y, 0.06, 0.0, 0.14, n=12, mat="metal", uv=DT.UV_STEEL)          # shoe
+    # barge boards along the gable edges of the covering
+    for su in (-1, 1):
+        ua, ub = sorted((su * (hl + ov), su * (hl + ov) + su * 0.035))
+        for s in (-1, 1):
+            ve = s * (hs + ov)
+            pts = [(ve, top - 0.25), (0.0, top + rise - 0.25), (0.0, top + rise + th + 0.02), (ve, top - 0.05 + th + 0.05)]
+            ext(r0, pts, ua, ub, mat="paint", uv=fas)
+    if along == "y":                                                        # church nave: no chimney
+        return rise
+    # chimney through the back slope: brick stack, oversailing cap, two clay pots (smooth)
+    cu, cv = hl * 0.45, hs * 0.3
+    zc = top + rise + 0.9
+    for k in ("res0", "res1"):
+        box(L[k], cu - 0.3, cu + 0.3, cv, cv + 0.5, top, zc, mat="brick", uv=DT._brick_uv("bond"), skip=("-z",))
+    box(r0, cu - 0.36, cu + 0.36, cv - 0.06, cv + 0.56, zc, zc + 0.08, mat="stone", uv=DT.stone_uv("limestone"))
+    for du in (-0.13, 0.13):
+        x, y, _ = T(cu + du, cv + 0.25, 0)
+        r0.prism(x, y, 0.085, zc + 0.08, zc + 0.42, n=12, mat="brick", uv=DT._brick_uv("bond"))   # perf L: no extra section
+        r0.prism(x, y, 0.1, zc + 0.36, zc + 0.44, n=12, mat="brick", uv=DT._brick_uv("bond"))
     return rise
 
 
@@ -2520,6 +2694,7 @@ def roof(L, P):
                 L[k].box(x0, x1, y0, y1, top, top + par, **kw)
     L["res3"].box(-hw, hw, -hd, hd, -SLAB, top + par, mat=mat if mat != "metal" else "metal", uv=uv, skip=("-z", "+z"))
     L["res3"].hquad(-hw, hw, -hd, hd, top, mat="concrete", uv=UV_CONC)
+    cornice(L, P)
     if P.A.get("roof") == "sawtooth":
         sawtooth(L, P, par)
     Lt = lifted(L, top)
@@ -2542,6 +2717,34 @@ def roof(L, P):
     skylight(L, P)
     roof_signs(L, P, skin)
     roof_clutter(L, P)
+
+
+def cornice(L, P):
+    """D96: moulded cornice at the roof line of masonry buildings (render / stone / brick skins): bed moulding, cove,
+    corona and a weathered top, 24 cm proud - the strongest single cue that separates a real facade from a box.
+    Res0 full profile, Res1 the corona only. Party walls get none; S / N runs reach over the corners."""
+    skin = P.A["skin"][0]
+    if S.CITY_SKINS[skin]["mat"] not in ("render", "stone", "brick") or P.A.get("roof") == "sawtooth":
+        return
+    z = P.top
+    lim = DT.stone_uv("limestone")
+    pieces = [[(0.0, z - 0.44), (-0.05, z - 0.44), (-0.05, z - 0.32), (0.0, z - 0.32)],           # bed moulding
+              [(0.0, z - 0.32), (-0.05, z - 0.32), (-0.19, z - 0.13), (0.0, z - 0.13)],           # cove
+              [(0.0, z - 0.13), (-0.24, z - 0.13), (-0.24, z + 0.0), (0.0, z + 0.0)],             # corona
+              [(0.0, z + 0.0), (-0.24, z + 0.0), (-0.17, z + 0.07), (0.0, z + 0.07)]]             # weathered top
+    for key in ("S", "N", "W", "E"):
+        if key in P.A.get("blank", ()):
+            continue
+        sd = FSide(P, key)
+        e = 0.24 if sd.axis == "x" else 0.0
+        if sd.axis == "y":                                                   # reach the S / N corner pieces
+            a0, a1 = sd.a0 - WT, sd.a1 + WT
+        else:
+            a0, a1 = sd.a0 - e, sd.a1 + e
+        for pr in pieces:
+            side_profile(L["res0"], sd, a0, a1, pr, mat="stone", uv=lim)
+        side_profile(L["res1"], sd, a0, a1, pieces[2], mat="stone", uv=lim)
+        side_profile(L["fire"], sd, a0, a1, pieces[2], mat="pen_concrete")    # D96 sec L1: the corona stops rounds
 
 
 def roof_occupied(P):
@@ -2671,9 +2874,29 @@ def roof_signs(L, P, skin):
                      (a0 + 0.05, -hd, zt + 0.04), (a1 - 0.05, -hd, zt + 0.04), (a1 - 0.05, -hd - 1.4, zt - 0.56),
                      (a0 + 0.05, -hd - 1.4, zt - 0.56)]
             fab = "beige" if b.index((a0, a1)) % 2 else "blue"
-            for k in ("res0", "res1"):
-                L[k].solid(verts, [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)],
-                           mat="fabric", uv=UV_FAB[fab])
+            L["res1"].solid(verts, [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)],
+                            mat="fabric", uv=UV_FAB[fab])
+            # D96 Res0: a real folding-arm awning - roller cassette on the wall, canvas sagging slightly between
+            # the cassette and the front bar, hanging valance, two steel arms with elbow joints
+            r0 = L["res0"]
+            xa, xb = a0 + 0.05, a1 - 0.05
+            prof = [(-hd - 0.02, zt + 0.02), (-hd - 0.47, zt - 0.22), (-hd - 0.94, zt - 0.43), (-hd - 1.4, zt - 0.6)]
+            sag = [0.0, -0.035, -0.035, 0.0]
+            pts = [(y, z + s_) for (y, z), s_ in zip(prof, sag)]
+            for (y0_, z0_), (y1_, z1_) in zip(pts, pts[1:]):
+                r0.quad([(xa, y0_, z0_), (xb, y0_, z0_), (xb, y1_, z1_), (xa, y1_, z1_)], (0, -0.4, 1), mat="fabric",
+                        uv=UV_FAB[fab], double=True)
+            yv, zv = pts[-1]
+            r0.quad([(xa, yv, zv), (xb, yv, zv), (xb, yv, zv - 0.22), (xa, yv, zv - 0.22)], (0, -1, 0), mat="fabric",
+                    uv=UV_FAB[fab], double=True)                                # valance
+            r0.extrude_x([(-hd - 0.02 + 0.075 * math.cos(2 * math.pi * i / 12), zt + 0.06 + 0.075 * math.sin(2 * math.pi * i / 12))
+                          for i in range(12)], xa - 0.03, xb + 0.03, mat="metal", uv=DT.UV_PAINT)    # cassette (smooth)
+            r0.extrude_x([(yv + 0.025 * math.cos(2 * math.pi * i / 10), zv - 0.01 + 0.025 * math.sin(2 * math.pi * i / 10))
+                          for i in range(10)], xa, xb, mat="metal", uv=DT.UV_PAINT)                 # front bar
+            for xx in (xa + 0.12, xb - 0.12):                                                     # arms
+                ym, zm = -hd - 0.75, zt - 0.62
+                for (p_, q_) in (((xx, -hd - 0.05, zt - 0.55), (xx, ym, zm)), ((xx, ym, zm), (xx, yv + 0.05, zv - 0.03))):
+                    tube(r0, p_, q_, 0.018, "metal", DT.UV_PAINT)
 
 
 # ================================================================== DayZ ambiance (D59)
@@ -2733,9 +2956,16 @@ def dress(L, P):
         a0, a1 = sd.a0, sd.a1
         # rising damp (behind shop glass there is no wall: skip those sides)
         if not shop and skin != "curtain":
-            for k in ("res0", "res1"):
-                sd.quad(L[k], a0, a1, -0.3, 1.1 + 0.4 * h01(P.name, "damp", key), -0.045,
-                        mat="decal_grime", uv=grime_uv(sd, a0, a1, -0.3, 1.5, "damp"))
+            # D96: broken at the front door (the damp band no longer runs over the door leaf)
+            segs = [(a0, a1)]
+            if key == "S" and P.door is not None:
+                segs = [(a0, P.door[0] - 0.2), (P.door[1] + 0.2, a1)]
+            zt = 1.1 + 0.4 * h01(P.name, "damp", key)
+            for (sa, sb) in segs:
+                if sb - sa < 0.3:
+                    continue
+                for k in ("res0", "res1"):
+                    sd.quad(L[k], sa, sb, -0.3, zt, -0.045, mat="decal_grime", uv=grime_uv(sd, sa, sb, -0.3, 1.5, "damp"))
         # run-off under the roofline / parapet coping
         if skin != "curtain":
             ztop = P.top + par
@@ -2766,13 +2996,13 @@ def dress(L, P):
             ih = min(P.top, 3.0 + (P.top - 3.0) * h01(P.name, "ivh", key))
             cell = "ivy_dark" if h01(P.name, "ivc", key) < 0.5 else "ivy"
             for k in ("res0", "res1"):
-                sd.quad(L[k], ia, ia + iw, -0.2, ih, -0.03, mat="vegetation",
+                sd.quad(L[k], ia, ia + iw, -0.2, ih, -0.07, mat="vegetation",           # D96: in front of sills / lintels
                         uv=UVRect(sd.uvax(), 2, (ia, -0.2), (ia + iw, ih),
                                   (S.veg_uv(cell)[0] + 0.004, S.veg_uv(cell)[1] + 0.004,
                                    S.veg_uv(cell)[2] - 0.004, S.veg_uv(cell)[3] - 0.004)))
             if par:                                                          # strands over the parapet
                 hw_ = min(iw, 3.0)
-                sd.quad(L["res0"], ia, ia + hw_, P.top + par - 1.6, P.top + par, -0.035, mat="vegetation",
+                sd.quad(L["res0"], ia, ia + hw_, P.top + par - 1.6, P.top + par, -0.075, mat="vegetation",
                         uv=UVRect(sd.uvax(), 2, (ia, P.top + par - 1.6), (ia + hw_, P.top + par), S.veg_uv("ivy_hang")))
         # downpipes at the side ends (masonry, flat roofs; not on party walls)
         if key in ("S", "N") and skin not in ("curtain", "metal", "open") and not A.get("roof") and P.W > 5:
@@ -2832,7 +3062,7 @@ def window_streak(L, P, sd, w0, w1, s0, key):
     if h01(P.name, "wst", sd.key, *key) < S.WEATHER["window_streaks"][P.state] and s0 > 1.2:
         ln = min(s0 - 0.3, 0.9 + 0.9 * h01(P.name, "wsl", sd.key, *key))
         v0, v1 = DT.grime_v("streak")                                            # band "streak", fitted to the quad (D92 layout)
-        sd.quad(L["res0"], w0 - 0.05, w1 + 0.05, s0 - ln, s0 - 0.07, -0.007, mat="decal_grime",
+        sd.quad(L["res0"], w0 - 0.05, w1 + 0.05, s0 - ln, s0 - 0.07, DECAL_D["streak"], mat="decal_grime",
                 uv=UVRect(sd.uvax(), 2, (w0 - 0.05, s0 - ln), (w1 + 0.05, s0 - 0.07), (0.0, v0, 1.0, v1)))
 
 
@@ -2840,14 +3070,21 @@ def ruin_extras(L, P):
     """Damaged / ruined dressing: cracks and graffiti on the front, rubble below the collapse."""
     if P.state >= 1:
         sd = FSide(P, "S")
+        placed = []
         for i in range(3 if P.state == 1 else 6):
-            a = -P.hw + 0.8 + (P.W - 1.6) * h01(P.name, "crack", i)
-            lvl = int(h01(P.name, "crackl", i) * len(P.levels))
-            z = P.levels[lvl][2] + 0.4 + 1.6 * h01(P.name, "crackz", i)
-            sd.quad(L["res0"], a - 0.9, a + 0.9, z, z + 1.8, -0.012, mat="decal_cracks",
+            for t in range(6):                             # D96: cracks never overlap each other (same depth: z-fight)
+                a = -P.hw + 0.8 + (P.W - 1.6) * h01(P.name, "crack", i, t)
+                lvl = int(h01(P.name, "crackl", i, t) * len(P.levels))
+                z = P.levels[lvl][2] + 0.4 + 1.6 * h01(P.name, "crackz", i, t)
+                if not any(abs(a - pa) < 1.8 and abs(z - pz) < 1.8 for pa, pz in placed):
+                    break
+            else:
+                continue
+            placed.append((a, z))
+            sd.quad(L["res0"], a - 0.9, a + 0.9, z, z + 1.8, DECAL_D["cracks"], mat="decal_cracks",
                     uv=UVRect(0, 2, (a - 0.9, z), (a + 0.9, z + 1.8), (0, 0, 1, 1)))
         a = P.entry[1] + 0.35 if P.entry[1] + 1.4 < P.hw else P.entry[0] - 1.35
-        sd.quad(L["res0"], a, a + 1.0, 0.0, 0.85, -0.018, mat="decal_graffiti",       # street level, under the sills
+        sd.quad(L["res0"], a, a + 1.0, 0.0, 0.85, DECAL_D["graffiti"], mat="decal_graffiti",   # street level, under the sills
                 uv=UVRect(0, 2, (a, 0.0), (a + 1.0, 0.85), (0, 0, 1, 1)))
     if P.state == 2:
         r = P.ruin.region
@@ -2986,6 +3223,23 @@ def bar(lod, p0, p1, r, mat=None, uv=None):
             (-u[0] - w[0], -u[1] - w[1], -u[2] - w[2]), (-u[0] + w[0], -u[1] + w[1], -u[2] + w[2])]
     verts = [tuple(p0[i] + c[i] for i in range(3)) for c in ring] + [tuple(p1[i] + c[i] for i in range(3)) for c in ring]
     lod.solid(verts, [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)], mat, uv)
+
+
+def tube(lod, p0, p1, r, mat=None, uv=None, n=10):
+    """D96: round tube between two points (n-gon section; the P3D writer smooths it - pipes, rails, arms)."""
+    d = [p1[i] - p0[i] for i in range(3)]
+    ln = math.sqrt(sum(v * v for v in d)) or 1.0
+    d = [v / ln for v in d]
+    a = (0, 0, 1) if abs(d[2]) < 0.9 else (1, 0, 0)
+    u = [d[1] * a[2] - d[2] * a[1], d[2] * a[0] - d[0] * a[2], d[0] * a[1] - d[1] * a[0]]
+    un = math.sqrt(sum(v * v for v in u))
+    u = [v / un for v in u]
+    w = [d[1] * u[2] - d[2] * u[1], d[2] * u[0] - d[0] * u[2], d[0] * u[1] - d[1] * u[0]]
+    ring = [tuple(r * (math.cos(2 * math.pi * k / n) * u[i] + math.sin(2 * math.pi * k / n) * w[i]) for i in range(3))
+            for k in range(n)]
+    verts = [tuple(p0[i] + c[i] for i in range(3)) for c in ring] + [tuple(p1[i] + c[i] for i in range(3)) for c in ring]
+    faces = [tuple(range(n)), tuple(range(n, 2 * n))] + [(k, (k + 1) % n, n + (k + 1) % n, n + k) for k in range(n)]
+    lod.solid(verts, faces, mat, uv)
 
 
 def build_substation(state):
@@ -4255,6 +4509,10 @@ def build(arch, state):
     geo.mass = 15000.0 + 6000.0 * len(P.levels)
     LOOT_OUT["Land_SKY_" + P.name] = loot_points(L, P)
     macro_variant(L, P)
+    for k in ("res0", "res1"):                     # D96: interior faces go to proxy parts first when a LOD is over budget
+        lod = L[k].lod
+        zt = max(v[2] for v in lod.verts) if lod.verts else 0.0
+        lod.proxy_hint = (lambda c, zt=zt: not is_outer(P, c, zt))
     ext = exterior_lod(L, P)
     strip_faces(L["res1"].lod, "glassvoid")                                   # far-LOD-only voids (see window())
     if P.A["skin"][0] == "open":                                              # open decks: no "exterior"
@@ -4273,6 +4531,7 @@ def strip_faces(lod, mat):
         return
     used = sorted({i for idx, _m, _u in faces for i in idx})
     remap = {o: n for n, o in enumerate(used)}
+    lod.vprim = [lod.vprim[i] if i < len(lod.vprim) else -1 for i in used]
     lod.verts = [lod.verts[i] for i in used]
     lod.faces = [(tuple(remap[i] for i in idx), m, uv) for idx, m, uv in faces]
     lod.groups = {g: {remap[i] for i in vs if i in remap} for g, vs in lod.groups.items()}
@@ -4285,6 +4544,19 @@ EXT_ROOF = 2.5      # m below the highest point: parapets, roof plant, skylights
 # clear glass swapped for the opaque far glass; alpha-TESTED materials (gen_configs.ALPHA_TEST) stay
 EXT_DROP = {"decal_grime", "decal_dirt"}
 EXT_SWAP = {"glass": "glassfar", "glassvoid": "glassfar"}
+
+
+def is_outer(P, c, ztop):
+    """Face centroid c in the exterior band: near the footprint walls / the yard walls, or in the roof zone."""
+    x0, x1, y0, y1 = -P.hw, P.hw, -P.hd, P.hd
+    cx, cy, cz = c
+    outer = min(cx - x0, x1 - cx, cy - y0, y1 - cy) < EXT_BAND or cz > ztop - EXT_ROOF
+    yard = getattr(P, "yard", None)
+    if not outer and yard:
+        yx0, yx1, yy0, yy1 = yard[:4]
+        outer = (yx0 - EXT_BAND < cx < yx1 + EXT_BAND and yy0 - EXT_BAND < cy < yy1 + EXT_BAND
+                 and not (yx0 + EXT_BAND < cx < yx1 - EXT_BAND and yy0 + EXT_BAND < cy < yy1 - EXT_BAND))
+    return outer
 
 
 def exterior_lod(L, P):
@@ -4301,17 +4573,10 @@ def exterior_lod(L, P):
     ztop = max(zs)
     # D90 fix: the band is measured from the footprint walls, not the vertex extremes - canopies, awnings, signs and
     # AC units stand proud of the facade and pushed the real wall out of the band (front facades went missing)
-    x0, x1, y0, y1 = -P.hw, P.hw, -P.hd, P.hd
-    yard = getattr(P, "yard", None)
     remap = {}
     for idx, mat, uv in r1.faces:
         pts = [r1.verts[i] for i in idx]
-        cx, cy, cz = (sum(p[k] for p in pts) / len(pts) for k in range(3))
-        outer = min(cx - x0, x1 - cx, cy - y0, y1 - cy) < EXT_BAND or cz > ztop - EXT_ROOF
-        if not outer and yard:
-            yx0, yx1, yy0, yy1 = yard[:4]
-            outer = (yx0 - EXT_BAND < cx < yx1 + EXT_BAND and yy0 - EXT_BAND < cy < yy1 + EXT_BAND
-                     and not (yx0 + EXT_BAND < cx < yx1 - EXT_BAND and yy0 + EXT_BAND < cy < yy1 - EXT_BAND))
+        outer = is_outer(P, [sum(p[k] for p in pts) / len(pts) for k in range(3)], ztop)
         outer = outer or mat == "rubble"                 # D90: collapse debris is the ruin's silhouette (no see-through)
         if not outer or mat in EXT_DROP:
             continue
@@ -4319,8 +4584,7 @@ def exterior_lod(L, P):
         nidx = []
         for i in idx:
             if i not in remap:
-                remap[i] = len(ext.verts)
-                ext.verts.append(r1.verts[i])
+                remap[i] = ext.copy_vert(r1, i)
             nidx.append(remap[i])
         ext.faces.append((tuple(nidx), mat, uv))
     for g, vs in r1.groups.items():                      # door selections (model.cfg animations), kept verts only
@@ -4393,8 +4657,7 @@ def far_mid_lod(ext, r2, P):
         nidx = []
         for i in idx:
             if i not in remap:
-                remap[i] = len(mid.verts)
-                mid.verts.append(ext.verts[i])
+                remap[i] = mid.copy_vert(ext, i)
             nidx.append(remap[i])
         mid.faces.append((tuple(nidx), mat, uv))
     for g, vs in ext.groups.items():

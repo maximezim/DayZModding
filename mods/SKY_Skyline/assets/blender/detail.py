@@ -45,6 +45,8 @@ class UVTrim:
     def __call__(self, pts, normal):
         ax = max(range(3), key=lambda i: abs(normal[i]))
         along, across = {0: (1, 2), 1: (0, 2), 2: (0, 1)}[ax]
+        if ax == 2 and (max(p[1] for p in pts) - min(p[1] for p in pts)) > (max(p[0] for p in pts) - min(p[0] for p in pts)):
+            along, across = 1, 0                     # D96: horizontal faces run U along their longer side
         c0 = min(p[across] for p in pts)
         return [(p[along] / self.scale,
                  1.0 - (self.v1 - min(1.0, (p[across] - c0) / self.band_m) * (self.v1 - self.v0))) for p in pts]

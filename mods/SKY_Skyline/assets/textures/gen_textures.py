@@ -92,9 +92,14 @@ def weather(col, seed, dirt=0.18, desat=0.25, moss=0.0, streaks=0.0, spots=0.0):
     m = tfbm(size, seed, octaves=5, base=4)
     col = col * (1 - dirt * gray(np.clip((m - 0.35) * 2.0, 0, 1)))
     if streaks:
-        st = np.repeat(tnoise(size, 48, seed + 7, aspect=48)[:1, :], size, 0)
-        st = np.clip((st - 0.55) * 4, 0, 1) * tfbm(size, seed + 9, octaves=3, base=2)
-        col = col * (1 - streaks * gray(st))
+        # D96: soft rain-wash, not stripes - wide, low-contrast columns (blurred along U) that start and stop at
+        # random heights (the hard 1-texel columns read as a barcode up close, CT-13)
+        row = tnoise(size, 32, seed + 7, aspect=32)[:1, :]
+        k = max(2, size // 256)
+        row = np.mean([np.roll(row, s, 1) for s in range(-k, k + 1)], 0)
+        st = np.repeat(np.clip((row - 0.55) * 2.5, 0, 1), size, 0)
+        st = st * np.clip((tfbm(size, seed + 9, octaves=3, base=3) - 0.35) * 2.0, 0, 1)
+        col = col * (1 - 0.5 * streaks * gray(st))
     if spots:
         sp = np.clip((tfbm(size, seed + 13, octaves=4, base=16) - 0.68) * 6, 0, 1)
         col = col * (1 - spots * gray(sp))
@@ -1469,11 +1474,11 @@ def grime(size, out):
     top = 0.25 + 0.45 * edge                                                    # ragged upper edge
     a = np.clip((t - top) * 3.0, 0, 1) * (0.55 + 0.35 * n[:bh])
     rgb = np.stack([0.17 + 0.04 * n[:bh], 0.18 + 0.05 * n[:bh], 0.12 + 0.03 * n[:bh]], -1)
-    moss = (tfbm(size, 511, octaves=4, base=32)[:bh] > 0.62) & (t > 0.6)
-    rgb[moss] = (0.24, 0.30, 0.14)
+    moss = (tfbm(size, 511, octaves=4, base=32)[:bh] > 0.70) & (t > 0.7)
+    rgb[moss] = (0.17, 0.20, 0.11)                                              # D96: dull, sparse (was cartoon green)
     rgba[:bh] = np.concatenate([rgb, a[..., None]], -1)
     # run-off from the top
-    a = (np.clip(1 - t * 3.0, 0, 1) * 0.55 + np.clip((st - 0.45) * 2.5, 0, 1) * (1 - t) ** 1.3 * 0.6) * (0.6 + 0.5 * n[bh:2 * bh])
+    a = (np.clip(1 - t * 3.0, 0, 1) * 0.45 + np.clip((st - 0.5) * 2.0, 0, 1) * (1 - t) ** 1.6 * 0.35) * (0.6 + 0.5 * n[bh:2 * bh])
     rgb = np.stack([0.16 + 0.03 * n[bh:2 * bh], 0.15 + 0.03 * n[bh:2 * bh], 0.13 + 0.02 * n[bh:2 * bh]], -1)
     rgba[bh:2 * bh] = np.concatenate([rgb, np.clip(a * 0.75, 0, 0.7)[..., None]], -1)
     # window streaks (fit to the quad: fade at the sides)
@@ -1484,8 +1489,8 @@ def grime(size, out):
     rgba[2 * bh:3 * bh] = np.concatenate([rgb, a[..., None]], -1)
     # moss / lichen patches
     p = tfbm(size, 531, octaves=5, base=12)[3 * bh:]
-    a = np.clip((p - 0.5) * 3.5, 0, 1) * 0.85
-    rgb = np.stack([0.28 + 0.1 * p, 0.34 + 0.1 * p, 0.17 + 0.05 * p], -1)
+    a = np.clip((p - 0.55) * 3.0, 0, 1) * 0.6                                 # D96: softer, greyer lichen / moss
+    rgb = np.stack([0.24 + 0.08 * p, 0.27 + 0.08 * p, 0.17 + 0.05 * p], -1)
     rgba[3 * bh:4 * bh] = np.concatenate([rgb, a[..., None]], -1)
     o = 4 * bh                                                                  # D92 interior wear bands
     n2 = tfbm(size, 541, octaves=5, base=8)[:bh]
@@ -1621,8 +1626,9 @@ def wall_panel(size, out):
         ao[:, p:p + j] *= 0.6
         ao[p:p + j, :] *= 0.6
     below = ((yy % (size // 2)) / (size / 2.0)).astype(np.float32)          # 0 just under a joint
-    st = np.repeat(tnoise(size, 64, 723, aspect=64)[:1, :], size, 0)
-    weep = np.clip((st - 0.5) * 3, 0, 1) * np.clip(1 - below * 2.2, 0, 1) * 0.35
+    st = np.repeat(tnoise(size, 24, 723, aspect=24)[:1, :], size, 0)               # D96: few soft weeps, not a comb
+    reach = 1.2 + 2.5 * np.repeat(tnoise(size, 16, 733, aspect=16)[:1, :], size, 0)
+    weep = np.clip((st - 0.6) * 2.5, 0, 1) * np.clip(1 - below * reach, 0, 1) * 0.22
     col = col * (1 - gray(weep))
     col = weather(col, 725, dirt=0.2, desat=0.3, moss=0.05, streaks=0.12, spots=0.18)
     save(to_rgb(col), out, "sky_wall_panel_co")
@@ -1654,11 +1660,11 @@ def wall_limestone(size, out):
             cum += w
             x1 = x0_ + int(round(cum * size / 12.0))                            # exact edges: no unwritten column (perf D82 M)
             k = rng.random()
-            base = np.array([0.76, 0.72, 0.62], np.float32) * (0.93 + 0.1 * rng.random())
-            if k < 0.08:
-                base = np.array([0.84, 0.81, 0.72], np.float32)                 # newer replacement block
-            elif k > 0.9:
-                base = base * 0.86                                              # weathered, darker
+            base = np.array([0.76, 0.72, 0.62], np.float32) * (0.975 + 0.04 * rng.random())   # D96: subtle block tones
+            if k < 0.06:
+                base = np.array([0.80, 0.77, 0.68], np.float32)                 # newer replacement block
+            elif k > 0.92:
+                base = base * 0.94                                              # weathered, darker
             xs = np.arange(x, x1) % size
             col[y0:y1, xs] = base
             ex = np.minimum(np.arange(x1 - x) - 0.0, (x1 - x) - 1 - np.arange(x1 - x)).astype(np.float32)
@@ -1672,7 +1678,8 @@ def wall_limestone(size, out):
     col = col * gray(0.9 + 0.1 * bevel) * gray(0.97 + 0.05 * (tool - 0.5)) * gray(1 - 0.18 * fos)
     col = np.where(joint[..., None], np.array([0.62, 0.60, 0.55], np.float32), col)
     col += 0.05 * gray(n - 0.5)
-    col = weather(col, 747, dirt=0.2, desat=0.1, moss=0.06, streaks=0.14, spots=0.06)
+    col *= gray(0.96 + 0.08 * tnoise(size, size // 3, 753))                      # D96: stone grain inside the blocks
+    col = weather(col, 747, dirt=0.12, desat=0.1, moss=0.03, streaks=0.06, spots=0.04)
     sj = 1.0 - np.clip((e - (j / 2.0 - 1.0)) / 2.0, 0, 1)
     h = 0.05 * n + 0.3 * bevel + 0.04 * tool - 0.2 * fos - 1.0 * sj
     save(to_rgb(col), out, "sky_wall_limestone_co")
@@ -1694,7 +1701,7 @@ def grime_macro(size, out):
     damp = tfbm(size, 407, octaves=3, base=2)
     streak = tstreak(size, 5, max(48, size // 16), 409)                     # few rows, many columns: vertical runs
     fall = tstreak(size, 3, max(24, size // 32), 411)                       # where a run starts / how far it reaches
-    runs = np.clip((streak - 0.55) * 4, 0, 1) * np.clip((fall - 0.35) * 3, 0, 1)
+    runs = np.clip((streak - 0.62) * 2.5, 0, 1) * np.clip((fall - 0.4) * 2.5, 0, 1) * 0.5   # D96: softer, fewer
     soot = np.clip((patch - 0.5) * 3.0, 0, 1)
     wash = np.clip((0.4 - patch) * 3.0, 0, 1) * np.clip((damp - 0.35) * 3, 0, 1)   # pale lime-washed / bleached areas
     wet = np.clip((damp - 0.62) * 4, 0, 1)
@@ -1768,34 +1775,60 @@ def vegetation(size, out):
     bark, leaf litter, moss, sapling, dry grass, reeds, bramble. Muted Chernarus greens and
     late-summer browns; every plant is original procedural drawing."""
     size = min(size, 2048)
+    out_size = size
+    size *= 2                                  # D96: drawn at 2x and downsampled - smooth leaf edges, no pixel blobs
     c = size // 4
     img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
     rng = np.random.default_rng(601)
 
     def green(dark=0.0, dry=0.0):
-        g = rng.uniform(0.32, 0.52) * (1 - dark)
-        r = g * rng.uniform(0.55, 0.8) + dry * 0.25
-        b = g * rng.uniform(0.25, 0.4)
+        g = rng.uniform(0.26, 0.46) * (1 - dark)                              # D96: deeper, less saturated greens
+        r = g * rng.uniform(0.62, 0.85) + dry * 0.22
+        b = g * rng.uniform(0.30, 0.45)
         return tuple(int(255 * v) for v in (min(1, r), g, b)) + (255,)
+
+    def leaf(px, py, ln, wd, ang, fill, lobes=0):
+        """Pointed leaf polygon (base at px, py) with a darker midrib; lobes > 0: toothed edge (burdock, bramble)."""
+        ca, sa = np.cos(ang), np.sin(ang)
+        pts_l, pts_r = [], []
+        k = 9
+        for j in range(k + 1):
+            t = j / k
+            w = wd * np.sin(np.pi * t ** 0.85) * (1.0 + (0.18 * np.sin(t * np.pi * 2 * lobes) if lobes else 0.0))
+            ax, ay = px + ca * ln * t, py + sa * ln * t
+            pts_l.append((ax - sa * w, ay + ca * w))
+            pts_r.append((ax + sa * w, ay - ca * w))
+        d.polygon(pts_l + pts_r[::-1], fill=fill)
+        dark = tuple(int(v * 0.72) for v in fill[:3]) + (255,)
+        d.line([px, py, px + ca * ln * 0.9, py + sa * ln * 0.9], fill=dark, width=max(1, int(wd / 6)))
 
     def box(i):
         col, row = i % 4, i // 4
         return col * c, row * c
 
     def blades(x0, y0, n, hmax, dry=0.0, width=3):
-        for _ in range(n):
+        for _ in range(n):                                                    # D96: tapered, curved blades
             bx = x0 + rng.uniform(0.05, 0.95) * c
             hh = rng.uniform(0.3, 1.0) * hmax
-            lean = rng.normal(0, 0.15) * hh
-            d.line([bx, y0 + c - 2, bx + lean * 0.5, y0 + c - hh * 0.5, bx + lean, y0 + c - hh], fill=green(0.1, dry), width=width)
+            lean = rng.normal(0, 0.18) * hh
+            w0 = width * rng.uniform(0.8, 1.6)
+            left, right = [], []
+            for j in range(8):
+                t = j / 7
+                cx_ = bx + lean * t * t
+                cy_ = y0 + c - 2 - hh * t
+                w = w0 * (1 - t) + 0.3
+                left.append((cx_ - w, cy_))
+                right.append((cx_ + w, cy_))
+            d.polygon(left + right[::-1], fill=green(0.1 + 0.2 * rng.random(), dry))
 
     def leaves(x0, y0, cx, cy, rx, ry, n, rmin, rmax, dark=0.0, dry=0.0, ellipse=(1.0, 0.55)):
         for _ in range(n):
             a, rr = rng.uniform(0, 2 * np.pi), np.sqrt(rng.random())
             px, py = x0 + cx + np.cos(a) * rx * rr, y0 + cy + np.sin(a) * ry * rr
             r = rng.uniform(rmin, rmax)
-            d.ellipse([px - r * ellipse[0], py - r * ellipse[1], px + r * ellipse[0], py + r * ellipse[1]], fill=green(dark, dry))
+            leaf(px, py, 2.4 * r * ellipse[0], 0.75 * r * max(ellipse[1], 0.55), rng.uniform(0, 2 * np.pi), green(dark, dry))
 
     for i, name in enumerate(VEG_CELLS):
         x0, y0 = box(i)
@@ -1809,12 +1842,14 @@ def vegetation(size, out):
             blades(x0, y0, 80, c * 0.6)
             leaves(x0, y0, c / 2, c * 0.55, c * 0.45, c * 0.35, 220, c / 60, c / 28)
         elif name == "burdock":
-            for _ in range(14):
-                px = x0 + rng.uniform(0.15, 0.85) * c
-                py = y0 + rng.uniform(0.35, 0.9) * c
-                r = rng.uniform(c / 14, c / 8)
-                d.ellipse([px - r, py - r * 0.7, px + r, py + r * 0.7], fill=green(0.15))
-                d.line([px, py, px, y0 + c - 2], fill=green(0.4), width=3)
+            for _ in range(22):                                               # D96: toothed leaves on stalks
+                px = x0 + rng.uniform(0.2, 0.8) * c
+                base_y = y0 + c - 2
+                ln = rng.uniform(c / 6, c / 3.2)
+                ang = -np.pi / 2 + rng.normal(0, 0.7)
+                sx, sy = px + np.cos(ang) * ln * 0.35, base_y + np.sin(ang) * ln * 0.35
+                d.line([px, base_y, sx, sy], fill=green(0.45), width=5)
+                leaf(sx, sy, ln, ln * 0.42, ang, green(0.12 + 0.25 * rng.random()), lobes=3)
         elif name == "shrub":                                                 # irregular lobes, not a disc
             for _l in range(7):
                 lx, ly = c * rng.uniform(0.25, 0.75), c * rng.uniform(0.35, 0.75)
@@ -1831,16 +1866,16 @@ def vegetation(size, out):
                     continue
                 px, py = x0 + fx * c, y0 + fy * c
                 r = rng.uniform(c / 110, c / 55)
-                d.ellipse([px - r, py - r * 0.8, px + r, py + r * 0.8], fill=green(0.35 if name == "ivy_dark" else 0.1))
+                leaf(px, py, 2.2 * r, 1.0 * r, rng.uniform(0, 2 * np.pi), green(0.35 if name == "ivy_dark" else 0.12), lobes=1)
         elif name == "ivy_hang":
             for _ in range(26):
                 px = x0 + rng.uniform(0.05, 0.95) * c
                 ln = rng.uniform(0.3, 1.0) * c
-                for k in range(int(ln / 6)):
-                    py = y0 + k * 6
-                    r = rng.uniform(c / 110, c / 60)
-                    jx = px + rng.normal(0, 2)
-                    d.ellipse([jx - r, py - r, jx + r, py + r], fill=green(0.15))
+                d.line([px, y0, px, y0 + ln], fill=green(0.5), width=2)
+                for k in range(int(ln / 14)):
+                    py = y0 + k * 14
+                    r = rng.uniform(c / 90, c / 50)
+                    leaf(px, py, 2.2 * r, 0.9 * r, np.pi / 2 + rng.normal(0, 0.8), green(0.15), lobes=1)
         elif name == "birch_crown":                                           # loose, drooping lobes
             for _l in range(9):
                 lx, ly = c * rng.uniform(0.2, 0.8), c * rng.uniform(0.15, 0.8)
@@ -1885,6 +1920,13 @@ def vegetation(size, out):
                     d.line([px, py, nx, ny], fill=(90, 55, 50, 255), width=3)
                     px, py = nx, ny
             leaves(x0, y0, c / 2, c * 0.6, c * 0.45, c * 0.35, 500, c / 90, c / 45, dark=0.25)
+    # D96: self-shading (plants darker toward the root), fine colour noise, then the 2x -> 1x downsample
+    a = np.asarray(img, dtype=np.float32) / 255.0
+    yy = (np.arange(size, dtype=np.float32) % c) / c
+    shade = 0.7 + 0.35 * (1.0 - yy)[:, None]
+    n = tnoise(size, size // 4, 613)
+    a[..., :3] *= (shade * (0.9 + 0.2 * n))[..., None]
+    img = Image.fromarray(np.clip(a * 255, 0, 255).astype(np.uint8), "RGBA").resize((out_size, out_size), Image.LANCZOS)
     img.save(os.path.join(out, "sky_vegetation_ca.png"))
 
 
@@ -1936,6 +1978,14 @@ def hq_facade(size, out):
     save(sm.resize((size // 4,) * 2, Image.BILINEAR), out, "sky_hq_facade_smdi")
 
 
+def _d96(name):
+    """D96 replacements / new sheets live in gen_textures_d96 (imported lazily: it imports the helpers above)."""
+    def run(s, o):
+        import gen_textures_d96
+        return getattr(gen_textures_d96, name)(s, o)
+    return run
+
+
 GENERATORS = {
     "concrete": concrete, "metal": metal, "glass": glass, "glassfar": glassfar,
     "tile": lambda s, o: tiled(s, o, "sky_tile", 5, (0.72, 0.71, 0.68), (0.45, 0.45, 0.43), max(3, s // 400), 41, 0.3, 0.5),
@@ -1954,6 +2004,9 @@ GENERATORS = {
     "fur": lambda s, o: fur(min(s, 1024), o),                                  # D65 creatures
     "signs3": signs3,                                                          # D66 underground signs
     "signs4": signs4,                                                          # D69 venue variants
+    # D96 quality pass: realistic plaster / painted metal replace the D59-D84 sheets; new roof and door sheets
+    "wall_render": _d96("wall_render"), "rust": _d96("rust"),
+    "rooftile": _d96("rooftile"), "roofslate": _d96("roofslate"), "facadekit": _d96("facadekit"),
 }
 
 

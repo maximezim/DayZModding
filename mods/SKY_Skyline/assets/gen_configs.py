@@ -65,6 +65,7 @@ PROCEDURAL_MAPS = {
     "sky_fur": ("as", "smdi"),                                                 # D65
     "sky_signs3": ("nohq", "as", "smdi"),                                      # D66
     "sky_signs4": ("nohq", "as", "smdi"),                                      # D69
+    "sky_rooftile": ("as",), "sky_roofslate": ("as",), "sky_facadekit": ("as",),   # D96 (co / nohq / smdi files)
 }
 # Maps several rvmats share (one file, no per-colour copies): base -> {map: shared texture stem} (D80).
 SHARED_MAPS = {"sky_wall_render_%s" % c: {"nohq": "sky_wall_render"} for c in ("cream", "ochre", "grey", "white")}
@@ -165,6 +166,8 @@ RVMATS = {
     "sky_wall_limestone": ("sky_wall_limestone", 20),
     "sky_wall_render_cream": ("sky_wall_render_cream", 8), "sky_wall_render_ochre": ("sky_wall_render_ochre", 8),
     "sky_wall_render_grey": ("sky_wall_render_grey", 8), "sky_wall_render_white": ("sky_wall_render_white", 8),
+    # D96 quality pass: roof coverings, door / shutter atlas
+    "sky_rooftile": ("sky_rooftile", 12), "sky_roofslate": ("sky_roofslate", 25), "sky_facadekit": ("sky_facadekit", 30),
 }
 
 

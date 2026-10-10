@@ -139,7 +139,7 @@ P14 alarm noise reach, P15 horde caps, P16 drunk thresholds, P17 search cooldown
 P18 wet hydrant = vanilla well behaviour on a spawned object, P19 jam density (are vehicles really blocked?),
 P20 siren sound config (range, loudness). All are in the PENDING_VERIFICATION.md table with their fix.
 
-## Status (after D94)
+## Status (after D96)
 
 Every phase from D61 to D87 is built and passes the offline gates (`reviews/d61_gates.md` ...
 `reviews/d87_gates.md`, `reviews/d89_gates.md`, `reviews/d90_gates.md`, `reviews/d91_gates.md`, `reviews/d92_gates.md`). D88 was a full quality review (`reviews/d88_full_review.md`): full-mod security and perf
@@ -164,3 +164,10 @@ pocket check and the T1 plan (`TEST_SESSION.md` §2b). D94 was a second full ass
 **Open decision**: Git LFS grows ~1.3 GB per city rebuild (every changed P3D version is stored). Options: keep committing
 (simple, costs LFS storage), or commit P3Ds only at releases and regenerate them with `Build-SkyAssets.ps1 -Models`
 (byte-identical, checked by `check_p3d_sync.py`).
+
+**D96 (quality pass after the first test)**: the CT-13 causes (z-fighting, smeared UVs, faceted round parts, cartoon
+textures) are fixed and gated (`test_quality.py`); WIN-06 is fixed with proxy parts (P68). Big detail uplift on every
+city building (roofs, windows, shutters, doors, cornices, quoins), furniture, wrecks and textures. **Next**: rebuild the
+PBOs and run TESTING §59 (QP-01 first: proxy parts). Still box-like, next in line: Wreck_GarbageTruck / Wreck_CityBus
+bodies, interior doors (openings have no leaves), balconies on the panel blocks, Tower A lobby furniture.
+

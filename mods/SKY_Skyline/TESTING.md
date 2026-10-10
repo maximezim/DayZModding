@@ -989,6 +989,27 @@ is visual quality, not function. Evidence is the user's report only, no screensh
 
 ---
 
+## 59. Asset quality pass (D96: textures, z-fighting, vertex limit, detail)
+
+Answers CT-13 ("some textures are glitched, some details not pretty enough") and WIN-06 (19 buildings showing Res1 up
+close). Rebuild the PBOs first (`Build-SkyAssets.ps1`, then `Build-Mod.ps1`): every P3D and most texture sheets changed.
+The CourtyardBlock / CourtyardBlockBrick landmarks can go back into `placement/city_chernarus.yaml` (WIN-06 is fixed by
+proxy parts). Before / after renders: `reviews/d96_gates.md`.
+
+| ID | Steps | Expected | Evidence | Diag | Ded |
+|---|---|---|---|---|---|
+| QP-01 | Start the city mission; walk into the Hospital, DepartmentStore, Mall and a CourtyardBlock (all states) | RPT: no `Too many vertices`. Up close: furniture, frames, partitions all there (Res0 through proxy parts `*_res0p*.p3d`), nothing offset or doubled, nothing popping when you step back 30-60 m (P68, P72) | RPT grep + screenshots | | |
+| QP-02 | Look at front doors, window frames and sills, stair nosings, shelves with goods, boarded windows and wall decals from 2 m, 10 m and 50 m, moving slowly | No flicker between two textures anywhere (z-fighting), no visibly floating trim (P70) | short video or screenshots of any flicker | | |
+| QP-03 | Pitched roofs (Villa, Rowhouse variants, Church): walk round, then look from a neighbouring roof | Clay pantiles / slate at true size along the slope, round ridge cap, fascia boards, half-round gutters on brackets, downpipes to the ground, barge boards, chimney cap and pots; no gap at the eaves or gables (P71) | screenshots | | |
+| QP-04 | Windows of rendered / brick buildings | White sashes with glazing bars and a top light, stone sills with a sloped top and nose, stucco architraves with a keystone (render), louvred shutters with strap hinges; glass still see-through, broken / boarded windows unchanged | screenshots | | |
+| QP-05 | Front doors (residential, mixed, commercial, industrial) | Panelled / glazed / boarded / steel leaves from the facade kit; the door still swings and closes without clipping the new stone step; handle side unchanged (P1) | screenshots | | |
+| QP-06 | Cornices, string courses, plinths, quoins on masonry buildings | Moulded profiles read at 10-30 m; quoin blocks alternate long / short at the corners; no flicker where the S / N and W / E runs meet | screenshots | | |
+| QP-07 | Round things: street lights, bollards, pipes, columns, tyres, the car bodies | Smooth shading (no facets), flat walls with no dark gradient near their edges (P69) | screenshots | | |
+| QP-08 | Wreck_Sedan / _B / Wreck_Van: walk round, try to crawl under, shoot the body | Rounded bodies with glasshouse, bumpers, lamps, flat tyres; you still cannot crawl under (collision unchanged; the dark sill skirt now shows where it is) | screenshots | | |
+| QP-09 | Texture close-up: plaster (4 colours), concrete panels, limestone (church), painted metal (8 colours on poles, bins, wrecks), weeds / ivy / burdock cards | No vertical barcode streaks, no cartoon blobs, no colour bleeding between metal bands; vegetation reads as leaves (P71) | screenshots | | |
+| QP-10 | Fair_FerrisWheel: shoot through a high gondola's open sides | Bullets pass where the cabin is open and stop on its walls / roof (D96: hollow collision for every cabin, was a solid block) | | | |
+| QP-11 | FPS_PROTOCOL.md §1 on the district template, before (D95 PBOs) and after (D96) | Client FPS drop from the extra detail noted; server FPS unchanged. A drop over 10 % at 1600 m view distance -> report it (D96 trade-off) | FPS numbers | | |
+
 ## Windows session log (2026-10-09)
 
 Chronological record for the cloud session: what was run on the Windows workstation, the result, and anything that

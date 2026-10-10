@@ -45,8 +45,9 @@ class UVWorld:
 
 class UVBand:
     """Trim-sheet band: vertical faces stretch their height over V band (v0, v1);
-    U runs along the face every `scale` metres. Horizontal faces use the band's
-    centre line so slab tops/undersides still sample the same strip."""
+    U runs along the face every `scale` metres. Horizontal faces (D96): U along their longer side, V across the
+    shorter side at true scale (square texels, clamped to the band, centred in it) - before, a top face that ran
+    along Y stretched the whole band down its length (test_quality smear: 35-55 m streaks on skirtings, slab edges)."""
 
     def __init__(self, band, scale=3.0):
         self.v0, self.v1 = band
@@ -54,8 +55,17 @@ class UVBand:
 
     def __call__(self, pts, normal):
         ax = max(range(3), key=lambda i: abs(normal[i]))
+        if ax == 2:
+            ex = max(p[0] for p in pts) - min(p[0] for p in pts)
+            ey = max(p[1] for p in pts) - min(p[1] for p in pts)
+            along, across = (0, 1) if ex >= ey else (1, 0)
+            c0 = min(p[across] for p in pts)
+            span = min(max(ex, ey) and min(ex, ey) / self.scale, 0.98 * (self.v1 - self.v0))
+            vc = (self.v0 + self.v1) / 2
+            ext = min(ex, ey) or 1.0
+            return [(p[along] / self.scale, 1.0 - (vc - span / 2 + (p[across] - c0) / ext * span)) for p in pts]
         # (U axis, axis stretched across the band)
-        along, across = {0: (1, 2), 1: (0, 2), 2: (0, 1)}[ax]
+        along, across = {0: (1, 2), 1: (0, 2)}[ax]
         cs = [p[across] for p in pts]
         c0, c1 = min(cs), max(cs)
         h = (c1 - c0) or 1.0
@@ -116,6 +126,19 @@ class Lod:
         self.props = {}
         self.mass = 0.0
         self._component = 0
+        self.vprim = []        # D96: primitive id per vertex (box / solid / quad call) - zfix moves whole primitives
+        self._prim = 0
+
+    def _begin(self):
+        self._prim += 1
+        return self._prim
+
+    def copy_vert(self, src, i, offset=0):
+        """Append src.verts[i] keeping its primitive id (+ offset when merging several sources). Returns the index."""
+        self.verts.append(src.verts[i])
+        p = src.vprim[i] if i < len(src.vprim) else -1
+        self.vprim.append(p + offset if p > 0 else p)
+        return len(self.verts) - 1
 
     # -- primitives ---------------------------------------------------
     def _add_face(self, pts, outward, mat, uv, vidx_base_sel):
@@ -125,6 +148,7 @@ class Lod:
             n = _normal(pts)
         base = len(self.verts)
         self.verts.extend(pts)
+        self.vprim.extend([self._prim] * len(pts))
         idx = tuple(range(base, base + len(pts)))
         self.faces.append((idx, mat, uv(pts, n) if (uv and mat) else None))
         for s in vidx_base_sel:
@@ -140,6 +164,7 @@ class Lod:
         (only for graphical LODs - collision boxes must stay closed)."""
         if x1 - x0 < 1e-4 or y1 - y0 < 1e-4 or z1 - z0 < 1e-4:
             return
+        self._begin()
         sel = list(sel)
         if component is None:
             component = self.lod in COMPONENT_LODS
@@ -162,6 +187,7 @@ class Lod:
             # Closed convex solid: share 8 vertices so the component / shadow volume is watertight.
             base = len(self.verts)
             self.verts.extend(c)
+            self.vprim.extend([self._prim] * 8)
             remap = {v: base + i for i, v in enumerate(c)}
             for key, (pts, out) in quads.items():
                 n = _normal(pts)
@@ -192,9 +218,11 @@ class Lod:
         cy = (y_low + y_high) / 2
         cz = (z_base + max(z_low, z_high)) / 2
         centre = (cx, cy, cz)
+        self._begin()
         base = len(self.verts)
         verts = a + b
         self.verts.extend(verts)
+        self.vprim.extend([self._prim] * len(verts))
         quads = [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)]
         for q in quads:
             pts = [verts[i] for i in q]
@@ -228,8 +256,10 @@ class Lod:
         if component:
             sel.append(self._next_component())
         centre = tuple(sum(v[i] for v in verts) / len(verts) for i in range(3))
+        self._begin()
         base = len(self.verts)
         self.verts.extend(verts)
+        self.vprim.extend([self._prim] * len(verts))
         for poly in faces:
             pieces = [poly] if len(poly) <= 4 else [(poly[0], poly[i], poly[i + 1]) for i in range(1, len(poly) - 1)]
             for q in pieces:
@@ -244,7 +274,10 @@ class Lod:
             self.groups.setdefault(s, set()).update(range(base, base + len(verts)))
 
     def prism(self, cx, cy, r, z0, z1, n=8, mat=None, uv=None, sel=(), component=None, rot=0.0):
-        """Regular n-gon prism along Z (poles, bollards, manholes)."""
+        """Regular n-gon prism along Z (poles, bollards, manholes). D96: graphical LODs get at least 12 sides (16 from
+        r = 0.3 m) so the writer's smooth normals make them round; collision LODs keep the requested n."""
+        if self.lod == LOD_RES and self.distance <= 1.0 and r >= (0.03 if self.distance < 1.0 else 0.05):   # Res0; Res1 from 5 cm
+            n = max(n, 16 if r >= 0.3 else 12)
         ring = [(cx + r * math.cos(rot + 2 * math.pi * k / n), cy + r * math.sin(rot + 2 * math.pi * k / n)) for k in range(n)]
         verts = [(x, y, z0) for x, y in ring] + [(x, y, z1) for x, y in ring]
         faces = [tuple(range(n)), tuple(range(n, 2 * n))]
@@ -267,8 +300,47 @@ class Lod:
         faces += [(k, (k + 1) % n, n + (k + 1) % n, n + k) for k in range(n)]
         self.solid(verts, faces, mat, uv, sel, component)
 
+    def loft(self, rings, mat=None, uv=None, sel=(), caps=True, mats=None):
+        """D96: closed shell through rings of points (same count, same winding; each ring is one cross-section),
+        consecutive rings joined by quads, the end rings capped by a fan. Points are shared, so the P3D writer
+        smooths the shell (car bodies, hulls, rounded furniture). mats: optional {(ring i, segment k): material}
+        overrides (glazing bands). Each quad is oriented away from its station's centroid (star-shaped sections)."""
+        self._begin()
+        sel = list(sel)
+        n = len(rings[0])
+        base = len(self.verts)
+        for r in rings:
+            self.verts.extend(r)
+        self.vprim.extend([self._prim] * (n * len(rings)))
+        cents = [tuple(sum(p[a] for p in r) / n for a in range(3)) for r in rings]
+
+        def add(idx, out_ref, m):
+            pts = [self.verts[i] for i in idx]
+            nrm = _normal(pts)
+            fc = tuple(sum(p[a] for p in pts) / len(pts) for a in range(3))
+            if _dot(nrm, _sub(fc, out_ref)) < 0:
+                idx = tuple(reversed(idx))
+                pts = [self.verts[i] for i in idx]
+                nrm = _normal(pts)
+            self.faces.append((tuple(idx), m, uv(pts, nrm) if (uv and m) else None))
+        for i in range(len(rings) - 1):
+            ref = tuple((cents[i][a] + cents[i + 1][a]) / 2 for a in range(3))
+            for k in range(n):
+                q = (base + i * n + k, base + i * n + (k + 1) % n, base + (i + 1) * n + (k + 1) % n, base + (i + 1) * n + k)
+                add(q, ref, (mats or {}).get((i, k), mat))
+        if caps:
+            for i, other in ((0, 1), (len(rings) - 1, len(rings) - 2)):
+                c = cents[i]
+                d = _sub(c, cents[other])
+                ref = (c[0] - d[0], c[1] - d[1], c[2] - d[2])           # a point behind the cap, inside the shell
+                for k in range(1, n - 1):
+                    add((base + i * n, base + i * n + k, base + i * n + k + 1), ref, mat)
+        for s in sel:
+            self.groups.setdefault(s, set()).update(range(base, base + n * len(rings)))
+
     def quad(self, pts, facing, mat=None, uv=None, sel=(), double=False):
         """Single quad; `facing` = desired normal. double=True adds the back face."""
+        self._begin()
         self._add_face(list(pts), facing, mat, uv, sel)
         if double:
             self._add_face(list(pts), tuple(-f for f in facing), mat, uv, sel)
@@ -284,12 +356,14 @@ class Lod:
     def occluder(self, pts, name):
         """Single-face occluder plane in View Geometry (pattern from Bohemia's
         Test_Building sample: selections occluder_NNN, 4 points, 1 face)."""
+        self._begin()
         self._add_face(list(pts), None, None, None, [name])
 
     def point(self, name, co):
         """Memory point (or 2-point axis when called twice with the same name)."""
         idx = len(self.verts)
         self.verts.append(tuple(co))
+        self.vprim.append(-1)
         self.groups.setdefault(name, set()).add(idx)
 
     def tri_count(self):
@@ -447,13 +521,16 @@ def run_cli(modules, materials, stats_name):
     only = argv[argv.index("--only") + 1].split(",") if "--only" in argv else list(modules)
     stats_path = os.path.join(out, "..", "assets", stats_name)
     try:
-        stats = json.load(open(stats_path)) if os.path.exists(stats_path) else {}
+        mine = {}
         for key in only:
             fn, pbo, fname = modules[key]
             path = os.path.join(out, pbo, fname)
-            stats[fname] = export_p3d(fn(), materials, path)
-            print("EXPORTED", path, stats[fname])
+            mine[fname] = export_p3d(fn(), materials, path)
+            print("EXPORTED", path, mine[fname])
         os.makedirs(os.path.dirname(stats_path), exist_ok=True)
+        # D96: re-read just before writing so shards running in parallel (--only) do not drop each other's entries
+        stats = json.load(open(stats_path)) if os.path.exists(stats_path) else {}
+        stats.update(mine)
         with open(stats_path, "w") as fh:
             json.dump(stats, fh, indent=1, sort_keys=True)
     except Exception:
@@ -497,15 +574,182 @@ def enforce_vertex_budget(lods, path):
     return done
 
 
+VERTEX_BUDGET = 58000       # D96: render vertices (binarizer split per normal / UV) per LOD, engine hard limit 65,535
+PROXY_PART = 50000          # render vertices per proxy part
+
+
+def _sub_lod(lod, ks, shift=(0.0, 0.0, 0.0), name=None, keep_groups=False):
+    """New Lod with faces ks of lod (vertices compacted, moved by -shift); selections only when keep_groups."""
+    out = Lod(name or lod.name, lod.lod, lod.distance)
+    remap = {}
+    for k in ks:
+        idx, mat, uv = lod.faces[k]
+        nidx = []
+        for i in idx:
+            if i not in remap:
+                v = lod.verts[i]
+                remap[i] = len(out.verts)
+                out.verts.append((v[0] - shift[0], v[1] - shift[1], v[2] - shift[2]))
+                out.vprim.append(lod.vprim[i] if i < len(lod.vprim) else -1)
+            nidx.append(remap[i])
+        out.faces.append((tuple(nidx), mat, uv))
+    if keep_groups:
+        for g, vs in lod.groups.items():
+            kept = {remap[i] for i in vs if i in remap}
+            if kept:
+                out.groups[g] = kept
+        out.props = dict(lod.props)
+    uv1 = getattr(lod, "uv1", None)
+    if uv1:
+        out.uv1 = [uv1[k] for k in ks]
+    return out
+
+
+def _bisect(lod, groups, limit):
+    """Split a list of primitive face-groups into spatially compact units of <= limit render vertices (storeys
+    first, then the longest axis); a primitive is never split across units (sec review D96 H1)."""
+    import p3dwriter
+    flat = [k for g in groups for k in g]
+    if len(groups) < 2 or p3dwriter.render_vertex_count(_sub_lod(lod, flat)) <= limit:
+        return [flat]
+    cs = []
+    for g in groups:
+        pts = [lod.verts[i] for k in g for i in lod.faces[k][0]]
+        cs.append(tuple(sum(p[a] for p in pts) / len(pts) for a in range(3)))
+    span = [max(c[a] for c in cs) - min(c[a] for c in cs) for a in range(3)]
+    ax = 2 if span[2] > 2.5 else span.index(max(span))     # perf M: cut by storey first - parts stay small, cull per floor
+    order = sorted(range(len(groups)), key=lambda j: (cs[j][ax], j))
+    h = len(order) // 2
+    return (_bisect(lod, [groups[j] for j in sorted(order[:h])], limit) +
+            _bisect(lod, [groups[j] for j in sorted(order[h:])], limit))
+
+
+def _boxes(lod):
+    """Axis-aligned boxes (lo, hi) of the components of a collision LOD."""
+    out = []
+    for name, vs in lod.groups.items():
+        if name.startswith("Component") and vs:
+            pts = [lod.verts[i] for i in vs]
+            out.append((tuple(min(p[a] for p in pts) for a in range(3)), tuple(max(p[a] for p in pts) for a in range(3))))
+    return out
+
+
+def split_for_export(lods, path):
+    """D96 (TESTING WIN-06): a Resolution LOD over VERTEX_BUDGET render vertices keeps its detail by moving part of its
+    faces into proxy models (own P3D, own vertex budget) placed by a proxy triangle. Only render-only detail moves
+    (sec review D96 H1): a primitive that matches View (or Geometry) collision - walls, slabs, partitions, glass, tall
+    furniture that blocks sight - always stays in the model, so a part that fails to load can never leave an invisible
+    wall that still stops bullets or a one-way pane. Primitives move whole, interior ones first (lod.proxy_hint).
+    Faces in a named selection (doors, hidden selections) never move. If the render-only detail is not enough, the
+    LOD keeps the old fallback (enforce_vertex_budget: the next lower LOD) and the exporter says so.
+    Returns [(file stem suffix, lods)]: ("", the model) first, then ("_<lod>p<k>", [one Res LOD]) per part.
+    SKY_PROXY_SPLIT=0 switches the split off (D95 behaviour)."""
+    import p3dwriter
+    if os.environ.get("SKY_PROXY_SPLIT", "1") == "0":
+        return [("", list(lods))]
+    lods = list(lods)
+    stem = os.path.splitext(os.path.basename(path))[0]
+    pbo = os.path.basename(os.path.dirname(path))
+    coll = next((l for l in lods if l.lod == LOD_VIEWGEO), None) or next((l for l in lods if l.lod == LOD_GEOMETRY), None)
+    cboxes = _boxes(coll) if coll is not None else []
+    parts = []
+    for li, lod in enumerate(lods):
+        if lod.lod != LOD_RES or p3dwriter.render_vertex_count(lod) <= VERTEX_BUDGET:
+            continue
+        fixed = set()
+        for vs in lod.groups.values():
+            fixed |= vs
+        prims = {}
+        for k, (idx, _m, _uv) in enumerate(lod.faces):
+            pid = lod.vprim[idx[0]] if idx[0] < len(lod.vprim) and lod.vprim[idx[0]] > 0 else ("f", k)
+            prims.setdefault(pid, []).append(k)
+        hint = getattr(lod, "proxy_hint", None)
+        inner, outer = [], []
+        for pid, ks in prims.items():
+            vs = {i for k in ks for i in lod.faces[k][0]}
+            if vs & fixed or any(lod.faces[k][1] in ("glass", "glassfar", "glassvoid") for k in ks):
+                continue
+            pts = [lod.verts[i] for i in vs]
+            lo = [min(p[a] for p in pts) - 0.01 for a in range(3)]
+            hi = [max(p[a] for p in pts) + 0.01 for a in range(3)]
+            vol = (hi[0] - lo[0]) * (hi[1] - lo[1]) * (hi[2] - lo[2])
+            ov = 0.0
+            for cl, ch in cboxes:
+                d = [min(hi[a], ch[a]) - max(lo[a], cl[a]) for a in range(3)]
+                if d[0] > 0 and d[1] > 0 and d[2] > 0:
+                    ov += d[0] * d[1] * d[2]
+            if ov > 0.3 * vol:                                   # matches collision: structural, stays
+                continue
+            c = tuple(sum(p[a] for p in pts) / len(pts) for a in range(3))
+            (inner if hint and hint(c) else outer).append(ks)
+        move = []
+        for group in (inner, outer):                             # interior detail first, facade detail only if needed
+            move += group
+            ms = {k for g in move for k in g}
+            if p3dwriter.render_vertex_count(_sub_lod(lod, [k for k in range(len(lod.faces)) if k not in ms])) <= VERTEX_BUDGET:
+                break
+        units = _bisect(lod, move, PROXY_PART) if move else []
+        ms = {k for g in move for k in g}
+        keep = [k for k in range(len(lod.faces)) if k not in ms]
+        out_groups = []
+        for g in sorted(units, key=len):                         # give whole parts back while the model still fits
+            trial = sorted(keep + g)
+            if p3dwriter.render_vertex_count(_sub_lod(lod, trial)) <= VERTEX_BUDGET - 3 * len(units):
+                keep = trial
+            else:
+                out_groups.append(g)
+        main = _sub_lod(lod, keep, keep_groups=True)
+        if p3dwriter.render_vertex_count(main) > VERTEX_BUDGET:
+            print("PROXY SHORT %s %s: render-only detail is not enough (%d render vertices kept) - the LOD falls back to "
+                  "the next lower one" % (stem, lod.name, p3dwriter.render_vertex_count(main)))
+            continue
+        for j, g in enumerate(out_groups):
+            pts = [lod.verts[i] for k in g for i in lod.faces[k][0]]
+            c = tuple(round((min(p[a] for p in pts) + max(p[a] for p in pts)) / 2, 3) for a in range(3))
+            part = _sub_lod(lod, g, shift=c, name="res0")
+            part.distance = 0.0
+            sfx = "_%sp%d" % (lod.name, j + 1)
+            parts.append((sfx, [part]))
+            proxy = "proxy:\\SKY_Skyline\\%s\\%s%s.001" % (pbo, stem, sfx)
+            base = len(main.verts)
+            main.verts += [c, (c[0], c[1], c[2] + 1.0), (c[0], c[1] + 0.5, c[2])]   # Arma Toolbox proxy triangle
+            main.vprim += [-1, -1, -1]
+            main.faces.append(((base, base + 1, base + 2), None, None))
+            main.groups[proxy] = {base, base + 1, base + 2}
+        lods[li] = main
+    return [("", lods)] + parts
+
+
 def export_p3d(lods, materials, path):
     """Write an MLOD .p3d. Default: the standalone writer (p3dwriter, no add-on, any Blender or plain
     Python - D60). SKY_P3D_BACKEND=atb uses Arma Toolbox (Blender 4.2 + ARMATOOLBOX_PATH) instead."""
     lods = list(lods)
-    enforce_vertex_budget(lods, path)
-    if os.environ.get("SKY_P3D_BACKEND", "native").lower() == "atb":
-        return export_p3d_atb(lods, materials, path)
-    import p3dwriter
-    return p3dwriter.write_mlod(lods, materials, path)
+    import zfix
+    zfix.resolve_lods(lods)                   # D96: no coplanar fights left in any Resolution LOD
+    units = split_for_export(lods, path)      # D96: proxy parts for LODs over the engine vertex limit
+    stem, ext = os.path.splitext(path)
+    import glob
+    for old in glob.glob(glob.escape(stem) + "_res*p*" + ext):     # perf L: parts of an earlier, bigger split
+        if os.path.basename(old)[len(os.path.basename(stem)):-len(ext)] not in [sfx for sfx, _ls in units]:
+            os.remove(old)
+    stats = None
+    extra = {}
+    for sfx, ls in units:
+        enforce_vertex_budget(ls, path + sfx)
+        p = stem + sfx + ext
+        if os.environ.get("SKY_P3D_BACKEND", "native").lower() == "atb":
+            st = export_p3d_atb(ls, materials, p)
+        else:
+            import p3dwriter
+            st = p3dwriter.write_mlod(ls, materials, p)
+        if stats is None:
+            stats = st
+        else:                                 # the parts render with the model: count them in its LOD
+            lod_name = sfx[1:].rsplit("p", 1)[0]
+            extra[lod_name] = extra.get(lod_name, 0) + sum(st.values())
+    for k, v in extra.items():
+        stats[k] = stats.get(k, 0) + v
+    return stats
 
 
 def export_p3d_atb(lods, materials, path):

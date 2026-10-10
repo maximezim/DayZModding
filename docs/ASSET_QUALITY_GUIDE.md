@@ -5,9 +5,11 @@ quality bar the `asset-pipeline` agent builds to, and the `qa-tester` / `perf-en
 review against. Engine facts marked **(verify)** must be checked against a comparable vanilla
 asset on `P:\DZ\...` before relying on them; cite the file you checked.
 
-Priority order when goals conflict: **correct (collision, LODs, no exploits) > believable at
-gameplay distance > performance budget > detail.** Realism that breaks a budget is not done:
-recover it with textures, normals and LODs, not triangles.
+Priority order when goals conflict (D96, user directive 2026-10-09): **correct (collision, LODs, no
+exploits, engine limits) > believable and detailed close up > performance budget.** Budgets may be
+raised for detail (record why in DECISIONS.md); the engine's hard limits may not: 65,535 render
+vertices per LOD (split into proxy parts, section 11), opaque far LODs, a full LOD chain. Recover
+cost with LODs and proxies, not by removing near detail.
 
 ---
 
@@ -175,6 +177,11 @@ Quality includes the invisible LODs: a beautiful building with bad collision is 
    shadows, night), then FPS protocol. Only then `packed -> tested -> done`.
 
 ### Definition of done for a building (all must hold)
+- [ ] `test_quality.py` clean: no z-fighting (coplanar overlaps), no smeared UVs, every LOD
+      under the render-vertex limit (proxy parts allowed), no collision without a visible surface.
+- [ ] Eye-height close-up render (`preview_city.py --shot close --pbr`) reviewed: no box-only
+      openings, sills, roofs or doors; profiles on cornices / sills / string courses; real roof
+      covering, gutters, downpipes; louvred or panelled joinery; round things round.
 - [ ] Real-world dimensions from the spec; human-scale check in the preview.
 - [ ] Primary + secondary + tertiary forms on every visible facade; ground floor detailed.
 - [ ] Bevelled or normal-baked edges on everything within 10 m.
@@ -231,3 +238,36 @@ variation (7), damage (8), balconies and shopfronts.
   `p3d_inspect` byte/structure equality on the existing assets before switching.
 - Run Blender headless with `--python-exit-code 1` so a crashing generator fails the build.
 - Keep generators deterministic (fixed seeds), outputs committed, and LFS for binaries.
+
+## 11. Visual defect rules and the D96 toolkit
+
+Found in the first in-game test (TESTING CT-13 "glitched textures, details not pretty enough",
+WIN-06 "Too many vertices"). Every generator follows these; `assets/blender/test_quality.py` checks them.
+
+- **No coplanar overlaps (z-fighting).** Two faces facing the same way, closer than 2.5 mm and
+  overlapping, flicker in game. Detail parts stand proud of the surface they sit on (frames, sills,
+  nosings: at least 4 mm) or sit inside it, never flush. The exporter's `zfix.resolve()` lifts the
+  smaller part of any remaining pair by 4 mm layers (whole primitives: no cracks); a part that needs
+  more than 3 layers (12 mm) fails the gate and must be fixed in the generator.
+- **Decal depths** are fixed per family (`build_city.DECAL_D`: run-off 6 mm, window streak 10 mm,
+  soot 14 mm, cracks 18 mm, graffiti 22 mm; ivy 7 cm); decals of one family never overlap.
+- **No smeared UVs.** Trim-sheet mappers run U along a face's longer side and V at true scale
+  (`UVBand`, `UVTrim`); roofs use `UVSlope` (world scale along the slope); doors / shutters map one
+  atlas cell (`facadekit`) onto the face.
+- **Render vertex limit.** The engine drops any LOD over 65,535 vertices after the binarizer splits
+  points per normal and UV. The exporter splits a Resolution LOD over 58,000 into proxy parts
+  (`skygeo.split_for_export`): only render-only detail moves (anything matching View / Geometry collision, glass and
+  named selections stay, so a part that fails to load can never leave an invisible wall), whole primitives, interior
+  first, cut by storey. Verify P68.
+- **Smooth where round.** The P3D writer smooths edges under 35 degrees between faces of one solid
+  (prisms, tubes, lofts); boxes and 45-degree chamfers stay crisp. Round parts get >= 12 sides in
+  Res0 / Res1 (`Lod.prism`, `tube`, `Lod.loft` for car bodies and hulls).
+- **Profiles, not boxes**, for anything the eye follows along a facade: `side_profile()` extrudes a
+  convex (depth, z) profile (cornice, sill, string course, plinth chamfer).
+- **Textures read close up.** No hard 1-texel streak columns, no cartoon blobs: weathering is soft
+  and multi-scale (`gen_textures_d96`), relief from height fields is baked softly into the colour as
+  well as the normal map, and every sheet is checked at 2 m in a PBR preview.
+- **Review renders** use `--pbr` (normal, macro and specular maps, physical sky, writer smoothing)
+  at eye height (`--shot close`, `corner`; `preview_kit.py --low`), before and after, in
+  `reviews/img/`.
+

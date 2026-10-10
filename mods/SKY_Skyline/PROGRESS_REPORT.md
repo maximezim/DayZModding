@@ -525,3 +525,20 @@ with items, keycards hidden in a tent now count, drinking no longer heals foreve
 building lights no longer run by day. The asset build script now rebuilds every model (five groups were skipped), and a
 new check proves every committed model matches what the generators produce today. One decision is left to you: the
 repository's large-file storage grows about 1.3 GB each time the city is rebuilt. Details: `reviews/d94_assessment.md`.
+
+## 46. The quality pass after the first test (D96)
+
+Your first evening in DayZ found two visual problems: some textures flickered or looked broken, and the biggest
+buildings showed their simplified version up close. Both had a cause we could measure. Two parts lying in exactly the
+same plane (a window frame flush with the wall, a stair edge, two decals) make the graphics card flicker between them;
+about 670 model levels had such spots, now fixed at the source or automatically lifted by a few millimetres when the
+models are written. The engine refuses a model with more than about 65,000 corners; the biggest buildings now carry
+their interiors in extra "proxy" parts so nothing has to be simplified.
+
+Then the main request, "less Minecraft": real tiled and slate roofs with gutters and downpipes, proper windows with
+sashes, stone sills and shutters, panelled front doors, cornices and corner stones on the old buildings, rounded sofas
+and beds, round railings and poles, car wrecks with real curved bodies, and new textures (plaster, roof tiles, painted
+metal, leaves) without the stripes and blobs that read as cartoon up close. Performance limits were relaxed as you
+allowed; the hard engine limits are still respected and checked. Before / after pictures: `reviews/d96_gates.md`.
+What to look at in the next test session: `TESTING.md` section 59.
+
