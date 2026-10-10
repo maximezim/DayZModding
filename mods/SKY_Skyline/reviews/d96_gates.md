@@ -58,3 +58,44 @@ The rust-striped zinc sheet becomes clay pantiles at true size, ridge cap, fasci
 ![Apartment interior](img/d96_aptblock_interior.png)
 ![Street props](img/d96_kit_street.png)
 Street props: chipped painted metal instead of rust stripes, round poles, lofted saloon and van bodies with round tyres.
+
+## Follow-up: the full gate on every model (288 models, all states)
+
+The first commit gated the source of CT-13 (z-fight, smear, vertex limit). The collision check ("big collisions",
+"gaps") was then run on every model, one process per model (the Hospital / Mall builds need ~6 GB each, the pool
+version was OOM-killed). Runs: **1,282 findings** (835 ghost collision, 274 smear, 173 z-fight) -> 466 -> 50 -> see the
+final line below. What it found and what changed (all at the source unless marked *gate*):
+
+| Finding | Fix |
+|---|---|
+| Warehouses: outer walls had no interior face since wave 1 (seen through from inside, collision still there) | cladding drawn inside |
+| Racks / shelving: one collision box over open shelves; racks along Y built with 14 m solid side boards | `shelf_unit` along either axis, steel back panel, top deck, goods 3 cm apart; cut at a ruin's collapse floor |
+| Ruins: broken windows kept a collision pane (church lancets 10-20 m2 per wall, curtain bays 3 x 2.6 m) | a broken window of a ruin opens its collision (curtain bays: broken in any state); a boarded window whose boards fell with the collapse opens too |
+| Ruins: rails / desks / beds cut to stubs, render parts fell, collision stayed | low loose parts fall whole; facade pieces (`wall=True`) keep the jagged cut like the wall collision |
+| Damaged buildings: broken panes | kept (vanilla), recorded by `window()` in `geo.kept_panes`, accepted by the gate |
+| Bridge ladder: collision wedge down to the ground under the nest (6 m invisible wall), no rungs | steel ship ladder, treads every 25 cm, thin slab collision (P73) |
+| Carousel: 5.6 m collision cylinder round a cone canopy; fence = 1 m thick bar | 8 sector slabs on the cone; 8 cm sheet under the rail (P73) |
+| Floodlight: solid frustum round an open lattice | four leg solids (bullets pass the lattice) |
+| Mall skylight: flat plate under the glass vault, the vault itself not solid (walk through the glass onto air) | collision follows the vault and its gables |
+| Escalators: open triangle under a solid wedge | side cladding down to the floor, end panel |
+| Viaduct ramp: open 10 x 7 m collision face at the high end | concrete abutment face |
+| Landfill fence: 4 wires over a 2.2 m collision sheet | 9 strands |
+| Water tower / town hall drum: square / hexagon collision round a round render | matching polygons |
+| Z-fight: door frames inside the wall, door surrounds / steps / plinths ending in one plane, shutters at the damp decal depth, shop doors with a second frame, parasol discs overlapping, tunnel walls through the roof slab, stadium tiers nested, truss / wheel-rim joints, metro track ends, Tower A rails / plinth / mullions, column tops, two barrels in one spot | moved off the shared planes (5 mm - 3 cm), parts abut instead of overlapping, conical parasols, alternating 7 mm bar sizes |
+| Smear: downpipes / rods / bridge braces / Ferris legs, 40 m slab tops, roller shutters, box sides, roof-tile edges and ridges, birch trunks (one bark cell over 7 m), church spire, drain streaks | `UVBand` along thin parts, `Lod.box` strips for wide band faces, `UVRect` third axis, `UVSlope` edges, lofted tapered trunks with `BarkUV`, slate spire, wider decals |
+| *gate*: what counts as an invisible collision | seen = a render face within 20 cm, 12 cm outside, inside the solid or on its far face; allowed: low rails / desks with a drawn top, joints between collision pieces, kept panes, slivers < 1 m2 (2 m2 on a wall, < 2 % of a large wall) |
+| *gate*: z-fight / smear limits | 3 layers on Res0, 6 on farther LODs, 10 on debris < 1 m; ground-contact bottoms ignored; smear = under 0.1 UV/m, measured across the true width; the farthest LOD (silhouette) is not smear-checked |
+
+![Warehouse interior](img/d96b_warehouselarge_interior.png)
+Warehouse inside: racks built along their length with back panels and goods; the outer walls now have their inside face.
+(Interior previews cut the front of the building away; the ceiling now stays in the shot because the slab underside is
+drawn in strips - before, one face spanning the whole depth fell to the cut.)
+
+![Hypermarket](img/d96b_hypermarket_interior.png)
+Hypermarket sales floor: gondolas with back panels (no see-through shelves over solid collision).
+
+![Cafe](img/d96b_cafe_close.png)
+Cafe terrace: conical parasols (the flat discs overlapped and flickered), door frame off the wall planes.
+
+![Ruined church](img/d96b_church_ruined_interior.png)
+Ruined church: boarded lancets boarded tight; broken lancets are open (walk / shoot through).
