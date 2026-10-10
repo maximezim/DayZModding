@@ -46,8 +46,8 @@ def _rise(ruin, box):
     r, C = ruin.region, B.CUT_CELL
     x0, x1, y0, y1, _z0, z1 = box
     cuts = [ruin.cut(C * i + C / 2, C * j + C / 2)
-            for i in range(math.floor(max(x0, r[0]) / C), math.floor(min(x1, r[1]) / C) + 1)
-            for j in range(math.floor(max(y0, r[2]) / C), math.floor(min(y1, r[3]) / C) + 1)]
+            for i in range(math.floor(max(x0, r[0]) / C), math.floor((min(x1, r[1]) - 1e-6) / C) + 1)   # (a piece ending
+            for j in range(math.floor(max(y0, r[2]) / C), math.floor((min(y1, r[3]) - 1e-6) / C) + 1)]  # on a cell line)
     return z1 - min(cuts)
 
 
@@ -76,6 +76,26 @@ def _wrap(kind):
             for bx in kept:
                 if _in_region(r, bx):
                     _LOG.append((self.ruin.name, name, "box", True, 0.0, bx))
+            return
+        if kind in ("extrude_x", "extrude_y"):               # D96: mouldings are cut into runs per cell: log the runs
+            real = getattr(self.lod, kind)
+            runs = []
+
+            def rec_e(prof, a, b, **k2):
+                runs.append((prof, a, b))
+                return real(prof, a, b, **k2)
+            setattr(self.lod, kind, rec_e)
+            try:
+                _ORIG[kind](self, *args, **kw)
+            finally:
+                delattr(self.lod, kind)
+            whole = _bbox(kind, args)
+            kept_boxes = [_bbox(kind, ru) for ru in runs]
+            for bx in kept_boxes:
+                if _in_region(r, bx):
+                    _LOG.append((self.ruin.name, name, kind, True, _rise(self.ruin, bx), bx))
+            if not kept_boxes and _in_region(r, whole):
+                _LOG.append((self.ruin.name, name, kind, False, _rise(self.ruin, whole), whole))
             return
         box = _bbox(kind, args)
         n0 = len(self.lod.faces)

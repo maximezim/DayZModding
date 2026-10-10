@@ -183,14 +183,46 @@ class RLod:
         u, z = [p[0] for p in profile], [p[1] for p in profile]
         return (min(u) + max(u)) / 2, (min(z) + max(z)) / 2
 
+    def _runs(self, a0, a1, lo, hi):
+        """D96: an extrusion along a facade (cornice, string course, sill moulding) is cut into runs at the region's
+        edges and the cut-cell lines, so the part outside a collapse stays and the part over it falls per cell
+        (kept whole by its centre, a 10 m cornice floated over the broken wall)."""
+        cuts = {a0, a1} | {v for v in (lo, hi) if a0 < v < a1}
+        k = math.floor(a0 / CUT_CELL) + 1
+        while k * CUT_CELL < a1:
+            cuts.add(k * CUT_CELL)
+            k += 1
+        cs = sorted(cuts)
+        return list(zip(cs, cs[1:]))
+
+    def _keep(self, x0, x1, y0, y1, zc):
+        """A run stays unless it lies in the collapse region above the lowest cut of any cell it overlaps."""
+        r = self.ruin.region
+        if r is None or not (x0 < r[1] and r[0] < x1 and y0 < r[3] and r[2] < y1):
+            return True
+        C = CUT_CELL
+        cuts = [self.ruin.cut(C * i + C / 2, C * j + C / 2)
+                for i in range(math.floor(max(x0, r[0]) / C), math.floor((min(x1, r[1]) - 1e-6) / C) + 1)
+                for j in range(math.floor(max(y0, r[2]) / C), math.floor((min(y1, r[3]) - 1e-6) / C) + 1)]
+        return zc <= min(cuts)
+
     def extrude_x(self, profile, x0, x1, **kw):
-        if self._centroid_ok([((x0 + x1) / 2,) + self._pc(profile)]):
-            self.lod.extrude_x(profile, x0, x1, **kw)
+        u = [p[0] for p in profile]
+        pz = self._pc(profile)[1]
+        r = self.ruin.region
+        runs = self._runs(x0, x1, r[0], r[1]) if r is not None else [(x0, x1)]
+        for a, b in runs:
+            if b - a > 1e-4 and self._keep(a, b, min(u), max(u), pz):
+                self.lod.extrude_x(profile, a, b, **kw)
 
     def extrude_y(self, profile, y0, y1, **kw):
-        pu, pz = self._pc(profile)
-        if self._centroid_ok([(pu, (y0 + y1) / 2, pz)]):
-            self.lod.extrude_y(profile, y0, y1, **kw)
+        u = [p[0] for p in profile]
+        pz = self._pc(profile)[1]
+        r = self.ruin.region
+        runs = self._runs(y0, y1, r[2], r[3]) if r is not None else [(y0, y1)]
+        for a, b in runs:
+            if b - a > 1e-4 and self._keep(min(u), max(u), a, b, pz):
+                self.lod.extrude_y(profile, a, b, **kw)
 
 
 def city_lods(ruin):
@@ -4284,7 +4316,7 @@ def skylight(L, P):
             L[k].box(a0, a1, b0, b1, top, top + 0.2, **kw_for(k, "concrete", UV_REVEAL, "concrete"))
     # D96: collision follows the vault (a flat plate under it let you walk through the glass onto an invisible floor)
     hexa = [(0, 1, 3, 2), (4, 5, 7, 6), (0, 1, 5, 4), (2, 3, 7, 6), (0, 2, 6, 4), (1, 3, 7, 5)]
-    for (a, b) in zip(pts, pts[1:]):
+    for (a, b) in zip(pts, pts[1:]) if P.state < 2 else ():                      # ruin: the glass is gone
         slab = [(p[0], yy, p[1] - dz) for p in (a, b) for yy in (y0, y1) for dz in (0.0, 0.06)]
         slab = [slab[0], slab[2], slab[4], slab[6], slab[1], slab[3], slab[5], slab[7]]
         for k in ("geo", "fire"):
