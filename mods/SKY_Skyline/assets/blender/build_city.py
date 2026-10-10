@@ -959,6 +959,11 @@ def window(L, P, sd, a0, a1, s0, s1, skin, key, rec, residential, frame_uv):
     ruin (nothing left in it) opens the Geometry wall too (D96: tall church lancets left 10-20 m2 of invisible panes
     per wall); a damaged building keeps the collision of its broken panes (vanilla)."""
     state = P.ruin.window(sd.key, *key)
+    rg = P.ruin.region
+    if state == "boarded" and P.state == 2 and rg is not None and s1 > rg[4]:
+        q = sd.rect(a0, a1, s0, s1, 0.0)
+        if P.ruin.inside(sum(p[0] for p in q) / 4, sum(p[1] for p in q) / 4):
+            state = "broken"                     # D96: its boards fell with the collapse; the opening is open
     if state == "broken" and P.state == 2 and getattr(P, "win_openings", None) is not None:
         P.win_openings.append((a0, a1, s0, s1))
     elif state == "broken":                                                 # kept pane: recorded for test_quality
@@ -2519,7 +2524,8 @@ def landmark(L, P):
     cx, cy = 0.0, -hd * 0.3                                                      # cupola with copper dome
     copper = UVBand(S.MATERIALS["rust"]["bands"]["green"], 1.0)
     for k in ("res0", "res1", "res2", "geo", "view", "fire"):
-        L[k].prism(cx, cy, 1.8, top, top + 3.0, n=8 if k == "res0" else 6, **kw_for(k, "stone", lim, "concrete"))
+        L[k].prism(cx, cy, 1.8, top, top + 3.0, n=6 if k in ("res1", "res2") else 8,   # D96: collision octagon (a hexagon
+                   **kw_for(k, "stone", lim, "concrete"))                                 # sat 24 cm inside the drum)
     for i, (r, h) in enumerate(((1.75, 0.6), (1.45, 0.5), (1.0, 0.45), (0.45, 0.4))):
         z = top + 3.0 + sum(hh for _r, hh in ((1.75, 0.6), (1.45, 0.5), (1.0, 0.45), (0.45, 0.4))[:i])
         L["res0"].prism(cx, cy, r, z, z + h, n=12, mat="rust", uv=copper)

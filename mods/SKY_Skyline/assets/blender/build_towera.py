@@ -120,8 +120,8 @@ def facade(L, z0, z1, entrances=(), transom=None):
                 corner = axis == "y" and abs(abs(a) - span) < 1e-6   # D96: the S / N corner mullion already stands there
                 if (not inside or b_start < z1) and not corner:
                     sbox(L[lod_key], a - S.MULLION_W / 2, a + S.MULLION_W / 2, b_start, z1,
-                         plane - sgn * (CT + 0.02), plane + sgn * 0.04, mat="metal", uv=UV_ALU)
-                a += step
+                         plane - sgn * (CT + 0.02), plane + sgn * 0.045, mat="metal", uv=UV_ALU)   # D96: proud
+                a += step                                                     # of the lobby plinth (4 cm)
         if transom is not None:                             # D96: 1 cm shallower than the mullions (no shared face)
             t_end = span - (CT + 0.01 if axis == "y" else 0.0)      # W / E transoms butt into the S / N ones
             for lod_key in ("res0", "res1"):

@@ -165,8 +165,11 @@ def curtain_details(L, z0, z1, side_entrances=None, spandrel=None, fins=True, co
                 # painted back-panel (metal sheet: no extra section per floor, perf D53)
                 sd.quad(L[k], sd.a0, sd.a1, zs, z1, CT / 2 + 0.03, mat="metal", uv=UV_PAINT)
                 sd.quad(L[k], sd.a0, sd.a1, zs, z1, CT / 2 + 0.031, inward=True, mat="metal", uv=UV_PAINT)
-                sd.box(L[k], sd.a0, sd.a1, zs - 0.04, zs + 0.04, -0.04, CT + 0.02, mat="metal", uv=UV_ALU,
-                       skip=sd.end_keys)
+                # D96: rail 1 cm shallower than the mullions (their inner faces met in one plane); N / S rails run
+                # 4 cm past the corners, W / E rails butt into them (the corner squares overlapped)
+                ra, rb = (sd.a0 - 0.035, sd.a1 + 0.035) if sd.axis == "x" else (sd.a0 + CT + 0.01, sd.a1 - CT - 0.01)
+                sd.box(L[k], ra, rb, zs - 0.04, zs + 0.04, -0.04, CT + 0.01, mat="metal", uv=UV_ALU,
+                       skip=sd.end_keys if sd.axis == "y" else ())
         if fins:
             step = D["fin_step"]
             n = int(round((sd.a1 - sd.a0) / step))
@@ -188,8 +191,10 @@ def curtain_details(L, z0, z1, side_entrances=None, spandrel=None, fins=True, co
                 cur = e1
             segs.append((cur, sd.a1))
             for a0, a1 in segs:
+                if sd.axis == "y":                     # D96: W / E runs butt into the N / S runs (corners overlapped)
+                    a0, a1 = max(a0, sd.a0 + CT + 0.01), min(a1, sd.a1 - CT - 0.01)
                 for k in ("res0", "res1"):
-                    sd.box(L[k], a0, a1, z0, z0 + plinth, -0.04, CT + 0.01, mat=plinth_mat,
+                    sd.box(L[k], a0, a1, z0, z0 + plinth, -0.035, CT + 0.01, mat=plinth_mat,   # (corner mullion at -0.04)
                            uv=plinth_uv or UV_CONC_REVEAL, skip=("-z",))
     corner_piers(L, z0, z1, mat=pier_mat, uv=pier_uv)
 
@@ -391,8 +396,9 @@ def columns(L, pts, z0, z1, r=None):
     (12 tris, keeps Geometry inside its triangle budget), Fire = octagon."""
     r = r or D["column_r"]
     for (x, y) in pts:
-        L["res0"].prism(x, y, r, z0, z1, n=16, mat="concrete", uv=UV_CONC_PANEL)
-        L["res1"].prism(x, y, r, z0, z1, n=8, mat="concrete", uv=UV_CONC_PANEL)
+        zt = z1 - 0.005                         # D96: top 5 mm under the ceiling (partition tops met it in one plane)
+        L["res0"].prism(x, y, r, z0, zt, n=16, mat="concrete", uv=UV_CONC_PANEL)
+        L["res1"].prism(x, y, r, z0, zt, n=8, mat="concrete", uv=UV_CONC_PANEL)
         b = 0.9 * r
         L["geo"].box(x - b, x + b, y - b, y + b, z0, z1)
         L["view"].box(x - b, x + b, y - b, y + b, z0, z1)
