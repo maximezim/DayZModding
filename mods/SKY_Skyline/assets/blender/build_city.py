@@ -633,15 +633,15 @@ def cushion(lod, x0, x1, y0, y1, z0, z1, mat, uv, n=12, p=3.0):
 
 
 def bed(L, x0, x1, y0, y1, z, fabric="blue"):
-    piece(L, (x0, x1, y0, y1, z, z + 0.35), "wood", UV_WALNUT, collide=False)
-    L["geo"].box(x0, x1, y0, y1, z, z + 0.56)              # D96 sec H2: collision to the mattress top - mattress + pillow
-    L["fire"].box(x0, x1, y0, y1, z, z + 0.56, mat="pen_wood")   # leave <= 0.11 m render-only (no prone head pocket)
-    cushion(L["res0"], x0 + 0.04, x1 - 0.04, y0 + 0.04, y1 - 0.04, z + 0.33, z + 0.56, "fabric", UV_FAB[fabric])   # mattress
+    piece(L, (x0, x1, y0, y1, z, z + 0.35), "wood", UV_WALNUT)
+    # D96 sec H2: mattress + pillow stay within 0.2 m of the 0.35 m collision (D76 thin-detail rule: no prone head
+    # pocket). Raising the collision instead made wedge slots between hospital-ward beds (test_city)
+    cushion(L["res0"], x0 + 0.04, x1 - 0.04, y0 + 0.04, y1 - 0.04, z + 0.33, z + 0.5, "fabric", UV_FAB[fabric])   # mattress
     hy = (y1 - 0.08, y1) if (y1 - y0) > (x1 - x0) else (y0, y0 + 0.08)
     L["res0"].box(x0, x1, hy[0], hy[1], z + 0.35, z + 1.0, mat="wood", uv=UV_WALNUT)
     if (y1 - y0) > (x1 - x0):                                                 # D96: pillow at the headboard
         py0, py1 = (y1 - 0.5, y1 - 0.12) if hy[0] > y0 + 0.1 else (y0 + 0.12, y0 + 0.5)
-        cushion(L["res0"], x0 + 0.12, x1 - 0.12, py0, py1, z + 0.55, z + 0.67, "fabric", UV_FAB["beige"])
+        cushion(L["res0"], x0 + 0.12, x1 - 0.12, py0, py1, z + 0.48, z + 0.55, "fabric", UV_FAB["beige"])
 
 
 def wardrobe(L, x0, x1, y0, y1, z):

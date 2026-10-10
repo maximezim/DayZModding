@@ -36,8 +36,8 @@ ZF_MAX_LAYERS = 3      # zfix layers (x 4 mm) a part may be pushed out before it
 ZF_MAX_LAYERS_DEBRIS = 10   # loose debris chunks (< 0.8 m) piled at random: 4 cm on a rubble lump does not read
 DEBRIS = {"rubble", "brick", "concrete", "rust", "trash"}
 VERTEX_LIMIT = 60000   # render vertices per LOD (engine hard limit 65,535; margin for the binarizer's own splits)
-GHOST_DIST = 0.12      # m: a collision face this far from every render face is not seen
-GHOST_AREA = 0.10      # m2 of unseen collision surface per component
+GHOST_DIST = 0.2       # m: a collision face this far from every render face is not seen (glass sits up to 14 cm in a wall)
+GHOST_AREA = 0.5       # m2 of unseen collision surface per component (the user asked about "big collisions")
 NO_TEX = {"lamp", "lamp_cool"}
 ACCEPTED = {}          # (model, check) -> reason
 
@@ -129,7 +129,7 @@ def _keys(ix):
 NEIGH = np.array([(a, b, c) for a in (-1, 0, 1) for b in (-1, 0, 1) for c in (-1, 0, 1)], np.int64)
 
 
-def ghosts(geo, res, step=0.15, h=0.08):
+def ghosts(geo, res, step=0.15, h=0.1):
     """[(component, unseen m2, centre)]: collision surface with no render surface near it (voxels of h m: a sample
     is seen when a render voxel is in its 3 x 3 x 3 neighbourhood, i.e. within ~h..2h = 8-16 cm). All components are
     sampled in one batch (sample -> component id) so the 27 neighbour lookups run once per model."""
@@ -145,18 +145,24 @@ def ghosts(geo, res, step=0.15, h=0.08):
             names.append(name)
             for v in vs:
                 comp_of[v] = ci
-    ftris, fcomp = [], []
+    ftris, fcomp, fnorm = [], [], []
     for fidx, _m, _uv in geo.faces:
         c = comp_of.get(fidx[0])
         if c is None:
             continue
         p = [geo.verts[i] for i in fidx]
         n = newell(np.asarray(p, float))
-        if n is not None and n[2] < -0.9 and max(q[2] for q in p) < 0.05:
+        if n is None:
+            continue
+        if n[2] < -0.9 and max(q[2] for q in p) < 0.05:
             continue                                         # resting on the ground: nobody sees under it
+        cen = np.mean([geo.verts[i] for i in geo.groups[names[c]]], 0)
+        if n @ (np.mean(p, 0) - cen) < 0:                    # outward normal of the convex component
+            n = -n
         for j in range(1, len(p) - 1):
             ftris.append((p[0], p[j], p[j + 1]))
             fcomp.append(c)
+            fnorm.append(n)
     if not ftris:
         return []
     ft = np.asarray(ftris, float)
@@ -166,7 +172,8 @@ def ghosts(geo, res, step=0.15, h=0.08):
     e = np.stack([np.linalg.norm(ft[:, 1] - ft[:, 0], axis=1), np.linalg.norm(ft[:, 2] - ft[:, 1], axis=1),
                   np.linalg.norm(ft[:, 0] - ft[:, 2], axis=1)], 1).max(1)
     k = 2 ** np.ceil(np.log2(np.maximum(1, np.ceil(e / step)))).astype(int)
-    pts_all, comp_all = [], []
+    fnorm = np.asarray(fnorm)
+    pts_all, comp_all, nrm_all = [], [], []
     for kk in np.unique(k):
         idx = np.nonzero(k == kk)[0]
         ii, jj = np.meshgrid(np.arange(kk + 1), np.arange(kk + 1), indexing="ij")
@@ -175,15 +182,25 @@ def ghosts(geo, res, step=0.15, h=0.08):
         a, b, c = ft[idx, 0][:, None, :], ft[idx, 1][:, None, :], ft[idx, 2][:, None, :]
         pts_all.append((a + u * (b - a) + v * (c - a)).reshape(-1, 3))
         comp_all.append(np.repeat(fcomp[idx], m.sum()))
+        nrm_all.append(np.repeat(fnorm[idx], m.sum(), axis=0))
     pts = np.concatenate(pts_all)
     comp = np.concatenate(comp_all)
-    ix = np.floor(pts / h).astype(np.int64)
-    ukeys, inv = np.unique(_keys(ix), return_inverse=True)
-    uix = np.stack([ukeys // 10 ** 10 - 50000, ukeys // 10 ** 5 % 10 ** 5 - 50000, ukeys % 10 ** 5 - 50000], 1)
-    useen = np.zeros(len(ukeys), bool)
-    for o in NEIGH:
-        useen |= np.isin(_keys(uix + o), rkeys)
-    miss = ~useen[inv.ravel()]
+    nrm = np.concatenate(nrm_all)
+
+    def seen_at(q):
+        ix = np.floor(q / h).astype(np.int64)
+        ukeys, inv = np.unique(_keys(ix), return_inverse=True)
+        uix = np.stack([ukeys // 10 ** 10 - 50000, ukeys // 10 ** 5 % 10 ** 5 - 50000, ukeys % 10 ** 5 - 50000], 1)
+        useen = np.zeros(len(ukeys), bool)
+        for o in NEIGH:
+            useen |= np.isin(_keys(uix + o), rkeys)
+        return useen[inv.ravel()]
+    seen = seen_at(pts)
+    for t in (0.15, 0.3):                         # a thick solid round thin glass / trim is seen, just thick (D96)
+        rest = ~seen
+        if rest.any():
+            seen[rest] = seen_at(pts[rest] - nrm[rest] * t)
+    miss = ~seen
     tot = np.bincount(comp, minlength=len(names))
     bad = np.bincount(comp[miss], minlength=len(names))
     out = []
