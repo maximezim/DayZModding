@@ -3,24 +3,24 @@
   "fire": 60,
   "geo": 60,
   "mem": 0,
-  "res0": 836,
-  "res1": 110,
-  "res2": 12,
+  "res0": 3724,
+  "res1": 710,
+  "res2": 24,
   "res3": 12,
   "road": 0,
   "shadow": 12,
   "view": 12
  },
  "sky_wreck_garbagetruck.p3d": {
-  "fire": 108,
-  "geo": 108,
+  "fire": 164,
+  "geo": 164,
   "mem": 0,
-  "res0": 1090,
-  "res1": 254,
-  "res2": 36,
+  "res0": 4350,
+  "res1": 576,
+  "res2": 68,
   "res3": 12,
   "road": 0,
-  "shadow": 36,
-  "view": 36
+  "shadow": 92,
+  "view": 68
  }
 }

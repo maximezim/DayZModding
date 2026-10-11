@@ -44,7 +44,7 @@ ground. The project only ships what it can verify, so the drivable versions go t
    | `wheel_<side>_<axle>` (side 1 = left / -X, 2 = right / +X; axle 1 = front) | Wheel mesh |
    | `wheel_<side>_<axle>_axis` (2 memory points) | Rotation axis |
    | `wheel_<side>_<axle>_damper`, `_damper_land` | Suspension travel |
-   | `door_driver`, `door_codriver` (truck), `door_0..2` (bus, +X side) | Doors |
+   | `door_driver`, `door_codriver` (truck), `door_0..2` (bus, -X side: the kerb side for right-hand traffic with the front at -Y; D97) | Doors |
    | `light_front`, `light_rear` | Lamp faces (hiddenSelections for the lit material) |
    | `glass`, `body`, `mirror` | Glass, body and mirror faces |
 
