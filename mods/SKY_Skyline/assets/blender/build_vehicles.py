@@ -75,8 +75,8 @@ def wheel(L, keys, x_out, y, r, sx, flat, twin=False, sel=()):
     xr = x_in + sx * (w + 0.006)                                             # rim face (tyre() puts the rim there)
     cap = [(y + 0.11 * math.cos(2 * math.pi * k / 12), r + 0.11 * math.sin(2 * math.pi * k / 12)) for k in range(12)]
     r0.extrude_x(cap, *sorted((xr - sx * 0.01, xr + sx * 0.035)), mat="metal", uv=DT.UV_STEEL, sel=list(sel))
-    for k in range(8):                                                       # wheel nuts
-        a = 2 * math.pi * k / 8
+    for k in range(5):                                                       # wheel nuts (perf L4: 5)
+        a = 2 * math.pi * k / 5
         cy, cz = y + 0.17 * math.cos(a), r + 0.17 * math.sin(a)
         r0.box(*sorted((xr - sx * 0.005, xr + sx * 0.022)), cy - 0.018, cy + 0.018, cz - 0.018, cz + 0.018,
                mat="metal", uv=DT.UV_STEEL, sel=list(sel))
@@ -305,8 +305,18 @@ def bus_body(L, wreck, name, sel):
                     "rust", rust_band("rust"))
     # ---- far LODs, collision (unchanged hull: body box from the floor + the wheels)
     L["res2"].lod.box(-w, w, -hy, hy, fl, top, mat=upper_m, uv=upper_uv)
-    L["res2"].lod.box(-w + 0.01, w - 0.01, -hy + 0.3, hy - 0.3, 0.0, fl, mat="rust", uv=rust_band("burnt"))
-    L["res3"].lod.box(-w, w, -hy, hy, fl, top, mat=upper_m, uv=upper_uv)
+    for ay in axles:                                                         # wheels (6-gon) under the body
+        for sx in (-1, 1):
+            prof = [(ay + 0.5 * math.cos(2 * math.pi * k / 6), 0.5 + 0.5 * math.sin(2 * math.pi * k / 6)) for k in range(6)]
+            L["res2"].lod.extrude_x(prof, *sorted((sx * (w - 0.05), sx * (w - 0.35))), mat="rust", uv=rust_band("burnt"))
+    for sx in (-1, 1):                                                       # glazing band (silhouette of the windows)
+        x = sx * (w + 0.01)
+        L["res2"].lod.quad([(x, -hy + 0.2, zm), (x, hy - 0.2, zm), (x, hy - 0.2, zg), (x, -hy + 0.2, zg)], (sx, 0, 0),
+                           "glassfar", UV_GLASS)
+    for y, s_ in ((-hy - 0.01, -1), (hy + 0.01, 1)):
+        L["res2"].lod.quad([(-1.0, y, 1.3), (1.0, y, 1.3), (1.0, y, zg), (-1.0, y, zg)], (0, s_, 0), "glassfar", UV_GLASS)
+        L["res2"].lod.box(-1.15, 1.15, min(y, y + s_ * 0.1), max(y, y + s_ * 0.1), 0.34, 0.53, mat="metal", uv=DT.UV_STEEL)
+    L["res3"].lod.box(-w, w, -hy, hy, 0.0, top, mat=upper_m, uv=upper_uv)            # grounded (perf L2)
     b = (-w, w, -hy, hy, fl, top - 0.15)
     for k in ("geo", "fire", "view"):
         L[k].lod.box(*b, **kw_for(k, None, None, "metal"))
@@ -319,7 +329,7 @@ def collide_wheels(L, axles, w, r, fl, sel, twin=lambda i, ay: False):
         for sx in (-1, 1):
             x0_, x1_ = sorted((sx * (w - 0.05), sx * (w - 0.35)))
             c0, c1 = sorted((sx * (w - 0.05), sx * (w - (0.66 if twin(i, ay) else 0.35))))   # twin rears: both tyres
-            for k in ("geo", "fire"):
+            for k in ("geo", "fire", "shadow"):                              # shadow: wheel contact (perf L3)
                 L[k].lod.box(c0, c1, ay - r * 0.8, ay + r * 0.8, 0.0, max(r * 1.6, fl + 0.2),     # up to the body (D74:
                              **({"mat": "pen_metal"} if k == "fire" else {}))                     # no slit under it)
             if sel:
@@ -468,7 +478,12 @@ def truck_body(L, wreck, name, sel):
         lod.extrude_x(cab_prof, -1.1, 1.1, mat=cab_m, uv=cab_uv)
         lod.box(-1.30, 1.30, yb0, yb1, 1.02, top, mat=body_m, uv=body_uv)
         lod.extrude_x(hop, -1.18, 1.18, mat=body_m, uv=body_uv)
-        lod.box(-1.2, 1.2, -4.0, 3.9, 0.0, 1.02, mat="rust", uv=rust_band("burnt"))
+        lod.box(-0.8, 0.8, -4.0, 3.9, 0.3, 1.02, mat="rust", uv=rust_band("burnt"))     # chassis
+        for i, ay in enumerate(sp["axles"]):                                 # wheels (perf M1: no Res1 -> Res2 pop)
+            for sx in (-1, 1):
+                prof = [(ay + 0.5 * math.cos(2 * math.pi * k / 6), 0.5 + 0.5 * math.sin(2 * math.pi * k / 6)) for k in range(6)]
+                xo = sx * (hx - 0.03 if i else 1.12)
+                lod.extrude_x(prof, *sorted((xo, xo - sx * (0.61 if i else 0.3))), mat="rust", uv=rust_band("burnt"))
     L["res3"].lod.box(-hx, hx, -hy, hy, 0.0, top, mat=body_m, uv=body_uv)
     for k in ("geo", "fire", "view", "shadow"):
         kw = kw_for(k, None, None, "metal") if k != "shadow" else {}
