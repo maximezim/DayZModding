@@ -46,6 +46,7 @@ Rules that do not change (CLAUDE.md):
 | **D86** AO props + venue rooms | baked AO on 4 more hero props (P55), bar / foyer / mall shop variants, search-point-inside-furniture test | built-unverified |
 | **D87** street life + wedge-slot gate | shop window displays, facade clutter (AC, dishes, laundry), AO on 3 street props, `wedge_slots` gate with fixes across the city and a ruin filler | built-unverified |
 | **D88** next cloud batch | interior wall dressing per room type (posters, clocks, calendars, notice boards), roof clutter on flat roofs (water tanks, vents, antennas), extend the wedge-slot check to the kit props | planned |
+| **D97** wreck bodies | Wreck_CityBus / Wreck_GarbageTruck rebuilt as detailed lofted bodies (glazing, wheel wells, fascia, ZiL cab, compactor body, hopper); collision follows the drawn shapes | built-unverified (TESTING QP-20) |
 | **T2** terrain | survey a site or build the custom terrain (Terrain Builder import of `terrain/out`, P11), open the metro hatches. **Custom terrain for the metro and sewers is an open TODO, see the section below** | planned (after T1) |
 | **T3** perf | FPS protocol, server perf probe (B11), merged furniture if needed (D43) | planned (after T1) |
 
@@ -168,11 +169,12 @@ pocket check and the T1 plan (`TEST_SESSION.md` §2b). D94 was a second full ass
 **D96 (quality pass after the first test)**: the CT-13 causes (z-fighting, smeared UVs, faceted round parts, cartoon
 textures) are fixed and gated (`test_quality.py`); WIN-06 is fixed with proxy parts (P68). Big detail uplift on every
 city building (roofs, windows, shutters, doors, cornices, quoins), furniture, wrecks and textures. **Next**: rebuild the
-PBOs and run TESTING §59 (QP-01 first: proxy parts). Still box-like, next in line: Wreck_GarbageTruck / Wreck_CityBus
-bodies, interior doors (openings have no leaves), balconies on the panel blocks, Tower A lobby furniture.
+PBOs and run TESTING §59 (QP-01 first: proxy parts). Still box-like, next in line: interior doors (openings have no leaves), balconies on the panel blocks, Tower A lobby furniture.
 D96 follow-up: the full quality gate runs on all 288 models (ghost collision, z-fight, smear, vertex limit); the fixes
 it forced (warehouse inner cladding, ruin windows, racks, ladder, carousel, floodlight, tunnel, stand, trunks) are in
 `reviews/d96_gates.md`. TESTING §59 QP-12..QP-19 cover them in game. Follow-ups from the D96 reviews: check_assets should count proxy-part sections as a union and budget Fire
 components; test_ruin_cuts should log every dropped run and check boxes; before the Bank gets its keycard vault door,
 make the vault's outer walls blank (ruined windows are now open).
 
+**D97**: the bus and garbage-truck wrecks are detailed bodies now (`reviews/d97_gates.md`). Next in line: interior
+doors (openings have no leaves), balconies on the panel blocks, Tower A lobby furniture.

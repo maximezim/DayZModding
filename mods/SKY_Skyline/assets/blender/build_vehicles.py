@@ -316,16 +316,19 @@ def bus_body(L, wreck, name, sel):
     for y, s_ in ((-hy - 0.01, -1), (hy + 0.01, 1)):
         L["res2"].lod.quad([(-1.0, y, 1.3), (1.0, y, 1.3), (1.0, y, zg), (-1.0, y, zg)], (0, s_, 0), "glassfar", UV_GLASS)
         L["res2"].lod.box(-1.15, 1.15, min(y, y + s_ * 0.1), max(y, y + s_ * 0.1), 0.34, 0.53, mat="metal", uv=DT.UV_STEEL)
-    L["res3"].lod.box(-w, w, -hy, hy, 0.0, top, mat=upper_m, uv=upper_uv)            # grounded (perf L2)
-    b = (-w, w, -hy, hy, fl, top - 0.15)
-    for k in ("geo", "fire", "view"):
-        L[k].lod.box(*b, **kw_for(k, None, None, "metal"))
-    L["shadow"].lod.box(*b)
+    L["res3"].lod.box(-w, w, -hy, hy, fl, top, mat=upper_m, uv=upper_uv)    # from the floor: never hides the crawl space (sec M2)
+    # sec M1: collision follows the crowned roof (a box to 2.85 m let a prone player sink into the drawn roof)
+    hull = [(-w, fl), (w, fl), (w, 2.62), (w - 0.16, 2.92), (w - 0.40, zh + 0.03), (-(w - 0.40), zh + 0.03),
+            (-(w - 0.16), 2.92), (-w, 2.62)]
+    for k in ("geo", "fire", "view", "shadow"):
+        L[k].lod.extrude_y(hull, -hy, hy, **(kw_for(k, None, None, "metal") if k != "shadow" else {}))
     collide_wheels(L, axles, w, sp["wheel_r"], fl, sel, twin=lambda i, ay: ay > 0)
 
 
-def collide_wheels(L, axles, w, r, fl, sel, twin=lambda i, ay: False):
+def collide_wheels(L, axles, w, r, fl, sel, twin=lambda i, ay: False, wx=None):
+    w0 = w
     for i, ay in enumerate(axles):
+        w = wx(i) + 0.05 if wx else w0                                     # sec L3: collision on the drawn tyre
         for sx in (-1, 1):
             x0_, x1_ = sorted((sx * (w - 0.05), sx * (w - 0.35)))
             c0, c1 = sorted((sx * (w - 0.05), sx * (w - (0.66 if twin(i, ay) else 0.35))))   # twin rears: both tyres
@@ -478,13 +481,18 @@ def truck_body(L, wreck, name, sel):
         lod.extrude_x(cab_prof, -1.1, 1.1, mat=cab_m, uv=cab_uv)
         lod.box(-1.30, 1.30, yb0, yb1, 1.02, top, mat=body_m, uv=body_uv)
         lod.extrude_x(hop, -1.18, 1.18, mat=body_m, uv=body_uv)
-        lod.box(-0.8, 0.8, -4.0, 3.9, 0.3, 1.02, mat="rust", uv=rust_band("burnt"))     # chassis
+        for sx in (-1, 1):                                                 # rails + subframe (as drawn; sec M2)
+            lod.box(*sorted((sx * 0.45, sx * 0.76)), -4.2, yb1, 0.56, 1.02, mat="rust", uv=rust_band("burnt"))
         for i, ay in enumerate(sp["axles"]):                                 # wheels (perf M1: no Res1 -> Res2 pop)
             for sx in (-1, 1):
                 prof = [(ay + 0.5 * math.cos(2 * math.pi * k / 6), 0.5 + 0.5 * math.sin(2 * math.pi * k / 6)) for k in range(6)]
                 xo = sx * (hx - 0.03 if i else 1.12)
                 lod.extrude_x(prof, *sorted((xo, xo - sx * (0.61 if i else 0.3))), mat="rust", uv=rust_band("burnt"))
-    L["res3"].lod.box(-hx, hx, -hy, hy, 0.0, top, mat=body_m, uv=body_uv)
+    r3 = L["res3"].lod                                                     # stepped like the collision (sec M2)
+    r3.box(-1.18, 1.18, -4.32, -3.42, 0.62, 1.52, mat=cab_m, uv=cab_uv)
+    r3.extrude_x(cab_prof, -1.1, 1.1, mat=cab_m, uv=cab_uv)
+    r3.box(-1.30, 1.30, yb0, yb1, 1.02, top, mat=body_m, uv=body_uv)
+    r3.extrude_x(hop, -1.18, 1.18, mat=body_m, uv=body_uv)
     for k in ("geo", "fire", "view", "shadow"):
         kw = kw_for(k, None, None, "metal") if k != "shadow" else {}
         g = L[k].lod
@@ -496,7 +504,10 @@ def truck_body(L, wreck, name, sel):
         if k != "view":                                                    # fuel tank + battery box up to the body
             g.box(-1.1, -0.6, -2.2, -1.3, 0.31, fl + 0.2, **kw)           # (D79: no drawn volume without collision)
             g.box(0.62, 1.1, -2.2, -1.6, 0.42, fl + 0.2, **kw)
-    collide_wheels(L, sp["axles"], hx - 0.03, sp["wheel_r"], fl, sel, twin=lambda i, ay: i > 0)
+            for sx in (-1, 1):                                             # rails + subframe under the body (sec L5)
+                g.box(*sorted((sx * 0.45, sx * 0.76)), -2.3, yb1, 0.56, fl + 0.2, **kw)
+    collide_wheels(L, sp["axles"], hx - 0.03, sp["wheel_r"], fl, sel, twin=lambda i, ay: i > 0,
+                   wx=lambda i: hx - 0.03 if i else 1.12)
 
 
 def body(L, kind, wreck, name, sel=False):

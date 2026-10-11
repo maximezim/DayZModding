@@ -1,26 +1,26 @@
 {
  "sky_wreck_citybus.p3d": {
-  "fire": 60,
-  "geo": 60,
+  "fire": 76,
+  "geo": 76,
   "mem": 0,
-  "res0": 3724,
+  "res0": 3580,
   "res1": 710,
-  "res2": 24,
+  "res2": 124,
   "res3": 12,
   "road": 0,
-  "shadow": 12,
-  "view": 12
+  "shadow": 76,
+  "view": 28
  },
  "sky_wreck_garbagetruck.p3d": {
-  "fire": 164,
-  "geo": 164,
+  "fire": 188,
+  "geo": 188,
   "mem": 0,
-  "res0": 4350,
+  "res0": 4134,
   "res1": 576,
-  "res2": 68,
-  "res3": 12,
+  "res2": 200,
+  "res3": 56,
   "road": 0,
-  "shadow": 92,
+  "shadow": 188,
   "view": 68
  }
 }

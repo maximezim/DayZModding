@@ -550,3 +550,15 @@ like a solid pole. All are fixed, and the check (`test_quality.py`) now runs on 
 with it: tapered birch trunks with real bark, conical cafe parasols, steel ship ladder, slate church spire, a 9-strand
 landfill fence, round rebar, no flicker on doors, shutters, tunnel faces or bridge joints.
 
+## 47. Bus and garbage-truck wrecks (D97)
+
+The two big street wrecks were still boxes: wheels half inside the body, windows stuck on as flat panels, paint that
+looked like wood. Both are now proper vehicles. The city bus has a rounded body and roof, a continuous band of windows
+with pillars and rubber seals, wheels sitting in real wheel arches, a two-pane windscreen with a destination sign,
+four round headlamps, a grille, bumpers, mirrors, folding doors on the pavement side and a cream-over-red livery. The
+garbage truck has a short-nosed Soviet cab with a chrome grille and round lamps, a sloped windscreen, a ribbed
+compactor body and a slanted loading hopper at the back. As wrecks they have broken windows, a missing door leaf,
+flat tyres and rust.
+
+Their collision now follows what you see (you cannot hide in a fuel tank or a twin tyre, and you no longer sink into
+the bus roof when lying on it). Pictures: `reviews/d97_gates.md`. What to check in game: `TESTING.md` QP-20.

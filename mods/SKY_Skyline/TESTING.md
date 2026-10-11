@@ -1017,6 +1017,7 @@ proxy parts). Before / after renders: `reviews/d96_gates.md`.
 | QP-17 | Tunnel_Portal, Stadium_Stand, Viaduct_Ramp (high end), Metro_Tunnel joints, Bridge truss nodes from 2-20 m | No flicker on the headwall, chevrons, steps, track ends or truss joints; the ramp's high end shows a concrete face | | | |
 | QP-18 | Trees and saplings (Veg_Birch, Veg_TreeDead, ruin saplings), cafe parasols, Church spire | Tapered trunks with bark repeating every ~1.2 m (no 7 m stretch), conical parasols that do not overlap, slate spire | screenshot | | |
 | QP-19 | Downpipes, lightning rods, roller shutters, mall / hypermarket floors near doors, roof gables | No streaked textures (bands run along thin parts, wide faces cut into strips) | | | |
+| QP-20 | Wreck_CityBus / Wreck_GarbageTruck (D97): walk round both, crawl under, climb on the bus roof and the truck bonnet, shoot the windows, wheels and hopper | Rounded bodies, glazing with pillars, wheels inside half-round wells, doors on the kerb side, ZiL cab with grille and round lamps, ribbed body; you cannot get inside or under the bodies; prone on the bus roof you are not sunk into it; bullets stop on glass, wheels and the hopper (all opaque wrecks) | screenshots | | |
 
 ## Windows session log (2026-10-09)
 
