@@ -1,31 +1,31 @@
 {
  "sky_city_aptblock_damaged.p3d": {
-  "fire": 5748,
-  "geo": 2088,
+  "fire": 5868,
+  "geo": 2208,
   "mem": 0,
-  "res0": 40385,
-  "res1": 9778,
+  "res0": 41105,
+  "res1": 10258,
   "res1x": 8300,
   "res1y": 2982,
   "res2": 642,
   "res3": 10,
   "road": 58,
   "shadow": 324,
-  "view": 3324
+  "view": 3444
  },
  "sky_city_aptblock_intact.p3d": {
-  "fire": 5308,
-  "geo": 2140,
+  "fire": 5488,
+  "geo": 2320,
   "mem": 0,
-  "res0": 53784,
-  "res1": 9462,
+  "res0": 54864,
+  "res1": 10182,
   "res1x": 6662,
   "res1y": 2546,
   "res2": 278,
   "res3": 10,
   "road": 58,
   "shadow": 324,
-  "view": 3264
+  "view": 3444
  },
  "sky_city_aptblock_ruined.p3d": {
   "fire": 5312,
@@ -42,32 +42,32 @@
   "view": 3704
  },
  "sky_city_aptblockbrick_damaged.p3d": {
-  "fire": 4512,
-  "geo": 1728,
+  "fire": 4608,
+  "geo": 1824,
   "mem": 0,
-  "res0": 31771,
-  "res1": 7870,
+  "res0": 32347,
+  "res1": 8254,
   "res1x": 6594,
   "res1y": 2352,
   "res2": 602,
   "res3": 10,
   "road": 44,
   "shadow": 276,
-  "view": 2640
+  "view": 2736
  },
  "sky_city_aptblockbrick_intact.p3d": {
-  "fire": 4308,
-  "geo": 1716,
+  "fire": 4452,
+  "geo": 1860,
   "mem": 0,
-  "res0": 40743,
-  "res1": 7700,
+  "res0": 41607,
+  "res1": 8276,
   "res1x": 5442,
   "res1y": 2106,
   "res2": 238,
   "res3": 10,
   "road": 44,
   "shadow": 276,
-  "view": 2628
+  "view": 2772
  },
  "sky_city_aptblockbrick_ruined.p3d": {
   "fire": 4520,
@@ -84,32 +84,32 @@
   "view": 3008
  },
  "sky_city_aptblocktall_damaged.p3d": {
-  "fire": 8900,
-  "geo": 3296,
+  "fire": 9032,
+  "geo": 3428,
   "mem": 0,
-  "res0": 67539,
-  "res1": 15208,
+  "res0": 68331,
+  "res1": 15736,
   "res1x": 12778,
   "res1y": 4570,
   "res2": 1070,
   "res3": 10,
   "road": 100,
   "shadow": 456,
-  "view": 5196
+  "view": 5328
  },
  "sky_city_aptblocktall_intact.p3d": {
-  "fire": 8336,
-  "geo": 3296,
+  "fire": 8624,
+  "geo": 3584,
   "mem": 0,
-  "res0": 84588,
-  "res1": 14830,
+  "res0": 86316,
+  "res1": 15982,
   "res1x": 10478,
   "res1y": 4040,
   "res2": 398,
   "res3": 10,
   "road": 100,
   "shadow": 456,
-  "view": 5208
+  "view": 5496
  },
  "sky_city_aptblocktall_ruined.p3d": {
   "fire": 8560,
@@ -126,32 +126,32 @@
   "view": 5624
  },
  "sky_city_bank_damaged.p3d": {
-  "fire": 3584,
-  "geo": 1580,
+  "fire": 3704,
+  "geo": 1700,
   "mem": 0,
-  "res0": 28004,
-  "res1": 5940,
+  "res0": 28724,
+  "res1": 6420,
   "res1x": 4618,
   "res1y": 1668,
   "res2": 552,
   "res3": 10,
   "road": 30,
   "shadow": 216,
-  "view": 2012
+  "view": 2132
  },
  "sky_city_bank_intact.p3d": {
-  "fire": 3260,
-  "geo": 1580,
+  "fire": 3464,
+  "geo": 1784,
   "mem": 0,
-  "res0": 30489,
-  "res1": 5038,
+  "res0": 31713,
+  "res1": 5854,
   "res1x": 3660,
   "res1y": 1478,
   "res2": 188,
   "res3": 10,
   "road": 30,
   "shadow": 216,
-  "view": 2012
+  "view": 2216
  },
  "sky_city_bank_ruined.p3d": {
   "fire": 3832,
@@ -180,16 +180,16 @@
   "view": 636
  },
  "sky_city_bar_intact.p3d": {
-  "fire": 1068,
-  "geo": 336,
+  "fire": 1080,
+  "geo": 348,
   "mem": 0,
-  "res0": 24262,
-  "res1": 1634,
+  "res0": 24334,
+  "res1": 1682,
   "res2": 98,
   "res3": 10,
   "road": 2,
   "shadow": 120,
-  "view": 636
+  "view": 648
  },
  "sky_city_bar_ruined.p3d": {
   "fire": 1100,
@@ -216,16 +216,16 @@
   "view": 576
  },
  "sky_city_barb_intact.p3d": {
-  "fire": 996,
-  "geo": 348,
+  "fire": 1008,
+  "geo": 360,
   "mem": 0,
-  "res0": 21504,
-  "res1": 1516,
+  "res0": 21576,
+  "res1": 1564,
   "res2": 98,
   "res3": 10,
   "road": 2,
   "shadow": 120,
-  "view": 576
+  "view": 588
  },
  "sky_city_barb_ruined.p3d": {
   "fire": 980,
@@ -468,31 +468,31 @@
   "view": 1212
  },
  "sky_city_clinic_damaged.p3d": {
-  "fire": 2628,
-  "geo": 1128,
+  "fire": 2676,
+  "geo": 1176,
   "mem": 0,
-  "res0": 24322,
-  "res1": 4548,
+  "res0": 24610,
+  "res1": 4740,
   "res1x": 3510,
   "res2": 502,
   "res3": 10,
   "road": 16,
   "shadow": 168,
-  "view": 1556
+  "view": 1604
  },
  "sky_city_clinic_intact.p3d": {
-  "fire": 2484,
-  "geo": 1140,
+  "fire": 2628,
+  "geo": 1284,
   "mem": 0,
-  "res0": 26214,
-  "res1": 3930,
+  "res0": 27078,
+  "res1": 4506,
   "res1x": 2890,
   "res1y": 1144,
   "res2": 138,
   "res3": 10,
   "road": 16,
   "shadow": 168,
-  "view": 1556
+  "view": 1700
  },
  "sky_city_clinic_ruined.p3d": {
   "fire": 2416,
@@ -509,28 +509,28 @@
   "view": 1848
  },
  "sky_city_clubhouse_damaged.p3d": {
-  "fire": 912,
-  "geo": 312,
+  "fire": 936,
+  "geo": 336,
   "mem": 0,
-  "res0": 6078,
-  "res1": 1564,
+  "res0": 6222,
+  "res1": 1660,
   "res2": 182,
   "res3": 10,
   "road": 2,
   "shadow": 120,
-  "view": 564
+  "view": 588
  },
  "sky_city_clubhouse_intact.p3d": {
-  "fire": 924,
-  "geo": 312,
+  "fire": 948,
+  "geo": 336,
   "mem": 0,
-  "res0": 6770,
-  "res1": 1428,
+  "res0": 6914,
+  "res1": 1524,
   "res2": 98,
   "res3": 10,
   "road": 2,
   "shadow": 120,
-  "view": 564
+  "view": 588
  },
  "sky_city_clubhouse_ruined.p3d": {
   "fire": 1196,
@@ -545,28 +545,28 @@
   "view": 800
  },
  "sky_city_clubhouseb_damaged.p3d": {
-  "fire": 900,
-  "geo": 312,
+  "fire": 924,
+  "geo": 336,
   "mem": 0,
-  "res0": 6520,
-  "res1": 1614,
+  "res0": 6664,
+  "res1": 1710,
   "res2": 182,
   "res3": 10,
   "road": 2,
   "shadow": 120,
-  "view": 588
+  "view": 612
  },
  "sky_city_clubhouseb_intact.p3d": {
-  "fire": 924,
-  "geo": 312,
+  "fire": 948,
+  "geo": 336,
   "mem": 0,
-  "res0": 7380,
-  "res1": 1482,
+  "res0": 7524,
+  "res1": 1578,
   "res2": 98,
   "res3": 10,
   "road": 2,
   "shadow": 120,
-  "view": 588
+  "view": 612
  },
  "sky_city_clubhouseb_ruined.p3d": {
   "fire": 1064,
@@ -581,31 +581,31 @@
   "view": 788
  },
  "sky_city_cornerhardware_damaged.p3d": {
-  "fire": 2872,
-  "geo": 1072,
+  "fire": 2932,
+  "geo": 1132,
   "mem": 0,
-  "res0": 18110,
-  "res1": 4012,
+  "res0": 18470,
+  "res1": 4252,
   "res1x": 3336,
   "res1y": 1256,
   "res2": 366,
   "res3": 10,
   "road": 30,
   "shadow": 228,
-  "view": 1656
+  "view": 1716
  },
  "sky_city_cornerhardware_intact.p3d": {
-  "fire": 2524,
-  "geo": 1060,
+  "fire": 2584,
+  "geo": 1120,
   "mem": 0,
-  "res0": 20492,
-  "res1": 3742,
+  "res0": 20852,
+  "res1": 3982,
   "res1x": 2770,
   "res2": 198,
   "res3": 10,
   "road": 30,
   "shadow": 228,
-  "view": 1644
+  "view": 1704
  },
  "sky_city_cornerhardware_ruined.p3d": {
   "fire": 3272,
@@ -622,31 +622,31 @@
   "view": 1892
  },
  "sky_city_cornerpharmacy_damaged.p3d": {
-  "fire": 2620,
-  "geo": 1060,
+  "fire": 2644,
+  "geo": 1084,
   "mem": 0,
-  "res0": 20630,
-  "res1": 3942,
+  "res0": 20774,
+  "res1": 4038,
   "res1x": 3272,
   "res1y": 1248,
   "res2": 310,
   "res3": 10,
   "road": 30,
   "shadow": 216,
-  "view": 1644
+  "view": 1668
  },
  "sky_city_cornerpharmacy_intact.p3d": {
-  "fire": 2436,
-  "geo": 972,
+  "fire": 2496,
+  "geo": 1032,
   "mem": 0,
-  "res0": 24648,
-  "res1": 3628,
+  "res0": 25008,
+  "res1": 3868,
   "res1x": 2656,
   "res2": 198,
   "res3": 10,
   "road": 30,
   "shadow": 216,
-  "view": 1584
+  "view": 1644
  },
  "sky_city_cornerpharmacy_ruined.p3d": {
   "fire": 2832,
@@ -662,31 +662,31 @@
   "view": 1940
  },
  "sky_city_cornershop_damaged.p3d": {
-  "fire": 2892,
-  "geo": 996,
+  "fire": 2928,
+  "geo": 1032,
   "mem": 0,
-  "res0": 21030,
-  "res1": 3982,
+  "res0": 21246,
+  "res1": 4126,
   "res1x": 3348,
   "res1y": 1294,
   "res2": 310,
   "res3": 10,
   "road": 30,
   "shadow": 216,
-  "view": 1620
+  "view": 1656
  },
  "sky_city_cornershop_intact.p3d": {
-  "fire": 2460,
-  "geo": 996,
+  "fire": 2520,
+  "geo": 1056,
   "mem": 0,
-  "res0": 24884,
-  "res1": 3644,
+  "res0": 25244,
+  "res1": 3884,
   "res1x": 2702,
   "res2": 198,
   "res3": 10,
   "road": 30,
   "shadow": 216,
-  "view": 1620
+  "view": 1680
  },
  "sky_city_cornershop_ruined.p3d": {
   "fire": 2728,
@@ -702,32 +702,32 @@
   "view": 1904
  },
  "sky_city_courtyardblock_damaged.p3d": {
-  "fire": 14288,
-  "geo": 6164,
+  "fire": 14864,
+  "geo": 6740,
   "mem": 0,
-  "res0": 133946,
-  "res1": 23780,
+  "res0": 137402,
+  "res1": 26084,
   "res1x": 19098,
   "res1y": 6996,
   "res2": 1716,
   "res3": 10,
   "road": 82,
   "shadow": 588,
-  "view": 8184
+  "view": 8760
  },
  "sky_city_courtyardblock_intact.p3d": {
-  "fire": 13700,
-  "geo": 6248,
+  "fire": 14276,
+  "geo": 6824,
   "mem": 0,
-  "res0": 166506,
-  "res1": 24530,
+  "res0": 169962,
+  "res1": 26834,
   "res1x": 15778,
   "res1y": 6192,
   "res2": 484,
   "res3": 10,
   "road": 82,
   "shadow": 588,
-  "view": 8124
+  "view": 8700
  },
  "sky_city_courtyardblock_ruined.p3d": {
   "fire": 13940,
@@ -744,32 +744,32 @@
   "view": 8504
  },
  "sky_city_courtyardblockbrick_damaged.p3d": {
-  "fire": 11656,
-  "geo": 5080,
+  "fire": 12208,
+  "geo": 5632,
   "mem": 0,
-  "res0": 86294,
-  "res1": 19830,
+  "res0": 89606,
+  "res1": 22038,
   "res1x": 15942,
   "res1y": 5724,
   "res2": 1504,
   "res3": 10,
   "road": 62,
   "shadow": 492,
-  "view": 6420
+  "view": 6972
  },
  "sky_city_courtyardblockbrick_intact.p3d": {
-  "fire": 10872,
-  "geo": 4884,
+  "fire": 11448,
+  "geo": 5460,
   "mem": 0,
-  "res0": 108326,
-  "res1": 19624,
+  "res0": 111782,
+  "res1": 21928,
   "res1x": 12688,
   "res1y": 5012,
   "res2": 412,
   "res3": 10,
   "road": 62,
   "shadow": 492,
-  "view": 6636
+  "view": 7212
  },
  "sky_city_courtyardblockbrick_ruined.p3d": {
   "fire": 11256,
@@ -828,29 +828,29 @@
   "view": 3120
  },
  "sky_city_factoryhall_damaged.p3d": {
-  "fire": 2748,
-  "geo": 924,
+  "fire": 2760,
+  "geo": 936,
   "mem": 0,
-  "res0": 9672,
-  "res1": 3038,
+  "res0": 9744,
+  "res1": 3086,
   "res2": 410,
   "res3": 42,
   "road": 2,
   "shadow": 408,
-  "view": 1404
+  "view": 1416
  },
  "sky_city_factoryhall_intact.p3d": {
-  "fire": 1836,
-  "geo": 900,
+  "fire": 1848,
+  "geo": 912,
   "mem": 0,
-  "res0": 13050,
-  "res1": 2614,
+  "res0": 13122,
+  "res1": 2662,
   "res1x": 2200,
   "res2": 410,
   "res3": 42,
   "road": 2,
   "shadow": 408,
-  "view": 1380
+  "view": 1392
  },
  "sky_city_factoryhall_ruined.p3d": {
   "fire": 2524,
@@ -866,30 +866,30 @@
   "view": 1540
  },
  "sky_city_firestation_damaged.p3d": {
-  "fire": 2408,
-  "geo": 1016,
+  "fire": 2504,
+  "geo": 1112,
   "mem": 0,
-  "res0": 19524,
-  "res1": 3930,
+  "res0": 20100,
+  "res1": 4314,
   "res1x": 2890,
   "res2": 286,
   "res3": 10,
   "road": 16,
   "shadow": 168,
-  "view": 1496
+  "view": 1592
  },
  "sky_city_firestation_intact.p3d": {
-  "fire": 2336,
-  "geo": 1016,
+  "fire": 2468,
+  "geo": 1148,
   "mem": 0,
-  "res0": 21164,
-  "res1": 3852,
+  "res0": 21956,
+  "res1": 4380,
   "res1x": 2574,
   "res2": 174,
   "res3": 10,
   "road": 16,
   "shadow": 168,
-  "view": 1496
+  "view": 1628
  },
  "sky_city_firestation_ruined.p3d": {
   "fire": 2916,
@@ -978,32 +978,32 @@
   "view": 944
  },
  "sky_city_hospital_damaged.p3d": {
-  "fire": 11872,
-  "geo": 5368,
+  "fire": 12448,
+  "geo": 5944,
   "mem": 0,
-  "res0": 130636,
-  "res1": 20352,
+  "res0": 134092,
+  "res1": 22656,
   "res1x": 15456,
   "res1y": 5534,
   "res2": 1742,
   "res3": 10,
   "road": 58,
   "shadow": 312,
-  "view": 5960
+  "view": 6536
  },
  "sky_city_hospital_intact.p3d": {
-  "fire": 10972,
-  "geo": 5356,
+  "fire": 11548,
+  "geo": 5932,
   "mem": 0,
-  "res0": 147850,
-  "res1": 16958,
+  "res0": 151306,
+  "res1": 19262,
   "res1x": 11890,
   "res1y": 4824,
   "res2": 258,
   "res3": 10,
   "road": 58,
   "shadow": 312,
-  "view": 5960
+  "view": 6536
  },
  "sky_city_hospital_ruined.p3d": {
   "fire": 11288,
@@ -1102,32 +1102,32 @@
   "view": 1284
  },
  "sky_city_kindergarten_damaged.p3d": {
-  "fire": 3228,
-  "geo": 1800,
+  "fire": 3408,
+  "geo": 1980,
   "mem": 0,
-  "res0": 26150,
-  "res1": 5080,
+  "res0": 27230,
+  "res1": 5800,
   "res1x": 3756,
   "res1y": 1326,
   "res2": 370,
   "res3": 10,
   "road": 18,
   "shadow": 168,
-  "view": 1676
+  "view": 1856
  },
  "sky_city_kindergarten_intact.p3d": {
-  "fire": 3084,
-  "geo": 1800,
+  "fire": 3276,
+  "geo": 1992,
   "mem": 0,
-  "res0": 32919,
-  "res1": 5356,
+  "res0": 34071,
+  "res1": 6124,
   "res1x": 3104,
   "res1y": 1162,
   "res2": 174,
   "res3": 10,
   "road": 18,
   "shadow": 168,
-  "view": 1676
+  "view": 1868
  },
  "sky_city_kindergarten_ruined.p3d": {
   "fire": 3496,
@@ -1324,32 +1324,32 @@
   "view": 96
  },
  "sky_city_officemid_damaged.p3d": {
-  "fire": 9488,
-  "geo": 3368,
+  "fire": 9584,
+  "geo": 3464,
   "mem": 0,
-  "res0": 47125,
-  "res1": 9202,
+  "res0": 47701,
+  "res1": 9586,
   "res1x": 6678,
   "res1y": 3080,
   "res2": 466,
   "res3": 10,
   "road": 72,
   "shadow": 360,
-  "view": 2888
+  "view": 2984
  },
  "sky_city_officemid_intact.p3d": {
-  "fire": 7952,
-  "geo": 2756,
+  "fire": 8072,
+  "geo": 2876,
   "mem": 0,
-  "res0": 55004,
-  "res1": 8014,
+  "res0": 55724,
+  "res1": 8494,
   "res1x": 5380,
   "res1y": 2632,
   "res2": 298,
   "res3": 10,
   "road": 72,
   "shadow": 360,
-  "view": 2888
+  "view": 3008
  },
  "sky_city_officemid_ruined.p3d": {
   "fire": 9024,
@@ -1366,32 +1366,32 @@
   "view": 2976
  },
  "sky_city_officetall_damaged.p3d": {
-  "fire": 14984,
-  "geo": 5312,
+  "fire": 15152,
+  "geo": 5480,
   "mem": 0,
-  "res0": 68159,
-  "res1": 14168,
+  "res0": 69167,
+  "res1": 14840,
   "res1x": 10520,
   "res1y": 4762,
   "res2": 782,
   "res3": 10,
   "road": 114,
   "shadow": 504,
-  "view": 4328
+  "view": 4496
  },
  "sky_city_officetall_intact.p3d": {
-  "fire": 11936,
-  "geo": 4148,
+  "fire": 12128,
+  "geo": 4340,
   "mem": 0,
-  "res0": 83379,
-  "res1": 11816,
+  "res0": 84531,
+  "res1": 12584,
   "res1x": 7936,
   "res1y": 3892,
   "res2": 418,
   "res3": 10,
   "road": 114,
   "shadow": 504,
-  "view": 4328
+  "view": 4520
  },
  "sky_city_officetall_ruined.p3d": {
   "fire": 14280,
@@ -1444,32 +1444,32 @@
   "view": 5804
  },
  "sky_city_police_damaged.p3d": {
-  "fire": 2736,
-  "geo": 1080,
+  "fire": 2832,
+  "geo": 1176,
   "mem": 0,
-  "res0": 21774,
-  "res1": 4812,
+  "res0": 22350,
+  "res1": 5196,
   "res1x": 3830,
   "res1y": 1374,
   "res2": 418,
   "res3": 10,
   "road": 16,
   "shadow": 168,
-  "view": 1460
+  "view": 1556
  },
  "sky_city_police_intact.p3d": {
-  "fire": 2484,
-  "geo": 1092,
+  "fire": 2580,
+  "geo": 1188,
   "mem": 0,
-  "res0": 23248,
-  "res1": 4158,
+  "res0": 23824,
+  "res1": 4542,
   "res1x": 3158,
   "res1y": 1250,
   "res2": 138,
   "res3": 10,
   "road": 16,
   "shadow": 168,
-  "view": 1460
+  "view": 1556
  },
  "sky_city_police_ruined.p3d": {
   "fire": 3220,
@@ -1486,30 +1486,30 @@
   "view": 1644
  },
  "sky_city_postoffice_damaged.p3d": {
-  "fire": 2248,
-  "geo": 832,
+  "fire": 2284,
+  "geo": 868,
   "mem": 0,
-  "res0": 21718,
-  "res1": 3320,
+  "res0": 21934,
+  "res1": 3464,
   "res1x": 2568,
   "res2": 166,
   "res3": 10,
   "road": 16,
   "shadow": 168,
-  "view": 1336
+  "view": 1372
  },
  "sky_city_postoffice_intact.p3d": {
-  "fire": 2104,
-  "geo": 832,
+  "fire": 2164,
+  "geo": 892,
   "mem": 0,
-  "res0": 23340,
-  "res1": 3142,
+  "res0": 23700,
+  "res1": 3382,
   "res1x": 2370,
   "res2": 138,
   "res3": 10,
   "road": 16,
   "shadow": 168,
-  "view": 1336
+  "view": 1396
  },
  "sky_city_postoffice_ruined.p3d": {
   "fire": 2108,
@@ -1538,17 +1538,17 @@
   "view": 1308
  },
  "sky_city_rowhouse_intact.p3d": {
-  "fire": 1740,
-  "geo": 840,
+  "fire": 1776,
+  "geo": 876,
   "mem": 0,
-  "res0": 11162,
-  "res1": 2822,
+  "res0": 11378,
+  "res1": 2966,
   "res1x": 1948,
   "res2": 198,
   "res3": 10,
   "road": 30,
   "shadow": 216,
-  "view": 1296
+  "view": 1332
  },
  "sky_city_rowhouse_ruined.p3d": {
   "fire": 2124,
@@ -1564,30 +1564,30 @@
   "view": 1508
  },
  "sky_city_rowhousepanel_damaged.p3d": {
-  "fire": 1248,
-  "geo": 600,
+  "fire": 1272,
+  "geo": 624,
   "mem": 0,
-  "res0": 6136,
-  "res1": 1992,
+  "res0": 6280,
+  "res1": 2088,
   "res1x": 1658,
   "res2": 298,
   "res3": 10,
   "road": 16,
   "shadow": 168,
-  "view": 888
+  "view": 912
  },
  "sky_city_rowhousepanel_intact.p3d": {
-  "fire": 1176,
-  "geo": 588,
+  "fire": 1200,
+  "geo": 612,
   "mem": 0,
-  "res0": 7348,
-  "res1": 1952,
+  "res0": 7492,
+  "res1": 2048,
   "res1x": 1366,
   "res2": 158,
   "res3": 10,
   "road": 16,
   "shadow": 168,
-  "view": 864
+  "view": 888
  },
  "sky_city_rowhousepanel_ruined.p3d": {
   "fire": 1464,
@@ -1603,30 +1603,30 @@
   "view": 1076
  },
  "sky_city_rowhouserender_damaged.p3d": {
-  "fire": 2376,
-  "geo": 1092,
+  "fire": 2424,
+  "geo": 1140,
   "mem": 0,
-  "res0": 16666,
-  "res1": 3664,
+  "res0": 16954,
+  "res1": 3856,
   "res1x": 2974,
   "res2": 462,
   "res3": 10,
   "road": 44,
   "shadow": 264,
-  "view": 1704
+  "view": 1752
  },
  "sky_city_rowhouserender_intact.p3d": {
-  "fire": 2344,
-  "geo": 1156,
+  "fire": 2392,
+  "geo": 1204,
   "mem": 0,
-  "res0": 19338,
-  "res1": 3752,
+  "res0": 19626,
+  "res1": 3944,
   "res1x": 2528,
   "res2": 238,
   "res3": 10,
   "road": 44,
   "shadow": 264,
-  "view": 1704
+  "view": 1752
  },
  "sky_city_rowhouserender_ruined.p3d": {
   "fire": 2444,
@@ -1690,32 +1690,32 @@
   "view": 464
  },
  "sky_city_school_damaged.p3d": {
-  "fire": 5188,
-  "geo": 2512,
+  "fire": 5308,
+  "geo": 2632,
   "mem": 0,
-  "res0": 35291,
-  "res1": 8432,
+  "res0": 36011,
+  "res1": 8912,
   "res1x": 6416,
   "res1y": 2268,
   "res2": 654,
   "res3": 10,
   "road": 30,
   "shadow": 216,
-  "view": 2816
+  "view": 2936
  },
  "sky_city_school_intact.p3d": {
-  "fire": 4840,
-  "geo": 2440,
+  "fire": 5128,
+  "geo": 2728,
   "mem": 0,
-  "res0": 41069,
-  "res1": 7342,
+  "res0": 42797,
+  "res1": 8494,
   "res1x": 5186,
   "res1y": 2020,
   "res2": 178,
   "res3": 10,
   "road": 30,
   "shadow": 216,
-  "view": 2864
+  "view": 3152
  },
  "sky_city_school_ruined.p3d": {
   "fire": 5060,
@@ -1804,30 +1804,30 @@
   "view": 316
  },
  "sky_city_shoprow_damaged.p3d": {
-  "fire": 2532,
-  "geo": 1320,
+  "fire": 2568,
+  "geo": 1356,
   "mem": 0,
-  "res0": 16854,
-  "res1": 3750,
+  "res0": 17070,
+  "res1": 3894,
   "res1x": 2866,
   "res2": 406,
   "res3": 10,
   "road": 44,
   "shadow": 264,
-  "view": 1692
+  "view": 1728
  },
  "sky_city_shoprow_intact.p3d": {
-  "fire": 2540,
-  "geo": 1364,
+  "fire": 2624,
+  "geo": 1448,
   "mem": 0,
-  "res0": 17730,
-  "res1": 3888,
+  "res0": 18234,
+  "res1": 4224,
   "res1x": 2550,
   "res2": 238,
   "res3": 10,
   "road": 44,
   "shadow": 264,
-  "view": 1680
+  "view": 1764
  },
  "sky_city_shoprow_ruined.p3d": {
   "fire": 2688,
@@ -1843,30 +1843,30 @@
   "view": 1964
  },
  "sky_city_shoprowhardware_damaged.p3d": {
-  "fire": 2684,
-  "geo": 1364,
+  "fire": 2768,
+  "geo": 1448,
   "mem": 0,
-  "res0": 19668,
-  "res1": 3950,
+  "res0": 20172,
+  "res1": 4286,
   "res1x": 3034,
   "res2": 462,
   "res3": 10,
   "road": 44,
   "shadow": 264,
-  "view": 1680
+  "view": 1764
  },
  "sky_city_shoprowhardware_intact.p3d": {
-  "fire": 2508,
-  "geo": 1332,
+  "fire": 2592,
+  "geo": 1416,
   "mem": 0,
-  "res0": 23588,
-  "res1": 3784,
+  "res0": 24092,
+  "res1": 4120,
   "res1x": 2478,
   "res2": 238,
   "res3": 10,
   "road": 44,
   "shadow": 264,
-  "view": 1704
+  "view": 1788
  },
  "sky_city_shoprowhardware_ruined.p3d": {
   "fire": 2700,
@@ -1882,30 +1882,30 @@
   "view": 1892
  },
  "sky_city_shoprowmarket_damaged.p3d": {
-  "fire": 2652,
-  "geo": 1332,
+  "fire": 2724,
+  "geo": 1404,
   "mem": 0,
-  "res0": 20294,
-  "res1": 3824,
+  "res0": 20726,
+  "res1": 4112,
   "res1x": 2942,
   "res2": 406,
   "res3": 10,
   "road": 44,
   "shadow": 264,
-  "view": 1692
+  "view": 1764
  },
  "sky_city_shoprowmarket_intact.p3d": {
-  "fire": 2500,
-  "geo": 1324,
+  "fire": 2584,
+  "geo": 1408,
   "mem": 0,
-  "res0": 21918,
-  "res1": 3808,
+  "res0": 22422,
+  "res1": 4144,
   "res1x": 2484,
   "res2": 238,
   "res3": 10,
   "road": 44,
   "shadow": 264,
-  "view": 1668
+  "view": 1752
  },
  "sky_city_shoprowmarket_ruined.p3d": {
   "fire": 2816,
@@ -1921,30 +1921,30 @@
   "view": 1952
  },
  "sky_city_shoprownews_damaged.p3d": {
-  "fire": 2500,
-  "geo": 1312,
+  "fire": 2524,
+  "geo": 1336,
   "mem": 0,
-  "res0": 15764,
-  "res1": 3738,
+  "res0": 15908,
+  "res1": 3834,
   "res1x": 2834,
   "res2": 434,
   "res3": 10,
   "road": 44,
   "shadow": 264,
-  "view": 1668
+  "view": 1692
  },
  "sky_city_shoprownews_intact.p3d": {
-  "fire": 2464,
-  "geo": 1312,
+  "fire": 2548,
+  "geo": 1396,
   "mem": 0,
-  "res0": 18152,
-  "res1": 3804,
+  "res0": 18656,
+  "res1": 4140,
   "res1x": 2480,
   "res2": 238,
   "res3": 10,
   "road": 44,
   "shadow": 264,
-  "view": 1668
+  "view": 1752
  },
  "sky_city_shoprownews_ruined.p3d": {
   "fire": 2748,
@@ -2074,32 +2074,32 @@
   "view": 828
  },
  "sky_city_townhall_damaged.p3d": {
-  "fire": 4792,
-  "geo": 2260,
+  "fire": 5020,
+  "geo": 2488,
   "mem": 0,
-  "res0": 37153,
-  "res1": 8436,
+  "res0": 38521,
+  "res1": 9348,
   "res1x": 6264,
   "res1y": 2167,
   "res2": 720,
   "res3": 10,
   "road": 30,
   "shadow": 216,
-  "view": 2540
+  "view": 2768
  },
  "sky_city_townhall_intact.p3d": {
-  "fire": 4408,
-  "geo": 2296,
+  "fire": 4720,
+  "geo": 2608,
   "mem": 0,
-  "res0": 42651,
-  "res1": 7122,
+  "res0": 44523,
+  "res1": 8370,
   "res1x": 4826,
   "res1y": 1859,
   "res2": 216,
   "res3": 10,
   "road": 30,
   "shadow": 216,
-  "view": 2540
+  "view": 2852
  },
  "sky_city_townhall_ruined.p3d": {
   "fire": 5292,
@@ -2116,30 +2116,30 @@
   "view": 2848
  },
  "sky_city_villa_damaged.p3d": {
-  "fire": 1748,
-  "geo": 716,
+  "fire": 1784,
+  "geo": 752,
   "mem": 0,
-  "res0": 17018,
-  "res1": 2622,
+  "res0": 17234,
+  "res1": 2766,
   "res1x": 2192,
   "res2": 210,
   "res3": 16,
   "road": 16,
   "shadow": 216,
-  "view": 1096
+  "view": 1132
  },
  "sky_city_villa_intact.p3d": {
-  "fire": 1700,
-  "geo": 704,
+  "fire": 1736,
+  "geo": 740,
   "mem": 0,
-  "res0": 19798,
-  "res1": 2728,
+  "res0": 20014,
+  "res1": 2872,
   "res1x": 2072,
   "res2": 210,
   "res3": 16,
   "road": 16,
   "shadow": 216,
-  "view": 1084
+  "view": 1120
  },
  "sky_city_villa_ruined.p3d": {
   "fire": 1852,
@@ -2155,29 +2155,29 @@
   "view": 1288
  },
  "sky_city_villabrick_damaged.p3d": {
-  "fire": 1876,
-  "geo": 640,
+  "fire": 1900,
+  "geo": 664,
   "mem": 0,
-  "res0": 9470,
-  "res1": 2976,
+  "res0": 9614,
+  "res1": 3072,
   "res2": 266,
   "res3": 16,
   "road": 16,
   "shadow": 216,
-  "view": 1108
+  "view": 1132
  },
  "sky_city_villabrick_intact.p3d": {
-  "fire": 1700,
-  "geo": 704,
+  "fire": 1724,
+  "geo": 728,
   "mem": 0,
-  "res0": 15016,
-  "res1": 2726,
+  "res0": 15160,
+  "res1": 2822,
   "res1x": 2062,
   "res2": 210,
   "res3": 16,
   "road": 16,
   "shadow": 216,
-  "view": 1084
+  "view": 1108
  },
  "sky_city_villabrick_ruined.p3d": {
   "fire": 1756,
@@ -2193,29 +2193,29 @@
   "view": 1204
  },
  "sky_city_villastone_damaged.p3d": {
-  "fire": 1792,
-  "geo": 664,
+  "fire": 1816,
+  "geo": 688,
   "mem": 0,
-  "res0": 11080,
-  "res1": 2944,
+  "res0": 11224,
+  "res1": 3040,
   "res2": 322,
   "res3": 16,
   "road": 16,
   "shadow": 216,
-  "view": 1120
+  "view": 1144
  },
  "sky_city_villastone_intact.p3d": {
-  "fire": 1624,
-  "geo": 628,
+  "fire": 1648,
+  "geo": 652,
   "mem": 0,
-  "res0": 16008,
-  "res1": 2644,
+  "res0": 16152,
+  "res1": 2740,
   "res1x": 2014,
   "res2": 210,
   "res3": 16,
   "road": 16,
   "shadow": 216,
-  "view": 1084
+  "view": 1108
  },
  "sky_city_villastone_ruined.p3d": {
   "fire": 1780,
@@ -2231,30 +2231,30 @@
   "view": 1204
  },
  "sky_city_warehouse_damaged.p3d": {
-  "fire": 1628,
-  "geo": 440,
+  "fire": 1640,
+  "geo": 452,
   "mem": 0,
-  "res0": 11046,
-  "res1": 2056,
+  "res0": 11118,
+  "res1": 2104,
   "res1x": 1452,
   "res2": 122,
   "res3": 10,
   "road": 2,
   "shadow": 120,
-  "view": 1196
+  "view": 1208
  },
  "sky_city_warehouse_intact.p3d": {
-  "fire": 1580,
-  "geo": 440,
+  "fire": 1592,
+  "geo": 452,
   "mem": 0,
-  "res0": 11934,
-  "res1": 1966,
+  "res0": 12006,
+  "res1": 2014,
   "res1x": 1354,
   "res2": 122,
   "res3": 10,
   "road": 2,
   "shadow": 120,
-  "view": 1196
+  "view": 1208
  },
  "sky_city_warehouse_ruined.p3d": {
   "fire": 1584,
@@ -2283,17 +2283,17 @@
   "view": 1676
  },
  "sky_city_warehouselarge_intact.p3d": {
-  "fire": 2204,
-  "geo": 476,
+  "fire": 2216,
+  "geo": 488,
   "mem": 0,
-  "res0": 21144,
-  "res1": 2612,
+  "res0": 21216,
+  "res1": 2660,
   "res1x": 1862,
   "res2": 134,
   "res3": 10,
   "road": 2,
   "shadow": 120,
-  "view": 1676
+  "view": 1688
  },
  "sky_city_warehouselarge_ruined.p3d": {
   "fire": 1992,
@@ -2309,30 +2309,30 @@
   "view": 1740
  },
  "sky_city_warehousesmall_damaged.p3d": {
-  "fire": 1244,
-  "geo": 392,
+  "fire": 1256,
+  "geo": 404,
   "mem": 0,
-  "res0": 7008,
-  "res1": 1568,
+  "res0": 7080,
+  "res1": 1616,
   "res1x": 1146,
   "res2": 110,
   "res3": 10,
   "road": 2,
   "shadow": 120,
-  "view": 908
+  "view": 920
  },
  "sky_city_warehousesmall_intact.p3d": {
-  "fire": 1184,
-  "geo": 392,
+  "fire": 1196,
+  "geo": 404,
   "mem": 0,
-  "res0": 7618,
-  "res1": 1474,
+  "res0": 7690,
+  "res1": 1522,
   "res1x": 1046,
   "res2": 110,
   "res3": 10,
   "road": 2,
   "shadow": 120,
-  "view": 908
+  "view": 920
  },
  "sky_city_warehousesmall_ruined.p3d": {
   "fire": 1260,
