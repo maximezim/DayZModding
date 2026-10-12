@@ -1615,7 +1615,7 @@ def front_door(L, P):
     m.point(name, ((d0 + d1) / 2, y, 1.1))
 
 
-IDOOR_W = (0.75, 1.05)       # D98: doorway widths that get a door leaf (room doors; wider openings stay open)
+IDOOR_W = (0.85, 1.05)       # D98: doorway widths that get a door leaf (sec L2: >= 0.85 m keeps 0.8 m clear when open)
 IDOOR_CAP = 48               # D98 / P74 (unverified): interior doors per model; lower if bones split sections (perf M1)
 IDOOR_H = 2.07               # leaf height in the 2.1 m opening
 IDOORS = {}                  # model name -> [(door name, orient)], written to assets/build_doors_city.json
@@ -1655,6 +1655,26 @@ def _sweep_clear(boxes, axis, c, h, d, side, R):
     return True
 
 
+def _is_own(b, axis, c, o0, o1):
+    """The keep-free box of the doorway being fitted (it must not block its own door)."""
+    a0, a1, c0, c1 = (b[0], b[1], b[2], b[3]) if axis == "x" else (b[2], b[3], b[0], b[1])
+    return abs(a0 - (o0 - 0.1)) < 1e-6 and abs(a1 - (o1 + 0.1)) < 1e-6 and abs((c0 + c1) / 2 - c) < 1e-6
+
+
+def _passage_clear(boxes, axis, c, h, d, side, w):
+    """sec M1: an open leaf (perpendicular to the wall at the hinge) leaves 0.7 m to walk past its tip: nothing in front
+    of the wall face, across the leaf's span along the wall, closer than w + 0.7."""
+    f = c + side * (PT / 2 + 0.035)
+    lo, hi = sorted((h - d * 0.3, h + d * (w + 0.3)))
+    far = c + side * (PT / 2 + w + 0.7)
+    c0, c1 = sorted((f, far))
+    for b in boxes:
+        a0, a1, b0, b1 = (b[0], b[1], b[2], b[3]) if axis == "x" else (b[2], b[3], b[0], b[1])
+        if a0 < hi and lo < a1 and b0 < c1 and c0 < b1:
+            return False
+    return True
+
+
 def interior_doors(L, P):
     """D98: hinged leaves in the room doorways (partition openings 0.75-1.05 m). For each doorway the hinge / swing side
     whose 90 degree sweep is clear of walls, furniture and stairs (Geometry and Res0 primitives) is used; no clear side,
@@ -1668,6 +1688,10 @@ def interior_doors(L, P):
     cand.sort(key=lambda dw: h01(P.name, "idoor_pick", dw))
     zs = sorted({dw[4] for dw in cand})
     obst = {z: _prim_boxes(L["geo"].lod, z + 0.1, z + 2.0) + _prim_boxes(L["res0"].lod, z + 0.1, z + 2.0) for z in zs}
+    for (axis_, c_, o0_, o1_, z_) in P.doorways:          # sec M1: keep the floor in front of every doorway free
+        if z_ in obst:
+            a0_, a1_, c0_, c1_ = o0_ - 0.1, o1_ + 0.1, c_ - PT / 2 - 0.6, c_ + PT / 2 + 0.6
+            obst[z_].append([a0_, a1_, c0_, c1_, z_, z_ + 2.1] if axis_ == "x" else [c0_, c1_, a0_, a1_, z_, z_ + 2.1])
     g = P.A["group"]
     cell = "door_steel" if g in ("industrial",) else "door_oak"
     wood = cell == "door_oak"
@@ -1679,7 +1703,9 @@ def interior_doors(L, P):
         opts = [(h, d, side) for (h, d) in ((o0 + 0.01, 1), (o1 - 0.01, -1)) for side in (-1, 1)]
         k0 = int(h01(P.name, "idoor_side", axis, c, o0, z0) * 4)
         opts = opts[k0:] + opts[:k0]
-        pick = next((o for o in opts if _sweep_clear(obst[z0], axis, c, o[0], o[1], o[2], w + 0.04)), None)
+        own = [b for b in obst[z0] if not _is_own(b, axis, c, o0, o1)]
+        pick = next((o for o in opts if _sweep_clear(own, axis, c, o[0], o[1], o[2], w + 0.04)
+                     and _passage_clear(own, axis, c, o[0], o[1], o[2], w)), None)
         if pick is None:
             continue
         out.append((axis, c, o0, o1, z0) + pick)
@@ -1688,6 +1714,7 @@ def interior_doors(L, P):
         sc0, sc1 = sorted((c, c + side * (PT / 2 + w + 0.04)))
         obst[z0].append([sa0, sa1, sc0, sc1, z0, z0 + IDOOR_H] if axis == "x" else [sc0, sc1, sa0, sa1, z0, z0 + IDOOR_H])
     out.sort(key=lambda t: (t[4], t[0], t[1], t[2]))
+    P.door_sweeps = [(t[0], t[1], t[5], t[6], t[7], t[3] - t[2] + 0.3, t[4]) for t in out]    # sec L3: loot keeps out
     m = L["mem"].lod
 
     def P3(a, cc, z):
@@ -1700,7 +1727,18 @@ def interior_doors(L, P):
         vis = {"mat": "facadekit", "uv": UVRect(ax, az, (a0, z0), (a1, z0 + IDOOR_H), S.facadekit_uv(cell))}
         for k in ("res0", "res1", "geo", "fire", "view"):
             kw = dict(vis) if k.startswith("res") else ({"mat": "pen_wood" if wood else "pen_metal"} if k == "fire" else {})
+            if k in ("fire", "view"):                       # sec L1: fills the opening (no jamb / head slits); no physics
+                (fx0, fy0, _z), (fx1, fy1, _z) = P3(o0, c - 0.02, 0), P3(o1, c + 0.02, 0)
+                L[k].lod.box(min(fx0, fx1), max(fx0, fx1), min(fy0, fy1), max(fy0, fy1), z0, z0 + 2.1, sel=[name], **kw)
+                continue
             L[k].lod.box(min(x0, x1), max(x0, x1), min(y0, y1), max(y0, y1), z0, z0 + IDOOR_H, sel=[name], **kw)
+        cs0, cs1 = sorted((c - side * 0.02, c - side * 0.035))                # door stops on the closing side (render)
+        for (sa0, sa1, sz0, sz1) in ((o0, o0 + 0.035, z0, z0 + 2.1), (o1 - 0.035, o1, z0, z0 + 2.1),
+                                     (o0, o1, z0 + 2.04, z0 + 2.1)):
+            (sx0, sy0, _z), (sx1, sy1, _z) = P3(sa0, cs0, 0), P3(sa1, cs1, 0)
+            for k in ("res0", "res1"):
+                L[k].lod.box(min(sx0, sx1), max(sx0, sx1), min(sy0, sy1), max(sy0, sy1), sz0, sz1, mat="paint",
+                             uv=DT.paint_uv("white"))
         la = h + d * (w - 0.12)                                              # handles on both faces, latch side
         for s_ in (-1, 1):
             (hx0, hy0, _z), (hx1, hy1, _z) = P3(la - 0.05, c + s_ * 0.02, 0), P3(la + 0.05, c + s_ * 0.05, 0)
@@ -4785,7 +4823,10 @@ def loot_points(L, P):
                     floor = any(b[0] <= x <= b[1] and b[2] <= y <= b[3] and abs(b[5] - z) < 0.03 for b in boxes)
                     hit = any(b[0] < x + 0.4 and x - 0.4 < b[1] and b[2] < y + 0.4 and y - 0.4 < b[3]
                               and b[4] < z + 1.6 and z + 0.05 < b[5] for b in boxes)
-                    if floor and not hit:
+                    swept = any(abs(sz - z) < 0.05 and (((x - sh) ** 2 + (y - sc) ** 2) if sax == "x" else
+                                                          ((x - sc) ** 2 + (y - sh) ** 2)) < sr * sr
+                                for (sax, sc, sh, _d, _s, sr, sz) in getattr(P, "door_sweeps", ()))
+                    if floor and not hit and not swept:                       # D98 sec L3: not where a door swings
                         cand.append((round(x, 2), round(y, 2), round(z, 2)))
                 y += 1.3
             x += 1.3
@@ -5032,7 +5073,24 @@ def write_loot():
 def write_doors(out):
     """D98: merge the interior doors of the models built in this run into assets/build_doors_city.json (re-read just
     before writing: parallel shards); skyspec turns them into Doors config / model.cfg entries."""
+    import time
     path = os.path.join(out, "..", "assets", "build_doors_city.json")
+    lock = path + ".lock"
+    for _ in range(600):                                   # sec M2: parallel shards (portable lock: mkdir is atomic)
+        try:
+            os.mkdir(lock)
+            break
+        except FileExistsError:
+            time.sleep(0.1)
+    else:
+        raise RuntimeError("door JSON lock held: remove %s" % lock)
+    try:
+        _write_doors(path)
+    finally:
+        os.rmdir(lock)
+
+
+def _write_doors(path):
     data = json.load(open(path)) if os.path.exists(path) else {}
     data.update({n: [list(t) for t in v] for n, v in IDOORS.items()})
     data = {n: v for n, v in data.items() if n in S.KIT}                    # perf L7: drop removed models

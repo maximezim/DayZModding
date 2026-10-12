@@ -562,3 +562,12 @@ flat tyres and rust.
 
 Their collision now follows what you see (you cannot hide in a fuel tank or a twin tyre, and you no longer sink into
 the bus roof when lying on it). Pictures: `reviews/d97_gates.md`. What to check in game: `TESTING.md` QP-20.
+
+## 48. Interior doors (D98)
+
+Room doorways inside the city buildings were empty holes. Now they have real doors you can open and close, the same way
+the front doors work: wooden panel doors (steel in industrial buildings) with handles on both sides. The generator
+only fits a door where it can swing freely: not into a wall, furniture, the stairs or another door, and not so that it
+blocks a corridor. Damaged buildings have lost about a third of their doors and ruins have none. Loot no longer
+spawns where a door swings. Two things can only be checked in game: whether 48 doors in the biggest buildings cost too
+much, and whether infected still find their way through rooms with closed doors (TESTING section 60).

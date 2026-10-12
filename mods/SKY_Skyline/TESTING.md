@@ -1019,6 +1019,21 @@ proxy parts). Before / after renders: `reviews/d96_gates.md`.
 | QP-19 | Downpipes, lightning rods, roller shutters, mall / hypermarket floors near doors, roof gables | No streaked textures (bands run along thin parts, wide faces cut into strips) | | | |
 | QP-20 | Wreck_CityBus / Wreck_GarbageTruck (D97): walk round both, crawl under, climb on the bus roof and the truck bonnet, shoot the windows, wheels and hopper | Rounded bodies, glazing with pillars, wheels inside half-round wells, doors on the kerb side, ZiL cab with grille and round lamps, ribbed body; you cannot get inside or under the bodies; prone on the bus roof you are not sunk into it; bullets stop on glass, wheels and the hopper (all opaque wrecks) | screenshots | | |
 
+## 60. Interior doors (D98)
+
+Rebuild the PBOs first (`Build-SkyAssets.ps1`, `Build-Mod.ps1`): every Intact / Damaged city building and its config
+changed. Door counts per model: `assets/build_doors_city.json`.
+
+| ID | Steps | Expected | Evidence | Diag | Ded |
+|---|---|---|---|---|---|
+| ID-01 | AptBlock, School, Hospital (Intact): open and close every door on one floor | Each leaf swings into the room it was built for without passing through a wall, furniture, the stairs or another door; handles turn with the leaf; sound plays at the door (P1 swing sign) | screenshots / short video | | |
+| ID-02 | Damaged versions of the same | About a third of the doorways have no leaf; ruins have no doors | | | |
+| ID-03 | Shoot and look through a closed door at its edges (jambs, head) | No see-through or shoot-through slit at the edges; bullets pass the wooden leaf like vanilla wooden doors | | | |
+| ID-04 | Open a door into a corridor and walk past it | 0.7 m or more to walk past the open leaf; the doorway itself stays passable when open | | | |
+| ID-05 | Navmesh: DayZDiag navmesh view in an AptBlock and a School, doors closed and open; lure infected into a room | Rooms are linked through the doors (P75); infected follow you through open doors | screenshots | | |
+| ID-06 | Hospital / CourtyardBlock (48 doors): diag statistics while cycling doors, RPT | No config / animation warnings; draw calls close to a vanilla tenement (P74) | RPT, numbers | | |
+| ID-07 | Loot | No loot spawns inside a door's swing | | | |
+
 ## Windows session log (2026-10-09)
 
 Chronological record for the cloud session: what was run on the Windows workstation, the result, and anything that
