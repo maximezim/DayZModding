@@ -1616,7 +1616,7 @@ def front_door(L, P):
 
 
 IDOOR_W = (0.75, 1.05)       # D98: doorway widths that get a door leaf (room doors; wider openings stay open)
-IDOOR_CAP = 48               # D98 / P74: interior doors per model (vanilla blocks carry tens of doors)
+IDOOR_CAP = 48               # D98 / P74 (unverified): interior doors per model; lower if bones split sections (perf M1)
 IDOOR_H = 2.07               # leaf height in the 2.1 m opening
 IDOORS = {}                  # model name -> [(door name, orient)], written to assets/build_doors_city.json
 
@@ -1683,6 +1683,10 @@ def interior_doors(L, P):
         if pick is None:
             continue
         out.append((axis, c, o0, o1, z0) + pick)
+        h, d, side = pick                                                   # perf L6: its swing blocks later doors
+        sa0, sa1 = sorted((h, h + d * (w + 0.04)))
+        sc0, sc1 = sorted((c, c + side * (PT / 2 + w + 0.04)))
+        obst[z0].append([sa0, sa1, sc0, sc1, z0, z0 + IDOOR_H] if axis == "x" else [sc0, sc1, sa0, sa1, z0, z0 + IDOOR_H])
     out.sort(key=lambda t: (t[4], t[0], t[1], t[2]))
     m = L["mem"].lod
 
@@ -5031,6 +5035,7 @@ def write_doors(out):
     path = os.path.join(out, "..", "assets", "build_doors_city.json")
     data = json.load(open(path)) if os.path.exists(path) else {}
     data.update({n: [list(t) for t in v] for n, v in IDOORS.items()})
+    data = {n: v for n, v in data.items() if n in S.KIT}                    # perf L7: drop removed models
     with open(path, "w") as fh:
         json.dump(data, fh, indent=1, sort_keys=True)
 
