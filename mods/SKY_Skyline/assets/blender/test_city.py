@@ -237,7 +237,7 @@ def test_class(name, fresh_loot):
     # doors
     for d in e.get("doors", []):
         dn = d["name"]
-        for k in ("res0", "res1", "geo", "fire", "shadow"):
+        for k in ("res0", "res1", "geo", "fire") + (() if d.get("interior") else ("shadow",)):   # D98: no inner shadows
             check(dn in lods[k].groups, "%s %s: door selection %s missing" % (name, k, dn))
         mem = lods["mem"]
         check(len(mem.groups.get(dn + "_axis", ())) == 2, "%s: %s_axis must have 2 points" % (name, dn))
@@ -252,6 +252,10 @@ def test_class(name, fresh_loot):
         gv = geo.groups[dn]
         comps = [g for g, v in geo.groups.items() if g.startswith("Component") and v & gv]
         check(len(comps) == 1 and geo.groups[comps[0]] == gv, "%s: door %s is not exactly one component" % (name, dn))
+    built = sorted(g for g in lods["geo"].groups if g.startswith("door_i"))         # D98: config list == model
+    listed = sorted(d["name"] for d in e.get("doors", []) if d.get("interior"))
+    check(built == listed, "%s: interior doors in the model %s != build_doors_city.json %s (rebuild, then gen_configs)"
+          % (name, built[:4], listed[:4]))
     if state == 2:
         check(not e.get("doors"), "%s: a ruin keeps no door" % name)
         for k in ("res0", "res1", "res2"):

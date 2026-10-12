@@ -1615,8 +1615,113 @@ def front_door(L, P):
     m.point(name, ((d0 + d1) / 2, y, 1.1))
 
 
+IDOOR_W = (0.75, 1.05)       # D98: doorway widths that get a door leaf (room doors; wider openings stay open)
+IDOOR_CAP = 48               # D98 / P74: interior doors per model (vanilla blocks carry tens of doors)
+IDOOR_H = 2.07               # leaf height in the 2.1 m opening
+IDOORS = {}                  # model name -> [(door name, orient)], written to assets/build_doors_city.json
+
+
+def _prim_boxes(lod, z0, z1):
+    """AABBs of the primitives of a LOD overlapping z0..z1 (D98 door sweep test)."""
+    boxes = {}
+    for i, pr in enumerate(lod.vprim):
+        if pr < 0:
+            continue
+        v = lod.verts[i]
+        b = boxes.get(pr)
+        if b is None:
+            boxes[pr] = [v[0], v[0], v[1], v[1], v[2], v[2]]
+        else:
+            b[0], b[1] = min(b[0], v[0]), max(b[1], v[0])
+            b[2], b[3] = min(b[2], v[1]), max(b[3], v[1])
+            b[4], b[5] = min(b[4], v[2]), max(b[5], v[2])
+    return [b for b in boxes.values() if b[5] > z0 and b[4] < z1]
+
+
+def _sweep_clear(boxes, axis, c, h, d, side, R):
+    """True when no box enters the quarter disc a door sweeps: centre (h, c) in the wall plane, radius R, towards
+    +d along the wall and +side across it (beyond the wall face)."""
+    f = c + side * (PT / 2 + 0.035)                  # flush wall-face detail (trims, switches, skirting) never blocks
+    for b in boxes:
+        a0, a1, c0, c1 = (b[0], b[1], b[2], b[3]) if axis == "x" else (b[2], b[3], b[0], b[1])
+        a0, a1 = (max(a0, h), a1) if d > 0 else (a0, min(a1, h))          # clip to the quadrant
+        c0, c1 = (max(c0, f), c1) if side > 0 else (c0, min(c1, f))
+        if a0 > a1 or c0 > c1:
+            continue
+        qa = min(max(h, a0), a1)
+        qc = min(max(c, c0), c1)
+        if (qa - h) ** 2 + (qc - c) ** 2 < R * R:
+            return False
+    return True
+
+
+def interior_doors(L, P):
+    """D98: hinged leaves in the room doorways (partition openings 0.75-1.05 m). For each doorway the hinge / swing side
+    whose 90 degree sweep is clear of walls, furniture and stairs (Geometry and Res0 primitives) is used; no clear side,
+    no door. None in a ruin, about a third missing in a damaged building, at most IDOOR_CAP per model. Same rig as the
+    front door: selection door_iNN in Res0 / Res1 / Geometry / Fire / View (one component), axis, action point on the
+    swing side (test_city swing test), Doors config from assets/build_doors_city.json (skyspec)."""
+    IDOORS[P.name] = []
+    if P.state == 2 or not getattr(P, "doorways", None):
+        return
+    cand = [dw for i, dw in enumerate(P.doorways) if P.state == 0 or h01(P.name, "idoor_gone", i) >= 0.35]
+    cand.sort(key=lambda dw: h01(P.name, "idoor_pick", dw))
+    zs = sorted({dw[4] for dw in cand})
+    obst = {z: _prim_boxes(L["geo"].lod, z + 0.1, z + 2.0) + _prim_boxes(L["res0"].lod, z + 0.1, z + 2.0) for z in zs}
+    g = P.A["group"]
+    cell = "door_steel" if g in ("industrial",) else "door_oak"
+    wood = cell == "door_oak"
+    out = []
+    for (axis, c, o0, o1, z0) in cand:
+        if len(out) >= IDOOR_CAP:
+            break
+        w = o1 - o0
+        opts = [(h, d, side) for (h, d) in ((o0 + 0.01, 1), (o1 - 0.01, -1)) for side in (-1, 1)]
+        k0 = int(h01(P.name, "idoor_side", axis, c, o0, z0) * 4)
+        opts = opts[k0:] + opts[:k0]
+        pick = next((o for o in opts if _sweep_clear(obst[z0], axis, c, o[0], o[1], o[2], w + 0.04)), None)
+        if pick is None:
+            continue
+        out.append((axis, c, o0, o1, z0) + pick)
+    out.sort(key=lambda t: (t[4], t[0], t[1], t[2]))
+    m = L["mem"].lod
+
+    def P3(a, cc, z):
+        return (a, cc, z) if axis == "x" else (cc, a, z)
+    for n, (axis, c, o0, o1, z0, h, d, side) in enumerate(out):
+        name = "door_i%02d" % (n + 1)
+        a0, a1 = o0 + 0.01, o1 - 0.01
+        (x0, y0, _z), (x1, y1, _z) = P3(a0, c - 0.02, 0), P3(a1, c + 0.02, 0)
+        ax, az = (0, 2) if axis == "x" else (1, 2)
+        vis = {"mat": "facadekit", "uv": UVRect(ax, az, (a0, z0), (a1, z0 + IDOOR_H), S.facadekit_uv(cell))}
+        for k in ("res0", "res1", "geo", "fire", "view"):
+            kw = dict(vis) if k.startswith("res") else ({"mat": "pen_wood" if wood else "pen_metal"} if k == "fire" else {})
+            L[k].lod.box(min(x0, x1), max(x0, x1), min(y0, y1), max(y0, y1), z0, z0 + IDOOR_H, sel=[name], **kw)
+        la = h + d * (w - 0.12)                                              # handles on both faces, latch side
+        for s_ in (-1, 1):
+            (hx0, hy0, _z), (hx1, hy1, _z) = P3(la - 0.05, c + s_ * 0.02, 0), P3(la + 0.05, c + s_ * 0.05, 0)
+            L["res0"].lod.box(min(hx0, hx1), max(hx0, hx1), min(hy0, hy1), max(hy0, hy1), z0 + 0.98, z0 + 1.03,
+                              mat="metal", uv=DT.UV_STEEL, sel=[name])
+        m.point(name + "_axis", P3(h, c, z0))
+        m.point(name + "_axis", P3(h, c, z0 + IDOOR_H))
+        m.point(name + "_action", P3((o0 + o1) / 2, c + side * 0.6, z0 + 1.1))
+        m.point(name, P3((o0 + o1) / 2, c, z0 + 1.1))
+        # orient (P1 convention, as test_city checks it): the leaf turns by -orient * DOOR_OPEN_ANGLE about the upward
+        # axis (right hand). With orient = +1 the leaf centre (d w / 2 along the wall from the hinge) moves across the
+        # wall by va sin(-angle) (wall along X) or -va sin(-angle) (wall along Y); pick the sign that opens to `side`.
+        sa = math.sin(-S.DOOR_OPEN_ANGLE)
+        va = d * w / 2
+        across = (va * sa) if axis == "x" else (-va * sa)
+        orient = 1 if across * side > 0 else -1
+        IDOORS[P.name].append((name, orient))
+
+
 def partitions(L, P, walls, z0, top, band):
     from skygeo import wall_x, wall_y
+    if not hasattr(P, "doorways"):
+        P.doorways = []
+    for axis, c, a0, a1, ops in walls:                     # D98: room-door-sized openings get a hinged leaf later
+        P.doorways += [(axis, c, o0, o1, z0) for (o0, o1) in ops if IDOOR_W[0] <= o1 - o0 <= IDOOR_W[1]]
     for k in ("res0", "res1", "geo", "view", "fire"):
         kw = kw_for(k, "paint", DT.paint_uv(band), "masonry")
         for axis, c, a0, a1, ops in walls:
@@ -4714,6 +4819,7 @@ def build(arch, state):
     if P.state == 2:
         close_slots(L, P)                                                      # D87 wedge slots next to rubble
     dress(L, P)
+    interior_doors(L, P)
     memory(L, P)
     geo = L["geo"].lod
     geo.props.update({"class": "house", "map": "building", "autocenter": "0"})
@@ -4919,6 +5025,19 @@ def write_loot():
         fh.write("\n")
 
 
+def write_doors(out):
+    """D98: merge the interior doors of the models built in this run into assets/build_doors_city.json (re-read just
+    before writing: parallel shards); skyspec turns them into Doors config / model.cfg entries."""
+    path = os.path.join(out, "..", "assets", "build_doors_city.json")
+    data = json.load(open(path)) if os.path.exists(path) else {}
+    data.update({n: [list(t) for t in v] for n, v in IDOORS.items()})
+    with open(path, "w") as fh:
+        json.dump(data, fh, indent=1, sort_keys=True)
+
+
 if __name__ == "__main__":
     run_cli(modules(), KIT_MATS, "build_stats_city.json")
+    _argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
+    if "--out" in _argv:
+        write_doors(_argv[_argv.index("--out") + 1])
     write_loot()

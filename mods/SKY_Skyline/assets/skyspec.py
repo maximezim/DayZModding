@@ -882,6 +882,14 @@ for _a, _e in CITY_ARCHETYPES.items():
         # orient -1: city front doors open inward (action point inside), see test_city swing test
         KIT["City_%s_%s" % (_a, _st)]["doors"] = [door("door_front", "Door", -1)] if (_i < 2 and _e["door_bay"] is not None) else []
         KIT["City_%s_%s" % (_a, _st)]["city"] = {"archetype": _a, "ruin": _i}
+# D98: interior doors found by the generator (build_city.interior_doors -> assets/build_doors_city.json, regenerated with
+# the models; test_city checks the models against this list, gen_configs --check the configs)
+_IDOOR_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "build_doors_city.json")
+_IDOORS = _json.load(open(_IDOOR_PATH)) if os.path.exists(_IDOOR_PATH) else {}
+for _n, _dl in _IDOORS.items():
+    if _n in KIT:
+        KIT[_n]["doors"] = [d for d in KIT[_n]["doors"] if not d.get("interior")] + \
+            [dict(door(_dn, "Door", _o), interior=True) for _dn, _o in _dl]
 for _v in "ABCD":                                     # standalone collapsed lots (kit, no ruin states)
     kit("City_RubbleLot_%s" % _v, city_pbo(), "city", uses=["PENETRATION"], desc="12 x 12 m collapsed building lot")
     KIT["City_RubbleLot_%s" % _v]["doors"] = []
