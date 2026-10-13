@@ -67,11 +67,11 @@
   "view": 200
  },
  "sky_towera_lobby.p3d": {
-  "fire": 536,
-  "geo": 476,
+  "fire": 676,
+  "geo": 616,
   "mem": 0,
-  "res0": 3684,
-  "res1": 1684,
+  "res0": 6622,
+  "res1": 1876,
   "res2": 136,
   "res3": 24,
   "road": 8,
@@ -79,11 +79,11 @@
   "view": 284
  },
  "sky_towera_lobby_b.p3d": {
-  "fire": 536,
-  "geo": 476,
+  "fire": 676,
+  "geo": 616,
   "mem": 0,
-  "res0": 3828,
-  "res1": 1828,
+  "res0": 6766,
+  "res1": 2020,
   "res2": 196,
   "res3": 24,
   "road": 8,
