@@ -27,7 +27,8 @@ Next wave after D102 (D101 assessment candidates): the most-placed street props.
 | Gate | Result |
 |---|---|
 | test_quality, test_conceal, test_slits, test_kit (3 models) | PASS |
-| check_assets, check_p3d_sync, gen_configs --check, texture refs | CHECKS |
+| check_assets | 289 checked, 0 fail; StreetLight, Barrier_Concrete PASS, Dumpster 650 > 600 (hypothesis, D96) |
+| check_p3d_sync, gen_configs --check, texture refs | PASS (397 models byte-identical), up to date, PASS |
 
 ## Review
 
