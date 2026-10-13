@@ -597,3 +597,9 @@ The trees were a trunk with a few flat leaf cards. Birches and dead trees now ha
 twigs, and the birch's leaves grow in clusters at the branch ends; the bushes are full domes on visible stems. Traffic
 lights have a round tapered pole and arm, domed lenses under hoods and a controller box; street planters have rounded
 corners. Trees still only block you at the trunk, and they take the same space as before, so no layout changes.
+
+## 52. Street props close-up (D103)
+
+The street lights have a round arm and a smooth cobra-head lamp, the jersey barriers are one smooth piece with
+chamfered ends, and the wheeled bins have pressed ribs, a rolled lip and lid hinges. Nothing changes in how they block
+you.

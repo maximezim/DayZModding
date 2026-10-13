@@ -52,6 +52,7 @@ Rules that do not change (CLAUDE.md):
 | **D100** lobby furniture | Tower A lobby: reception detail, lounge, benches, mailboxes, notice board, extinguisher, clock, bins | built-unverified (TESTING §61) |
 | **D101** soft furnishings | assessment of the remaining box-like assets; lofted sofa / bed upholstery, cubicle chair | built-unverified (TESTING SP-01) |
 | **D102** trees + street props | lofted branches and leaf clusters on birch / dead tree, domed bush, traffic light and planter close-up | built-unverified (TESTING TP-01) |
+| **D103** street props | street light, jersey barrier, dumpster close-up | built-unverified (TESTING TP-02) |
 | **T2** terrain | survey a site or build the custom terrain (Terrain Builder import of `terrain/out`, P11), open the metro hatches. **Custom terrain for the metro and sewers is an open TODO, see the section below** | planned (after T1) |
 | **T3** perf | FPS protocol, server perf probe (B11), merged furniture if needed (D43) | planned (after T1) |
 

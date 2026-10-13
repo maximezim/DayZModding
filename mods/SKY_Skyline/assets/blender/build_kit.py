@@ -337,16 +337,22 @@ def build_streetlight():
         L["res0"].prism(0.13 * math.cos(a), 0.13 * math.sin(a), 0.015, 0.45, 0.5, n=4, mat="rust", uv=UV_RUST)
     L["res0"].box(-0.06, 0.06, -0.1, -0.09, 1.0, 1.35, mat="rust", uv=UV_BURNT)    # service hatch
     arm = [(0.0, 7.6), (0.55, 7.92), (1.15, 7.98), (1.55, 7.9)]                    # curved arm (x, z)
-    for k, r in (("res0", 0.035), ("res1", 0.035)):
+    for k, n in (("res0", 10), ("res1", 6)):                                     # D103: round tube arm
         for (x0, z0), (x1, z1) in zip(arm, arm[1:]):
-            _bar(L[k], (x0, 0.0, z0), (x1, 0.0, z1), r, "rust", UV_GREY)
+            _tube(L[k], (x0, 0.0, z0), (x1, 0.0, z1), 0.035, "rust", UV_GREY, n=n)
     L["res2"].box(0.0, 1.8, -0.1, 0.1, 7.7, 7.88, mat="rust", uv=UV_GREY)
     head = [(1.2, 7.72), (1.85, 7.7), (1.9, 7.78), (1.75, 7.9), (1.3, 7.92)]       # cobra head profile (x, z)
-    L["res0"].extrude_y(head, -0.17, 0.17, mat="rust", uv=UV_GREY)
+    # D103: lofted cobra head (rounded across, tapering to the nose), smoothed by the writer
+    def hsec(x, hw, z0, z1, n=12):
+        zc, hz = (z0 + z1) / 2, (z1 - z0) / 2
+        return [(x, hw * math.copysign(abs(math.cos(2 * math.pi * k / n)) ** 0.5, math.cos(2 * math.pi * k / n)),
+                 zc + hz * math.copysign(abs(math.sin(2 * math.pi * k / n)) ** 0.5, math.sin(2 * math.pi * k / n)))
+                for k in range(n)]
+    L["res0"].loft([hsec(1.2, 0.09, 7.74, 7.9), hsec(1.3, 0.16, 7.71, 7.92), hsec(1.6, 0.17, 7.7, 7.9),
+                    hsec(1.82, 0.13, 7.7, 7.82), hsec(1.9, 0.06, 7.72, 7.78)], mat="rust", uv=UV_GREY)
     L["res1"].box(1.2, 1.85, -0.17, 0.17, 7.7, 7.85, mat="rust", uv=UV_GREY, skip=("-z",))
     for k in ("res0", "res1"):
         L[k].hquad(1.22, 1.78, -0.15, 0.15, 7.699, mat="lamp", uv=UVWorld(1.0), up=False)
-    L["res0"].box(1.25, 1.8, -0.13, 0.13, 7.85, 7.9, mat="rust", uv=UV_RUST)       # domed cap
     L["res0"].box(1.45, 1.55, -0.155, 0.155, 7.69, 7.693, mat="rust", uv=UV_BURNT)    # crack 6 mm under the diffuser
     pts = [(0.08, -0.02, 7.5), (0.3, -0.05, 6.9), (0.12, -0.04, 6.2)]             # sagging feed cable
     for p0, p1 in zip(pts, pts[1:]):
@@ -462,10 +468,11 @@ def build_barrier_concrete():
     """3 m jersey barrier (D73 close-up pass): chamfered ends, chipped edges with rebar showing, a lifting
     loop, faded red / white hazard stripes on the slope, drainage slots at the foot. Collision unchanged."""
     L = props_lods(view=True)
-    L["res0"].extrude_y(JERSEY, -1.45, 1.45, mat="concrete", uv=UV_CONC_REVEAL)
-    for s_ in (-1, 1):                                                           # chamfered ends (Res0 only)
-        prof = [(x * 0.9, z) for x, z in JERSEY]
-        L["res0"].extrude_y(prof, 1.45 if s_ > 0 else -1.5, 1.5 if s_ > 0 else -1.45, mat="concrete", uv=UV_CONC_REVEAL)
+    # D103: one loft with chamfered ends (three extrusions met in dark slivers at the ends)
+    def jring(y, f):
+        return [(x * f, y, z * (0.97 if f < 1 else 1.0) + (0.0 if f >= 1 else 0.01)) for x, z in JERSEY]
+    L["res0"].loft([jring(-1.5, 0.9), jring(-1.45, 1.0), jring(1.45, 1.0), jring(1.5, 0.9)], mat="concrete",
+                   uv=UV_CONC_REVEAL)
     L["res1"].extrude_y(JERSEY, -1.5, 1.5, mat="concrete", uv=UV_CONC_REVEAL)    # Res1: one extrusion (perf M)
     L["res2"].extrude_y([(-0.3, 0.0), (0.3, 0.0), (0.08, 0.8), (-0.08, 0.8)], -1.5, 1.5, mat="concrete", uv=UV_CONC_REVEAL)
     for i, y in enumerate((-0.9, -0.3, 0.3, 0.9)):                               # hazard stripes (both faces)
@@ -543,7 +550,18 @@ def build_dumpster():
     for k in ("res0", "res1", "res2", "geo", "fire", "shadow"):
         kw = {"mat": "rust", "uv": UV_GREEN} if k.startswith("res") else ({"mat": "pen_metal"} if k == "fire" else {})
         L[k].solid(body, faces, **kw)
-    L["res0"].box(-0.93, 0.93, -0.58, 0.58, 1.12, 1.17, mat="metal", uv=DT.UV_STEEL)                            # top lip
+    for (p0, p1) in (((-0.92, -0.575, 1.145), (0.92, -0.575, 1.145)), ((-0.92, 0.575, 1.145), (0.92, 0.575, 1.145)),
+                     ((-0.92, -0.575, 1.145), (-0.92, 0.575, 1.145)), ((0.92, -0.575, 1.145), (0.92, 0.575, 1.145))):
+        _tube(L["res0"], p0, p1, 0.028, "metal", DT.UV_STEEL, n=8)                 # D103: rolled top lip (tube)
+    L["res0"].box(-0.9, 0.9, -0.55, 0.55, 1.12, 1.17, mat="metal", uv=DT.UV_STEEL, skip=("-z",))   # lip plate inside
+    for i in range(5):                                                           # D103: pressed side ribs
+        x = -0.64 + i * 0.32
+        for sy in (-1, 1):
+            pts = [(x - 0.03, sy * 0.455, 0.3), (x + 0.03, sy * 0.455, 0.3), (x + 0.03, sy * 0.555, 1.08), (x - 0.03, sy * 0.555, 1.08)]
+            ofs = [(p[0], p[1] + sy * 0.018, p[2]) for p in pts]
+            L["res0"].solid(pts + ofs, [(0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7), (4, 5, 6, 7)], "rust", UV_GREEN)
+    for x in (-0.6, 0.0, 0.6):                                                   # lid hinge pins (back)
+        _tube(L["res0"], (x - 0.06, 0.6, 1.19), (x + 0.06, 0.6, 1.19), 0.018, "metal", DT.UV_STEEL, n=8)
     L["res0"].box(-0.92, 0.0, -0.57, 0.57, 1.17, 1.21, mat="rust", uv=UV_GREEN)                                 # closed lid half
     L["res0"].solid([(0.0, 0.57, 1.17), (0.92, 0.57, 1.17), (0.0, 0.62, 1.2), (0.92, 0.62, 1.2),
                      (0.0, 0.84, 0.13 + 1.17 - 0.1), (0.92, 0.84, 0.13 + 1.17 - 0.1), (0.0, 0.9, 1.2 - 0.05), (0.92, 0.9, 1.2 - 0.05)],
