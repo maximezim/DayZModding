@@ -412,8 +412,7 @@ def lobby_furniture(L):
                uv=DT.paint_uv(("terracotta", "sage")[j]))
     r0.prism(11.0, -2.1, 0.15, 0.0, 0.03, n=12, mat="metal", uv=UV_STEEL)                              # floor lamp
     __import__("build_city").tube(r0, (11.0, -2.1, 0.03), (11.0, -2.1, 1.6), 0.015, "metal", UV_STEEL, n=8)
-    r0.prism(11.0, -2.1, 0.2, 1.5, 1.75, n=16, mat="textile",
-             uv=UVBand(S.MATERIALS["textile"]["bands"]["curtain"], 1.0) if "curtain" in S.MATERIALS["textile"].get("bands", {}) else UV_GLASS)
+    r0.prism(11.0, -2.1, 0.2, 1.5, 1.75, n=16, mat="fabric", uv=UVBand(S.MATERIALS["fabric"]["bands"]["beige"], 1.0))  # perf L
     # mailbox bank on the core's west face (x -3.0), y -1.2..1.2, z 0.9..1.9 (Soviet-style steel boxes)
     cx = S.CORE["x"][0]
     mx0, mx1, my0, my1, mz0, mz1 = cx - 0.24, cx, -1.2, 1.2, 0.9, 1.9
@@ -437,7 +436,7 @@ def lobby_furniture(L):
     # fire extinguisher cabinet + wall clock on the core's south face (clear of the stair door)
     fy = S.CORE["y"][0]
     for k in ("res0", "res1"):
-        L[k].box(2.1, 2.5, fy - 0.2, fy, 0.2, 0.95, mat="fair", uv=UVBand(S.MATERIALS["fair"]["bands"]["red"], 1.0))
+        L[k].box(2.1, 2.5, fy - 0.2, fy, 0.2, 0.95, mat="paint", uv=DT.paint_uv("terracotta"))        # perf L: no new section
     r0.quad([(2.15, fy - 0.201, 0.3), (2.45, fy - 0.201, 0.3), (2.45, fy - 0.201, 0.85), (2.15, fy - 0.201, 0.85)],
             (0, -1, 0), "glassfar", UV_GLASS)
     for k in ("geo", "fire"):

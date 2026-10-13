@@ -1367,8 +1367,10 @@ def balcony(L, P, sd, bkey, b0, b1, z0, fh, last):
     sd.box(L["res0"], a0 - 0.01, a1 + 0.01, zs - 0.03, zs, -BD - 0.01, -BD + 0.04, mat="concrete", uv=UV_CONC)
     # parapet: front + two sides
     panels = ((a0, a1, -BD, -BD + t), (a0, a0 + t, -BD + t, 0.0), (a1 - t, a1, -BD + t, 0.0))
+    full = glazed and P.state < 2                                            # perf M3: one Geometry wall per side
     for (pa, pb, d0, d1) in panels:
-        for k in ("geo", "view") + (("fire",) if kind != "rail" else ()):
+        sd.box(L["geo"], pa, pb, z0, (zt if full else zp), d0, d1)
+        for k in (("view", "fire") if kind != "rail" else ()):                  # perf M5: bars do not block sight
             sd.box(L[k], pa, pb, z0, zp, d0, d1, **kw_for(k, par[0], par[1], par[2]))
         if kind == "rail":
             sd.box(L["res1"], pa, pb, zp - 0.05, zp, d0, d1, mat="metal", uv=DT.UV_PAINT)
@@ -1377,23 +1379,27 @@ def balcony(L, P, sd, bkey, b0, b1, z0, fh, last):
                 sd.box(L[k], pa, pb, z0, zp, d0 + (0.03 if kind == "sheet" and d0 == -BD else 0.0), d1, mat=par[0], uv=par[1])
     r0 = L["res0"]
     if kind == "sheet":                                                       # corrugation ribs (outer face)
-        n = int((a1 - a0) / 0.15)
+        n = int((a1 - a0) / 0.25)                                             # perf H1: 25 cm ribs
         for j in range(1, n):
             a = a0 + j * (a1 - a0) / n
             sd.box(r0, a - 0.02, a + 0.02, z0 + 0.03, zp - 0.04, -BD - 0.012, -BD + 0.03, mat="rust", uv=sheet_uv,
                    skip=(sd.in_key, "-z", "+z"))
     if kind == "rail":                                                        # steel bars + bottom rail
         n = int((a1 - a0) / 0.13)
-        for j in range(n + 1):
+        for j in range(n + 1):                                                # perf H1: bars as two-sided strips
             a = a0 + 0.02 + j * (a1 - a0 - 0.04) / n
-            sd.box(r0, a - 0.012, a + 0.012, z0 + 0.06, zp - 0.04, -BD + 0.018, -BD + 0.042, mat="metal", uv=DT.UV_PAINT,
-                   skip=("-z", "+z"))
+            sd.quad(r0, a - 0.012, a + 0.012, z0 + 0.06, zp - 0.04, -BD + 0.03, mat="metal", uv=DT.UV_PAINT, double=True)
         sd.box(r0, a0, a1, z0 + 0.02, z0 + 0.06, -BD + 0.01, -BD + 0.05, mat="metal", uv=DT.UV_PAINT)
         ns = max(2, int((BD - t) / 0.13))
         for pa in (a0 + 0.018, a1 - 0.042):                                   # side bars (the side collision is drawn)
             for j in range(ns + 1):
                 d = -BD + t + j * (BD - t - 0.03) / ns
-                sd.box(r0, pa, pa + 0.024, z0 + 0.06, zp - 0.04, d, d + 0.024, mat="metal", uv=DT.UV_PAINT, skip=("-z", "+z"))
+                x_ = pa + 0.012
+                pts = ([(x_, sd.d(d), z0 + 0.06), (x_, sd.d(d + 0.024), z0 + 0.06), (x_, sd.d(d + 0.024), zp - 0.04),
+                        (x_, sd.d(d), zp - 0.04)] if sd.axis == "x" else
+                       [(sd.d(d), x_, z0 + 0.06), (sd.d(d + 0.024), x_, z0 + 0.06), (sd.d(d + 0.024), x_, zp - 0.04),
+                        (sd.d(d), x_, zp - 0.04)])
+                r0.quad(pts, (1, 0, 0) if sd.axis == "x" else (0, 1, 0), mat="metal", uv=DT.UV_PAINT, double=True)
             sd.box(r0, pa - 0.008, pa + 0.032, z0 + 0.02, z0 + 0.06, -BD + t, 0.0, mat="metal", uv=DT.UV_PAINT)
         for (pa, pb, d0, d1) in ((a0, a1, -BD, -BD + t), (a0, a0 + t, -BD + t, 0.0), (a1 - t, a1, -BD + t, 0.0)):
             sd.box(L["fire"], pa, pb, zp - 0.05, zp, d0, d1, mat="pen_metal")
@@ -1408,9 +1414,10 @@ def balcony(L, P, sd, bkey, b0, b1, z0, fh, last):
         nm = max(2, int((a1 - a0) / 0.6))
         posts = [a0 + t / 2 + j * (a1 - a0 - t) / nm for j in range(nm + 1)]
         for k in ("res0", "res1") if not broken or P.state < 2 else ("res0",):
-            for a in posts:
+            for a in (posts if k == "res0" else (posts[0], posts[-1])):        # perf H2: Res1 corner posts + rails
                 sd.box(L[k], a - 0.025, a + 0.025, zg0, zg1, -BD, -BD + 0.05, **fr)
-            for (za, zb) in ((zg0, zg0 + 0.05), (ztr - 0.025, ztr + 0.025), (zg1 - 0.05, zg1)):
+            for (za, zb) in (((zg0, zg0 + 0.05), (ztr - 0.025, ztr + 0.025), (zg1 - 0.05, zg1)) if k == "res0" else
+                             ((zg0, zg0 + 0.05), (zg1 - 0.05, zg1))):
                 sd.box(L[k], a0, a1, za, zb, -BD, -BD + 0.05, **fr)
                 for (pa, pb) in ((a0, a0 + 0.05), (a1 - 0.05, a1)):
                     sd.box(L[k], pa, pb, za, zb, -BD + 0.05, 0.0, **fr)
@@ -1432,7 +1439,6 @@ def balcony(L, P, sd, bkey, b0, b1, z0, fh, last):
         if P.state < 2:                                                       # glazing walls collide (kept when broken)
             walls = ((a0, a1, -BD, -BD + t), (a0, a0 + t, -BD + t, 0.0), (a1 - t, a1, -BD + t, 0.0))
             for (pa, pb, d0, d1) in walls:
-                sd.box(L["geo"], pa, pb, zg0 - 0.045, zg1, d0, d1)
                 if not broken:
                     sd.box(L["fire"], pa, pb, zg0 - 0.045, zg1, d0, d1, mat="pen_glass")
             if broken:
@@ -1461,9 +1467,22 @@ def balcony(L, P, sd, bkey, b0, b1, z0, fh, last):
             sd.box(r0, (a0 + a1) / 2 - 0.45, (a0 + a1) / 2 + 0.45, zp - 0.22, zp - 0.04, -BD - 0.2, -BD - 0.005,
                    mat="wood", uv=UV_OAK)
     # far LODs: one box per balcony (silhouette); shadow
-    zr = zt + (0.1 if (glazed and last) else 0.0) if glazed else zp
-    sd.box(L["res2"], a0, a1, zs, zr, -BD, 0.0, mat="concrete", uv=UV_CONC, skip=(sd.in_key,))
-    sd.box(L["shadow"], a0, a1, zs, zr, -BD, 0.0)
+    zr = (zt + (0.1 if last else 0.0)) if (glazed and P.state < 2) else zp    # perf L: a ruin's loggia is open
+    P.__dict__.setdefault("bal_far", {}).setdefault((sd.key, i), (sd, a0, a1, BD, []))[4].append((zs, zr))
+
+
+def balcony_far(L, P):
+    """D99 perf M4: one Res2 / Shadow box per run of touching balconies in a column (a stack of loggias is one box)."""
+    for (sd, a0, a1, BD, spans) in getattr(P, "bal_far", {}).values():
+        runs = []
+        for (za, zb) in sorted(spans):
+            if runs and za <= runs[-1][1] + 0.17:                               # open balcony gap under the next slab
+                runs[-1][1] = max(runs[-1][1], zb)
+            else:
+                runs.append([za, zb])
+        for (za, zb) in runs:
+            sd.box(L["res2"], a0, a1, za, zb, -BD, 0.0, mat="concrete", uv=UV_CONC, skip=(sd.in_key,))
+            sd.box(L["shadow"], a0, a1, za, zb, -BD, 0.0)
 
 
 def facade_clutter(L, P, sd, bkey, w0, w1, b0, b1, s0, s1, st, rail=False, shutters=False):
@@ -4991,6 +5010,7 @@ def build(arch, state):
         interior(L, P, l)
         cells_bars(L, P, l)
         level_features(L, P, l)
+    balcony_far(L, P)
     stairs(L, P)
     front_door(L, P)
     roof(L, P)
