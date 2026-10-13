@@ -1,4 +1,4 @@
-# First joint test session (D60, updated D93)
+# Test sessions (D60, updated D93; section 6 = the D96-D100 build, D101)
 
 Goal for tonight: first pack and first run of SKY_Skyline in DayZ. The order below gets the most
 answers per hour, and every step says what to send back. Run everything from the repo root in
@@ -81,8 +81,67 @@ the diag console: the city life template is a terrain layout.
 Parameters to read off: P14 alarm reach, P15 horde caps / FPS, P16 drunk levels, P17 search points, P18 hydrant,
 P19 jams, P20/P23/P32 sound ranges, P21 kennel guard, P22 rat bites.
 
+## 6. Second session: the D96-D100 build (TESTING sections 59-61)
+
+Everything since the Chernarus evening: the quality pass (textures, z-fighting, the vertex limit, detail), the bus and
+garbage-truck wrecks, interior doors, balconies on the apartment blocks and the Tower A lobby. Same site and mission as
+section 58 (`dayzOffline_sky.chernarusplus`, `placement/out_city_chernarus/`): no layout moved (footprints unchanged).
+About 90 minutes.
+
+### 6.0 Rebuild (25 min, unattended)
+
+1. `git pull`, `tools\setup\Get-ToolchainStatus.ps1`, `tools\tests\Invoke-SelfTest.ps1` (all green).
+2. Textures: `mods\SKY_Skyline\assets\Build-SkyAssets.ps1`. New since D96: `sky_rooftile`, `sky_roofslate`, `sky_facadekit`
+   (2048), the 8-band painted metal (1024 x 2048), new plaster sheets. Expected: `SKY assets ready`. **Send me** any sheet that
+   fails to convert (P71). The P3Ds are committed: no `-Models` needed.
+3. Pack and sign: `tools\build\Build-Mod.ps1 -ModName SKY_Skyline`, then `tools\build\Sign-Mod.ps1 -ModName SKY_Skyline`. Every city
+   PBO changed (doors, balconies, detail). If one fails, send its log.
+4. Optional (WIN-06 is fixed by proxy parts): put the two CourtyardBlock landmarks back into `placement/city_chernarus.yaml`
+   and re-run `sky_layout.py ... --no-entity-cap --strict` as in section 58. Skip it if short of time.
+
+### 6.1 Load check (10 min) - stop here if this fails
+
+`tools\build\Build-And-Run.ps1 -ModName SKY_Skyline -FilePatching` with the city mission, as in section 58. In the server
+and client RPT search for:
+
+| Look for | Means | Parameter |
+|---|---|---|
+| `Too many vertices` | a model still over the engine limit (WIN-06) | P72 |
+| `proxy` + `_res0p` errors, or furniture / partitions missing up close in the Hospital, Mall, DepartmentStore | proxy parts not loading | P68 |
+| `Doors`, `DamageSystem`, `animation`, `bone` warnings naming `Land_SKY_City_` | interior door config (48 doors per building) | P74 |
+| `Cannot open object SKY_Skyline\...` | a missing P3D / PAA | P71 |
+
+**Send me** the RPT lines with `SKY` in them, even if it looks fine.
+
+### 6.2 Walk-through in this order (55 min)
+
+| Order | Rows (TESTING) | Where | Why this order |
+|---|---|---|---|
+| 1 | QP-01, ID-06 | Hospital, CourtyardBlock, Mall | the largest models: proxy parts and 48 doors; if these break, the rest waits |
+| 2 | QP-02, QP-07, QP-09 | any street, 2 / 10 / 50 m | the CT-13 complaint (glitched textures, ugly details): z-fighting, smooth shading, new sheets |
+| 3 | ID-01, ID-02, ID-03, ID-04 | AptBlock, School (Intact + Damaged) | door swing direction (P1), clearance, slits at the edges |
+| 4 | ID-05 | AptBlock with infected nearby (diag navmesh view) | can infected path through closed doors (P75); if not, doors become a safe room |
+| 5 | BA-01, BA-02, BA-03, BA-04 | the three apartment block types, all states | balconies: look, bullets / sight through bar parapets, climbing out of a ruin's broken window |
+| 6 | QP-12, QP-13, QP-14 | a Warehouse, a ruined Church / office, a ruin's collapse corner | the D96 collision fixes (inside cladding, open broken windows in ruins, no invisible stubs) |
+| 7 | QP-03, QP-04, QP-05, QP-06, QP-08 | Villa / Rowhouse, a sedan / van wreck | roofs, windows, doors, cornices, curved car bodies |
+| 8 | QP-20 | Wreck_CityBus / Wreck_GarbageTruck (citylife template or diag spawn) | the new wreck bodies, crawl under / climb on |
+| 9 | LB-01, QP-10, QP-15 to QP-19 | Tower A lobby, Ferris wheel, bridge, carousel, tunnel | the rest of the D96 list |
+| 10 | QP-11 | FPS_PROTOCOL.md section 1 | the detail cost: a drop over 10 % at 1600 m view distance is a finding |
+
+For each row: PASS / FAIL in TESTING.md, or just the ID and what you saw. A screenshot per FAIL.
+
+### 6.3 Parameters to read off
+
+P1 door swing (now on 727 interior doors too), P68 proxy parts, P69 smooth shading, P70 the 4 mm z-fight offset, P71 the
+new sheets, P72 the vertex limit, P73 thin collision (carousel fence, ship ladder), P74 the door count / draw calls, P75
+infected through doors. Each has its one-line fix in `PENDING_VERIFICATION.md`.
+
 ## What I need back, in one message
 
 `summary.md`, the RPT and script log of the diag run, TESTING IDs with FAIL plus a screenshot,
 and the P1/P2/P9 observations, plus FL-03 (can you see the friend through the broken window?) and P65 (did the sheet
 convert).
+
+**For section 6**: the load-check RPT lines (6.1), the FAIL IDs with screenshots, P1 (which way do the interior doors
+open compared with the room they were built for?), P75 (do infected follow you through a door?), the FPS numbers (QP-11)
+and any texture that failed to convert.
