@@ -1317,16 +1317,153 @@ def facade(L, P, key, lvl):
         if (residential or use in RADIATOR_USES) and st == "glass" and P.state == 0:          # radiator (D89: + offices / public)
             sd.box(r0, c - 0.5, c + 0.5, z0 + 0.15, z0 + 0.7, WT + 0.03, WT + 0.11, mat="paint", uv=DT.paint_uv("white"),
                    skip=(sd.out_key, "-z"))
-        if A["group"] == "residential" and skin == "panel" and lvl > 0 and i % 2 == 1:      # french balcony rail
+        bal = balcony_here(P, key, lvl, i)
+        if bal:
+            balcony(L, P, sd, bkey, b0, b1, z0, fh, lvl == len(P.levels) - 1)
+        elif A["group"] == "residential" and skin == "panel" and lvl > 0 and i % 2 == 1:      # french balcony rail
             for zz in (s0 + 0.15, s0 + 0.55, s0 + 0.95):
                 sd.box(r0, w0 - 0.1, w1 + 0.1, zz, zz + 0.03, -0.2, -0.17, mat="metal", uv=DT.UV_STEEL)
             for a in (w0 - 0.1, (w0 + w1) / 2, w1 + 0.1):
                 sd.box(r0, a - 0.015, a + 0.015, s0, s0 + 0.98, -0.2, -0.17, mat="metal", uv=DT.UV_STEEL, skip=("-z",))
-        if residential and lvl > 0 and P.state < 2 and not str(key).startswith("i"):   # yard sides face walkable galleries
+        if residential and lvl > 0 and P.state < 2 and not str(key).startswith("i") and not bal:   # yard sides: galleries
             facade_clutter(L, P, sd, bkey, w0, w1, b0, b1, s0, s1, st, rail=(skin == "panel" and i % 2 == 1),
                            shutters=bool(SK.get("shutters")))
     flush()
     return sd, openings
+
+
+def balcony_here(P, key, lvl, i):
+    """D99: projecting balconies on the long sides (S / N) of the apartment blocks, odd bays, every upper floor (one
+    column per bay); the entrance bay stays clear."""
+    if not P.A.get("balcony") or key not in ("S", "N") or lvl == 0 or i % 2 == 0:
+        return False
+    return not (key == "S" and i == P.door_bay)
+
+
+def balcony(L, P, sd, bkey, b0, b1, z0, fh, last):
+    """D99 Soviet panel-block balcony, BD deep: precast slab with a drip nose, parapet per column (concrete panel,
+    ribbed steel sheet or steel bars, steel handrail) and, per flat, often glazed in by its owner (white frame grid
+    up to the slab above, a canopy on the top floor). Collision follows what is drawn: slab + parapet (+ glazing walls
+    of a loggia) in Geometry / Fire / View like the facade (glass: Fire pen_glass, no View); a damaged block keeps the
+    panes of broken glazing (vanilla, recorded in kept_panes), a ruin has no glazing. Lived-in: laundry, flower
+    boxes. Render clutter stays under head size (concealment gate)."""
+    BD = P.A["balcony"]
+    i = bkey[1]
+    a0, a1 = b0 + 0.12, b1 - 0.12
+    zs, zp, zt = z0 - 0.16, z0 + 1.0, z0 + fh - 0.16
+    col = h01(P.name, "balcol", sd.key, i)
+    kind = "panel" if col < 0.5 else ("sheet" if col < 0.8 else "rail")
+    glazed = h01(P.name, "balglz", sd.key, i, z0) < (0.45 if kind != "rail" else 0.2)
+    broken = glazed and P.state == 1 and h01(P.name, "balbrk", sd.key, i, z0) < 0.35
+    if P.state == 2:
+        broken = glazed                                                     # ruins: frames only, no panes
+    conc = ("concrete", UV_CONC, "concrete")
+    sheet_uv = UVBand(S.MATERIALS["rust"]["bands"][("green", "slate", "beige")[int(h01(P.name, "balshc", sd.key, i) * 3)]], 1.0)
+    par = conc if kind == "panel" else (("rust", sheet_uv, "metal") if kind == "sheet" else ("metal", DT.UV_STEEL, "metal"))
+    t = 0.06
+    # slab (all LODs that collide) with a drip nose in Res0
+    for k in ("res0", "res1", "geo", "fire", "view"):
+        sd.box(L[k], a0, a1, zs, z0, -BD, 0.0, **kw_for(k, conc[0], conc[1], conc[2]))
+    sd.box(L["res0"], a0 - 0.01, a1 + 0.01, zs - 0.03, zs, -BD - 0.01, -BD + 0.04, mat="concrete", uv=UV_CONC)
+    # parapet: front + two sides
+    panels = ((a0, a1, -BD, -BD + t), (a0, a0 + t, -BD + t, 0.0), (a1 - t, a1, -BD + t, 0.0))
+    for (pa, pb, d0, d1) in panels:
+        for k in ("geo", "view") + (("fire",) if kind != "rail" else ()):
+            sd.box(L[k], pa, pb, z0, zp, d0, d1, **kw_for(k, par[0], par[1], par[2]))
+        if kind == "rail":
+            sd.box(L["res1"], pa, pb, zp - 0.05, zp, d0, d1, mat="metal", uv=DT.UV_PAINT)
+        else:
+            for k in ("res0", "res1"):
+                sd.box(L[k], pa, pb, z0, zp, d0 + (0.03 if kind == "sheet" and d0 == -BD else 0.0), d1, mat=par[0], uv=par[1])
+    r0 = L["res0"]
+    if kind == "sheet":                                                       # corrugation ribs (outer face)
+        n = int((a1 - a0) / 0.15)
+        for j in range(1, n):
+            a = a0 + j * (a1 - a0) / n
+            sd.box(r0, a - 0.02, a + 0.02, z0 + 0.03, zp - 0.04, -BD - 0.012, -BD + 0.03, mat="rust", uv=sheet_uv,
+                   skip=(sd.in_key, "-z", "+z"))
+    if kind == "rail":                                                        # steel bars + bottom rail
+        n = int((a1 - a0) / 0.13)
+        for j in range(n + 1):
+            a = a0 + 0.02 + j * (a1 - a0 - 0.04) / n
+            sd.box(r0, a - 0.012, a + 0.012, z0 + 0.06, zp - 0.04, -BD + 0.018, -BD + 0.042, mat="metal", uv=DT.UV_PAINT,
+                   skip=("-z", "+z"))
+        sd.box(r0, a0, a1, z0 + 0.02, z0 + 0.06, -BD + 0.01, -BD + 0.05, mat="metal", uv=DT.UV_PAINT)
+        ns = max(2, int((BD - t) / 0.13))
+        for pa in (a0 + 0.018, a1 - 0.042):                                   # side bars (the side collision is drawn)
+            for j in range(ns + 1):
+                d = -BD + t + j * (BD - t - 0.03) / ns
+                sd.box(r0, pa, pa + 0.024, z0 + 0.06, zp - 0.04, d, d + 0.024, mat="metal", uv=DT.UV_PAINT, skip=("-z", "+z"))
+            sd.box(r0, pa - 0.008, pa + 0.032, z0 + 0.02, z0 + 0.06, -BD + t, 0.0, mat="metal", uv=DT.UV_PAINT)
+        for (pa, pb, d0, d1) in ((a0, a1, -BD, -BD + t), (a0, a0 + t, -BD + t, 0.0), (a1 - t, a1, -BD + t, 0.0)):
+            sd.box(L["fire"], pa, pb, zp - 0.05, zp, d0, d1, mat="pen_metal")
+    for (pa, pb, d0, d1) in panels:                                           # handrail
+        sd.box(r0, pa - 0.005, pb + 0.005, zp, zp + 0.045, d0 - 0.005, d1 + 0.005 if d1 < 0 else d1, mat="metal",
+               uv=DT.UV_PAINT)
+    if glazed:
+        # frame grid (white paint): corner posts, mullions every ~0.6 m, sill / head rails and a transom
+        fr = {"mat": "paint", "uv": DT.paint_uv("white")}
+        zg0, zg1 = zp + 0.045, zt
+        ztr = zg0 + 0.62 * (zg1 - zg0)
+        nm = max(2, int((a1 - a0) / 0.6))
+        posts = [a0 + t / 2 + j * (a1 - a0 - t) / nm for j in range(nm + 1)]
+        for k in ("res0", "res1") if not broken or P.state < 2 else ("res0",):
+            for a in posts:
+                sd.box(L[k], a - 0.025, a + 0.025, zg0, zg1, -BD, -BD + 0.05, **fr)
+            for (za, zb) in ((zg0, zg0 + 0.05), (ztr - 0.025, ztr + 0.025), (zg1 - 0.05, zg1)):
+                sd.box(L[k], a0, a1, za, zb, -BD, -BD + 0.05, **fr)
+                for (pa, pb) in ((a0, a0 + 0.05), (a1 - 0.05, a1)):
+                    sd.box(L[k], pa, pb, za, zb, -BD + 0.05, 0.0, **fr)
+            for (pa, pb) in ((a0, a0 + 0.05), (a1 - 0.05, a1)):
+                sd.box(L[k], pa, pb, zg0, zg1, -BD / 2 - 0.025, -BD / 2 + 0.025, **fr)
+        glass_faces = [("front", a0, a1, -BD + 0.025)] + [("side", d, None, None) for d in (a0 + 0.025, a1 - 0.025)]
+        if not broken:
+            for k in ("res0", "res1"):
+                sd.quad(L[k], a0, a1, zg0, zg1, -BD + 0.025, mat="glass", uv=UV_GLASS, double=(k == "res0"))
+                for a in (a0 + 0.025, a1 - 0.025):
+                    pts = ([(a, sd.d(-BD + 0.05), zg0), (a, sd.d(0.0), zg0), (a, sd.d(0.0), zg1), (a, sd.d(-BD + 0.05), zg1)]
+                           if sd.axis == "x" else
+                           [(sd.d(-BD + 0.05), a, zg0), (sd.d(0.0), a, zg0), (sd.d(0.0), a, zg1), (sd.d(-BD + 0.05), a, zg1)])
+                    nrm = (1 if a > (a0 + a1) / 2 else -1, 0, 0) if sd.axis == "x" else (0, 1 if a > (a0 + a1) / 2 else -1, 0)
+                    L[k].quad(pts, nrm, mat="glass", uv=UV_GLASS, double=(k == "res0"))
+        elif P.state == 1:                                                    # shards in the frame corners
+            for (pa, pb) in ((a0 + 0.05, a0 + 0.45), (a1 - 0.45, a1 - 0.05)):
+                sd.quad(r0, pa, pb, zg0, zg0 + 0.25, -BD + 0.026, mat="glassfar", uv=UV_GLASS)
+        if P.state < 2:                                                       # glazing walls collide (kept when broken)
+            walls = ((a0, a1, -BD, -BD + t), (a0, a0 + t, -BD + t, 0.0), (a1 - t, a1, -BD + t, 0.0))
+            for (pa, pb, d0, d1) in walls:
+                sd.box(L["geo"], pa, pb, zg0 - 0.045, zg1, d0, d1)
+                if not broken:
+                    sd.box(L["fire"], pa, pb, zg0 - 0.045, zg1, d0, d1, mat="pen_glass")
+            if broken:
+                g = L["geo"].lod
+                if not hasattr(g, "kept_panes"):
+                    g.kept_panes = []
+                for (pa, pb, d0, d1) in walls:
+                    q = sd.rect(pa, pb, zg0 - 0.045, zg1, d0) + sd.rect(pa, pb, zg0 - 0.045, zg1, d1)
+                    g.kept_panes.append(tuple(min(p_[j] for p_ in q) for j in range(3)) +
+                                        tuple(max(p_[j] for p_ in q) for j in range(3)))
+        if last:                                                              # canopy over a glazed top-floor loggia
+            for k in ("res0", "res1", "geo", "fire", "view"):
+                sd.box(L[k], a0 - 0.05, a1 + 0.05, zt, zt + 0.1, -BD, 0.0, **kw_for(k, "metal", DT.UV_PAINT, "metal"))  # in the footprint
+    elif P.state < 2:
+        r = h01(P.name, "balcl", sd.key, i, z0)
+        if r < 0.35:                                                          # laundry line across the balcony
+            sd.box(r0, a0 + t, a1 - t, zp + 0.75, zp + 0.76, -BD * 0.55 - 0.005, -BD * 0.55 + 0.005, mat="metal",
+                   uv=DT.UV_STEEL)
+            n = 2 + int(h01(P.name, "balln", sd.key, i, z0) * 3)
+            for j in range(n):
+                a = a0 + 0.2 + j * (a1 - a0 - 0.4) / n
+                hj = 0.35 + 0.25 * h01(P.name, "ballh", sd.key, i, z0, j)
+                band = ("blue", "beige", "grey")[int(h01(P.name, "ballc", sd.key, i, z0, j) * 3)]
+                sd.quad(r0, a, a + 0.4, zp + 0.75 - hj, zp + 0.75, -BD * 0.55, mat="fabric", uv=UV_FAB[band], double=True)
+        elif r < 0.55:                                                        # flower box hung on the rail outside
+            sd.box(r0, (a0 + a1) / 2 - 0.45, (a0 + a1) / 2 + 0.45, zp - 0.22, zp - 0.04, -BD - 0.2, -BD - 0.005,
+                   mat="wood", uv=UV_OAK)
+    # far LODs: one box per balcony (silhouette); shadow
+    zr = zt + (0.1 if (glazed and last) else 0.0) if glazed else zp
+    sd.box(L["res2"], a0, a1, zs, zr, -BD, 0.0, mat="concrete", uv=UV_CONC, skip=(sd.in_key,))
+    sd.box(L["shadow"], a0, a1, zs, zr, -BD, 0.0)
 
 
 def facade_clutter(L, P, sd, bkey, w0, w1, b0, b1, s0, s1, st, rail=False, shutters=False):

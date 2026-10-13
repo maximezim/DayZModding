@@ -304,9 +304,10 @@ _BUILDERS = {}
 def _builders():
     if not _BUILDERS:
         for modname in ("build_kit", "build_props", "build_landmarks", "build_creatures", "build_underground",
-                        "build_vehicles", "build_streetprops", "build_city", "build_floors"):
+                        "build_vehicles", "build_streetprops", "build_city", "build_floors", "build_towera"):
             m = __import__(modname)
-            for n, (fn, _p, _f) in m.modules().items():
+            mods = m.modules() if hasattr(m, "modules") else {"TowerA_" + k: v for k, v in m.MODULES.items()}  # D100
+            for n, (fn, _p, _f) in mods.items():
                 _BUILDERS[n] = fn
     return _BUILDERS
 

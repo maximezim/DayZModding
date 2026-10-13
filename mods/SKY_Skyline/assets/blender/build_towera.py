@@ -245,7 +245,7 @@ def lobby_details(L, wt):
             L[k].box(x0, x1, y - 0.05, y + CT + 0.05, 0.0, 3.0, mat="metal", uv=UV_STEEL, skip=("-z",))
     # benches along the side walls, planters flanking the entrance
     for x0, x1 in ((-HW + 0.5, -HW + 1.0), (HW - 1.0, HW - 0.5)):
-        DT.bench(L, x0, x1, -5.0, -3.0)
+        lobby_bench(L, x0, x1, -5.0, -3.0)                                 # D100: slatted steel-frame bench
     for cx in (-3.2, 3.2):
         x0, x1, y0, y1 = cx - 0.45, cx + 0.45, -10.95, -10.05
         for k in ("res0", "res1", "geo", "view", "fire"):
@@ -287,6 +287,179 @@ def lobby_decor(L, wt):
     DT.wall_art(L, (rx0 + rx1) / 2 + 0.5, ry0, 1.7, 1.4, 1.4, "-y", "art_c")
     for x in (-2.5, -0.8, 0.8, 2.5):                                    # canopy downlights
         DT.downlight(L, x, -HD - 1.1, 3.35)
+
+
+def lobby_bench(L, x0, x1, y0, y1, h=0.45):
+    """D100 lobby bench: two powder-coated steel frames (legs, seat rails, back posts), oak seat and back slats with
+    gaps, a back rest against the glazing. Collision: the seat block, as before (the back is slats, not a hide)."""
+    r0, r1 = L["res0"], L["res1"]
+    along_y = (y1 - y0) >= (x1 - x0)
+    inner = x0 if x1 > 0 else x1                                             # seat front towards the hall
+    wall = x1 if x1 > 0 else x0                                              # back towards the facade
+    sgn = 1 if x1 > 0 else -1
+    for yy in (y0 + 0.12, y1 - 0.12):                                        # frames
+        r0.box(min(inner, wall), max(inner, wall), yy - 0.025, yy + 0.025, h - 0.1, h - 0.06, mat="metal", uv=UV_PAINT)
+        for xx in (inner + sgn * 0.06, wall - sgn * 0.06):
+            r0.box(xx - 0.025, xx + 0.025, yy - 0.025, yy + 0.025, 0.0, h - 0.1, mat="metal", uv=UV_PAINT, skip=("-z",))
+        xb = wall - sgn * 0.05
+        r0.box(xb - 0.02, xb + 0.02, yy - 0.025, yy + 0.025, h - 0.06, h + 0.45, mat="metal", uv=UV_PAINT)
+    n = 5
+    w = (abs(wall - inner) - 0.03 * (n - 1)) / n
+    for j in range(n):                                                       # seat slats
+        a = min(inner, wall) + j * (w + 0.03)
+        r0.box(a, a + w, y0, y1, h - 0.06, h - 0.02, mat="wood", uv=DT.UV_OAK)
+    for j in range(3):                                                       # back slats
+        z = h + 0.08 + j * 0.13
+        xb = wall - sgn * 0.075
+        r0.box(min(xb, xb + sgn * 0.025), max(xb, xb + sgn * 0.025), y0, y1, z, z + 0.09, mat="wood", uv=DT.UV_OAK)
+    r1.box(x0, x1, y0, y1, h - 0.06, h, mat="wood", uv=DT.UV_OAK)
+    r1.box(min(wall, wall - sgn * 0.08), max(wall, wall - sgn * 0.08), y0, y1, h, h + 0.45, mat="wood", uv=DT.UV_OAK)
+    L["geo"].box(x0, x1, y0, y1, 0.0, h)
+    L["fire"].box(x0, x1, y0, y1, 0.0, h, mat="pen_wood")
+
+
+def reception_desk(L):
+    """D100 reception: the 3.6 x 0.8 m desk (collision box -1.8..1.8, -8.2..-7.4, 1.1 m) drawn as a fluted walnut front
+    on a recessed steel plinth, an oak transaction ledge on brackets, the lower work top behind, two monitors, a
+    keyboard, a desk phone, an anglepoise lamp, a document tray and an office chair."""
+    r0 = L["res0"]
+    y0, y1 = -8.2, -7.4
+    r0.box(-1.75, 1.75, y0 + 0.05, y1 - 0.05, 0.0, 0.08, mat="metal", uv=UV_PAINT, skip=("-z", "+z"))     # plinth
+    r0.box(-1.8, 1.8, y0 + 0.04, y1, 0.08, 1.0, mat="wood", uv=DT.UV_WALNUT, skip=("+z", "-y"))
+    n = 24                                                                   # vertical flutes on the front
+    for j in range(n + 1):
+        x = -1.8 + j * 3.6 / n
+        r0.box(x - 0.035, x + 0.035, y0, y0 + 0.04, 0.08, 1.0, mat="wood", uv=DT.UV_WALNUT, skip=("+y",))
+    r0.box(-1.86, 1.86, y0 - 0.06, y0 + 0.3, 1.0, 1.1, mat="wood", uv=DT.UV_OAK)                     # transaction ledge
+    r0.box(-1.8, 1.8, y0 + 0.3, y1, 0.72, 0.76, mat="wood", uv=DT.UV_OAK)                              # work top behind
+    plaque = [(-0.6, y0 - 0.005, 0.55), (0.6, y0 - 0.005, 0.55), (0.6, y0 - 0.005, 0.85), (-0.6, y0 - 0.005, 0.85)]
+    u0, v0, u1, v1 = S.atlas_uv("signage")
+    r0.quad(plaque, (0, -1, 0), "atlas", UVRect(0, 2, (-0.6, 0.55), (0.6, 0.85), (u0, v1 - (v1 - v0) / 8, u1, v1)))
+    for x in (-0.75, 0.55):                                                  # monitors (screen faces the clerk)
+        r0.box(x - 0.04, x + 0.04, -7.75, -7.69, 0.76, 0.98, mat="metal", uv=UV_STEEL)
+        r0.box(x - 0.12, x + 0.12, -7.78, -7.66, 0.76, 0.775, mat="metal", uv=UV_STEEL)
+        r0.box(x - 0.28, x + 0.28, -7.8, -7.76, 0.92, 1.24, mat="metal", uv=UV_STEEL)
+        r0.quad([(x + 0.26, -7.759, 0.94), (x - 0.26, -7.759, 0.94), (x - 0.26, -7.759, 1.22), (x + 0.26, -7.759, 1.22)],
+                (0, 1, 0), "glassfar", UV_GLASS)
+        r0.box(x - 0.22, x + 0.22, -7.62, -7.47, 0.76, 0.78, mat="metal", uv=UV_PAINT)                 # keyboard
+    r0.box(1.2, 1.42, -7.72, -7.52, 0.76, 0.84, mat="metal", uv=UV_PAINT)                               # desk phone
+    r0.box(1.18, 1.44, -7.66, -7.6, 0.84, 0.87, mat="metal", uv=UV_STEEL)                               # handset
+    r0.prism(-1.45, -7.6, 0.08, 0.76, 0.78, n=12, mat="metal", uv=UV_PAINT)                            # lamp base
+    C_tube = __import__("build_city").tube
+    C_tube(r0, (-1.45, -7.6, 0.78), (-1.38, -7.72, 1.12), 0.012, "metal", UV_PAINT, n=6)
+    C_tube(r0, (-1.38, -7.72, 1.12), (-1.2, -7.62, 1.2), 0.012, "metal", UV_PAINT, n=6)
+    r0.prism(-1.2, -7.62, 0.07, 1.12, 1.2, n=12, mat="metal", uv=UV_PAINT)                              # lamp shade
+    r0.box(0.05, 0.35, -7.62, -7.42, 0.76, 0.82, mat="metal", uv=UV_PAINT)                              # document tray
+    r0.hquad(0.07, 0.33, -7.6, -7.44, 0.79, mat="paint", uv=DT.paint_uv("white"))                       # papers
+    # office chair behind the desk (render only: thin parts, nothing a head hides in)
+    cx, cy = -0.1, -6.9
+    r0.prism(cx, cy, 0.3, 0.0, 0.03, n=10, mat="metal", uv=UV_STEEL)                                   # star base
+    C_tube(r0, (cx, cy, 0.03), (cx, cy, 0.42), 0.025, "metal", UV_STEEL, n=8)
+    r0.box(cx - 0.25, cx + 0.25, cy - 0.23, cy + 0.23, 0.42, 0.5, mat="fabric",
+           uv=UVBand(S.MATERIALS["fabric"]["bands"]["grey"], 1.0))
+    r0.box(cx - 0.22, cx + 0.22, cy + 0.2, cy + 0.26, 0.58, 1.05, mat="fabric",
+           uv=UVBand(S.MATERIALS["fabric"]["bands"]["grey"], 1.0))
+    C_tube(r0, (cx, cy + 0.15, 0.5), (cx, cy + 0.23, 0.6), 0.02, "metal", UV_STEEL, n=6)
+
+
+def _cushion(lod, x0, x1, y0, y1, z0, z1, uv, n=12):
+    """Rounded cushion (lofted rounded-rectangle sections along X, smoothed by the writer)."""
+    import math
+    hw, zc, hz = (y1 - y0) / 2, (z0 + z1) / 2, (z1 - z0) / 2
+    yc = (y0 + y1) / 2
+
+    def sec(x, f):
+        out = []
+        for k in range(n):
+            t = 2 * math.pi * k / n
+            c, s_ = math.cos(t), math.sin(t)
+            out.append((x, yc + f * hw * math.copysign(abs(c) ** 0.4, c), zc + f * hz * math.copysign(abs(s_) ** 0.4, s_)))
+        return out
+    lod.loft([sec(x0, 0.85), sec(x0 + 0.03, 1.0), sec(x1 - 0.03, 1.0), sec(x1, 0.85)], mat="fabric", uv=uv)
+
+
+def lobby_furniture(L):
+    """D100 lobby furnishing (Lobby A and B): an east lounge (3-seat sofa with rounded cushions, two armchairs, a low
+    table with magazines, a rug, a floor lamp), a steel mailbox bank and a notice board on the core's west / east
+    faces, a fire extinguisher cabinet and a wall clock on the core's south face, two bins and an entrance mat.
+    Clear of the loot points, the entrance line, the core door zones and the security room; everything a player could
+    hide in or behind has collision (concealment gate)."""
+    r0, r1 = L["res0"], L["res1"]
+    fab = UVBand(S.MATERIALS["fabric"]["bands"]["blue"], 1.0)
+    # sofa against the east glazing, facing west (x 10.4..11.3, y -1.6..1.6)
+    sx0, sx1, sy0, sy1 = 10.35, 11.3, -1.6, 1.6
+    r0.box(sx0 + 0.04, sx1 - 0.04, sy0 + 0.04, sy1 - 0.04, 0.12, 0.32, mat="fabric", uv=fab)          # base (inside)
+    for (ya, yb) in ((sy0, sy0 + 0.16), (sy1 - 0.16, sy1)):                                             # arms
+        _cushion(r0, sx0, sx1, ya, yb, 0.12, 0.62, fab, n=10)
+    for j in range(3):                                                                                   # seat cushions
+        ya = sy0 + 0.17 + j * (sy1 - sy0 - 0.34) / 3
+        _cushion(r0, sx0 + 0.03, sx1 - 0.24, ya + 0.01, ya + (sy1 - sy0 - 0.34) / 3 - 0.01, 0.32, 0.46, fab, n=10)
+        _cushion(r0, sx1 - 0.25, sx1 - 0.03, ya + 0.01, ya + (sy1 - sy0 - 0.34) / 3 - 0.01, 0.32, 0.86, fab, n=10)
+    for (lx, ly) in ((sx0 + 0.06, sy0 + 0.06), (sx0 + 0.06, sy1 - 0.06), (sx1 - 0.06, sy0 + 0.06), (sx1 - 0.06, sy1 - 0.06)):
+        r0.box(lx - 0.025, lx + 0.025, ly - 0.025, ly + 0.025, 0.0, 0.12, mat="wood", uv=DT.UV_WALNUT, skip=("-z", "+z"))
+    r1.box(sx0, sx1, sy0, sy1, 0.0, 0.62, mat="fabric", uv=fab, skip=("-z",))
+    r1.box(sx1 - 0.22, sx1, sy0, sy1, 0.62, 0.86, mat="fabric", uv=fab)
+    for k in ("geo", "fire"):
+        kw = {"mat": "pen_wood"} if k == "fire" else {}
+        L[k].box(sx0, sx1, sy0, sy1, 0.0, 0.62, **kw)
+        L[k].box(sx1 - 0.22, sx1, sy0, sy1, 0.62, 0.86, **kw)
+    DT.lounge_chair(L, 8.4, -1.4, "+y")
+    DT.lounge_chair(L, 8.4, 1.4, "-y")
+    DT.rug(L, 7.6, 11.0, -2.2, 2.2, "rug_a")
+    DT.coffee_table(L, 8.9, 9.7, -0.6, 0.6)
+    for j, (mx, my) in enumerate(((9.1, -0.3), (9.4, 0.2))):                                            # magazines
+        r0.box(mx - 0.11, mx + 0.11, my - 0.15, my + 0.15, 0.452 + 0.006 * j, 0.458 + 0.006 * j, mat="paint",
+               uv=DT.paint_uv(("terracotta", "sage")[j]))
+    r0.prism(11.0, -2.1, 0.15, 0.0, 0.03, n=12, mat="metal", uv=UV_STEEL)                              # floor lamp
+    __import__("build_city").tube(r0, (11.0, -2.1, 0.03), (11.0, -2.1, 1.6), 0.015, "metal", UV_STEEL, n=8)
+    r0.prism(11.0, -2.1, 0.2, 1.5, 1.75, n=16, mat="textile",
+             uv=UVBand(S.MATERIALS["textile"]["bands"]["curtain"], 1.0) if "curtain" in S.MATERIALS["textile"].get("bands", {}) else UV_GLASS)
+    # mailbox bank on the core's west face (x -3.0), y -1.2..1.2, z 0.9..1.9 (Soviet-style steel boxes)
+    cx = S.CORE["x"][0]
+    mx0, mx1, my0, my1, mz0, mz1 = cx - 0.24, cx, -1.2, 1.2, 0.9, 1.9
+    for k in ("res0", "res1", "geo", "fire"):
+        kw = {"mat": "metal", "uv": UV_PAINT} if k.startswith("res") else ({"mat": "pen_metal"} if k == "fire" else {})
+        L[k].box(mx0, mx1, my0, my1, mz0, mz1, **kw)
+    for i in range(6):                                                                                   # doors grid
+        for j in range(4):
+            y_a = my0 + 0.02 + i * (my1 - my0 - 0.04) / 6
+            z_a = mz0 + 0.02 + j * (mz1 - mz0 - 0.04) / 4
+            y_b, z_b = y_a + (my1 - my0 - 0.04) / 6 - 0.015, z_a + (mz1 - mz0 - 0.04) / 4 - 0.015
+            r0.box(mx0 - 0.008, mx0, y_a, y_b, z_a, z_b, mat="metal", uv=UV_STEEL, skip=("+x",))
+            r0.box(mx0 - 0.014, mx0 - 0.008, y_b - 0.06, y_b - 0.03, z_a + 0.05, z_a + 0.09, mat="metal", uv=UV_PAINT)
+    # notice board on the core's east face
+    ex = S.CORE["x"][1]
+    r0.box(ex, ex + 0.025, -1.0, 1.0, 1.2, 2.1, mat="wood", uv=DT.UV_OAK)
+    for j in range(6):                                                                                   # pinned notices
+        ny, nz = -0.8 + 0.3 * j, 1.45 + 0.3 * (j % 2)
+        r0.quad([(ex + 0.03, ny + 0.1, nz - 0.14), (ex + 0.03, ny - 0.1, nz - 0.14), (ex + 0.03, ny - 0.1, nz + 0.14),
+                 (ex + 0.03, ny + 0.1, nz + 0.14)], (1, 0, 0), "paint", DT.paint_uv("white"))
+    # fire extinguisher cabinet + wall clock on the core's south face (clear of the stair door)
+    fy = S.CORE["y"][0]
+    for k in ("res0", "res1"):
+        L[k].box(2.1, 2.5, fy - 0.2, fy, 0.2, 0.95, mat="fair", uv=UVBand(S.MATERIALS["fair"]["bands"]["red"], 1.0))
+    r0.quad([(2.15, fy - 0.201, 0.3), (2.45, fy - 0.201, 0.3), (2.45, fy - 0.201, 0.85), (2.15, fy - 0.201, 0.85)],
+            (0, -1, 0), "glassfar", UV_GLASS)
+    for k in ("geo", "fire"):
+        L[k].box(2.1, 2.5, fy - 0.2, fy, 0.2, 0.95, **({"mat": "pen_metal"} if k == "fire" else {}))
+    import math
+    clock = [(1.2 + 0.18 * math.cos(2 * math.pi * k / 20), 2.25 + 0.18 * math.sin(2 * math.pi * k / 20)) for k in range(20)]
+    ring = [(1.2 + 0.18 * math.cos(2 * math.pi * k / 20), 2.25 + 0.18 * math.sin(2 * math.pi * k / 20)) for k in range(20)]
+    inner = [(1.2 + 0.155 * math.cos(2 * math.pi * k / 20), 2.25 + 0.155 * math.sin(2 * math.pi * k / 20)) for k in range(20)]
+    r0.extrude_y(ring, fy - 0.03, fy, mat="metal", uv=UV_STEEL)                                        # body
+    r0.extrude_y(inner, fy - 0.045, fy - 0.03, mat="paint", uv=DT.paint_uv("white"))                  # face (proud)
+    for (ang, ln, d) in ((1.2, 0.09, 0.052), (-0.4, 0.13, 0.058)):                                     # hands
+        r0.quad([(1.2 - 0.006, fy - d, 2.25), (1.2 + 0.006, fy - d, 2.25),
+                 (1.2 + 0.006 + ln * math.cos(ang), fy - d, 2.25 + ln * math.sin(ang)),
+                 (1.2 - 0.006 + ln * math.cos(ang), fy - d, 2.25 + ln * math.sin(ang))], (0, -1, 0), "metal", UV_STEEL)
+    # bins by the entrance (collide: a 0.7 m bin is a hiding volume otherwise) + entrance mat
+    for bx in (-2.3, 2.3):
+        r0.prism(bx, -11.35, 0.19, 0.0, 0.72, n=16, mat="metal", uv=UV_STEEL)
+        r0.prism(bx, -11.35, 0.2, 0.72, 0.76, n=16, mat="metal", uv=UV_PAINT)
+        r1.prism(bx, -11.35, 0.2, 0.0, 0.76, n=8, mat="metal", uv=UV_STEEL)
+        for k in ("geo", "fire"):
+            L[k].prism(bx, -11.35, 0.2, 0.0, 0.76, n=8, **({"mat": "pen_metal"} if k == "fire" else {}))
+    DT.rug(L, -1.4, 1.4, -11.85, -10.4, "rug_b")
 
 
 def retail_frontage(L, wt):
@@ -362,11 +535,11 @@ def build_lobby(variant="A"):
     L["res3"].box(-HW, HW, -HD, HD, -S.SLAB_T, 0.0, mat="concrete", uv=UV_CONC_REVEAL, skip=("+z", "-z"))
     lobby_details(L, wt)
     lobby_decor(L, wt)
-    # Reception desk: walnut front, oak counter, recessed plinth (collision unchanged: one box).
-    L["res0"].box(-1.8, 1.8, -8.2, -7.4, 0.08, 1.0, mat="wood", uv=DT.UV_WALNUT, skip=("+z",))
-    L["res0"].box(-1.75, 1.75, -8.15, -7.45, 0.0, 0.08, mat="metal", uv=UV_PAINT, skip=("-z", "+z"))
-    L["res0"].box(-1.85, 1.85, -8.25, -7.35, 1.0, 1.1, mat="wood", uv=DT.UV_OAK)
+    # Reception desk (D100): fluted walnut front, oak transaction ledge, work top, monitors, phone, lamp, chair;
+    # collision unchanged (one box)
+    reception_desk(L)
     L["res1"].box(-1.8, 1.8, -8.2, -7.4, 0.0, 1.1, mat="wood", uv=DT.UV_WALNUT, skip=("-z",))
+    lobby_furniture(L)
     L["geo"].box(-1.8, 1.8, -8.2, -7.4, 0.0, 1.1)
     L["fire"].box(-1.8, 1.8, -8.2, -7.4, 0.0, 1.1, mat="pen_wood")
     # Security room (NE corner) with the keycard door on its west wall.

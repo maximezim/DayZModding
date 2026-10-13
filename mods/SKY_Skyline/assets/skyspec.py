@@ -586,7 +586,8 @@ CITY_ARCHETYPES = {
                  "skin": ("brick", None), "blank": ("W", "E"), "stair": "back_left", "bay": 2.4, "door_bay": 0,
                  "usage": ["Town"], "cats": ["tools", "containers", "clothes", "food", "books"],
                  "desc": "3-storey brick townhouse, party walls both sides"},
-    "AptBlock": {"group": "residential", "w": 18.0, "d": 12.0, "levels": [("flats", 3.0)] * 5,
+    # D99: body 10 m deep + 1 m balconies on both long sides = the same 18 x 12 m footprint (layouts unchanged)
+    "AptBlock": {"group": "residential", "w": 18.0, "d": 10.0, "balcony": 1.0, "levels": [("flats", 3.0)] * 5,
                  "skin": ("panel", None), "blank": (), "stair": "back_center", "bay": 2.6, "door_bay": "center",
                  "usage": ["Town"], "cats": ["tools", "containers", "clothes", "food", "books"],
                  "desc": "5-storey precast apartment block, 2 flats per floor round a central stair"},
@@ -839,11 +840,12 @@ CITY_ARCHETYPES["ChurchHanged"] = _variant("Church", decor="hanged",
 def city_footprint(A):
     """Model-space footprint (x0, x1, y0, y1) of an archetype: body + forecourt in front (-Y)."""
     hw, hd = A["w"] / 2, A["d"] / 2
+    b = A.get("balcony", 0.0)                         # D99: balconies project on the S and N sides
     fc = A.get("forecourt")
     if not fc:
-        return (-hw, hw, -hd, hd)
+        return (-hw, hw, -hd - b, hd + b)
     fw = max(hw, fc[0] / 2)
-    return (-fw, fw, -hd - fc[1], hd)
+    return (-fw, fw, -hd - max(b, fc[1]), hd + b)
 
 
 # City packages (D60): one PBO per group keeps every package well under ~300 MB of source models
