@@ -19,7 +19,7 @@
  "sky_bed.p3d": {
   "fire": 36,
   "geo": 36,
-  "res0": 154,
+  "res0": 646,
   "res1": 48,
   "res2": 24
  },
@@ -44,7 +44,7 @@
  "sky_cubicle.p3d": {
   "fire": 60,
   "geo": 60,
-  "res0": 242,
+  "res0": 738,
   "res1": 72,
   "res2": 36,
   "shadow": 60,
@@ -318,8 +318,8 @@
  "sky_sofa.p3d": {
   "fire": 48,
   "geo": 48,
-  "res0": 190,
-  "res1": 48,
+  "res0": 730,
+  "res1": 314,
   "res2": 24
  },
  "sky_street_crossing.p3d": {

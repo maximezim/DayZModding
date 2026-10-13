@@ -582,3 +582,11 @@ no city layout moves. In a ruin you can climb out of a broken window onto a balc
 The Tower A lobby was a big empty marble hall. It now has a detailed reception desk with computers and a chair, a second
 seating area with a sofa, proper benches, a wall of mailboxes, a notice board, a fire extinguisher, a clock, bins and
 an entrance mat. What to check in game: `TESTING.md` section 61.
+
+## 50. What is still box-like, and soft furniture (D101)
+
+A sweep over every remaining model, ranked by detail and checked on close-up renders, found that the street props now
+hold up and that the weakest things left were the soft furniture in the tower's flats and offices: sofas and beds
+whose cushions looked like wedges. They now have soft, rounded cushions, mattress, duvet and pillow, and every office
+cubicle has a chair. Trees and a couple of street props are the next candidates. The test-session checklist for
+everything since the first evening is ready in `TEST_SESSION.md` section 6.

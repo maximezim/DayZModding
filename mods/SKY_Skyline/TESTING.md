@@ -1046,6 +1046,7 @@ footprint, layouts unchanged).
 | BA-03 | In a ruin, climb out of a broken window onto a balcony and back in | Possible both ways; you cannot get from one balcony to another or to the roof | | | |
 | BA-04 | Interiors of the blocks (10 m deep now): flats, doors, stairs, loot | Rooms laid out as before at the new depth; interior doors swing clear (D98) | | | |
 | LB-01 | Tower A lobby (A and B): walk round the reception, lounge, mailboxes, benches, bins | Detailed furniture; no pocket behind the sofa or bins; loot points and the keycard door clear | screenshots | | |
+| SP-01 | Tower A apartment / office floors: sit on and look at a sofa, a bed and a cubicle up close (D101) | Soft cushions, mattress, duvet and pillow (no faceted wedges), a chair in each cubicle; nothing to hide your head in on the sofa | screenshots | | |
 
 ## Windows session log (2026-10-09)
 

@@ -82,6 +82,49 @@ UV_PWHITE = UVBand(S.MATERIALS["paint"]["bands"]["white"], 1.0)
 BLACK = {"mat": "wood", "uv": UV_SCREEN}                       # dark plastic: the wood sheet's screen band (no section)
 
 
+def soft(lod, axis, a0, a1, b0, b1, z0, z1, uv, n=12, end=0.85, sag=0.0, mat="fabric"):
+    """D101 soft furnishing: a rounded-rectangle section (superellipse) lofted along `axis` ("x" or "y") from a0 to a1
+    across b0..b1, z0..z1; the end sections shrink to `end` (puffy cushion ends); `sag` lowers the middle of the top
+    (a sat-in seat, a pillow dip). Smoothed by the P3D writer."""
+    hb, zc, hz = (b1 - b0) / 2, (z0 + z1) / 2, (z1 - z0) / 2
+    bc = (b0 + b1) / 2
+
+    def sec(a, f, dz):
+        out = []
+        for k in range(n):
+            t = 2 * math.pi * k / n
+            c, s_ = math.cos(t), math.sin(t)
+            u = bc + f * hb * math.copysign(abs(c) ** 0.45, c)
+            z = zc + f * hz * math.copysign(abs(s_) ** 0.45, s_) - (dz if s_ > 0.3 else 0.0)
+            out.append((a, u, z) if axis == "x" else (u, a, z))
+        return out
+    e = min(0.035, (a1 - a0) / 4)
+    m = (a0 + a1) / 2
+    lod.loft([sec(a0, end, 0.0), sec(a0 + e, 1.0, 0.0), sec(m, 1.0, sag), sec(a1 - e, 1.0, 0.0), sec(a1, end, 0.0)],
+             mat=mat, uv=uv)
+
+
+def swivel_chair(r0, x, y, face, fab):
+    """D101 office chair (render only, thin parts: no hiding volume): 5-star base on castors, gas column, padded seat
+    and back on a bent steel spine, armrests. face = direction the sitter looks ("+y" / "-y")."""
+    import math as _m
+    sy = 1 if face == "+y" else -1
+    for k in range(5):
+        a = 2 * _m.pi * k / 5
+        _bar(r0, (x, y, 0.07), (x + 0.3 * _m.cos(a), y + 0.3 * _m.sin(a), 0.05), 0.016, "metal", UV_STEEL)
+        r0.prism(x + 0.3 * _m.cos(a), y + 0.3 * _m.sin(a), 0.025, 0.0, 0.05, n=8, **BLACK)
+    r0.prism(x, y, 0.03, 0.07, 0.42, n=10, mat="metal", uv=UV_STEEL)
+    soft(r0, "x", x - 0.24, x + 0.24, y - 0.23, y + 0.23, 0.42, 0.5, UV_FGREY if fab is None else fab, n=10)
+    yb = y - sy * 0.22
+    _bar(r0, (x, y - sy * 0.12, 0.43), (x, yb - sy * 0.03, 0.6), 0.015, "metal", UV_STEEL)
+    soft(r0, "x", x - 0.22, x + 0.22, min(yb - sy * 0.07, yb), max(yb - sy * 0.07, yb), 0.58, 1.02,
+         UV_FGREY if fab is None else fab, n=10)
+    for sx in (-1, 1):
+        _bar(r0, (x + sx * 0.22, y - sy * 0.05, 0.46), (x + sx * 0.23, y - sy * 0.05, 0.64), 0.012, "metal", UV_STEEL)
+        r0.box(x + sx * 0.23 - 0.025, x + sx * 0.23 + 0.025, min(y - sy * 0.17, y + sy * 0.08),
+               max(y - sy * 0.17, y + sy * 0.08), 0.64, 0.67, **BLACK)                    # armrest pad
+
+
 def gaps(a0, a1, n, g=0.003):
     """Split [a0, a1] into n panels with a g gap between them (door / drawer fronts)."""
     w = (a1 - a0) / n
@@ -187,6 +230,7 @@ def build_cubicle():
         r0.quad([(x, 0.948, z), (x + 0.08, 0.948, z), (x + 0.08, 0.948, z + 0.08), (x, 0.948, z + 0.08)], (0, -1, 0), "paint", UV_PWHITE)
     for z in (1.0, 1.18):
         r0.quad([(-0.948, -0.3, z), (-0.948, -0.08, z), (-0.948, -0.08, z + 0.15), (-0.948, -0.3, z + 0.15)], (1, 0, 0), "paint", UV_PWHITE)
+    swivel_chair(r0, 0.25, -0.2, "+y", None)                                     # D101 inside the L, facing the screen
     return finish(L, 120.0)
 
 
@@ -303,24 +347,31 @@ def build_sofa():
     L = props_lods()
     fab = {"mat": "fabric", "uv": UV_FBLUE}
     wood = {"mat": "wood", "uv": UV_WALNUT}
-    solid(L, ("res1", "res2", "geo", "fire"), (-1.0, 1.0, -0.45, 0.45, 0.0, 0.42), fab, "wood")    # base + seat
-    solid(L, ("res1", "res2", "geo", "fire"), (-1.0, 1.0, 0.25, 0.45, 0.42, 0.85), fab, "wood")    # back
+    solid(L, ("res2", "geo", "fire"), (-1.0, 1.0, -0.45, 0.45, 0.0, 0.42), fab, "wood")    # base + seat
+    solid(L, ("res2", "geo", "fire"), (-1.0, 1.0, 0.08, 0.45, 0.42, 0.85), fab, "wood")    # back (D101 sec M1: covers the cushions)
     for x in (-1.0, 0.82):
-        solid(L, ("res1", "geo", "fire"), (x, x + 0.18, -0.45, 0.25, 0.42, 0.62), fab, "wood")
+        solid(L, ("geo", "fire"), (x, x + 0.18, -0.45, 0.25, 0.42, 0.62), fab, "wood")
     r0 = L["res0"]
     # D76: frame on tapered walnut feet, rolled arms, two seat and two back cushions with rounded edges
     for x in (-0.92, 0.92):
         for y in (-0.38, 0.38):
             r0.extrude_x([(y - 0.025, 0.0), (y + 0.025, 0.0), (y + 0.035, 0.1), (y - 0.035, 0.1)], x - 0.03, x + 0.03, **wood)
-    r0.box(-0.98, 0.98, -0.44, 0.44, 0.1, 0.3, skip=("+z",), **fab)
-    r0.extrude_x([(0.25, 0.3), (0.45, 0.3), (0.45, 0.8), (0.42, 0.85), (0.28, 0.85), (0.25, 0.82)], -0.82, 0.82, **fab)
+    # D101: soft lofted upholstery (smoothed): base, back frame, rolled arms, sat-in seat and plump back cushions
+    r0.box(-0.96, 0.96, -0.42, 0.42, 0.1, 0.3, skip=("+z",), **fab)
+    soft(r0, "x", -0.83, 0.83, 0.26, 0.45, 0.28, 0.84, UV_FBLUE, n=10, end=0.92)
     for sx in (-1, 1):
         xa, xb = sorted((sx * 1.0, sx * 0.82))
-        prof = [(xa, 0.1), (xb, 0.1), (xb, 0.58), (xb - 0.03, 0.625), ((xa + xb) / 2, 0.64), (xa + 0.03, 0.625), (xa, 0.58)]
-        r0.extrude_y(prof, -0.45, 0.45, **fab)
+        soft(r0, "y", -0.45, 0.45, xa, xb, 0.1, 0.64, UV_FBLUE, n=10, end=0.9)
+    r1 = L["res1"]                                                               # D101: mid LOD keeps the soft shapes
+    r1.box(-0.8, 0.8, -0.42, 0.42, 0.04, 0.3, skip=("-z",), **fab)               # frame inside the arms
+    for sx in (-1, 1):
+        xa, xb = sorted((sx * 1.0, sx * 0.82))
+        soft(r1, "y", -0.45, 0.45, xa, xb, 0.1, 0.64, UV_FBLUE, n=8, end=0.9)
+    soft(r1, "x", -0.81, 0.81, -0.445, 0.245, 0.29, 0.45, UV_FBLUE, n=8)
+    soft(r1, "x", -0.81, 0.81, 0.06, 0.45, 0.3, 0.84, UV_FBLUE, n=8, end=0.85)
     for (x0, x1) in ((-0.815, -0.005), (0.005, 0.815)):
-        r0.extrude_x([(-0.44, 0.3), (0.24, 0.3), (0.24, 0.43), (-0.41, 0.43), (-0.45, 0.39)], x0, x1, **fab)
-        r0.extrude_x([(0.12, 0.43), (0.25, 0.43), (0.25, 0.8), (0.2, 0.82), (0.1, 0.76)], x0, x1, **fab)
+        soft(r0, "x", x0, x1, -0.445, 0.245, 0.29, 0.45, UV_FBLUE, n=10, sag=0.015)
+        soft(r0, "x", x0 + 0.01, x1 - 0.01, 0.06, 0.27, 0.42, 0.82, UV_FBLUE, n=10, end=0.82)
     return finish(L, 60.0, shadow=False)                    # interior_small (perf batch-3 M3)
 
 
@@ -340,10 +391,11 @@ def build_bed():
             r0.box(x, x + 0.04, y, y + 0.04, 0.0, 0.12, skip=("-z", "+z"), **wood)
     for (x0, x1, y0, y1) in ((-0.7, -0.66, -1.0, 1.0), (0.66, 0.7, -1.0, 1.0), (-0.66, 0.66, -1.0, -0.96)):
         r0.box(x0, x1, y0, y1, 0.12, 0.32, skip=("-z",), **wood)
-    r0.extrude_y([(-0.68, 0.3), (0.68, 0.3), (0.68, 0.47), (0.65, 0.5), (-0.65, 0.5), (-0.68, 0.47)], -0.96, 1.0, **fab)
-    r0.extrude_y([(-0.715, 0.34), (0.715, 0.34), (0.715, 0.5), (0.68, 0.535), (-0.68, 0.535), (-0.715, 0.5)], -0.985, 0.3, **duvet)
-    r0.extrude_y([(-0.7, 0.5), (0.7, 0.5), (0.7, 0.545), (-0.7, 0.545)], 0.3, 0.42, **{"mat": "fabric", "uv": UV_FBLUE})   # turn-back
-    r0.extrude_x([(0.55, 0.5), (0.9, 0.5), (0.93, 0.55), (0.89, 0.62), (0.57, 0.62), (0.53, 0.55)], -0.5, 0.5, **fab)
+    # D101: soft lofted mattress, a duvet draped past the mattress sides, a rolled turn-back, a dented pillow
+    soft(r0, "y", -0.96, 0.995, -0.68, 0.68, 0.3, 0.5, UV_FBEIGE, n=16, end=0.96)
+    soft(r0, "y", -0.99, 0.3, -0.715, 0.715, 0.33, 0.535, UV_FGREY, n=16, end=0.96, sag=0.008)
+    soft(r0, "x", -0.69, 0.69, 0.27, 0.42, 0.47, 0.56, UV_FBLUE, n=12, end=0.9)                       # turn-back roll
+    soft(r0, "x", -0.5, 0.5, 0.54, 0.93, 0.5, 0.64, UV_FBEIGE, n=14, end=0.7, sag=0.03)              # pillow
     r0.box(-0.75, 0.75, 1.0, 1.06, 0.0, 1.0, skip=("-z",), **wood)
     r0.box(-0.65, 0.65, 0.975, 1.0, 0.52, 0.92, skip=("+y",), **duvet)              # headboard pad
     return finish(L, 80.0, shadow=False)
