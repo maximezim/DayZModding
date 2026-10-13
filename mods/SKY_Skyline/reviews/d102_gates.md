@@ -39,7 +39,8 @@ Birch, before / after (distant overview):
 | test_city (vegetation) | PASS (first runs: birch crown and bush ring outside the footprint -> clamped) |
 | test_conceal, test_slits, test_kit | PASS (first run: 1 cm Fire slit between the new controller box and the pole -> overlapped) |
 | check_assets | 289 checked, 0 fail; TrafficLight (1,046 / 600), Veg_Birch (1,264 / 500), Veg_TreeDead (880 / 500) over the pre-D96 budgets (hypotheses, quality first) |
-| check_p3d_sync, gen_configs / gen_manifest --check, texture refs | SYNC_RESULT |
+| check_p3d_sync | first run: Fair_FerrisWheel stale - it grows a Veg_Birch through its platform, so it inherits the new tree (re-exported; its quality, conceal, slits and kit gates PASS) |
+| gen_configs / gen_manifest --check, texture refs | up to date, PASS |
 
 ## Review (security + performance)
 
