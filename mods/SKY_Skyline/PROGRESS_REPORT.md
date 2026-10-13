@@ -571,3 +571,14 @@ only fits a door where it can swing freely: not into a wall, furniture, the stai
 blocks a corridor. Damaged buildings have lost about a third of their doors and ruins have none. Loot no longer
 spawns where a door swings. Two things can only be checked in game: whether 48 doors in the biggest buildings cost too
 much, and whether infected still find their way through rooms with closed doors (TESTING section 60).
+
+## 49. Balconies and the tower lobby (D99, D100)
+
+The Soviet apartment blocks now have what makes them recognisable: columns of balconies on both long sides. Some
+are open with concrete, ribbed-metal or steel-bar parapets, laundry and flower boxes; many are glazed in by their owners
+with white frames, like real ones. The buildings take the same plot as before (the rooms are a little shallower), so
+no city layout moves. In a ruin you can climb out of a broken window onto a balcony and back.
+
+The Tower A lobby was a big empty marble hall. It now has a detailed reception desk with computers and a chair, a second
+seating area with a sofa, proper benches, a wall of mailboxes, a notice board, a fire extinguisher, a clock, bins and
+an entrance mat. What to check in game: `TESTING.md` section 61.

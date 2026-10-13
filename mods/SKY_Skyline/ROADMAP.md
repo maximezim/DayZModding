@@ -48,6 +48,8 @@ Rules that do not change (CLAUDE.md):
 | **D88** next cloud batch | interior wall dressing per room type (posters, clocks, calendars, notice boards), roof clutter on flat roofs (water tanks, vents, antennas), extend the wedge-slot check to the kit props | planned |
 | **D97** wreck bodies | Wreck_CityBus / Wreck_GarbageTruck rebuilt as detailed lofted bodies (glazing, wheel wells, fascia, ZiL cab, compactor body, hopper); collision follows the drawn shapes | built-unverified (TESTING QP-20) |
 | **D98** interior doors | hinged leaves in the room doorways of Intact / Damaged city buildings (sweep-checked, at most 48 per model), vanilla Doors rig | built-unverified (TESTING §60, P74 / P75) |
+| **D99** balconies | apartment blocks: 1 m balconies on both long sides (open / glazed), body 10 m deep in the same footprint | built-unverified (TESTING §61) |
+| **D100** lobby furniture | Tower A lobby: reception detail, lounge, benches, mailboxes, notice board, extinguisher, clock, bins | built-unverified (TESTING §61) |
 | **T2** terrain | survey a site or build the custom terrain (Terrain Builder import of `terrain/out`, P11), open the metro hatches. **Custom terrain for the metro and sewers is an open TODO, see the section below** | planned (after T1) |
 | **T3** perf | FPS protocol, server perf probe (B11), merged furniture if needed (D43) | planned (after T1) |
 
@@ -177,7 +179,9 @@ it forced (warehouse inner cladding, ruin windows, racks, ladder, carousel, floo
 components; test_ruin_cuts should log every dropped run and check boxes; before the Bank gets its keycard vault door,
 make the vault's outer walls blank (ruined windows are now open).
 
-**D97**: the bus and garbage-truck wrecks are detailed bodies now (`reviews/d97_gates.md`). Next in line: balconies on
-the panel blocks, Tower A lobby furniture.
+**D97**: the bus and garbage-truck wrecks are detailed bodies now (`reviews/d97_gates.md`). Next in line: the remaining
+box-like set pieces (see the D99 / D100 review for candidates).
 
 **D98**: interior doors in the city buildings (`reviews/d98_gates.md`).
+
+**D99 / D100**: balconies on the apartment blocks and the Tower A lobby furniture (`reviews/d99_gates.md`).

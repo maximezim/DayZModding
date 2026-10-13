@@ -1319,7 +1319,7 @@ def facade(L, P, key, lvl):
                    skip=(sd.out_key, "-z"))
         bal = balcony_here(P, key, lvl, i)
         if bal:
-            balcony(L, P, sd, bkey, b0, b1, z0, fh, lvl == len(P.levels) - 1)
+            balcony(L, P, sd, bkey, b0, b1, z0, fh, lvl == len(P.levels) - 1, st)
         elif A["group"] == "residential" and skin == "panel" and lvl > 0 and i % 2 == 1:      # french balcony rail
             for zz in (s0 + 0.15, s0 + 0.55, s0 + 0.95):
                 sd.box(r0, w0 - 0.1, w1 + 0.1, zz, zz + 0.03, -0.2, -0.17, mat="metal", uv=DT.UV_STEEL)
@@ -1340,7 +1340,7 @@ def balcony_here(P, key, lvl, i):
     return not (key == "S" and i == P.door_bay)
 
 
-def balcony(L, P, sd, bkey, b0, b1, z0, fh, last):
+def balcony(L, P, sd, bkey, b0, b1, z0, fh, last, win_state="glass"):
     """D99 Soviet panel-block balcony, BD deep: precast slab with a drip nose, parapet per column (concrete panel,
     ribbed steel sheet or steel bars, steel handrail) and, per flat, often glazed in by its owner (white frame grid
     up to the slab above, a canopy on the top floor). Collision follows what is drawn: slab + parapet (+ glazing walls
@@ -1364,7 +1364,7 @@ def balcony(L, P, sd, bkey, b0, b1, z0, fh, last):
     # slab (all LODs that collide) with a drip nose in Res0
     for k in ("res0", "res1", "geo", "fire", "view"):
         sd.box(L[k], a0, a1, zs, z0, -BD, 0.0, **kw_for(k, conc[0], conc[1], conc[2]))
-    sd.box(L["res0"], a0 - 0.01, a1 + 0.01, zs - 0.03, zs, -BD - 0.01, -BD + 0.04, mat="concrete", uv=UV_CONC)
+    sd.box(L["res0"], a0, a1, zs - 0.03, zs, -BD, -BD + 0.04, mat="concrete", uv=UV_CONC)          # drip (in the footprint)
     # parapet: front + two sides
     panels = ((a0, a1, -BD, -BD + t), (a0, a0 + t, -BD + t, 0.0), (a1 - t, a1, -BD + t, 0.0))
     full = glazed and P.state < 2                                            # perf M3: one Geometry wall per side
@@ -1413,7 +1413,7 @@ def balcony(L, P, sd, bkey, b0, b1, z0, fh, last):
         ztr = zg0 + 0.62 * (zg1 - zg0)
         nm = max(2, int((a1 - a0) / 0.6))
         posts = [a0 + t / 2 + j * (a1 - a0 - t) / nm for j in range(nm + 1)]
-        for k in ("res0", "res1") if not broken or P.state < 2 else ("res0",):
+        for k in ("res0", "res1") if P.state < 2 else ():                      # sec L3: a ruin's loggia frames are gone
             for a in (posts if k == "res0" else (posts[0], posts[-1])):        # perf H2: Res1 corner posts + rails
                 sd.box(L[k], a - 0.025, a + 0.025, zg0, zg1, -BD, -BD + 0.05, **fr)
             for (za, zb) in (((zg0, zg0 + 0.05), (ztr - 0.025, ztr + 0.025), (zg1 - 0.05, zg1)) if k == "res0" else
@@ -1454,7 +1454,7 @@ def balcony(L, P, sd, bkey, b0, b1, z0, fh, last):
                 sd.box(L[k], a0 - 0.05, a1 + 0.05, zt, zt + 0.1, -BD, 0.0, **kw_for(k, "metal", DT.UV_PAINT, "metal"))  # in the footprint
     elif P.state < 2:
         r = h01(P.name, "balcl", sd.key, i, z0)
-        if r < 0.35:                                                          # laundry line across the balcony
+        if r < 0.35 and win_state != "broken":                    # laundry (sec M1: never screens a broken window)
             sd.box(r0, a0 + t, a1 - t, zp + 0.75, zp + 0.76, -BD * 0.55 - 0.005, -BD * 0.55 + 0.005, mat="metal",
                    uv=DT.UV_STEEL)
             n = 2 + int(h01(P.name, "balln", sd.key, i, z0) * 3)
@@ -1464,8 +1464,8 @@ def balcony(L, P, sd, bkey, b0, b1, z0, fh, last):
                 band = ("blue", "beige", "grey")[int(h01(P.name, "ballc", sd.key, i, z0, j) * 3)]
                 sd.quad(r0, a, a + 0.4, zp + 0.75 - hj, zp + 0.75, -BD * 0.55, mat="fabric", uv=UV_FAB[band], double=True)
         elif r < 0.55:                                                        # flower box hung on the rail outside
-            sd.box(r0, (a0 + a1) / 2 - 0.45, (a0 + a1) / 2 + 0.45, zp - 0.22, zp - 0.04, -BD - 0.2, -BD - 0.005,
-                   mat="wood", uv=UV_OAK)
+            sd.box(r0, (a0 + a1) / 2 - 0.45, (a0 + a1) / 2 + 0.45, zp - 0.22, zp - 0.04, -BD + t + 0.005,
+                   -BD + t + 0.2, mat="wood", uv=UV_OAK)                             # inside the rail (sec L4)
     # far LODs: one box per balcony (silhouette); shadow
     zr = (zt + (0.1 if last else 0.0)) if (glazed and P.state < 2) else zp    # perf L: a ruin's loggia is open
     P.__dict__.setdefault("bal_far", {}).setdefault((sd.key, i), (sd, a0, a1, BD, []))[4].append((zs, zr))

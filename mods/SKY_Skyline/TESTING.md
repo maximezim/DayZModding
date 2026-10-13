@@ -1034,6 +1034,19 @@ changed. Door counts per model: `assets/build_doors_city.json`.
 | ID-06 | Hospital / CourtyardBlock (48 doors): diag statistics while cycling doors, RPT | No config / animation warnings; draw calls close to a vanilla tenement (P74) | RPT, numbers | | |
 | ID-07 | Loot | No loot spawns inside a door's swing | | | |
 
+## 61. Balconies and the Tower A lobby (D99, D100)
+
+Rebuild the PBOs first. The apartment blocks are now 10 m deep with 1 m balconies on both long sides (same 18 x 12 m
+footprint, layouts unchanged).
+
+| ID | Steps | Expected | Evidence | Diag | Ded |
+|---|---|---|---|---|---|
+| BA-01 | Walk round an AptBlock / AptBlockTall / AptBlockBrick (Intact, Damaged, Ruined) | Balcony columns on both long sides (not over the entrance), concrete / sheet / bar parapets, glazed loggias with white frames, laundry and flower boxes; no flicker at the slab / parapet / glazing joints | screenshots | | |
+| BA-02 | Shoot and look through a bar parapet, a sheet parapet and a loggia; stand behind each from inside a ruin | Bars: bullets and sight pass between the bars; sheet / panel: stop bullets; glass: like the windows | | | |
+| BA-03 | In a ruin, climb out of a broken window onto a balcony and back in | Possible both ways; you cannot get from one balcony to another or to the roof | | | |
+| BA-04 | Interiors of the blocks (10 m deep now): flats, doors, stairs, loot | Rooms laid out as before at the new depth; interior doors swing clear (D98) | | | |
+| LB-01 | Tower A lobby (A and B): walk round the reception, lounge, mailboxes, benches, bins | Detailed furniture; no pocket behind the sofa or bins; loot points and the keycard door clear | screenshots | | |
+
 ## Windows session log (2026-10-09)
 
 Chronological record for the cloud session: what was run on the Windows workstation, the result, and anything that

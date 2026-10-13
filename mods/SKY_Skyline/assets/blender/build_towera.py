@@ -387,7 +387,8 @@ def lobby_furniture(L):
     r0, r1 = L["res0"], L["res1"]
     fab = UVBand(S.MATERIALS["fabric"]["bands"]["blue"], 1.0)
     # sofa against the east glazing, facing west (x 10.4..11.3, y -1.6..1.6)
-    sx0, sx1, sy0, sy1 = 10.35, 11.3, -1.6, 1.6
+    sx1 = HW - CT - 0.02                                                     # sec L6: against the glazing (no prone slot)
+    sx0, sy0, sy1 = sx1 - 0.95, -1.6, 1.6
     r0.box(sx0 + 0.04, sx1 - 0.04, sy0 + 0.04, sy1 - 0.04, 0.12, 0.32, mat="fabric", uv=fab)          # base (inside)
     for (ya, yb) in ((sy0, sy0 + 0.16), (sy1 - 0.16, sy1)):                                             # arms
         _cushion(r0, sx0, sx1, ya, yb, 0.12, 0.62, fab, n=10)
@@ -452,12 +453,13 @@ def lobby_furniture(L):
                  (1.2 + 0.006 + ln * math.cos(ang), fy - d, 2.25 + ln * math.sin(ang)),
                  (1.2 - 0.006 + ln * math.cos(ang), fy - d, 2.25 + ln * math.sin(ang))], (0, -1, 0), "metal", UV_STEEL)
     # bins by the entrance (collide: a 0.7 m bin is a hiding volume otherwise) + entrance mat
-    for bx in (-2.3, 2.3):
-        r0.prism(bx, -11.35, 0.19, 0.0, 0.72, n=16, mat="metal", uv=UV_STEEL)
-        r0.prism(bx, -11.35, 0.2, 0.72, 0.76, n=16, mat="metal", uv=UV_PAINT)
-        r1.prism(bx, -11.35, 0.2, 0.0, 0.76, n=8, mat="metal", uv=UV_STEEL)
+    for bx in (-2.05, 2.05):                                                 # sec L7: clear of the glass and planters
+        by = -9.85
+        r0.prism(bx, by, 0.19, 0.0, 0.72, n=16, mat="metal", uv=UV_STEEL)
+        r0.prism(bx, by, 0.2, 0.72, 0.76, n=16, mat="metal", uv=UV_PAINT)
+        r1.prism(bx, by, 0.2, 0.0, 0.76, n=8, mat="metal", uv=UV_STEEL)
         for k in ("geo", "fire"):
-            L[k].prism(bx, -11.35, 0.2, 0.0, 0.76, n=8, **({"mat": "pen_metal"} if k == "fire" else {}))
+            L[k].prism(bx, by, 0.2, 0.0, 0.76, n=8, **({"mat": "pen_metal"} if k == "fire" else {}))
     DT.rug(L, -1.4, 1.4, -11.85, -10.4, "rug_b")
 
 
