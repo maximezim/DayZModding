@@ -460,6 +460,7 @@ Gameplay rows §1-§15 and §19 must still pass unchanged.
 | ID | Steps | Expected | Diag | Dedicated |
 |---|---|---|---|---|
 | SP-01 | Lobby by day | Marble floor reads polished (gloss, joints), limestone core cladding with `SKYLINE TOWER` strip, granite piers / plinth, pendants hang clear of heads (lowest 3.66 m over the desk), lounge chairs / table / tree pots collide, loot points spawn (§8). | | |
+| TP-01 | Walk through overgrown streets: birches, dead trees, bushes; a traffic light and a planter up close (D102) | Branches with bark and leaf clusters (no floating leaves at 50-100 m), domed bushes, round pole / arm / lenses, rounded planter; trees still stop you at the trunk only; FPS in a dense birch area noted (alpha overdraw) | screenshots, FPS | | |
 | SP-02 | Office floor | Light panels sit in the ceiling grid (no z-fight with the tiles), plants collide, art not mirrored. | | |
 | SP-03 | Apartment floor | Parquet in the flats, tiles in the hall, beige / sage walls, curtains and radiators at every window, flower boxes outside, rugs flat (no flicker), art not mirrored. | | |
 | SP-04 | Hotel floor | Wainscot + dado rail on both wall faces, runner round the core (no overlap flicker at the corners), sconces glow, art in the rooms. | | |

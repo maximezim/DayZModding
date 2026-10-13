@@ -590,3 +590,10 @@ hold up and that the weakest things left were the soft furniture in the tower's 
 whose cushions looked like wedges. They now have soft, rounded cushions, mattress, duvet and pillow, and every office
 cubicle has a chair. Trees and a couple of street props are the next candidates. The test-session checklist for
 everything since the first evening is ready in `TEST_SESSION.md` section 6.
+
+## 51. Trees, bushes, traffic lights, planters (D102)
+
+The trees were a trunk with a few flat leaf cards. Birches and dead trees now have real branches with bark and smaller
+twigs, and the birch's leaves grow in clusters at the branch ends; the bushes are full domes on visible stems. Traffic
+lights have a round tapered pole and arm, domed lenses under hoods and a controller box; street planters have rounded
+corners. Trees still only block you at the trunk, and they take the same space as before, so no layout changes.

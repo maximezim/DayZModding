@@ -51,6 +51,7 @@ Rules that do not change (CLAUDE.md):
 | **D99** balconies | apartment blocks: 1 m balconies on both long sides (open / glazed), body 10 m deep in the same footprint | built-unverified (TESTING §61) |
 | **D100** lobby furniture | Tower A lobby: reception detail, lounge, benches, mailboxes, notice board, extinguisher, clock, bins | built-unverified (TESTING §61) |
 | **D101** soft furnishings | assessment of the remaining box-like assets; lofted sofa / bed upholstery, cubicle chair | built-unverified (TESTING SP-01) |
+| **D102** trees + street props | lofted branches and leaf clusters on birch / dead tree, domed bush, traffic light and planter close-up | built-unverified (TESTING TP-01) |
 | **T2** terrain | survey a site or build the custom terrain (Terrain Builder import of `terrain/out`, P11), open the metro hatches. **Custom terrain for the metro and sewers is an open TODO, see the section below** | planned (after T1) |
 | **T3** perf | FPS protocol, server perf probe (B11), merged furniture if needed (D43) | planned (after T1) |
 
@@ -187,5 +188,4 @@ box-like set pieces (see the D99 / D100 review for candidates).
 
 **D99 / D100**: balconies on the apartment blocks and the Tower A lobby furniture (`reviews/d99_gates.md`).
 
-**D101**: assessment of the remaining box-like assets (`reviews/d101_assessment.md`). Next cloud candidates: traffic light and
-planter close-up, a tree pass (more foliage cards, branch lofts). The T1 package for the D96-D101 build is `TEST_SESSION.md` section 6.
+**D101**: assessment of the remaining box-like assets (`reviews/d101_assessment.md`). Done in D102: tree pass, traffic light, planter. The T1 package for the D96-D101 build is `TEST_SESSION.md` section 6.

@@ -3012,6 +3012,92 @@ class BarkUV:
                  v0 + min(1.0, (p[2] - zb) / self.seg) * (v1 - v0)) for ti, p in zip(t, pts)]
 
 
+class BranchUV:
+    """D102: bark cell on a lofted branch: V along the branch (one cell per `seg` metres), U round it."""
+
+    def __init__(self, cell, p0, d, e1, r, seg=0.8):
+        self.c, self.p0, self.d, self.e1, self.r, self.seg = cell, p0, d, e1, max(r, 0.01), seg
+
+    def __call__(self, pts, normal):
+        u0, v0, u1, v1 = self.c
+        rel = [[p[i] - self.p0[i] for i in range(3)] for p in pts]
+        if abs(sum(normal[i] * self.d[i] for i in range(3))) > 0.7:          # end caps: planar across the section
+            d, e1 = self.d, self.e1
+            e2 = [d[1] * e1[2] - d[2] * e1[1], d[2] * e1[0] - d[0] * e1[2], d[0] * e1[1] - d[1] * e1[0]]
+            return [(u0 + (0.5 + sum(q[i] * e1[i] for i in range(3)) / (4 * self.r)) * 0.5 * (u1 - u0),
+                     v0 + (0.5 + sum(q[i] * e2[i] for i in range(3)) / (4 * self.r)) * 0.5 * (v1 - v0)) for q in rel]
+        s_ = [sum(q[i] * self.d[i] for i in range(3)) for q in rel]
+        t = [sum(q[i] * self.e1[i] for i in range(3)) for q in rel]
+        sm = min(s_)
+        span = min(1.0, (max(s_) - sm) / self.seg)
+        off = (sm / self.seg) % 1.0 * (1.0 - span)                            # each face inside the cell, varied
+        tm = min(t)
+        return [(u0 + min(1.0, (ti - tm) / (2 * self.r)) * 0.5 * (u1 - u0),
+                 v0 + (off + min(1.0, (si - sm) / self.seg)) * (v1 - v0)) for ti, si in zip(t, s_)]
+
+
+def tree_branch(lods, p0, d, length, r0, r1, n=6, bend=0.0, key=(), stations=4):
+    """D102: tapered lofted branch from p0 along unit direction d, bending up (bend > 0) or down; returns the tip
+    and the midpoint. One BranchUV per branch (bark cell along the branch)."""
+    up = (0.0, 0.0, 1.0)
+    a = (0.0, 0.0, 1.0) if abs(d[2]) < 0.9 else (1.0, 0.0, 0.0)
+    e1 = [d[1] * a[2] - d[2] * a[1], d[2] * a[0] - d[0] * a[2], d[0] * a[1] - d[1] * a[0]]
+    l1 = math.sqrt(sum(v * v for v in e1)) or 1.0
+    e1 = [v / l1 for v in e1]
+    e2 = [d[1] * e1[2] - d[2] * e1[1], d[2] * e1[0] - d[0] * e1[2], d[0] * e1[1] - d[1] * e1[0]]
+    centres = []
+    for k in range(stations + 1):
+        f = k / stations
+        c = [p0[i] + d[i] * length * f + up[i] * bend * length * f * f for i in range(3)]
+        centres.append((c, r0 + (r1 - r0) * f))
+    for lod, nn in lods:
+        rings = []
+        for c, r in centres:
+            rings.append([tuple(c[i] + r * (math.cos(2 * math.pi * j / nn) * e1[i] + math.sin(2 * math.pi * j / nn) * e2[i])
+                                for i in range(3)) for j in range(nn)])
+        lod.loft(rings, mat="vegetation", uv=BranchUV(S.veg_uv("bark"), p0, d, e1, r0))
+    return centres[-1][0], centres[len(centres) // 2][0]
+
+
+def _unit(v):
+    l_ = math.sqrt(sum(x * x for x in v)) or 1.0
+    return [x / l_ for x in v]
+
+
+def tree_crown(U, name, trunk_top, base, branches, cell, lean, cluster, birch, reach=1.55):
+    """D102: primary branches up the trunk (golden-angle azimuths, rising, shorter towards the top), twigs off each,
+    foliage clusters (crossed cards) at the tips and along the branches. Render only (trunk collision stays)."""
+    tips = []
+    for i in range(branches):
+        f = i / max(1, branches - 1)
+        z = base + (trunk_top - base) * f
+        az = i * 2.39996 + 0.7 * h01(name, "baz", i)
+        out = 0.85 - 0.45 * f
+        d = _unit([math.cos(az) * out, math.sin(az) * out, lean + 0.35 * f])
+        ln = (2.2 - 1.2 * f) * (0.8 + 0.4 * h01(name, "bln", i))
+        hz = math.hypot(d[0], d[1]) or 1e-3
+        ln = min(ln, (reach - 0.55) / hz)                                       # crown inside the footprint
+        r0 = (0.055 - 0.03 * f) * (1.0 if birch else 1.25)
+        p0 = (0.0, 0.0, z)
+        lods = [(U["res0"], 6)] + ([(U["res1"], 4)] if i % 2 == 0 else [])
+        tip, mid = tree_branch(lods, p0, d, ln, r0, 0.012, bend=(0.25 if birch else -0.15 + 0.4 * h01(name, "bb", i)))
+        for j in range(2):                                                      # twigs (Res0)
+            ta = az + (0.9 if j else -0.9) + 0.3 * h01(name, "taz", i, j)
+            td = _unit([math.cos(ta) * 0.7, math.sin(ta) * 0.7, 0.55])
+            base_pt = mid if j == 0 else tip
+            room = reach - 0.15 - math.hypot(base_pt[0], base_pt[1])
+            tl = max(0.15, min(0.7 * ln * 0.5 + 0.2, room / 0.8))
+            ttip, _m = tree_branch([(U["res0"], 4)], base_pt, td, tl, 0.014, 0.006, stations=2, bend=0.2)
+        tips.append((tip, 1.0, i % 2 == 0))                                    # review L1: tips + mids only,
+        tips.append((mid, 0.75, False))                                          # L2: Res1 only on Res1 branches
+    if cluster:
+        for k, (p, sc, far) in enumerate(tips):
+            w = cluster * sc * (0.8 + 0.4 * h01(name, "cw", k))
+            w = max(0.3, min(w, 2 * (reach - math.hypot(p[0], p[1]))))         # card inside the footprint
+            plant_tuft(U, p[0], p[1], p[2] - w * 0.45, w, w * 0.9, cell, (name, "cl", k),
+                       lods=("res0", "res1") if far else ("res0",))
+
+
 class BarkLocal:
     """BarkUV for a trunk standing at (x, y) instead of the origin."""
 
@@ -3944,9 +4030,17 @@ def build_veg(name):
         plant_tuft(U, 0.0, 0.0, -0.15, 2.4, 0.9, "weeds", (name, "far"), lods=("res2",))
         veg_card(U, [(-1.2, 0.0, -0.15), (1.2, 0.0, -0.15), (1.2, 0.0, 0.7), (-1.2, 0.0, 0.7)], (0, -1, 0), "grass", ("res3",))
     elif name == "Veg_Bush":
-        for i in range(3):
-            plant_tuft(U, 0.25 * math.cos(i * 2.1), 0.25 * math.sin(i * 2.1), -0.1, 2.2, 2.0 + 0.4 * h01(name, i),
-                       "shrub", (name, i), lods=("res0", "res1") if i == 0 else ("res0",))
+        # D102: a domed bush - a core of crossed cards, a ring of lower ones leaning out, stems, a bramble skirt
+        plant_tuft(U, 0.0, 0.0, -0.1, 2.0, 2.1, "shrub", (name, "core"), lods=("res0", "res1"))
+        for i in range(6):
+            a = i * 1.047 + 0.4 * h01(name, "ba", i)
+            rr = 0.55 + 0.2 * h01(name, "br", i)
+            plant_tuft(U, rr * math.cos(a), rr * math.sin(a), -0.1, min(1.3 + 0.3 * h01(name, "bw", i), 2 * (1.25 - rr)),
+                       1.2 + 0.5 * h01(name, "bh", i), "shrub", (name, "ring", i), lods=("res0", "res1") if i % 3 == 0 else ("res0",))
+        for i in range(5):                                                    # stems
+            a = i * 1.257
+            tree_branch([(U["res0"], 4)], (0.05 * math.cos(a), 0.05 * math.sin(a), -0.1),
+                        _unit([0.35 * math.cos(a), 0.35 * math.sin(a), 1.0]), 1.1, 0.025, 0.008, stations=2, bend=0.1)
         plant_tuft(U, 0.0, 0.0, -0.1, 2.5, 0.9, "bramble", (name, "skirt"))
         plant_tuft(U, 0.0, 0.0, -0.1, 2.3, 2.2, "shrub", (name, "far"), lods=("res2",))
         veg_card(U, [(-1.1, 0.0, -0.1), (1.1, 0.0, -0.1), (1.1, 0.0, 2.1), (-1.1, 0.0, 2.1)], (0, -1, 0), "shrub", ("res3",))
@@ -3967,10 +4061,15 @@ def build_veg(name):
             kw = {"mat": "pen_wood"} if k == "fire" else {}
             U[k].prism(0.0, 0.0, r, -0.3, th * 0.8, n=6 if k != "shadow" else 4, **kw)
         cell = "birch_crown" if birch else "dead_branches"
-        levels = ((3.2, 3.0), (4.8, 3.6), (6.6, 3.0)) if birch else ((2.2, 3.8),)
-        for i, (z, h) in enumerate(levels):
-            plant_tuft(U, 0.15 * math.cos(i * 2.4), 0.15 * math.sin(i * 2.4), z, 2.4 + 0.5 * h01(name, i), h, cell, (name, i),
-                       lods=("res0", "res1") if i == 1 else ("res0",))
+        # D102: real branches (lofted, tapered, twigs) carrying foliage clusters; one inner volume card per crown
+        tree_crown(U, name, top * 0.97, 2.6 if birch else 1.7, 10 if birch else 8, cell, 0.45 if birch else 0.25,
+                   1.5 if birch else 0.0, birch)
+        if birch:
+            plant_tuft(U, 0.0, 0.0, 4.0, 2.6, 3.4, cell, (name, 1), lods=("res0", "res1"))
+        else:                                                                 # a few dead twig cards in the crown
+            for i, (z, h) in enumerate(((2.6, 2.4), (3.8, 2.0))):
+                plant_tuft(U, 0.2 * math.cos(i * 2.4), 0.2 * math.sin(i * 2.4), z, 2.2, h, cell, (name, i),
+                           lods=("res0", "res1") if i == 0 else ("res0",))
         plant_tuft(U, 0.0, 0.0, 2.8 if birch else 2.0, 2.8, 6.0 if birch else 4.0, cell, (name, "far"), lods=("res2",))
         veg_card(U, [(-1.4, 0.0, 2.8), (1.4, 0.0, 2.8), (1.4, 0.0, th), (-1.4, 0.0, th)], (0, -1, 0), cell, ("res3",))
         geo = U["geo"]

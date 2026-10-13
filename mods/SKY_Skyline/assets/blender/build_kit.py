@@ -360,14 +360,36 @@ def build_streetlight():
     return finish(L, 250.0)
 
 
+def _tube(lod, p0, p1, r, mat=None, uv=None, n=10):
+    """D102: round tube between two points (same as build_city.tube; build_city imports this module)."""
+    d = [p1[i] - p0[i] for i in range(3)]
+    ln = math.sqrt(sum(v * v for v in d)) or 1.0
+    d = [v / ln for v in d]
+    a = (0, 0, 1) if abs(d[2]) < 0.9 else (1, 0, 0)
+    u = [d[1] * a[2] - d[2] * a[1], d[2] * a[0] - d[0] * a[2], d[0] * a[1] - d[1] * a[0]]
+    un = math.sqrt(sum(v * v for v in u))
+    u = [v / un for v in u]
+    w = [d[1] * u[2] - d[2] * u[1], d[2] * u[0] - d[0] * u[2], d[0] * u[1] - d[1] * u[0]]
+    ring = [tuple(r * (math.cos(2 * math.pi * k / n) * u[i] + math.sin(2 * math.pi * k / n) * w[i]) for i in range(3))
+            for k in range(n)]
+    verts = [tuple(p0[i] + c[i] for i in range(3)) for c in ring] + [tuple(p1[i] + c[i] for i in range(3)) for c in ring]
+    faces = [tuple(range(n)), tuple(range(n, 2 * n))] + [(k, (k + 1) % n, n + (k + 1) % n, n + k) for k in range(n)]
+    lod.solid(verts, faces, mat, uv)
+
+
 def build_trafficlight():
     """5.8 m traffic light (D74 close-up pass): flanged foot with bolts, collared pole, push-button box,
     braced arm with its cable, signal head with backplate and three visors (atlas face), pedestrian head
     with a visor. Collision unchanged (pole + head)."""
     L = props_lods()
     face = UVRect(0, 2, (4.62, 4.62), (4.93, 5.58), S.atlas_uv("traffic"))
-    for k, n in (("res0", 8), ("res1", 6), ("res2", 4)):
-        L[k].prism(0.0, 0.0, 0.1, 0.0, 5.8, n=n, mat="rust", uv=UV_GREY)
+    # D102: tapered round pole (lofted, smoothed), round arm and brace, domed lenses under hooded visors
+    for k, n in (("res0", 16), ("res1", 8)):
+        L[k].loft([[(r_ * math.cos(2 * math.pi * j / n), r_ * math.sin(2 * math.pi * j / n), z_) for j in range(n)]
+                   for z_, r_ in ((0.0, 0.11), (1.2, 0.105), (3.6, 0.095), (5.8, 0.085))], mat="rust", uv=UV_GREY)
+    L["res2"].prism(0.0, 0.0, 0.1, 0.0, 5.8, n=4, mat="rust", uv=UV_GREY)
+    L["res0"].prism(0.0, 0.0, 0.095, 5.8, 5.83, n=16, mat="rust", uv=UV_RUST)              # pole cap
+    L["res0"].prism(0.0, 0.0, 0.05, 5.83, 5.86, n=12, mat="rust", uv=UV_RUST)
     L["res0"].prism(0.0, 0.0, 0.18, 0.0, 0.04, n=8, mat="rust", uv=UV_RUST)            # foot flange
     for i in range(4):
         a = math.pi / 4 + i * math.pi / 2
@@ -376,19 +398,30 @@ def build_trafficlight():
     for zz in (1.2, 3.6):
         L["res0"].prism(0.0, 0.0, 0.12, zz, zz + 0.06, n=8, mat="rust", uv=UV_RUST)   # collars
     L["res0"].box(-0.08, 0.08, -0.16, -0.1, 1.0, 1.25, mat="rust", uv=UV_BURNT)         # push-button box
+    for k, n in (("res0", 12), ("res1", 6)):
+        _tube(L[k], (0.07, 0.0, 5.675), (5.0, 0.0, 5.675), 0.07, "rust", UV_GREY, n=n)            # arm
     for k in ("res0", "res1"):
-        L[k].box(0.0, 5.0, -0.05, 0.05, 5.6, 5.75, mat="rust", uv=UV_GREY)
         L[k].box(4.6, 4.95, -0.17, 0.17, 4.6, 5.6, mat="rust", uv=UV_BURNT)
         L[k].quad([(4.62, -0.195, 4.62), (4.93, -0.195, 4.62), (4.93, -0.195, 5.58), (4.62, -0.195, 5.58)],
                   (0, -1, 0), "atlas", face)                                     # in front of the backplate (perf L)
-    _bar(L["res0"], (0.05, 0.0, 4.9), (1.8, 0.0, 5.6), 0.03, "rust", UV_GREY)        # arm brace
+    _tube(L["res0"], (0.08, 0.0, 4.9), (1.8, 0.0, 5.62), 0.03, "rust", UV_GREY, n=8)    # arm brace
     for k in ("res0", "res1"):
         L[k].box(4.5, 5.05, -0.19, -0.17, 4.5, 5.7, mat="rust", uv=UV_BURNT)            # backplate (thin, in front)
     _bar(L["res1"], (0.05, 0.0, 4.9), (1.8, 0.0, 5.6), 0.03, "rust", UV_GREY)           # Res1: brace too
-    for zz in (4.92, 5.22, 5.52):                                                 # visors over the three lamps
-        L["res0"].box(4.63, 4.92, -0.33, -0.19, zz - 0.02, zz, mat="rust", uv=UV_BURNT)
-        L["res0"].box(4.63, 4.65, -0.33, -0.19, zz - 0.22, zz, mat="rust", uv=UV_BURNT)
-        L["res0"].box(4.9, 4.92, -0.33, -0.19, zz - 0.22, zz, mat="rust", uv=UV_BURNT)
+    for zz in (4.92, 5.22, 5.52):                                                 # D102: domed lens + hood per lamp
+        cx, cz = 4.775, zz - 0.15
+        lens = [(cx + 0.105 * math.cos(2 * math.pi * j / 16), cz + 0.105 * math.sin(2 * math.pi * j / 16)) for j in range(16)]
+        L["res0"].extrude_y(lens, -0.225, -0.196, mat="atlas", uv=face)
+        for j in range(7):                                                        # half-round hood over the lens
+            a0_, a1_ = math.pi * j / 7, math.pi * (j + 1) / 7
+            pts = [(cx + 0.125 * math.cos(a), cz + 0.125 * math.sin(a)) for a in (a0_, a1_)] + \
+                  [(cx + 0.115 * math.cos(a), cz + 0.115 * math.sin(a)) for a in (a1_, a0_)]
+            L["res0"].extrude_y(pts, -0.36, -0.196, mat="rust", uv=UV_BURNT)
+    for x in (4.55, 4.98):                                                        # clamp bands on the arm
+        L["res0"].box(x - 0.025, x + 0.025, -0.08, 0.08, 5.6, 5.75, mat="rust", uv=UV_RUST)
+    L["res0"].box(0.11, 0.33, -0.12, 0.12, 0.45, 1.0, mat="rust", uv=UV_BURNT)              # controller box
+    L["res0"].box(0.33, 0.335, -0.11, 0.11, 0.47, 0.98, mat="rust", uv=UV_GREY)             # its door
+    L["fire"].box(0.07, 0.33, -0.12, 0.12, 0.45, 1.0, mat="pen_metal")                      # review: stops bullets (into the pole)
     cable = [(0.0, 0.06, 5.55), (2.5, 0.07, 5.45), (4.6, 0.06, 5.55)]                 # sagging cable under the arm
     for p0, p1 in zip(cable, cable[1:]):
         _bar(L["res0"], p0, p1, 0.008, "rust", UV_BURNT)
@@ -539,14 +572,23 @@ def build_planter():
     dead shrub (trunk, forked branches, a few leaf cards) gone to weeds, a cigarette-butt litter of chips."""
     L = props_lods()
     uv_soil = UVBand(S.MATERIALS["concrete"]["bands"]["board"], 1.4)
-    for k in ("res0", "res1", "res2"):
+    # D102: rounded-corner body with a flared foot (lofted, smoothed); soil sits below the rim
+    def rsq(z_, h_, n=32):
+        out = []
+        for j in range(n):
+            t = 2 * math.pi * j / n
+            c_, s_ = math.cos(t), math.sin(t)
+            out.append((h_ * math.copysign(abs(c_) ** 0.25, c_), h_ * math.copysign(abs(s_) ** 0.25, s_), z_))
+        return out
+    L["res0"].loft([rsq(z_, h_) for z_, h_ in ((0.0, 0.79), (0.07, 0.79), (0.1, 0.75), (0.6, 0.75))], mat="concrete",
+                   uv=UV_CONC_REVEAL)
+    L["res0"].hquad(-0.68, 0.68, -0.68, 0.68, 0.605, mat="concrete", uv=uv_soil)          # inside the rim
+    for k in ("res1", "res2"):
         L[k].box(-0.75, 0.75, -0.75, 0.75, 0.0, 0.6, mat="concrete", uv=UV_CONC_REVEAL, skip=("-z", "+z"))
         L[k].hquad(-0.7, 0.7, -0.7, 0.7, 0.55, mat="concrete", uv=uv_soil)
     for k in ("res0", "res1"):                                                   # rolled rim + chamfered foot
         for (a0, a1, b0, b1) in ((-0.8, 0.8, -0.8, -0.68), (-0.8, 0.8, 0.68, 0.8), (-0.8, -0.68, -0.68, 0.68), (0.68, 0.8, -0.68, 0.68)):
             L[k].box(a0, a1, b0, b1, 0.6, 0.66, mat="concrete", uv=UV_CONC_REVEAL)
-    for (a0, a1, b0, b1) in ((-0.79, 0.79, -0.79, -0.75), (-0.79, 0.79, 0.75, 0.79), (-0.79, -0.75, -0.75, 0.75), (0.75, 0.79, -0.75, 0.75)):
-        L["res0"].box(a0, a1, b0, b1, 0.0, 0.08, mat="concrete", uv=UV_CONC_REVEAL)
     L["res0"].quad([(0.2, -0.752, 0.1), (0.24, -0.752, 0.1), (0.36, -0.752, 0.58), (0.32, -0.752, 0.58)], (0, -1, 0),
                    "concrete", uv_soil)                                          # crack (dark board band: no extra section)
     trunk = [(0.05, 0.0, 0.55), (0.02, 0.03, 0.95), (-0.05, 0.02, 1.3)]           # dead shrub

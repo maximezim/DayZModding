@@ -212,7 +212,7 @@
  "sky_planter.p3d": {
   "fire": 12,
   "geo": 12,
-  "res0": 188,
+  "res0": 384,
   "res1": 90,
   "res2": 14,
   "shadow": 12
@@ -364,10 +364,10 @@
   "shadow": 48
  },
  "sky_trafficlight.p3d": {
-  "fire": 32,
+  "fire": 44,
   "geo": 20,
-  "res0": 442,
-  "res1": 106,
+  "res0": 1046,
+  "res1": 130,
   "res2": 36,
   "shadow": 20
  },
