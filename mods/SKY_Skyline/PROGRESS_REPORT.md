@@ -619,3 +619,9 @@ The phone booths and bus shelters had black glass up close (the far-distance gla
 dirty, with shards left where a pane is smashed. The booth has red panels, a TELEFON-AVTOMAT sign, a proper coin phone
 and a hanging handset; the shelter has framed panels, a bench on cast brackets and a gutter; billboards stand on
 concrete footings with cross-bracing. Where you can walk or shoot through now matches what you see.
+
+## 55. Office desks, lockers, extinguishers (D106)
+
+The office desks on every Tower A floor get a rounded top, a drawer pedestal, a slim monitor, a real keyboard, a
+mouse, a mug and a paper ream; lockers get door numbers; the extinguisher behind the glass is round. Nothing new to
+hide in, and loot still spawns on both ends of the desk.

@@ -167,26 +167,54 @@ def build_reception_desk():
 
 
 def build_desk():
+    """1.6 m office desk (D106 close-up pass): laminate top with rounded front and back edges, steel end panels on
+    levelling feet, a modesty panel, a three-drawer pedestal (in the collision: no pocket under the top), a slim
+    monitor with a tapered back, neck and oval foot, a keyboard with key rows, a soft mouse, a mug and a paper
+    stack. Loot points (x = +-0.5, y = -0.15) stay clear."""
     L = props_lods()
     lam, met = {"mat": "wood", "uv": UV_LAMINATE}, {"mat": "metal", "uv": UV_PAINT}
-    solid(L, ALL, (-0.8, 0.8, -0.4, 0.4, 0.72, 0.75), lam, "wood")                  # top
+    solid(L, ("res1", "res2", "geo", "fire"), (-0.8, 0.8, -0.4, 0.4, 0.72, 0.75), lam, "wood")      # top
+    r0 = L["res0"]
+    top = [(-0.4, 0.725), (-0.395, 0.72), (0.395, 0.72), (0.4, 0.725), (0.4, 0.745), (0.395, 0.75), (-0.395, 0.75), (-0.4, 0.745)]
+    r0.extrude_x(top, -0.8, 0.8, **lam)                                             # D106: eased edges (smoothed)
     for x in (-0.78, 0.76):
         solid(L, ("res1", "geo", "fire"), (x, x + 0.02, -0.38, 0.38, 0.0, 0.72), met, "metal")
-    r0 = L["res0"]
     for x in (-0.78, 0.76):                                                        # D76: end panels on levelling feet
         r0.box(x, x + 0.02, -0.38, 0.38, 0.03, 0.72, skip=("+z",), **met)
         for y in (-0.34, 0.3):
             r0.box(x - 0.005, x + 0.025, y, y + 0.04, 0.0, 0.03, skip=("-z",), **BLACK)
-    r0.box(-0.76, 0.76, 0.3, 0.32, 0.25, 0.72, **met)                               # modesty panel
-    r0.box(-0.8, 0.8, -0.402, -0.4, 0.72, 0.75, skip=("+y",), **BLACK)              # ABS edge band
-    # monitor on a stand, keyboard, mouse, cable grommet (loot points at x = +-0.5 stay clear)
-    r0.box(-0.25, 0.25, 0.1, 0.13, 0.86, 1.16, **BLACK)
-    face_screen(L, ("res0",), -0.235, 0.235, 0.875, 1.145, 0.099)
-    _bar(r0, (0.0, 0.15, 0.75), (0.0, 0.14, 0.9), 0.018, "metal", UV_STEEL)
-    r0.box(-0.1, 0.1, 0.06, 0.24, 0.75, 0.76, **met)
-    r0.box(-0.22, 0.22, -0.26, -0.1, 0.75, 0.77, **BLACK)
-    r0.box(0.3, 0.36, 0.0, 0.1, 0.75, 0.775, **BLACK)                               # mouse: > 0.2 m from the loot point (security D76 L)
-    r0.hquad(0.565, 0.635, 0.245, 0.315, 0.752, mat="wood", uv=UV_SCREEN)            # cable grommet
+    r0.box(-0.76, 0.76, 0.3, 0.32, 0.25, 0.72, skip=("+z",), **met)                 # modesty panel
+    # D106: drawer pedestal against the right end panel (render + collision)
+    px0, px1 = 0.32, 0.76
+    solid(L, ("res1", "geo", "fire"), (px0, px1, -0.36, 0.3, 0.03, 0.72), met, "metal")
+    r0.box(px0, px1, -0.36, 0.3, 0.03, 0.72, skip=("+z", "+x"), **met)        # back face kept (review M: no see-through slot)
+    for i, (z0, z1) in enumerate(((0.05, 0.33), (0.35, 0.52), (0.54, 0.7))):       # drawer fronts proud of the carcass
+        r0.box(px0 + 0.01, px1 - 0.01, -0.375, -0.36, z0, z1, skip=("+y",), **met)
+        zc = z1 - 0.05
+        _bar(r0, (px0 + 0.14, -0.39, zc), (px1 - 0.14, -0.39, zc), 0.008, "metal", UV_STEEL)        # bar pull
+        for xh in (px0 + 0.14, px1 - 0.14):
+            r0.box(xh - 0.006, xh + 0.006, -0.39, -0.375, zc - 0.006, zc + 0.006, skip=("+y",), **{"mat": "metal", "uv": UV_STEEL})
+    # D106 monitor: thin bezel, tapered back, round neck, oval foot
+    r0.box(-0.25, 0.25, 0.1, 0.115, 0.86, 1.16, **BLACK)
+    face_screen(L, ("res0",), -0.24, 0.24, 0.87, 1.15, 0.099)
+    back = [[(x_, y_, z_) for (x_, z_) in ((-hw_, z0_), (hw_, z0_), (hw_, z1_), (-hw_, z1_))]
+            for (y_, hw_, z0_, z1_) in ((0.112, 0.24, 0.87, 1.15), (0.16, 0.15, 0.93, 1.09))]   # starts inside the bezel
+    r0.loft(back, **BLACK)
+    _bar(r0, (0.0, 0.17, 0.765), (0.0, 0.15, 0.95), 0.016, "metal", UV_STEEL)
+    foot = [[(0.11 * math.cos(2 * math.pi * k / 12), 0.17 + 0.07 * math.sin(2 * math.pi * k / 12), z_) for k in range(12)]
+            for z_ in (0.75, 0.765)]
+    r0.loft(foot, mat="metal", uv=UV_STEEL)
+    # keyboard: sloped case with four key rows; soft mouse; mug; paper stack
+    r0.extrude_x([(-0.26, 0.75), (-0.1, 0.75), (-0.1, 0.772), (-0.26, 0.762)], -0.22, 0.22, **BLACK)
+    for j in range(4):
+        y0 = -0.245 + j * 0.035
+        r0.box(-0.2, 0.2, y0, y0 + 0.027, 0.762 + j * 0.0025, 0.768 + j * 0.0025, skip=("-z",), **{"mat": "metal", "uv": UV_STEEL})
+    soft(r0, "y", 0.0, 0.11, 0.3, 0.36, 0.75, 0.778, UV_SCREEN, n=6, end=0.6, mat="wood")   # > 0.2 m from the loot point
+    alu = {"mat": "metal", "uv": UV_ALU}                                          # mug + papers on metal: 2 sections (perf M)
+    r0.prism(0.22, 0.28, 0.04, 0.75, 0.85, n=12, **alu)                                         # mug
+    _bar(r0, (0.26, 0.28, 0.83), (0.28, 0.28, 0.79), 0.008, "metal", UV_ALU)
+    r0.box(-0.42, -0.21, 0.08, 0.38, 0.75, 0.765, skip=("-z",), **alu)                         # paper ream (one box: no z-fight)
+    r0.hquad(-0.635, -0.565, 0.245, 0.315, 0.752, mat="wood", uv=UV_SCREEN)            # cable grommet
     L["res1"].box(-0.25, 0.25, 0.1, 0.15, 0.75, 1.1, **met)                        # Res1 monitor block
     face_screen(L, ("res1",), -0.24, 0.24, 0.77, 1.08, 0.099)
     return finish(L, 60.0, shadow=False)                    # interior_small (perf batch-3 M3)
@@ -339,6 +367,8 @@ def build_locker():
                 L["res0"].box(x0 + 0.06, x0 + 0.24, -0.278, -0.27, z, z + 0.012, skip=("+y", "-x", "+x"), sel=[name], **paint)
         L["res0"].box(x0 + 0.245, x0 + 0.275, -0.285, -0.27, 0.95, 1.12, skip=("+y",), sel=[name], **steel)
         L["res0"].box(x0 + 0.1, x0 + 0.2, -0.274, -0.27, 1.32, 1.37, skip=("+y",), sel=[name], **steel)
+        L["res0"].box(x0 + 0.12, x0 + 0.18, -0.275, -0.27, 1.62 + 0.1, 1.66 + 0.1, skip=("+y",), sel=[name],
+                      **{"mat": "metal", "uv": UV_PAINT})                          # D106: number plate
     L["res0"].box(-0.45, 0.45, -0.28, -0.25, 0.0, 0.05, skip=("+y", "-z"), mat="rust", uv=UV_BLACK)   # plinth
     return finish(L, 120.0, hull=True)
 
@@ -471,9 +501,10 @@ def build_extinguisher_cabinet():
     L["res1"].prism(0.0, -0.12, 0.07, 0.05, 0.55, n=6, **red)
     # D76 extinguisher: body, domed shoulder, valve head, lever, hose to a horn on a clip
     r0 = L["res0"]
-    r0.prism(0.0, -0.12, 0.07, 0.04, 0.47, n=10, **red)
-    r0.prism(0.0, -0.12, 0.05, 0.47, 0.51, n=10, **red)
-    r0.box(-0.02, 0.02, -0.14, -0.1, 0.51, 0.57, **{"mat": "metal", "uv": UV_STEEL})
+    rings = [[(r_ * math.cos(2 * math.pi * k / 12), -0.12 + r_ * math.sin(2 * math.pi * k / 12), z_) for k in range(12)]
+             for (z_, r_) in ((0.05, 0.062), (0.06, 0.07), (0.45, 0.07), (0.49, 0.056), (0.51, 0.03))]
+    r0.loft(rings, **red)                                                         # D106: round body, domed shoulder
+    r0.prism(0.0, -0.12, 0.018, 0.51, 0.57, n=8, mat="metal", uv=UV_STEEL)          # valve head
     _bar(r0, (0.0, -0.12, 0.575), (0.07, -0.12, 0.56), 0.008, "metal", UV_STEEL)
     _bar(r0, (0.02, -0.12, 0.54), (0.11, -0.13, 0.45), 0.009, "rust", UV_BLACK)
     _bar(r0, (0.11, -0.13, 0.45), (0.11, -0.13, 0.2), 0.009, "rust", UV_BLACK)
