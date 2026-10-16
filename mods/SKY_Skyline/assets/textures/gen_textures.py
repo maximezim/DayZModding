@@ -1317,8 +1317,8 @@ def signs3(size, out):
     save(to_rgb(np.clip(arr, 0, 1)), out, "sky_signs3_co")
 
 
-SIGNS4 = ["UNIVERSAM  RASSVET", "KINO  OKTYABR", "TC  GALAKTIKA", "PIVNAYA  No 1", "FC  TORPEDO", "MOLOKO", "REMONT  OBUVI",
-          "SBERKASSA"]                                       # 6-8: spare bands for later variants
+SIGNS4 = ["UNIVERSAM  RASSVET", "KINO  OKTYABR", "TC  GALAKTIKA", "PIVNAYA  No 1", "FC  TORPEDO", "TELEFON-AVTOMAT", "REMONT  OBUVI",
+          "SBERKASSA"]                                       # 6: phone booth (D105); 7-8: spare bands
 
 
 def signs4(size, out):

@@ -24,12 +24,12 @@
   "res2": 24
  },
  "sky_billboard.p3d": {
-  "fire": 36,
-  "geo": 36,
-  "res0": 562,
-  "res1": 136,
+  "fire": 60,
+  "geo": 60,
+  "res0": 666,
+  "res1": 156,
   "res2": 34,
-  "shadow": 36,
+  "shadow": 60,
   "view": 12
  },
  "sky_busstop.p3d": {

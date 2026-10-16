@@ -613,3 +613,9 @@ removes the trees and houses that would be inside the city, and writes everythin
 map. It runs in the cloud on test data (`reviews/img/d104_mapper_demo.png`). The capture, the Terrain Builder import
 and whether we may publish a map made this way (P80) are checked on Windows (TESTING §62).
 
+## 54. Phone booths, bus stops and billboards close-up (D105)
+
+The phone booths and bus shelters had black glass up close (the far-distance glass texture); now the glass is clear and
+dirty, with shards left where a pane is smashed. The booth has red panels, a TELEFON-AVTOMAT sign, a proper coin phone
+and a hanging handset; the shelter has framed panels, a bench on cast brackets and a gutter; billboards stand on
+concrete footings with cross-bracing. Where you can walk or shoot through now matches what you see.

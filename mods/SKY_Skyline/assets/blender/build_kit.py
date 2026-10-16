@@ -850,7 +850,7 @@ def build_billboard():
         L["res0"].box(x, x + 0.2, -0.1, -0.08, 0.0, 4.0, mat="rust", uv=UV_GREY)
         L["res0"].box(x, x + 0.2, 0.08, 0.1, 0.0, 4.0, mat="rust", uv=UV_GREY)
         L["res0"].box(x + 0.09, x + 0.11, -0.08, 0.08, 0.0, 4.0, mat="rust", uv=UV_GREY)
-        L["res0"].box(x - 0.1, x + 0.3, -0.2, 0.2, 0.0, 0.05, mat="rust", uv=UV_RUST)       # base plate
+        L["res0"].box(x - 0.1, x + 0.3, -0.2, 0.2, 0.12, 0.15, mat="rust", uv=UV_RUST, skip=("-z",))  # base plate (on the footing)
         L["res1"].box(x, x + 0.2, -0.1, 0.1, 0.0, 4.0, mat="rust", uv=UV_GREY)
         L["res2"].quad([(x, 0.0, 0.0), (x + 0.2, 0.0, 0.0), (x + 0.2, 0.0, 4.0), (x, 0.0, 4.0)], (0, -1, 0), "rust", UV_GREY, double=True)
     for x in (-2.35, -2.15):                                                     # ladder on the left post
@@ -872,9 +872,22 @@ def build_billboard():
         x = -2.95 + i * 0.98
         L["res0"].box(x - 0.02, x + 0.02, -0.75, -0.71, 3.92, 4.9, mat="rust", uv=UV_GREY)
     for x in (-1.8, 1.8):                                                        # lamp arms + heads
-        _bar(L["res0"], (x, 0.1, 7.0), (x, -0.9, 7.35), 0.025, "rust", UV_GREY)
-        for k in ("res0", "res1"):
-            L[k].box(x - 0.2, x + 0.2, -1.1, -0.8, 7.28, 7.42, mat="rust", uv=UV_BURNT)
+        _tube(L["res0"], (x, 0.1, 7.0), (x, -0.9, 7.35), 0.025, "rust", UV_GREY, n=8)
+        hood = [[(x + hx_ * c, -0.95 + hy_ * sgn, z_) for (c, sgn) in ((1, 1), (-1, 1), (-1, -1), (1, -1))]
+                for (z_, hx_, hy_) in ((7.42, 0.18, 0.12), (7.38, 0.21, 0.15), (7.28, 0.23, 0.17))]
+        L["res0"].loft(hood, mat="rust", uv=UV_BURNT, caps=False)                 # D105: tapered reflector hood, open below
+        L["res0"].quad(hood[0], (0, 0, 1), "rust", UV_BURNT)                      # its top
+        L["res0"].quad([(x - 0.2, -1.1, 7.3), (x + 0.2, -1.1, 7.3), (x + 0.2, -0.8, 7.3), (x - 0.2, -0.8, 7.3)],
+                       (0, 0, -1), "lamp", UV_GREY)                               # lens inside the hood
+        L["res1"].box(x - 0.2, x + 0.2, -1.1, -0.8, 7.28, 7.42, mat="rust", uv=UV_BURNT)
+    for x in (-2.1, 1.9):                                                        # D105: concrete footings (Res1: rust, no extra section)
+        for k in ("res0", "res1", "geo", "fire"):
+            kw = {"mat": "pen_concrete"} if k == "fire" else ({} if k == "geo" else {"mat": "concrete" if k == "res0" else "rust",
+                                                                                    "uv": UVWorld(2.0) if k == "res0" else UV_GREY,
+                                                                                    "skip": ("-z",)})
+            L[k].box(x - 0.25, x + 0.45, -0.35, 0.35, -0.3, 0.12, **kw)
+    for (z0, z1) in ((0.6, 3.4), (3.4, 0.6)):                                    # D105: X-bracing between the posts
+        _tube(L["res0"], (-1.9, 0.0, z0), (1.9, 0.0, z1), 0.02, "rust", UV_GREY, n=6)
     for k in ("res0", "res1"):                                                   # poster frame
         for (a0, a1, b0, b1) in ((-3.05, 3.05, 3.95, 4.05), (-3.05, 3.05, 6.95, 7.05), (-3.05, -2.95, 4.0, 7.0), (2.95, 3.05, 4.0, 7.0)):
             L[k].box(a0, a1, -0.14, -0.1, b0, b1, mat="rust", uv=UV_GREY)

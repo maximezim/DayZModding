@@ -782,7 +782,7 @@ SIGN_MAT.update({k: "signs3" for k in SIGN3_NAMES})
 SIGN_BAND.update({k: (i / float(len(SIGN3_NAMES)), (i + 1) / float(len(SIGN3_NAMES))) for i, k in enumerate(SIGN3_NAMES)})
 # D69 venue variant sign sheet (gen_textures.signs4; band order = SIGNS4 there)
 MATERIALS.update({"signs4": {"rvmat": rvmat("sky_signs4"), "co": tex("sky_signs4_co")}})
-SIGN4_NAMES = ["hyper2", "kino2", "mall2", "bar2", "club2", "spare4_6", "spare4_7", "spare4_8"]   # 8 x 128 px bands (perf L)
+SIGN4_NAMES = ["hyper2", "kino2", "mall2", "bar2", "club2", "phone", "spare4_7", "spare4_8"]   # 8 x 128 px bands (perf L)
 SIGN_MAT.update({k: "signs4" for k in SIGN4_NAMES})
 SIGN_BAND.update({k: (i / float(len(SIGN4_NAMES)), (i + 1) / float(len(SIGN4_NAMES))) for i, k in enumerate(SIGN4_NAMES)})
 # Night light per archetype ("light"): hyper = cold, over-bright, also on by day (idea 4: "une lumiere
