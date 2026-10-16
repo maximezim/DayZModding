@@ -8,6 +8,8 @@ for f in $staged; do
   case "$lf" in
     *.biprivatekey|*.bisign|*.bikey|*.pbo|*.ebo|_handoff/*|*.bundle|build/*|*.adm|*.rpt|*.mdmp)
       echo "pre-commit: refusing to commit '$f' (key/build artifact or server log)." >&2; fail=1 ;;
+    */terrain/work/*|*sky_capture/*|*_heights.txt|*_surfaces.txt|*_objects.txt)   # D104: map-derived terrain data (P80)
+      echo "pre-commit: refusing to commit map-derived terrain data '$f' (keep it in terrain/work/)." >&2; fail=1 ;;
     workspace.config.json|server/serverdz.*.cfg)
       echo "pre-commit: refusing to commit local config '$f'." >&2; fail=1 ;;
   esac

@@ -603,3 +603,13 @@ corners. Trees still only block you at the trunk, and they take the same space a
 The street lights have a round arm and a smooth cobra-head lamp, the jersey barriers are one smooth piece with
 chamfered ends, and the wheeled bins have pressed ribs, a rolled lip and lid hinges. Nothing changes in how they block
 you.
+
+## 53. Terrain mapper (D104)
+
+You can now take a piece of a real DayZ map (for example the area of Chernarus around our test city) and reshape it
+for our cities, without touching the game's files. A server-side capture reads the ground heights, ground types and
+map objects of the area. A tool then flattens a pad under the city, grades a road to it, paints concrete and gravel,
+removes the trees and houses that would be inside the city, and writes everything Terrain Builder needs to make a new
+map. It runs in the cloud on test data (`reviews/img/d104_mapper_demo.png`). The capture, the Terrain Builder import
+and whether we may publish a map made this way (P80) are checked on Windows (TESTING §62).
+

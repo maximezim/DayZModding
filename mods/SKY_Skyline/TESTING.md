@@ -1050,6 +1050,22 @@ footprint, layouts unchanged).
 | LB-01 | Tower A lobby (A and B): walk round the reception, lounge, mailboxes, benches, bins | Detailed furniture; no pocket behind the sofa or bins; loot points and the keycard door clear | screenshots | | |
 | SP-01 | Tower A apartment / office floors: sit on and look at a sofa, a bed and a cubicle up close (D101) | Soft cushions, mattress, duvet and pillow (no faceted wedges), a chair in each cubicle; nothing to hide your head in on the sofa | screenshots | | |
 
+## 62. Terrain mapper (D104)
+
+Map-derived data stays on this machine (P80). Use the diag server on a VANILLA mission (no SKY city in
+objectSpawnersArr) with no players connected. The capture deletes the request file when it starts.
+
+| ID | Steps | Expected | Evidence | Diag | Ded |
+|---|---|---|---|---|---|
+| TM-01 | Copy `terrain/projects/capture_request_cher_ne.json` to `server\profiles\diag-server\SKY_survey_request.json` with `x1` / `z1` reduced to a 500 m square, start the diag server only, then repeat with the full request | Script log: "terrain capture 'cher_ne' started" then "written"; the request file is gone; `SKY_capture\cher_ne_{heights,surfaces,objects}.txt` + `_meta.json` with `"complete": true`; no long-frame warnings in the RPT (P76, P81) | log lines, capture time, file sizes | | |
+| TM-02 | `python mods\SKY_Skyline\terrain\terrain_mapper.py --project mods\SKY_Skyline\terrain\projects\chernarus_skyline.yaml` | Exit 0; `terrain\work\sky_cher_ne\report.md` gates pads_flat / road_grades / tile_surfaces True; the preview shows the pad under the city and the road | report.md, preview.png | | |
+| TM-03 | In DayZDiag, stand at 5 spots of the capture (open field, slope, road, river bank, town) and compare the ground height with the captured value (`objects_world.csv` / heightmap) | Within 0.05 m at `cell` = the native grid (P81) | 5 pairs | | |
+| TM-04 | Terrain Builder: new project 2560 m, 1024 x 1024 at 2.5 m; import `heightmap.asc`, `sat_lco.png`, `mask_lco.png` with `layers.cfg`; generate layers | Imports at the right place and height; layer rvmats resolve (P77); no "too many surfaces" tile warning (P78, P79) | screenshots, TB log | | |
+| TM-05 | Terrain Builder: import `objects_import.txt` (after adding the SKY and vanilla P3Ds to the template library) | Every template resolves; SKY streets flush with the pad; vanilla trees and houses on the ground, none inside the pad (P79) | count of unresolved templates | | |
+| TM-06 | Build the `.wrp` (`Build-Mod.ps1` on the terrain PBO), CfgWorlds, a mission; walk the city pad, the embankment and the blend | Pad flat under the streets, no seams or floating objects at the pad edge, embankment slopes walkable where intended | screenshots | | |
+| TM-07 | Drive the `south_access` road and the pad streets | Grade feels like a road (<= 8 %), no bumps at the pad joint | | | |
+| TM-08 | Licensing (P80): read the current DayZ Tools EULA / Bohemia modding guidance before sharing a mapped terrain | Written answer recorded in DECISIONS; until then nothing map-derived is committed or uploaded | link / quote | | |
+
 ## Windows session log (2026-10-09)
 
 Chronological record for the cloud session: what was run on the Windows workstation, the result, and anything that

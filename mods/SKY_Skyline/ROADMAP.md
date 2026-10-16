@@ -53,7 +53,8 @@ Rules that do not change (CLAUDE.md):
 | **D101** soft furnishings | assessment of the remaining box-like assets; lofted sofa / bed upholstery, cubicle chair | built-unverified (TESTING SP-01) |
 | **D102** trees + street props | lofted branches and leaf clusters on birch / dead tree, domed bush, traffic light and planter close-up | built-unverified (TESTING TP-01) |
 | **D103** street props | street light, jersey barrier, dumpster close-up | built-unverified (TESTING TP-02) |
-| **T2** terrain | survey a site or build the custom terrain (Terrain Builder import of `terrain/out`, P11), open the metro hatches. **Custom terrain for the metro and sewers is an open TODO, see the section below** | planned (after T1) |
+| **D104** terrain mapper | in-game capture of a vanilla map region (`SKY_TerrainCapture.c`) + `terrain/terrain_mapper.py`: flat pads under the cities, graded roads, painted surfaces, Terrain Builder inputs (`terrain/README.md`) | built-unverified (TESTING §62, P76-P81) |
+| **T2** terrain | survey a site or build the custom terrain (Terrain Builder import of `terrain/out`, P11, or of a mapped vanilla region: D104 terrain mapper), open the metro hatches. **Custom terrain for the metro and sewers is an open TODO, see the section below** | planned (after T1) |
 | **T3** perf | FPS protocol, server perf probe (B11), merged furniture if needed (D43) | planned (after T1) |
 
 ## The 23 ideas
@@ -129,7 +130,8 @@ terrain surface, a vanilla heightmap cannot be cut, and the generator refuses `u
 
 What to do, in order:
 1. User decides the map name and size (the generator default is 1024 x 1024 m at 1 m, city plateau at 120 m). Never start without it.
-2. Generate the sources: `python placement/sky_layout.py --layout placement/citylife_template.yaml --out placement/out_citylife` then
+2. Generate the sources. For a mapped vanilla region (D104): capture it and run `terrain/terrain_mapper.py` (`terrain/README.md`, the
+   project YAML takes the layout's `underground_trenches.json` too). For an original map: `python placement/sky_layout.py --layout placement/citylife_template.yaml --out placement/out_citylife` then
    `python terrain/gen_terrain.py` (heightmap, masks, trenches under every sewer and metro piece, `objects_terrain.csv`).
 3. Terrain Builder: import heightmap, masks, layers, objects (P11, P28). Build the `.wrp` through the PBO pipeline, add CfgWorlds,
    a mission folder with its own CE files, the navmesh.

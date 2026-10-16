@@ -5,6 +5,7 @@
 		{ "label": "site1", "center": [x, z], "yaw": 0, "halfW": 13, "halfD": 13,
 		  "step": 2.0, "exportRadius": 40 }
 	"mode": "scan" runs the whole-map terrain scan instead (SKY_TerrainScan.c; "center" is still required, any value).
+	"mode": "capture" captures heights, surfaces and map objects for the terrain mapper (SKY_TerrainCapture.c, D104).
 	Start the server (with the tower spawned via objectSpawnersArr if you also want
 	loot positions). After ~15 s it writes $profile:SKY_survey_result.json with:
 	  - ground height samples over the (rotated) footprint (SurfaceY)
@@ -22,7 +23,7 @@ class SKY_SurveyRequest
 	float halfD;
 	float step;
 	float exportRadius;
-	string mode;				// "" = site survey; "scan" = terrain scan (SKY_TerrainScan.c)
+	string mode;				// "" = site survey; "scan" = terrain scan (SKY_TerrainScan.c); "capture" = SKY_TerrainCapture.c
 	float x0;
 	float z0;
 	float x1;
@@ -30,6 +31,9 @@ class SKY_SurveyRequest
 	float win;
 	float maxRelief;
 	int top;
+	float cell;				// capture grid (m), 0 = 7.5
+	int surfaces;				// capture: 1 = also write the surface grid
+	int objects;				// capture: 1 = also write the map objects
 }
 
 class SKY_SurveyObject
@@ -71,6 +75,8 @@ class SKY_SiteSurvey
 		}
 		if (req.mode == "scan")
 			SKY_TerrainScan.Start(req);
+		else if (req.mode == "capture")
+			SKY_TerrainCapture.Start(req);
 		else
 			Run(req);
 	}

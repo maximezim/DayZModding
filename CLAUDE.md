@@ -14,7 +14,8 @@ mods/<Mod>/                 mod sources (one folder per mod)
   economy/                  CE files shipped with the mod (types.xml ...), never merged into vanilla
   assets/                   manifest.yaml, generator scripts (Blender/Pillow), MANUAL_STEPS.md (not packed)
   placement/                layout.yaml -> objectSpawnersArr JSON (+ survey validation)
-  terrain/                  optional: heightmap/mask generators for a custom terrain (MOD_DEVELOPMENT_GUIDE section 4.3)
+  terrain/                  optional: heightmap/mask generators for a custom terrain (MOD_DEVELOPMENT_GUIDE section 4.3);
+                            terrain_mapper.py edits a captured vanilla region (outputs in git-ignored terrain/work/)
 templates/ModTemplate/      empty skeleton (CfgPatches only) used by New-Mod.ps1 and smoke tests
 tools/lib/DzCommon.psm1     shared helpers: config, Steam/tool detection, dry-run process runner
 tools/setup/                install / detect / work drive / keys / test server / smoke test
@@ -53,6 +54,7 @@ Machine-specific paths go in `workspace.config.json` (git-ignored, copy of
 | Build + diag server + client | `tools\build\Build-And-Run.ps1 -ModName <Mod> [-ServerModName <Srv>] -FilePatching` |
 | Build + dedicated (signed) | `tools\build\Build-And-Run.ps1 -ModName <Mod> -Mode Dedicated` |
 | SKY assets (textures -> PAA, optional P3D re-export, configs, checks) | `mods\SKY_Skyline\assets\Build-SkyAssets.ps1 [-Models] [-Blender <exe>] [-Backend native\|atb]` |
+| Terrain mapper (capture a vanilla region, flatten pads, Terrain Builder inputs) | `python mods\SKY_Skyline\terrain\terrain_mapper.py --project mods\SKY_Skyline\terrain\projects\chernarus_skyline.yaml` |
 | Launch only | `tools\launch\Start-DiagLocal.ps1 -Mods <Mod>` / `tools\launch\Start-DedicatedServer.ps1 -Mods <Mod> -ServerMods <Srv>` |
 
 P3D export: the SKY generators write MLOD with `assets/blender/p3dwriter.py` (plain Python, no Blender add-on; D60);

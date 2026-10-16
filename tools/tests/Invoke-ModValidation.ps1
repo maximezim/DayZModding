@@ -246,6 +246,8 @@ elseif (Test-Path -LiteralPath (Join-DzPath $modDir 'assets' 'check_assets.py'))
     Invoke-DzCheck 'gen_economy --check'  $Python @((Join-DzPath $modDir 'economy' 'gen_economy.py'), '--check')
     Invoke-DzCheck 'check_assets'         $Python @((Join-DzPath $modDir 'assets' 'check_assets.py'))
     Invoke-DzCheck 'placement self-test'  $Python @((Join-DzPath $modDir 'placement' 'tests' 'test_sky_layout.py'))
+    $tmTest = Join-DzPath $modDir 'terrain' 'tests' 'test_terrain_mapper.py'
+    if (Test-Path -LiteralPath $tmTest) { Invoke-DzCheck 'terrain mapper self-test' $Python @($tmTest) }
     if (Test-Path -LiteralPath (Join-DzPath $modDir 'assets' 'city_progress.py')) {
         Invoke-DzCheck 'city_progress --check' $Python @((Join-DzPath $modDir 'assets' 'city_progress.py'), '--check')
     }

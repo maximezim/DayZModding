@@ -51,3 +51,6 @@ desktop.ini
 
 # failed layout runs (sky_layout.py writes *.FAILED.* next to the outputs)
 mods/*/placement/out*/*.FAILED.*
+
+# --- Terrain mapper outputs (map-derived data stays local, P80) ---
+/mods/SKY_Skyline/terrain/work/

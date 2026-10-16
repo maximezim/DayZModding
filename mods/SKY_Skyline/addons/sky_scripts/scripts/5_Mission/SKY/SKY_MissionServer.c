@@ -15,6 +15,7 @@ modded class MissionServer
 		SKY_CityLife.Stop();
 		SKY_CreatureLife.Stop();
 		SKY_Underground.Stop();
+		SKY_TerrainCapture.Abort();		// D104 perf M3: close a capture cut short by the mission end
 		super.OnMissionFinish();
 	}
 }

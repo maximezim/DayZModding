@@ -1,0 +1,35 @@
+# Terrain mapper project (D104): a 2.56 km Chernarus region around the test city, flattened under the city.
+#   1. Capture on the diag server (vanilla mission, no SKY city in objectSpawnersArr): copy
+#      terrain/projects/capture_request_cher_ne.json to server/profiles/diag-server/SKY_survey_request.json, start the
+#      server, wait for "terrain capture 'cher_ne' written" in the script log, then DELETE the request file.
+#   2. python mods/SKY_Skyline/terrain/terrain_mapper.py --project mods/SKY_Skyline/terrain/projects/chernarus_skyline.yaml
+#   3. Terrain Builder import of terrain/work/sky_cher_ne/ (TESTING section 62).
+# Map-derived outputs stay in terrain/work/ (git-ignored, P80).
+project: sky_cher_ne
+source:
+  capture: ../../../../server/profiles/diag-server/SKY_capture     # relative to this file
+  label: cher_ne
+  # heightmap: path/to/export.asc                                    # or an ESRI ASCII heightmap of a terrain you own
+grid:
+  cell: 2.5                          # output cell (m); 1024 x 1024 cells for this crop (square power of two, P79)
+  crop: [11000.0, 11300.0, 13557.5, 13857.5]
+  origin: zero                       # a new, smaller map starting at 0,0; "keep" keeps world coordinates
+sites:
+  - name: skyline_city
+    layout_out: ../../placement/out_city_chernarus   # sky_objects.json in world coordinates (target: spawner)
+    level: layout                    # pad at the layout's street level (objects keep their heights)
+    margin: 14                       # pad reaches this far past the hull of the layout objects (m)
+    max_slope: 0.5                   # embankment / cut slope added by the blend
+    min_blend: 25
+    surface: cp_concrete1
+    edge_surface: cp_grass_tall
+roads:
+  # Example access road from the south edge of the city to the airfield road: check the captured preview and
+  # adjust the points before building the terrain.
+  - name: south_access
+    points: [[12240.0, 12418.0], [12240.0, 12300.0], [12180.0, 12150.0]]
+    width: 8
+    shoulder: 10
+    max_grade: 0.08
+    surface: cp_gravel
+paint: []

@@ -28,3 +28,33 @@ Not done here, because it needs the Windows tools and your go-ahead on the map n
 Why the underground needs this: objectSpawnersArr places objects on the terrain surface, and a vanilla heightmap
 cannot be cut. The cut-and-cover pieces therefore sit in these trenches with their roofs just under street level.
 On vanilla maps the hatches stay sealed (D58).
+
+## Terrain mapper: modify an existing map (D104)
+
+Vanilla maps ship binarized, so they are never edited. The mapper captures a region of a vanilla map in-game, edits a
+copy (flat pads under the cities, graded roads, painted surfaces) and writes the Terrain Builder inputs for a new
+terrain mod (MOD_DEVELOPMENT_GUIDE 4.3 Level 2).
+
+1. **Capture** (diag server, vanilla mission, no players). Copy `projects/capture_request_cher_ne.json` to
+   `server\profiles\diag-server\SKY_survey_request.json` and start the server. `SKY_TerrainCapture.c` consumes the
+   request and writes `SKY_capture\<label>_heights.txt` (cm, north row first), `_surfaces.txt` (surface index per cell),
+   `_objects.txt` (`type;model;x;y;z;yaw;pitch;roll;scale`) and `_meta.json` (written last, `"complete": true`).
+   Bounds: cell 0.5-50 m, 4096 cells per axis, 4.3 M cells, 1.5 M objects. A whole Chernarus at 7.5 m fits.
+2. **Map** (any OS): `python mods/SKY_Skyline/terrain/terrain_mapper.py --project mods/SKY_Skyline/terrain/projects/chernarus_skyline.yaml`.
+   The project YAML lists:
+   - `source`: `capture` + `label`, or `heightmap` (an ESRI ASCII of a terrain you own);
+   - `grid`: output `cell`, `crop` rectangle, `origin: zero` for a new smaller map or `keep`;
+   - `sites`: `layout_out` (a placement output, world coordinates) or `polygon`; `level` (`layout` = street level,
+     `auto` = median ground, or metres), `margin`, `max_slope`, `min_blend`, `surface`, `edge_surface`;
+   - `roads`: `points`, `width`, `shoulder`, `max_grade`, `surface`;
+   - `paint`: `polygon` + `surface`.
+3. **Outputs** in `terrain/work/<project>/` (git-ignored, P80): `heightmap.asc`, `mask_lco.png`, `sat_lco.png`,
+   `layers.cfg`, `objects_import.txt` (Terrain Builder text import), `objects_world.csv`, `removed_objects.csv`,
+   `preview.png` (cut red / fill blue, pad yellow, roads green), `report.md` / `mapper.json` (earthworks and gates).
+   Map objects inside a pad or on a road deck are removed; the others follow the new ground. The layout's
+   `ClutterCutter*` objects are dropped (the pad's concrete surface has no clutter).
+4. **Terrain Builder** on Windows: TESTING section 62 (TM-04 to TM-07).
+
+Gates in the report: `pads_flat`, `road_grades`, `tile_surfaces` (<= 6 surfaces per 512-cell mask tile, P78),
+`grid_square_pow2`. Self-test: `python mods/SKY_Skyline/terrain/tests/test_terrain_mapper.py` (synthetic capture,
+also run by `Invoke-ModValidation.ps1`). Open points: P76-P81.
