@@ -56,6 +56,7 @@ Rules that do not change (CLAUDE.md):
 | **D104** terrain mapper | in-game capture of a vanilla map region (`SKY_TerrainCapture.c`) + `terrain/terrain_mapper.py`: flat pads under the cities, graded roads, painted surfaces, Terrain Builder inputs (`terrain/README.md`) | built-unverified (TESTING §62, P76-P81) |
 | **D105** street props 2 | phone booth, bus stop, billboard close-up (transparent glass, TELEFON-AVTOMAT sign, bench, gutter, footings) | built-unverified (TESTING TP-03) |
 | **D106** office props | desk (pedestal, monitor, keyboard), locker plates, round extinguisher | built-unverified (TESTING TP-04) |
+| **D107** street props 3 | street bin bags and heap, ad column dome / door / peeling poster | built-unverified (TESTING TP-05) |
 | **T2** terrain | survey a site or build the custom terrain (Terrain Builder import of `terrain/out`, P11, or of a mapped vanilla region: D104 terrain mapper), open the metro hatches. **Custom terrain for the metro and sewers is an open TODO, see the section below** | planned (after T1) |
 | **T3** perf | FPS protocol, server perf probe (B11), merged furniture if needed (D43) | planned (after T1) |
 

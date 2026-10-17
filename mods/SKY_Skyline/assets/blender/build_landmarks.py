@@ -975,10 +975,25 @@ def build_trash_bin():
     for zz in (z1 - 0.03, z0 + 0.2, z0 + 0.42):                                  # rim + ribs
         rr = r + 0.012 if zz > z1 - 0.1 else 0.82 * r + (r - 0.82 * r) * (zz - z0) / (z1 - z0) + 0.008
         L["res0"].prism(0.0, 0.0, rr, zz - 0.015, zz + 0.015, n=16, mat="metal", uv=DT.UV_STEEL)
-    L["res0"].prism(0.0, 0.0, r - 0.02, z1 - 0.06, z1 + 0.05, n=12, mat="trash", uv=UV_TRASH)                  # overflow
-    for i in range(3):
+    heap = [[((rr_ * (1 + 0.08 * math.sin(3 * t_ + 1.3))) * math.cos(t_), (rr_ * (1 + 0.08 * math.sin(3 * t_ + 1.3))) * math.sin(t_), z_)
+             for t_ in (2 * math.pi * k / 12 for k in range(12))]
+            for (z_, rr_) in ((z1 - 0.06, r - 0.02), (z1 + 0.03, r - 0.035), (z1 + 0.07, 0.15), (z1 + 0.09, 0.01))]
+    L["res0"].loft(heap, mat="trash", uv=UV_TRASH, caps=False)                    # D107: rubbish heap (lofted mound; base
+                                                                                  # inside the bucket, top closes to 1 cm)
+    for i in range(3):                                                            # D107: tied bags (lofted, knotted)
         a = 2 * math.pi * h01(name, "bag", i)
-        L["res0"].prism(0.18 * math.cos(a), 0.18 * math.sin(a), 0.1 + 0.03 * i, z1, z1 + 0.12 + 0.03 * i, n=7, mat="trash", uv=UV_TRASH)
+        bx, by, rb = 0.13 * math.cos(a), 0.13 * math.sin(a), 0.09 + 0.02 * i      # inside the r 0.27 collision
+        zb = z1 + 0.02
+        rings = []
+        for (dz, f) in ((0.0, 0.75), (0.04, 1.0), (0.09, 0.75), (0.12, 0.08)):  # top <= old prisms (sec L: no new cover)
+            rings.append([(bx + rb * f * (1 + 0.1 * math.sin(2 * t_ + i)) * math.cos(t_),
+                           by + rb * f * (1 + 0.1 * math.sin(2 * t_ + i)) * math.sin(t_), zb + dz)
+                          for t_ in (2 * math.pi * k / 8 for k in range(8))])
+        L["res0"].loft(rings, mat="trash", uv=UV_TRASH, caps=False)               # base in the heap, top under the knot
+        kz = zb + 0.12
+        for sx in (-1, 1):                                                        # knot ears
+            L["res0"].solid([(bx, by, kz), (bx + sx * 0.05, by - 0.01, kz + 0.04), (bx + sx * 0.05, by + 0.01, kz + 0.045),
+                             (bx + sx * 0.01, by, kz + 0.01)], [(0, 1, 2), (0, 2, 3), (0, 3, 1), (1, 3, 2)], "trash", UV_TRASH)
     L["res0"].solid([(-0.2, r - 0.02, z1 + 0.02), (0.2, r - 0.02, z1 + 0.02), (-0.2, r + 0.1, z1 + 0.32), (0.2, r + 0.1, z1 + 0.32),
                      (-0.2, r - 0.005, z1 + 0.02), (0.2, r - 0.005, z1 + 0.02), (-0.2, r + 0.115, z1 + 0.32), (0.2, r + 0.115, z1 + 0.32)],
                     [(0, 1, 3, 2), (4, 5, 7, 6), (0, 1, 5, 4), (2, 3, 7, 6), (0, 2, 6, 4), (1, 3, 7, 5)], "rust", green)   # rain flap, open

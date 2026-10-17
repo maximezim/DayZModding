@@ -625,3 +625,9 @@ concrete footings with cross-bracing. Where you can walk or shoot through now ma
 The office desks on every Tower A floor get a rounded top, a drawer pedestal, a slim monitor, a real keyboard, a
 mouse, a mug and a paper ream; lockers get door numbers; the extinguisher behind the glass is round. Nothing new to
 hide in, and loot still spawns on both ends of the desk.
+
+## 56. Street bins and advertising columns (D107)
+
+Overflowing street bins now show a lumpy rubbish heap and tied bin bags instead of blocks; advertising columns get
+a smooth dome, a little service door and a poster peeling off. This closes the street-prop list from the D101
+assessment.

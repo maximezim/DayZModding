@@ -188,8 +188,27 @@ def build_ad_column():
                                                                         (u0, (z_top - 0.45) / 2.1)])   # v up, u read from outside
     for (rr, z0, z1) in ((r + 0.08, 2.8, 2.88), (r + 0.12, 2.88, 2.96), (r + 0.06, 2.96, 3.0)):           # cornice
         L["res0"].prism(0.0, 0.0, rr, z0, z1, n=20, mat="paint", uv=DT.paint_uv("sage"))
-    for (rr, z0, z1) in ((r, 3.0, 3.12), (0.42, 3.12, 3.22), (0.26, 3.22, 3.3), (0.1, 3.3, 3.36)):           # dome
-        L["res0"].prism(0.0, 0.0, rr, z0, z1, n=16, mat="metal", uv=RUST_GREEN)
+    dome = [[(rr * math.cos(2 * math.pi * k / 20), rr * math.sin(2 * math.pi * k / 20), z_) for k in range(20)]
+            for (z_, rr) in ((3.0, r), (3.16, 0.45), (3.24, 0.32), (3.3, 0.18), (3.35, 0.03))]
+    L["res0"].loft(dome, mat="metal", uv=RUST_GREEN, caps=False)                  # D107: smooth domed cap (was terraced);
+                                                                                  # base on the cornice, top under the finial
+    # D107: a service door in the drum (frame strips, hinge side, lock) on the +x side, under the posters' torn band
+    for ang in (-0.32, 0.32):
+        cx_, cy_ = (r + 0.006) * math.cos(ang), (r + 0.006) * math.sin(ang)
+        L["res0"].box(cx_ - 0.012, cx_ + 0.012, cy_ - 0.012, cy_ + 0.012, 0.25, 0.42, mat="metal", uv=RUST_GREEN)
+    L["res0"].prism(r + 0.01, 0.12, 0.012, 0.33, 0.35, n=6, mat="metal", uv=DT.UV_STEEL, rot=0.0)
+    # D107: one poster sheet peeling off the drum, curling outwards
+    a0, a1 = 2 * math.pi * 7 / n, 2 * math.pi * 8 / n
+    flap = []
+    for j, (zz, off) in enumerate(((1.9, 0.012), (2.15, 0.035), (2.35, 0.09), (2.5, 0.16))):
+        rr = r * 1.004 + off
+        flap.append([(rr * math.cos(a0), rr * math.sin(a0), zz - 0.03 * j), (rr * math.cos(a1), rr * math.sin(a1), zz)])
+    for j in range(len(flap) - 1):
+        (p0, p1), (q0, q1) = flap[j], flap[j + 1]
+        mid = (a0 + a1) / 2
+        L["res0"].lod.quad([p0, p1, q1, q0], (math.cos(mid), math.sin(mid), 0.3), "billboard",
+                           lambda pts, nrm, j=j: [(0.4, 0.55 + 0.1 * j), (0.6, 0.55 + 0.1 * j), (0.6, 0.65 + 0.1 * j), (0.4, 0.65 + 0.1 * j)],
+                           double=True)
     L["res0"].prism(0.0, 0.0, 0.025, 3.36, 3.6, n=6, mat="metal", uv=DT.UV_STEEL)
     L["res1"].prism(0.0, 0.0, r + 0.1, 2.8, 3.3, n=8, mat="metal", uv=RUST_GREEN)
     L["res3"].prism(0.0, 0.0, r, 0.0, 3.2, n=4, mat="paint", uv=DT.paint_uv("sage"))
